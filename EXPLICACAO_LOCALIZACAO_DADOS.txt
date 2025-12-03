@@ -1,0 +1,68 @@
+📍 ONDE ESTÃO ARMAZENADAS AS IMAGENS E VÍDEOS DO VELOHUB:
+
+🗄️ LOCALIZAÇÃO COMPLETA:
+• Servidor: MongoDB Atlas (Cloud)
+• Database: console_conteudo
+• Collection: Velonews
+• Campo: images (Array) e videos (Array)
+
+📦 FORMATO:
+• As imagens e vídeos são convertidos para Base64 no frontend
+• São enviados via API (POST /api/velo-news)
+• São armazenados diretamente no MongoDB dentro do documento da notícia
+• NÃO há arquivos físicos no servidor - tudo fica no banco de dados
+
+🔍 COMO ACESSAR:
+1. MongoDB Atlas: https://cloud.mongodb.com
+2. Cluster: velohubcentral
+3. Database: console_conteudo
+4. Collection: Velonews
+5. Cada documento tem campos 'images' e 'videos' com arrays
+
+📊 ESTRUTURA DOS DADOS:
+Cada imagem/vídeo é um objeto com:
+• url: data:image/jpeg;base64,... (data URL completo)
+• data: base64string (base64 puro)
+• type: image/jpeg, video/mp4, etc
+• name: nome do arquivo original
+
+💾 TAMANHO:
+• Imagens: máx. 5MB cada (armazenado como base64 = ~6.65MB no banco)
+• Vídeos: máx. 10MB cada (armazenado como base64 = ~13.3MB no banco)
+• Base64 aumenta o tamanho em ~33%
+
+🔗 ROTAS DA API:
+• GET /api/velo-news - Busca notícias com imagens/vídeos
+• POST /api/velo-news - Cria notícia com imagens/vídeos
+• PUT /api/velo-news/:id - Atualiza notícia com imagens/vídeos
+
+📝 EXEMPLO DE DOCUMENTO NO MONGODB:
+{
+  "_id": ObjectId("..."),
+  "titulo": "Título da notícia",
+  "conteudo": "Conteúdo...",
+  "images": [
+    {
+      "url": "data:image/jpeg;base64,...",
+      "data": "base64string...",
+      "type": "image/jpeg",
+      "name": "foto.jpg"
+    }
+  ],
+  "videos": [
+    {
+      "url": "data:video/mp4;base64,...",
+      "data": "base64string...",
+      "type": "video/mp4",
+      "name": "video.mp4"
+    }
+  ],
+  "createdAt": ISODate("..."),
+  "updatedAt": ISODate("...")
+}
+
+✅ PADRÕES DE NOMENCLATURA:
+• images, videos (camelCase) - campos técnicos
+• url, data, type, name (camelCase) - campos técnicos
+• Seguindo padrão: camelCase para campos técnicos, snake_case para conteúdo em português
+
