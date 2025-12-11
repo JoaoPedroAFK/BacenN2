@@ -1,0 +1,44 @@
+═══════════════════════════════════════════════════════════════
+    SISTEMA DE GESTÃO DE DEMANDAS VELOTAX
+═══════════════════════════════════════════════════════════════
+
+📌 INSTRUÇÕES RÁPIDAS:
+
+1. Abra o arquivo "index.html" no seu navegador
+   (Chrome, Edge ou Firefox)
+
+2. Faça login com:
+   Usuário: admin
+   Senha: admin123
+
+3. Escolha uma das áreas:
+   - BACEN (Reclamações Banco Central)
+   - N2 (Portabilidade)
+   - Chatbot (Demandas do chatbot)
+
+═══════════════════════════════════════════════════════════════
+
+⚠️ IMPORTANTE:
+- Não precisa instalar nada
+- Funciona offline após o primeiro carregamento
+- Use um navegador moderno (Chrome, Edge, Firefox)
+
+═══════════════════════════════════════════════════════════════
+
+Para instruções detalhadas, consulte o arquivo:
+INSTRUCOES_INSTALACAO.md
+
+═══════════════════════════════════════════════════════════════
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,560 @@
+/* === TEMA ESCURO - SISTEMA BACEN === */
+
+/* === APLICAR TEMA ESCURO NO BODY === */
+.dark body {
+  background-color: var(--cor-fundo-escuro);
+  color: var(--texto-principal-escuro);
+}
+
+/* === CONTAINERS NO TEMA ESCURO === */
+.dark .velohub-container {
+  background-color: var(--cor-container-escuro);
+  box-shadow: 0 4px 20px var(--sombra-escura);
+}
+
+.dark .velohub-card {
+  background-color: var(--cor-card-escuro);
+  border: 1px solid var(--borda-escura);
+  box-shadow: 0 8px 32px var(--sombra-escura);
+}
+
+.dark .velohub-card:hover {
+  border-color: var(--blue-light);
+  box-shadow: 0 20px 40px var(--sombra-escura);
+}
+
+/* === HEADER NO TEMA ESCURO === */
+.dark .velohub-header {
+  background: linear-gradient(135deg, #000058 0%, #1634FF 100%);
+  border-bottom: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.dark .velohub-header h1,
+.dark .header-logo h1 {
+  color: #FFFFFF !important;
+}
+
+/* === NAVEGAÇÃO NO TEMA ESCURO === */
+.dark .nav-menu {
+  background-color: var(--cor-container-escuro);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dark .nav-btn {
+  color: var(--texto-secundario-escuro);
+}
+
+.dark .nav-btn:hover {
+  background: rgba(22, 148, 255, 0.15);
+  color: var(--azul-claro);
+}
+
+.dark .nav-btn.active {
+  background: linear-gradient(135deg, var(--azul-royal), var(--azul-claro));
+  color: var(--texto-claro);
+  box-shadow: 0 4px 12px rgba(22, 148, 255, 0.4);
+}
+
+/* === TEXTOS NO TEMA ESCURO === */
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+  color: #FFFFFF !important;
+}
+
+.dark p, .dark span, .dark div, .dark li {
+  color: #ECECEC !important;
+}
+
+/* Garantir texto branco em fundos azuis/escuros */
+.dark .velohub-header h1,
+.dark .header-logo h1 {
+  color: #FFFFFF !important;
+}
+
+.dark .stat-card,
+.dark .velohub-card,
+.dark .segment-card {
+  color: #ECECEC !important;
+}
+
+.dark .stat-card h3,
+.dark .velohub-card h3,
+.dark .segment-card h3 {
+  color: #FFFFFF !important;
+}
+
+.dark .highlight, .dark .accent {
+  color: var(--texto-destaque-escuro);
+}
+
+/* === BOTÕES NO TEMA ESCURO === */
+.dark .velohub-btn {
+  background: var(--blue-medium);
+  color: var(--texto-principal-escuro);
+  border: 1px solid var(--borda-escura);
+}
+
+.dark .velohub-btn:hover {
+  background: var(--blue-light);
+  box-shadow: 0 4px 12px var(--sombra-escura);
+}
+
+.dark .btn-secondary {
+  background: var(--blue-opaque);
+}
+
+.dark .btn-secondary:hover {
+  background: var(--blue-dark);
+}
+
+/* === INPUTS NO TEMA ESCURO === */
+.dark .velohub-input {
+  background: var(--cor-container-escuro);
+  color: #FFFFFF !important;
+  border: 1px solid var(--borda-escura);
+}
+
+.dark .velohub-input:focus {
+  border-color: #1634FF;
+  box-shadow: 0 0 0 3px rgba(22, 52, 255, 0.2);
+}
+
+.dark .velohub-input::placeholder {
+  color: var(--texto-secundario-escuro);
+}
+
+/* === FORMULÁRIO NO TEMA ESCURO === */
+.dark .complaint-form {
+  background: var(--cor-card-escuro);
+  border: 1px solid var(--borda-escura);
+  box-shadow: 0 4px 20px var(--sombra-escura);
+}
+
+.dark .form-section {
+  background: var(--cor-fundo-escuro);
+  border: 1px solid var(--borda-escura);
+}
+
+.dark .form-section h3 {
+  color: var(--texto-principal-escuro);
+  border-bottom-color: var(--blue-opaque);
+}
+
+.dark .form-group label {
+  color: var(--texto-principal-escuro);
+}
+
+/* === MÓDULO DE CONTATO NO TEMA ESCURO === */
+.dark .checkbox-label {
+  color: var(--texto-principal-escuro);
+}
+
+.dark .checkbox-label:hover {
+  color: var(--blue-light);
+}
+
+.dark .checkmark {
+  border-color: var(--borda-escura);
+}
+
+.dark .checkbox-label input[type="checkbox"]:checked + .checkmark {
+  background: var(--blue-medium);
+  border-color: var(--blue-medium);
+}
+
+/* === PROTOCOLOS E TENTATIVAS NO TEMA ESCURO === */
+.dark .protocolo-item,
+.dark .tentativa-item {
+  background: var(--cor-container-escuro);
+  border: 1px solid var(--borda-escura);
+}
+
+.dark .protocolo-item .form-row {
+  margin-bottom: 0;
+}
+
+.dark .protocolo-item .btn-remove,
+.dark .tentativa-item .btn-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+/* === LISTA DE RECLAMAÇÕES NO TEMA ESCURO === */
+.dark .complaint-item {
+  background: var(--cor-card-escuro);
+  border: 1px solid var(--borda-escura);
+  box-shadow: 0 4px 20px var(--sombra-escura);
+}
+
+.dark .complaint-item:hover {
+  box-shadow: 0 12px 32px var(--sombra-escura);
+}
+
+.dark .complaint-title {
+  color: var(--texto-principal-escuro);
+}
+
+.dark .complaint-detail {
+  color: var(--texto-secundario-escuro);
+}
+
+.dark .complaint-detail strong {
+  color: var(--texto-destaque-escuro);
+}
+
+.dark .complaint-details {
+  background: var(--cor-fundo-escuro);
+}
+
+/* === DASHBOARD NO TEMA ESCURO === */
+.dark .stat-card {
+  background: var(--cor-card-escuro);
+  border: 1px solid var(--borda-escura);
+  box-shadow: 0 4px 20px var(--sombra-escura);
+}
+
+.dark .stat-card:hover {
+  box-shadow: 0 12px 32px var(--sombra-escura);
+}
+
+.dark .stat-card h3 {
+  color: var(--texto-principal-escuro);
+}
+
+.dark .stat-number {
+  color: var(--azul-ciano) !important;
+  -webkit-text-fill-color: var(--azul-ciano) !important;
+  background: none !important;
+  background-clip: unset !important;
+  -webkit-background-clip: unset !important;
+}
+
+.dark .stat-card .stat-number {
+  color: var(--azul-ciano) !important;
+  -webkit-text-fill-color: var(--azul-ciano) !important;
+}
+
+/* === RELATÓRIOS NO TEMA ESCURO === */
+.dark .report-card {
+  background: var(--cor-card-escuro);
+  border: 1px solid var(--borda-escura);
+  box-shadow: 0 4px 20px var(--sombra-escura);
+}
+
+.dark .report-card:hover {
+  box-shadow: 0 12px 32px var(--sombra-escura);
+}
+
+.dark .report-card h3 {
+  color: var(--texto-principal-escuro);
+}
+
+.dark .report-card p {
+  color: var(--texto-secundario-escuro);
+}
+
+.dark .report-content {
+  background: var(--cor-card-escuro);
+  border: 1px solid var(--borda-escura);
+  box-shadow: 0 4px 20px var(--sombra-escura);
+}
+
+/* === CONTROLES DE LISTA NO TEMA ESCURO === */
+.dark .list-controls {
+  color: var(--texto-principal-escuro);
+}
+
+/* === BOTÃO DE TEMA NO TEMA ESCURO === */
+.dark .theme-toggle-btn {
+  background: var(--blue-light);
+  box-shadow: 0 4px 12px var(--sombra-escura);
+}
+
+.dark .theme-toggle-btn:hover {
+  background: var(--blue-medium);
+}
+
+/* === MODAL NO TEMA ESCURO === */
+.dark .velohub-modal {
+  background-color: var(--cor-card-escuro);
+  box-shadow: 0 4px 20px var(--sombra-escura);
+}
+
+.dark .modal-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* === ALERTAS NO TEMA ESCURO === */
+.dark .alert-success {
+  background: rgba(21, 87, 36, 0.2);
+  color: #90ee90;
+  border-color: #15a237;
+}
+
+.dark .alert-error {
+  background: rgba(114, 28, 36, 0.2);
+  color: #ff6b6b;
+  border-color: #ff4757;
+}
+
+.dark .alert-warning {
+  background: rgba(133, 100, 4, 0.2);
+  color: #ffd93d;
+  border-color: #fcc200;
+}
+
+.dark .alert-info {
+  background: rgba(12, 84, 96, 0.2);
+  color: #74c0fc;
+  border-color: #1694ff;
+}
+
+/* === DROPDOWN NO TEMA ESCURO === */
+.dark .dropdown-toggle {
+  background: var(--cor-container-escuro);
+  color: var(--texto-principal-escuro);
+  border-color: var(--borda-escura);
+}
+
+.dark .dropdown-toggle:hover {
+  border-color: var(--blue-light);
+}
+
+.dark .dropdown-menu {
+  background: var(--cor-card-escuro);
+  border: 1px solid var(--borda-escura);
+  box-shadow: 0 4px 12px var(--sombra-escura);
+}
+
+.dark .dropdown-item {
+  color: var(--texto-principal-escuro);
+  border-bottom-color: var(--borda-escura);
+}
+
+.dark .dropdown-item:hover {
+  background: var(--cor-fundo-escuro);
+}
+
+/* === ACCORDION NO TEMA ESCURO === */
+.dark .accordion {
+  border-color: var(--borda-escura);
+}
+
+.dark .accordion-header {
+  background: var(--cor-fundo-escuro);
+  color: var(--texto-principal-escuro);
+  border-bottom-color: var(--borda-escura);
+}
+
+.dark .accordion-header:hover {
+  background: var(--cor-container-escuro);
+}
+
+.dark .accordion-header.active {
+  background: var(--blue-medium);
+  color: var(--texto-principal-escuro);
+}
+
+.dark .accordion-content {
+  background: var(--cor-card-escuro);
+}
+
+/* === TABS NO TEMA ESCURO === */
+.dark .tabs {
+  border-bottom-color: var(--borda-escura);
+}
+
+.dark .tab-btn {
+  color: var(--texto-secundario-escuro);
+}
+
+.dark .tab-btn:hover {
+  color: var(--blue-light);
+}
+
+.dark .tab-btn.active {
+  color: var(--texto-destaque-escuro);
+  border-bottom-color: var(--blue-light);
+}
+
+/* === PAGINAÇÃO NO TEMA ESCURO === */
+.dark .pagination-btn {
+  background: var(--cor-container-escuro);
+  color: var(--texto-principal-escuro);
+  border-color: var(--borda-escura);
+}
+
+.dark .pagination-btn:hover {
+  background: var(--blue-medium);
+  color: var(--texto-principal-escuro);
+}
+
+.dark .pagination-btn.active {
+  background: var(--blue-medium);
+  color: var(--texto-principal-escuro);
+}
+
+.dark .pagination-btn:disabled {
+  background: var(--cor-fundo-escuro);
+  color: var(--texto-secundario-escuro);
+  border-color: var(--borda-escura);
+}
+
+/* === TOOLTIP NO TEMA ESCURO === */
+.dark .tooltip .tooltiptext {
+  background-color: var(--gray);
+  color: var(--texto-principal-escuro);
+}
+
+.dark .tooltip .tooltiptext::after {
+  border-top-color: var(--gray);
+}
+
+/* === PROGRESS BAR NO TEMA ESCURO === */
+.dark .progress {
+  background-color: var(--cor-fundo-escuro);
+}
+
+/* === BADGES NO TEMA ESCURO === */
+.dark .badge-primary {
+  background: var(--blue-medium);
+  color: var(--texto-principal-escuro);
+}
+
+.dark .badge-success {
+  background: var(--green);
+  color: var(--texto-principal-escuro);
+}
+
+.dark .badge-warning {
+  background: var(--yellow);
+  color: var(--gray);
+}
+
+.dark .badge-danger {
+  background: #ff4757;
+  color: var(--texto-principal-escuro);
+}
+
+.dark .badge-info {
+  background: var(--blue-opaque);
+  color: var(--texto-principal-escuro);
+}
+
+/* === STATUS BADGES NO TEMA ESCURO === */
+.dark .status-nao-iniciado {
+  background: rgba(108, 117, 125, 0.2);
+  color: #adb5bd;
+  border-color: #6c757d;
+}
+
+.dark .status-em-tratativa {
+  background: rgba(133, 100, 4, 0.2);
+  color: #ffd93d;
+  border-color: #fcc200;
+}
+
+.dark .status-concluido {
+  background: rgba(21, 87, 36, 0.2);
+  color: #90ee90;
+  border-color: #15a237;
+}
+
+.dark .status-respondido {
+  background: rgba(12, 84, 96, 0.2);
+  color: #74c0fc;
+  border-color: #1694ff;
+}
+
+/* === SELEÇÃO DE TEXTO NO TEMA ESCURO === */
+.dark ::selection {
+  background: var(--blue-medium);
+  color: var(--texto-principal-escuro);
+}
+
+.dark ::-moz-selection {
+  background: var(--blue-medium);
+  color: var(--texto-principal-escuro);
+}
+
+/* === SCROLLBAR NO TEMA ESCURO === */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: var(--cor-fundo-escuro);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--blue-opaque);
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--blue-medium);
+}
+
+/* === FOCO NO TEMA ESCURO === */
+.dark *:focus {
+  outline: 2px solid var(--blue-light);
+  outline-offset: 2px;
+}
+
+/* === RELATÓRIOS NO TEMA ESCURO === */
+.dark .report-table table {
+  background: var(--cor-card-escuro);
+  box-shadow: 0 2px 8px var(--sombra-escura);
+}
+
+.dark .report-table th {
+  background: var(--blue-medium);
+  color: var(--texto-principal-escuro);
+}
+
+.dark .report-table td {
+  color: var(--texto-secundario-escuro);
+  border-bottom-color: var(--borda-escura);
+}
+
+.dark .report-table tr:hover {
+  background: var(--cor-fundo-escuro);
+}
+
+.dark .status-item,
+.dark .responsible-item {
+  background: var(--cor-card-escuro);
+  box-shadow: 0 2px 8px var(--sombra-escura);
+}
+
+.dark .status-label,
+.dark .responsible-label {
+  color: var(--texto-principal-escuro);
+}
+
+.dark .status-bar,
+.dark .responsible-bar {
+  background: var(--cor-fundo-escuro);
+}
+
+.dark .status-count,
+.dark .responsible-count {
+  color: var(--texto-destaque-escuro);
+}
+
+.dark .no-results {
+  background: var(--cor-card-escuro);
+  color: var(--texto-secundario-escuro);
+  box-shadow: 0 2px 8px var(--sombra-escura);
+}
+
+.dark .tentativa-detail {
+  color: var(--texto-secundario-escuro);
+}
+
+/* === TRANSIÇÕES SUAVES === */
+.dark * {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

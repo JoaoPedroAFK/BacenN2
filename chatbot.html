@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão Chatbot - Sistema Velotax</title>
+    
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/theme-dark.css">
+    
+    <style>
+        /* Estilos específicos Chatbot */
+        .chatbot-header {
+            background: linear-gradient(135deg, #FF8400 0%, #FF00D7 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .chatbot-card {
+            border-left: 4px solid #FF8400;
+        }
+        
+        .chatbot-badge {
+            background: #FF8400;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="velohub-header">
+        <div class="header-content">
+                <div class="header-logo">
+                    <img src="img/velotax_ajustada_branco.png" alt="Velotax" class="logo-header">
+                    <h1>Chatbot</h1>
+                </div>
+            <div class="header-actions">
+                <a href="index.html" class="velohub-btn btn-secondary" style="text-decoration: none; color: white; margin-right: 12px;">🏠 Voltar à Home</a>
+                <button class="theme-toggle-btn" onclick="toggleTheme()">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navegação -->
+    <nav class="nav">
+        <button class="nav-btn active" onclick="mostrarSecao('dashboard-chatbot')">📊 Dashboard</button>
+        <button class="nav-btn" onclick="mostrarSecao('nova-ficha-chatbot')">➕ Nova Ficha Chatbot</button>
+        <button class="nav-btn" onclick="mostrarSecao('lista-chatbot')">📋 Lista de Fichas</button>
+        <button class="nav-btn" onclick="mostrarSecao('relatorios-chatbot')">📈 Relatórios</button>
+    </nav>
+
+    <!-- Container Principal -->
+    <main class="velohub-container">
+        <!-- Dashboard Chatbot -->
+        <section id="dashboard-chatbot" class="section active">
+            <div class="chatbot-header">
+                <h2>📊 Dashboard Chatbot</h2>
+                <p>Métricas e estatísticas das demandas originadas no chatbot</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card chatbot-card">
+                    <h3>Total de Fichas Chatbot</h3>
+                    <span class="stat-number" id="chatbot-total-dash">0</span>
+                </div>
+                <div class="stat-card chatbot-card">
+                    <h3>Resolvidas Automaticamente</h3>
+                    <span class="stat-number" id="chatbot-auto-resolvidas">0</span>
+                </div>
+                <div class="stat-card chatbot-card">
+                    <h3>Encaminhadas para Humano</h3>
+                    <span class="stat-number" id="chatbot-encaminhadas">0</span>
+                </div>
+                <div class="stat-card chatbot-card">
+                    <h3>Taxa de Satisfação</h3>
+                    <span class="stat-number" id="chatbot-satisfacao">0%</span>
+                </div>
+            </div>
+
+            <!-- Métricas Específicas Chatbot -->
+            <div class="metricas-chatbot">
+                <h3>📊 Métricas Específicas Chatbot</h3>
+                <div class="metricas-grid">
+                    <div class="metrica-card">
+                        <h4>Taxa de Resolução Automática</h4>
+                        <div class="metrica-valor" id="taxa-auto-chatbot">0%</div>
+                    </div>
+                    <div class="metrica-card">
+                        <h4>Canal Mais Usado</h4>
+                        <div class="metrica-valor" id="canal-mais-usado">-</div>
+                    </div>
+                    <div class="metrica-card">
+                        <h4>Média de Satisfação</h4>
+                        <div class="metrica-valor" id="media-satisfacao">0.0</div>
+                    </div>
+                    <div class="metrica-card">
+                        <h4>Tempo Médio de Resposta</h4>
+                        <div class="metrica-valor" id="tempo-resposta-chatbot">0 min</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos Chatbot -->
+            <div class="graficos-chatbot">
+                <div class="grafico-card">
+                    <h3>Resolução Automática vs Humana</h3>
+                    <div id="grafico-resolucao-chatbot"></div>
+                </div>
+                <div class="grafico-card">
+                    <h3>Distribuição por Canal</h3>
+                    <div id="grafico-canais-chatbot"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Nova Ficha Chatbot -->
+        <section id="nova-ficha-chatbot" class="section">
+            <div class="chatbot-header">
+                <h2>➕ Nova Ficha Chatbot</h2>
+                <p>Registre uma nova demanda originada no chatbot</p>
+            </div>
+            
+            <form id="form-chatbot" class="complaint-form">
+                <!-- Dados Básicos -->
+                <div class="form-section">
+                    <h3>📋 Dados Básicos</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chatbot-data-cliente">Data do cliente com o chatbot *</label>
+                            <input type="date" id="chatbot-data-cliente" class="velohub-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="chatbot-cpf">CPF *</label>
+                            <input type="text" id="chatbot-cpf" class="velohub-input cpf-mask" required placeholder="000.000.000-00">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalhes da Avaliação -->
+                <div class="form-section">
+                    <h3>⭐ Detalhes da Avaliação</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chatbot-nota-avaliacao">Nota de Avaliação</label>
+                            <select id="chatbot-nota-avaliacao" class="velohub-input">
+                                <option value="">Selecione...</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="chatbot-produto">Produto</label>
+                            <select id="chatbot-produto" class="velohub-input">
+                                <option value="">Selecione...</option>
+                                <option value="Antecipação">Antecipação</option>
+                                <option value="Aplicativo">Aplicativo</option>
+                                <option value="Calculadora">Calculadora</option>
+                                <option value="Crédito do Trabalhador">Crédito do Trabalhador</option>
+                                <option value="Empréstimo Pessoal">Empréstimo Pessoal</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chatbot-motivo">Motivo</label>
+                            <select id="chatbot-motivo" class="velohub-input">
+                                <option value="">Selecione...</option>
+                                <option value="Calculadora">Calculadora</option>
+                                <option value="Chave PIX">Chave PIX</option>
+                                <option value="Conta">Conta</option>
+                                <option value="Débito em Aberto">Débito em Aberto</option>
+                                <option value="Elegibilidade">Elegibilidade</option>
+                                <option value="Encerramento da Cadastro">Encerramento da Cadastro</option>
+                                <option value="Erros – Bugs">Erros – Bugs</option>
+                                <option value="Fraude">Fraude</option>
+                                <option value="Open Finance">Open Finance</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Resposta do Bot</label>
+                            <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                <label class="radio-label">
+                                    <input type="radio" name="chatbot-resposta-bot" value="Sim">
+                                    <span>Sim</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="chatbot-resposta-bot" value="Não">
+                                    <span>Não</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="chatbot-avaliacao-cliente">Avaliação do Cliente (Observações)</label>
+                        <textarea id="chatbot-avaliacao-cliente" class="velohub-input" rows="4" placeholder="Digite a avaliação do cliente..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Liberação do PIX -->
+                <div class="form-section">
+                    <h3>💳 Liberação do PIX</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chatbot-pix-status">PIX liberado ou excluído?</label>
+                            <select id="chatbot-pix-status" class="velohub-input">
+                                <option value="">Selecione...</option>
+                                <option value="Liberado">Liberado</option>
+                                <option value="Excluído">Excluído</option>
+                                <option value="Não Aplicável">Não Aplicável</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Enviar para cobrança?</label>
+                            <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                <label class="radio-label">
+                                    <input type="radio" name="chatbot-enviar-cobranca" value="Sim">
+                                    <span>Sim</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="chatbot-enviar-cobranca" value="Não">
+                                    <span>Não</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="chatbot-casos-criticos">
+                            <span class="checkmark"></span>
+                            Casos Críticos (Blacklist)
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Resolução -->
+                <div class="form-section">
+                    <h3>✅ Resolução</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Finalização</label>
+                            <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                <label class="radio-label">
+                                    <input type="radio" name="chatbot-finalizacao" value="Sim">
+                                    <span>Sim</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="chatbot-finalizacao" value="Não">
+                                    <span>Não</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="chatbot-responsavel">Responsável *</label>
+                            <select id="chatbot-responsavel" class="velohub-input" required>
+                                <option value="">Selecione...</option>
+                                <option value="Shirley">Shirley</option>
+                                <option value="Vanessa">Vanessa</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="chatbot-observacoes">Observações</label>
+                        <textarea id="chatbot-observacoes" class="velohub-input" rows="4" placeholder="Digite as observações..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="velohub-btn">💾 Salvar Ficha Chatbot</button>
+                    <button type="button" class="velohub-btn btn-secondary" onclick="limparFormChatbot()">🗑️ Limpar</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Lista de Fichas Chatbot -->
+        <section id="lista-chatbot" class="section">
+            <div class="chatbot-header">
+                <h2>📋 Lista de Fichas Chatbot</h2>
+                <p>Todas as demandas originadas no chatbot</p>
+            </div>
+            
+            <div class="list-controls">
+                <div class="search-box">
+                    <input type="text" id="busca-chatbot" class="velohub-input" placeholder="🔍 Buscar por nome, CPF ou motivo...">
+                </div>
+                <div class="filter-controls">
+                    <select id="filtro-status-chatbot" class="velohub-input">
+                        <option value="">Todos os Status</option>
+                        <option value="nao-iniciado">Não Iniciado</option>
+                        <option value="em-tratativa">Em Tratativa</option>
+                        <option value="concluido">Concluído</option>
+                        <option value="respondido">Respondido</option>
+                    </select>
+                    <select id="filtro-canal-chatbot" class="velohub-input">
+                        <option value="">Todos os Canais</option>
+                        <option value="whatsapp">WhatsApp</option>
+                        <option value="telegram">Telegram</option>
+                        <option value="site">Site</option>
+                        <option value="app">App</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="lista-fichas-chatbot" class="complaints-list">
+                <!-- Lista será populada dinamicamente -->
+            </div>
+        </section>
+
+        <!-- Relatórios Chatbot -->
+        <section id="relatorios-chatbot" class="section">
+            <div class="chatbot-header">
+                <h2>📈 Relatórios Chatbot</h2>
+                <p>Relatórios específicos para demandas do chatbot</p>
+            </div>
+            
+            <div class="reports-grid">
+                <div class="report-card">
+                    <h3>📊 Relatório por Período</h3>
+                    <p>Análise temporal das demandas</p>
+                    <button class="velohub-btn" onclick="gerarRelatorioPeriodoChatbot()">Gerar Relatório</button>
+                </div>
+                <div class="report-card">
+                    <h3>🤖 Relatório de Resolução Automática</h3>
+                    <p>Fichas resolvidas automaticamente</p>
+                    <button class="velohub-btn" onclick="gerarRelatorioAutoChatbot()">Gerar Relatório</button>
+                </div>
+                <div class="report-card">
+                    <h3>⭐ Relatório de Satisfação</h3>
+                    <p>Análise de satisfação dos clientes</p>
+                    <button class="velohub-btn" onclick="gerarRelatorioSatisfacaoChatbot()">Gerar Relatório</button>
+                </div>
+                <div class="report-card">
+                    <h3>📋 Relatório Completo</h3>
+                    <p>Todas as fichas Chatbot</p>
+                    <button class="velohub-btn" onclick="gerarRelatorioCompletoChatbot()">Gerar Relatório</button>
+                </div>
+            </div>
+            
+            <div id="conteudo-relatorio-chatbot" class="report-content" style="display: none;">
+                <!-- Conteúdo do relatório será exibido aqui -->
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript -->
+    <script src="js/loading.js"></script>
+    <script src="js/validador-velotax.js"></script>
+    <script src="js/auth-system.js"></script>
+    <script src="js/gerenciador-fichas-perfil.js"></script>
+    <script src="js/gerenciador-anexos.js"></script>
+    <script src="js/fichas-especificas.js"></script>
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/graficos-detalhados.js"></script>
+    <script src="js/lista-casos-abertos.js"></script>
+    <script src="js/filtros-exportacao-csv.js"></script>
+    <script src="js/chatbot-page.js"></script>
+</body>
+</html>
+

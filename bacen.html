@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão BACEN - Sistema Velotax</title>
+    
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/theme-dark.css">
+    
+    <style>
+        /* Estilos específicos BACEN */
+        .bacen-header {
+            background: linear-gradient(135deg, #000058 0%, #1634FF 100%);
+            color: white !important;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .bacen-header h2,
+        .bacen-header h3,
+        .bacen-header p {
+            color: white !important;
+        }
+        
+        .bacen-card {
+            border-left: 4px solid #1634FF;
+        }
+        
+        .bacen-badge {
+            background: #1634FF;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="velohub-header">
+        <div class="header-content">
+                <div class="header-logo">
+                    <img src="img/velotax_ajustada_branco.png" alt="Velotax" class="logo-header">
+                    <h1>BACEN</h1>
+                </div>
+            <div class="header-actions">
+                <span id="alertas-badge" class="alertas-badge" style="display: none;">0</span>
+                <a href="index.html" class="velohub-btn btn-secondary" style="text-decoration: none; color: white; margin-right: 12px;">🏠 Voltar à Home</a>
+                <button class="theme-toggle-btn" onclick="toggleTheme()">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navegação -->
+    <nav class="nav">
+        <button class="nav-btn active" onclick="mostrarSecao('dashboard-bacen')">📊 Dashboard</button>
+        <button class="nav-btn" onclick="mostrarSecao('nova-ficha-bacen')">➕ Nova Ficha BACEN</button>
+        <button class="nav-btn" onclick="mostrarSecao('lista-bacen')">📋 Lista de Fichas</button>
+        <button class="nav-btn" onclick="mostrarSecao('relatorios-bacen')">📈 Relatórios</button>
+    </nav>
+
+    <!-- Container Principal -->
+    <main class="velohub-container">
+        <!-- Dashboard BACEN -->
+        <section id="dashboard-bacen" class="section active">
+            <div class="bacen-header">
+                <h2>📊 Dashboard BACEN</h2>
+                <p>Métricas e estatísticas das reclamações do Banco Central</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card bacen-card">
+                    <h3>Total de Fichas BACEN</h3>
+                    <span class="stat-number" id="bacen-total-dash">0</span>
+                </div>
+                <div class="stat-card bacen-card">
+                    <h3>Em Tratativa</h3>
+                    <span class="stat-number" id="bacen-tratativa-dash">0</span>
+                </div>
+                <div class="stat-card bacen-card">
+                    <h3>Concluídas</h3>
+                    <span class="stat-number" id="bacen-concluidas-dash">0</span>
+                </div>
+                <div class="stat-card bacen-card">
+                    <h3>Prazo Vencendo</h3>
+                    <span class="stat-number" id="bacen-prazo-vencendo">0</span>
+                </div>
+            </div>
+
+            <!-- Métricas Específicas BACEN -->
+            <div class="metricas-bacen">
+                <h3>📊 Métricas Específicas BACEN</h3>
+                <div class="metricas-grid">
+                    <div class="metrica-card">
+                        <h4>Taxa de Resolução</h4>
+                        <div class="metrica-valor" id="taxa-resolucao-bacen">0%</div>
+                    </div>
+                    <div class="metrica-card">
+                        <h4>Média de Prazo</h4>
+                        <div class="metrica-valor" id="media-prazo-bacen">0 dias</div>
+                    </div>
+                    <div class="metrica-card">
+                        <h4>Com Procon</h4>
+                        <div class="metrica-valor" id="com-procon-bacen">0</div>
+                    </div>
+                    <div class="metrica-card">
+                        <h4>Liquidação Antecipada</h4>
+                        <div class="metrica-valor" id="liquidacao-bacen">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard de Urgências -->
+            <div class="dashboard-urgencias-section">
+                <h3>Urgentes</h3>
+                <div id="dashboard-urgencias"></div>
+            </div>
+
+            <!-- Gráficos BACEN -->
+            <div class="graficos-bacen">
+                <div class="grafico-card">
+                    <h3>Status das Reclamações</h3>
+                    <div id="grafico-status-bacen"></div>
+                </div>
+                <div class="grafico-card">
+                    <h3>Reclamações por Mês</h3>
+                    <div id="grafico-mensal-bacen"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Nova Ficha BACEN -->
+        <section id="nova-ficha-bacen" class="section">
+            <div class="bacen-header">
+                <h2>➕ Nova Ficha BACEN</h2>
+                <p>Registre uma nova reclamação do Banco Central</p>
+            </div>
+            
+            <form id="form-bacen" class="complaint-form">
+                <!-- Detalhes da Reclamação (PRIMEIRA SEÇÃO) -->
+                <div class="form-section">
+                    <h3>🎯 Detalhes da Reclamação</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bacen-motivo-reduzido">Motivo Reduzido *</label>
+                            <select id="bacen-motivo-reduzido" class="velohub-input" required>
+                                <option value="">Selecione...</option>
+                                <option value="CHAVE PIX">CHAVE PIX</option>
+                                <option value="Abatimento Juros">Abatimento Juros</option>
+                                <option value="Não recebeu restituição">Não recebeu restituição</option>
+                                <option value="Probl. App / Gov.">Probl. App / Gov.</option>
+                                <option value="Conta">Conta</option>
+                                <option value="Cancelamento Conta">Cancelamento Conta</option>
+                                <option value="Liquidação Antecipada">Liquidação Antecipada</option>
+                                <option value="Fraude">Fraude</option>
+                                <option value="Superendividamento">Superendividamento</option>
+                                <option value="Devolução à Celcoin">Devolução à Celcoin</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bacen-prazo-bacen">Prazo BACEN <span id="prazo-bacen-obrigatorio" style="display:none;">*</span></label>
+                            <input type="date" id="bacen-prazo-bacen" class="velohub-input">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bacen-motivo-detalhado">Motivo da Reclamação *</label>
+                        <textarea id="bacen-motivo-detalhado" class="velohub-input" rows="4" placeholder="Descreva detalhadamente a reclamação..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="bacen-anexos">📎 Anexar Documentos (PDFs e Imagens)</label>
+                        <input type="file" id="bacen-anexos" class="velohub-input" multiple accept=".pdf,.jpg,.jpeg,.png,.gif,.webp" onchange="gerenciadorAnexos.handleUpload(event, 'anexos-preview-bacen')">
+                        <small class="form-hint">Você pode anexar múltiplos arquivos. Tamanho máximo: 10MB por arquivo.</small>
+                        <div id="anexos-preview-bacen" class="anexos-preview-container"></div>
+                    </div>
+                </div>
+
+                <!-- Dados Básicos -->
+                <div class="form-section">
+                    <h3>📋 Dados Básicos</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bacen-data-entrada">Data de Entrada *</label>
+                            <input type="date" id="bacen-data-entrada" class="velohub-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bacen-responsavel">Responsável *</label>
+                            <select id="bacen-responsavel" class="velohub-input" required>
+                                <option value="">Selecione...</option>
+                                <option value="Shirley">Shirley</option>
+                                <option value="Vanessa">Vanessa</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bacen-mes">Mês *</label>
+                            <select id="bacen-mes" class="velohub-input" required>
+                                <option value="">Selecione...</option>
+                                <option value="1/2025">1/2025</option>
+                                <option value="2/2025">2/2025</option>
+                                <option value="3/2025">3/2025</option>
+                                <option value="4/2025">4/2025</option>
+                                <option value="5/2025">5/2025</option>
+                                <option value="6/2025">6/2025</option>
+                                <option value="7/2025">7/2025</option>
+                                <option value="8/2025">8/2025</option>
+                                <option value="9/2025">9/2025</option>
+                                <option value="10/2025">10/2025</option>
+                                <option value="11/2025">11/2025</option>
+                                <option value="12/2025">12/2025</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dados do Cliente -->
+                <div class="form-section">
+                    <h3>👤 Dados do Cliente</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bacen-nome">Nome Completo *</label>
+                            <input type="text" id="bacen-nome" class="velohub-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bacen-cpf">CPF *</label>
+                            <input type="text" id="bacen-cpf" class="velohub-input cpf-mask" required placeholder="000.000.000-00">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bacen-telefone">Telefone</label>
+                            <input type="text" id="bacen-telefone" class="velohub-input telefone-mask" placeholder="(00) 00000-0000">
+                        </div>
+                        <div class="form-group">
+                            <label for="bacen-origem">Origem *</label>
+                            <select id="bacen-origem" class="velohub-input" required onchange="validarPrazoBacen()">
+                                <option value="">Selecione...</option>
+                                <option value="Bacen Celcoin">Bacen Celcoin</option>
+                                <option value="Bacen Via Capital">Bacen Via Capital</option>
+                                <option value="Consumidor.Gov">Consumidor.Gov</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tentativas de Contato -->
+                <div class="form-section">
+                    <h3>📞 Tentativas de Contato</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bacen-1-tentativa">1ª tentativa</label>
+                            <input type="date" id="bacen-1-tentativa" class="velohub-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="bacen-2-tentativa">2ª tentativa</label>
+                            <input type="date" id="bacen-2-tentativa" class="velohub-input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acionamentos ao Canais de Atendimento e Protocolos -->
+                <div class="form-section">
+                    <h3>📋 Acionamentos ao Canais de Atendimento e Protocolos</h3>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 0 0 200px;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="bacen-acionou-central" onchange="toggleProtocolo('bacen-acionou-central', 'bacen-protocolo-central')">
+                                <span class="checkmark"></span>
+                                Acionou a central?
+                            </label>
+                        </div>
+                        <div class="form-group" id="bacen-protocolo-central-group" style="display: none; flex: 1;">
+                            <label for="bacen-protocolo-central">Qual Protocolo</label>
+                            <input type="text" id="bacen-protocolo-central" class="velohub-input" placeholder="Digite o protocolo">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 0 0 200px;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="bacen-n2-segundo-nivel" onchange="toggleProtocolo('bacen-n2-segundo-nivel', 'bacen-protocolo-n2')">
+                                <span class="checkmark"></span>
+                                N2 – Segundo Nível?
+                            </label>
+                        </div>
+                        <div class="form-group" id="bacen-protocolo-n2-group" style="display: none; flex: 1;">
+                            <label for="bacen-protocolo-n2">Qual Protocolo</label>
+                            <input type="text" id="bacen-protocolo-n2" class="velohub-input" placeholder="Digite o protocolo">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 0 0 200px;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="bacen-reclame-aqui" onchange="toggleProtocolo('bacen-reclame-aqui', 'bacen-protocolo-reclame-aqui')">
+                                <span class="checkmark"></span>
+                                Reclame Aqui?
+                            </label>
+                        </div>
+                        <div class="form-group" id="bacen-protocolo-reclame-aqui-group" style="display: none; flex: 1;">
+                            <label for="bacen-protocolo-reclame-aqui">Qual Protocolo</label>
+                            <input type="text" id="bacen-protocolo-reclame-aqui" class="velohub-input" placeholder="Digite o protocolo">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 0 0 200px;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="bacen-procon" onchange="toggleProtocolo('bacen-procon', 'bacen-protocolo-procon')">
+                                <span class="checkmark"></span>
+                                Procon?
+                            </label>
+                        </div>
+                        <div class="form-group" id="bacen-protocolo-procon-group" style="display: none; flex: 1;">
+                            <label for="bacen-protocolo-procon">Qual Protocolo</label>
+                            <input type="text" id="bacen-protocolo-procon" class="velohub-input" placeholder="Digite o protocolo">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bacen-protocolos-sem-acionamento">Protocolos em que não houve acionamento em nenhum dos canais de Atendimento</label>
+                        <input type="text" id="bacen-protocolos-sem-acionamento" class="velohub-input" placeholder="Digite os protocolos (relacionados à reclamação)">
+                        <small class="form-hint">Lembrando, precisa estar relacionado à reclamação</small>
+                    </div>
+                </div>
+
+                <!-- Liberação do PIX -->
+                <div class="form-section">
+                    <h3>💳 Liberação do PIX</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bacen-pix-status">PIX liberado ou excluído?</label>
+                            <select id="bacen-pix-status" class="velohub-input">
+                                <option value="">Selecione...</option>
+                                <option value="Liberado">Liberado</option>
+                                <option value="Excluído">Excluído</option>
+                                <option value="Não Aplicável">Não Aplicável</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Enviar para cobrança? *</label>
+                            <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                <label class="radio-label">
+                                    <input type="radio" name="bacen-enviar-cobranca" value="Sim" required>
+                                    <span>Sim</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="bacen-enviar-cobranca" value="Não" required>
+                                    <span>Não</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Observações -->
+                <div class="form-section">
+                    <h3>📝 Observações</h3>
+                    <div class="form-group">
+                        <label for="bacen-observacoes">Observações</label>
+                        <textarea id="bacen-observacoes" class="velohub-input" rows="4" placeholder="Digite as observações..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Casos Críticos (Blacklist) -->
+                <div class="form-section">
+                    <h3>⚠️ Casos Críticos (Blacklist)</h3>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="bacen-casos-criticos">
+                            <span class="checkmark"></span>
+                            Marcar como caso crítico (Blacklist)
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Resolução -->
+                <div class="form-section">
+                    <h3>✅ Resolução</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bacen-status">Status *</label>
+                            <select id="bacen-status" class="velohub-input" required>
+                                <option value="">Selecione...</option>
+                                <option value="nao-iniciado">Não Iniciado</option>
+                                <option value="em-tratativa">Em Tratativa</option>
+                                <option value="concluido">Concluído</option>
+                                <option value="respondido">Respondido</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bacen-finalizado-em">Finalizado em</label>
+                            <input type="date" id="bacen-finalizado-em" class="velohub-input">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bacen-observacoes">Observações</label>
+                        <textarea id="bacen-observacoes" class="velohub-input" rows="3" placeholder="Observações adicionais..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="velohub-btn">💾 Salvar Ficha BACEN</button>
+                    <button type="button" class="velohub-btn btn-secondary" onclick="limparFormBacen()">🗑️ Limpar</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Lista de Fichas BACEN -->
+        <section id="lista-bacen" class="section">
+            <div class="bacen-header">
+                <h2>📋 Lista de Fichas BACEN</h2>
+                <p>Todas as reclamações registradas no Banco Central</p>
+            </div>
+            
+            <div class="list-controls">
+                <div class="search-box">
+                    <input type="text" id="busca-bacen" class="velohub-input" placeholder="🔍 Buscar por nome, CPF ou motivo...">
+                </div>
+                <div class="filter-controls">
+                    <select id="filtro-status-bacen" class="velohub-input">
+                        <option value="">Todos os Status</option>
+                        <option value="nao-iniciado">Não Iniciado</option>
+                        <option value="em-tratativa">Em Tratativa</option>
+                        <option value="concluido">Concluído</option>
+                        <option value="respondido">Respondido</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="lista-fichas-bacen" class="complaints-list">
+                <!-- Lista será populada dinamicamente -->
+            </div>
+        </section>
+
+        <!-- Relatórios BACEN -->
+        <section id="relatorios-bacen" class="section">
+            <div class="bacen-header">
+                <h2>📈 Relatórios BACEN</h2>
+                <p>Relatórios específicos para demandas do Banco Central</p>
+            </div>
+            
+            <div class="reports-grid">
+                <div class="report-card">
+                    <h3>📊 Relatório por Período</h3>
+                    <p>Análise temporal das reclamações BACEN</p>
+                    <button class="velohub-btn" onclick="gerarRelatorioPeriodoBacen()">Gerar Relatório</button>
+                </div>
+                <div class="report-card">
+                    <h3>⏰ Relatório de Prazos</h3>
+                    <p>Fichas com prazo vencendo ou vencido</p>
+                    <button class="velohub-btn" onclick="gerarRelatorioPrazosBacen()">Gerar Relatório</button>
+                </div>
+                <div class="report-card">
+                    <h3>📋 Relatório Completo</h3>
+                    <p>Todas as fichas BACEN</p>
+                    <button class="velohub-btn" onclick="gerarRelatorioCompletoBacen()">Gerar Relatório</button>
+                </div>
+            </div>
+            
+            <div id="conteudo-relatorio-bacen" class="report-content" style="display: none;">
+                <!-- Conteúdo do relatório será exibido aqui -->
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript -->
+    <script src="js/loading.js"></script>
+    <script src="js/validador-velotax.js"></script>
+    <script src="js/auth-system.js"></script>
+    <script src="js/gerenciador-fichas-perfil.js"></script>
+    <script src="js/gerenciador-anexos.js"></script>
+    <script src="js/fichas-especificas.js"></script>
+    <script src="js/sistema-alertas.js"></script>
+    <script src="js/busca-avancada.js"></script>
+    <script src="js/historico-cliente.js"></script>
+    <script src="js/atalhos-teclado.js"></script>
+    <script src="js/exportacao-relatorios.js"></script>
+    <script src="js/validacao-condicional.js"></script>
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/graficos-detalhados.js"></script>
+    <script src="js/lista-casos-abertos.js"></script>
+    <script src="js/filtros-exportacao-csv.js"></script>
+    <script src="js/bacen-page.js"></script>
+    <script>
+        // Função para mostrar/ocultar campos de protocolo
+        function toggleProtocolo(checkboxId, protocoloInputId) {
+            const checkbox = document.getElementById(checkboxId);
+            const protocoloGroup = document.getElementById(protocoloInputId + '-group');
+            const protocoloInput = document.getElementById(protocoloInputId);
+            
+            if (checkbox && protocoloGroup) {
+                if (checkbox.checked) {
+                    protocoloGroup.style.display = 'flex';
+                    protocoloInput.required = true;
+                } else {
+                    protocoloGroup.style.display = 'none';
+                    protocoloInput.required = false;
+                    protocoloInput.value = '';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+

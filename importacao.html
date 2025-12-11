@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importação de Dados - Sistema Velotax</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/theme-dark.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <h1>🚀 VELOTAX</h1>
+                <span class="subtitle">Importação de Dados</span>
+            </div>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">← Voltar ao Sistema</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div id="importacao-container">
+            <!-- Conteúdo será gerado pelo JavaScript -->
+        </div>
+    </main>
+
+    <!-- JavaScript -->
+    <script src="js/validador-velotax.js"></script>
+    <script src="js/importador-dados.js"></script>
+    <script src="js/theme-toggle.js"></script>
+    <script>
+        // Inicializa a interface de importação
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('importacao-container');
+            const importador = new ImportadorDados();
+            container.innerHTML = importador.criarInterfaceImportacao();
+            importador.configurarUpload();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+═══════════════════════════════════════════════════════════════
+    COMO ENVIAR O PROJETO PARA TESTE
+═══════════════════════════════════════════════════════════════
+
+📦 OPÇÃO 1: ENVIAR ARQUIVO ZIP (RECOMENDADO)
+═══════════════════════════════════════════════════════════════
+
+1. Procure na pasta "Bacen Projeto" um arquivo chamado:
+   SistemaVelotax_BACEN_[data].zip
+
+2. Envie este arquivo ZIP por:
+   ✓ Email (anexo)
+   ✓ WhatsApp (se o arquivo for pequeno)
+   ✓ Google Drive / OneDrive / Dropbox
+   ✓ Pendrive / HD externo
+
+3. A pessoa que receber deve:
+   - Extrair o ZIP em uma pasta
+   - Abrir o arquivo "index.html" no navegador
+   - Seguir as instruções do "LEIA-ME.txt"
+
+═══════════════════════════════════════════════════════════════
+
+📁 OPÇÃO 2: ENVIAR PASTA COMPLETA
+═══════════════════════════════════════════════════════════════
+
+1. Copie toda a pasta "Bacen"
+2. Envie por:
+   ✓ Google Drive / OneDrive (compartilhar pasta)
+   ✓ Pendrive / HD externo
+   ✓ Rede interna da empresa
+
+═══════════════════════════════════════════════════════════════
+
+💡 DICAS IMPORTANTES:
+═══════════════════════════════════════════════════════════════
+
+✓ Envie também o arquivo "LEIA-ME.txt" que contém
+  instruções rápidas
+
+✓ Informe o login padrão:
+  Usuário: admin
+  Senha: admin123
+
+✓ O sistema funciona OFFLINE - não precisa de internet
+  após o primeiro carregamento
+
+✓ Qualquer navegador moderno funciona (Chrome, Edge, Firefox)
+
+═══════════════════════════════════════════════════════════════
+
+🔧 SE O ARQUIVO ZIP NÃO FOI CRIADO:
+═══════════════════════════════════════════════════════════════
+
+1. Abra o PowerShell na pasta "Bacen"
+2. Execute o arquivo: COMPACTAR_PROJETO.ps1
+   (clique com botão direito → Executar com PowerShell)
+
+OU
+
+3. Selecione manualmente os arquivos:
+   - index.html, bacen.html, n2.html, chatbot.html
+   - classificacao.html, importacao.html
+   - Pasta: css
+   - Pasta: js
+   - Pasta: img
+   - INSTRUCOES_INSTALACAO.md
+   - LEIA-ME.txt
+   
+4. Clique com botão direito → Enviar para → Pasta compactada
+
+═══════════════════════════════════════════════════════════════
+
+
+
+
+
+
+
+
+
+
+
+
+

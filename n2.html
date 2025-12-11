@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão N2 - Sistema Velotax</title>
+    
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/theme-dark.css">
+    
+    <style>
+        /* Estilos específicos N2 */
+        .n2-header {
+            background: linear-gradient(135deg, #1DFDB9 0%, #1634FF 100%);
+            color: #000058;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .n2-card {
+            border-left: 4px solid #1DFDB9;
+        }
+        
+        .n2-badge {
+            background: #1DFDB9;
+            color: #000058;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="velohub-header">
+        <div class="header-content">
+                <div class="header-logo">
+                    <img src="img/velotax_ajustada_branco.png" alt="Velotax" class="logo-header">
+                    <h1>N2</h1>
+                </div>
+            <div class="header-actions">
+                <a href="index.html" class="velohub-btn btn-secondary" style="text-decoration: none; color: white; margin-right: 12px;">🏠 Voltar à Home</a>
+                <button class="theme-toggle-btn" onclick="toggleTheme()">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navegação -->
+    <nav class="nav">
+        <button class="nav-btn active" onclick="mostrarSecao('dashboard-n2')">📊 Dashboard</button>
+        <button class="nav-btn" onclick="mostrarSecao('nova-ficha-n2')">➕ Nova Ficha N2</button>
+        <button class="nav-btn" onclick="mostrarSecao('lista-n2')">📋 Lista de Fichas</button>
+        <button class="nav-btn" onclick="mostrarSecao('relatorios-n2')">📈 Relatórios</button>
+    </nav>
+
+    <!-- Container Principal -->
+    <main class="velohub-container">
+        <!-- Dashboard N2 -->
+        <section id="dashboard-n2" class="section active">
+            <div class="n2-header">
+                <h2>📊 Dashboard N2</h2>
+                <p>Métricas e estatísticas de portabilidade e transferência bancária</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card n2-card">
+                    <h3>Total de Fichas N2</h3>
+                    <span class="stat-number" id="n2-total-dash">0</span>
+                </div>
+                <div class="stat-card n2-card">
+                    <h3>Em Tratativa</h3>
+                    <span class="stat-number" id="n2-tratativa-dash">0</span>
+                </div>
+                <div class="stat-card n2-card">
+                    <h3>Portabilidades Concluídas</h3>
+                    <span class="stat-number" id="n2-concluidas-dash">0</span>
+                </div>
+                <div class="stat-card n2-card">
+                    <h3>Em Andamento</h3>
+                    <span class="stat-number" id="n2-andamento">0</span>
+                </div>
+            </div>
+
+            <!-- Métricas Específicas N2 -->
+            <div class="metricas-n2">
+                <h3>📊 Métricas Específicas N2</h3>
+                <div class="metricas-grid">
+                    <div class="metrica-card">
+                        <h4>Taxa de Portabilidade</h4>
+                        <div class="metrica-valor" id="taxa-portabilidade-n2">0%</div>
+                    </div>
+                    <div class="metrica-card">
+                        <h4>Banco Mais Solicitado</h4>
+                        <div class="metrica-valor" id="banco-mais-solicitado">-</div>
+                    </div>
+                    <div class="metrica-card">
+                        <h4>Tempo Médio</h4>
+                        <div class="metrica-valor" id="tempo-medio-n2">0 dias</div>
+                    </div>
+                    <div class="metrica-card">
+                        <h4>PIX Liberado</h4>
+                        <div class="metrica-valor" id="pix-liberado-n2">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos N2 -->
+            <div class="graficos-n2">
+                <div class="grafico-card">
+                    <h3>Status das Portabilidades</h3>
+                    <div id="grafico-status-n2"></div>
+                </div>
+                <div class="grafico-card">
+                    <h3>Bancos Mais Solicitados</h3>
+                    <div id="grafico-bancos-n2"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Nova Ficha N2 -->
+        <section id="nova-ficha-n2" class="section">
+            <div class="n2-header">
+                <h2>➕ Nova Ficha N2</h2>
+                <p>Registre uma nova demanda de portabilidade ou transferência</p>
+            </div>
+            
+            <form id="form-n2" class="complaint-form">
+                <!-- Detalhes da Reclamação (PRIMEIRA SEÇÃO) -->
+                <div class="form-section">
+                    <h3>🎯 Detalhes da Reclamação</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="n2-motivo-reduzido">Motivo Reduzido *</label>
+                            <select id="n2-motivo-reduzido" class="velohub-input" required>
+                                <option value="">Selecione...</option>
+                                <option value="CHAVE PIX">CHAVE PIX</option>
+                                <option value="Abatimento Juros">Abatimento Juros</option>
+                                <option value="Não recebeu restituição">Não recebeu restituição</option>
+                                <option value="Probl. App / Gov.">Probl. App / Gov.</option>
+                                <option value="Conta">Conta</option>
+                                <option value="Cancelamento Conta">Cancelamento Conta</option>
+                                <option value="Liquidação Antecipada">Liquidação Antecipada</option>
+                                <option value="Fraude">Fraude</option>
+                                <option value="Superendividamento">Superendividamento</option>
+                                <option value="Devolução à Celcoin">Devolução à Celcoin</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="n2-prazo-n2">Prazo N2 *</label>
+                            <input type="date" id="n2-prazo-n2" class="velohub-input" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="n2-motivo-detalhado">Motivo da Reclamação *</label>
+                        <textarea id="n2-motivo-detalhado" class="velohub-input" rows="4" placeholder="Descreva detalhadamente..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="n2-anexos">📎 Anexar Documentos (PDFs e Imagens)</label>
+                        <input type="file" id="n2-anexos" class="velohub-input" multiple accept=".pdf,.jpg,.jpeg,.png,.gif,.webp" onchange="gerenciadorAnexos.handleUpload(event, 'anexos-preview-n2')">
+                        <small class="form-hint">Você pode anexar múltiplos arquivos. Tamanho máximo: 10MB por arquivo.</small>
+                        <div id="anexos-preview-n2" class="anexos-preview-container"></div>
+                    </div>
+                </div>
+
+                <!-- Dados Básicos -->
+                <div class="form-section">
+                    <h3>📋 Dados Básicos</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="n2-data-entrada-atendimento">Data de entrada Atendimento *</label>
+                            <input type="date" id="n2-data-entrada-atendimento" class="velohub-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="n2-data-entrada-n2">Data Entrada N2 *</label>
+                            <input type="date" id="n2-data-entrada-n2" class="velohub-input" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="n2-data-entrada">Data de Entrada *</label>
+                            <input type="date" id="n2-data-entrada" class="velohub-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="n2-responsavel">Responsável *</label>
+                            <select id="n2-responsavel" class="velohub-input" required>
+                                <option value="">Selecione...</option>
+                                <option value="Shirley">Shirley</option>
+                                <option value="Vanessa">Vanessa</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="n2-mes">Mês *</label>
+                            <select id="n2-mes" class="velohub-input" required>
+                                <option value="">Selecione...</option>
+                                <option value="1/2025">1/2025</option>
+                                <option value="2/2025">2/2025</option>
+                                <option value="3/2025">3/2025</option>
+                                <option value="4/2025">4/2025</option>
+                                <option value="5/2025">5/2025</option>
+                                <option value="6/2025">6/2025</option>
+                                <option value="7/2025">7/2025</option>
+                                <option value="8/2025">8/2025</option>
+                                <option value="9/2025">9/2025</option>
+                                <option value="10/2025">10/2025</option>
+                                <option value="11/2025">11/2025</option>
+                                <option value="12/2025">12/2025</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dados do Cliente -->
+                <div class="form-section">
+                    <h3>👤 Dados do Cliente</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="n2-nome">Nome Completo *</label>
+                            <input type="text" id="n2-nome" class="velohub-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="n2-cpf">CPF *</label>
+                            <input type="text" id="n2-cpf" class="velohub-input cpf-mask" required placeholder="000.000.000-00">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="n2-telefone">Telefone</label>
+                            <input type="text" id="n2-telefone" class="velohub-input telefone-mask" placeholder="(00) 00000-0000">
+                        </div>
+                        <div class="form-group">
+                            <label for="n2-origem">Origem *</label>
+                            <select id="n2-origem" class="velohub-input" required>
+                                <option value="">Selecione...</option>
+                                <option value="Atendimento">Atendimento</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tentativas de Contato -->
+                <div class="form-section">
+                    <h3>📞 Tentativas de Contato</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="n2-1-tentativa">1ª tentativa</label>
+                            <input type="date" id="n2-1-tentativa" class="velohub-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="n2-2-tentativa">2ª tentativa</label>
+                            <input type="date" id="n2-2-tentativa" class="velohub-input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acionamentos ao Canais de Atendimento e Protocolos -->
+                <div class="form-section">
+                    <h3>📋 Acionamentos ao Canais de Atendimento e Protocolos</h3>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 0 0 200px;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="n2-acionou-central" onchange="toggleProtocolo('n2-acionou-central', 'n2-protocolo-central')">
+                                <span class="checkmark"></span>
+                                Acionou a central?
+                            </label>
+                        </div>
+                        <div class="form-group" id="n2-protocolo-central-group" style="display: none; flex: 1;">
+                            <label for="n2-protocolo-central">Qual Protocolo</label>
+                            <input type="text" id="n2-protocolo-central" class="velohub-input" placeholder="Digite o protocolo">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 0 0 200px;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="n2-n2-segundo-nivel" onchange="toggleProtocolo('n2-n2-segundo-nivel', 'n2-protocolo-n2')">
+                                <span class="checkmark"></span>
+                                N2 – Segundo Nível?
+                            </label>
+                        </div>
+                        <div class="form-group" id="n2-protocolo-n2-group" style="display: none; flex: 1;">
+                            <label for="n2-protocolo-n2">Qual Protocolo</label>
+                            <input type="text" id="n2-protocolo-n2" class="velohub-input" placeholder="Digite o protocolo">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 0 0 200px;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="n2-reclame-aqui" onchange="toggleProtocolo('n2-reclame-aqui', 'n2-protocolo-reclame-aqui')">
+                                <span class="checkmark"></span>
+                                Reclame Aqui?
+                            </label>
+                        </div>
+                        <div class="form-group" id="n2-protocolo-reclame-aqui-group" style="display: none; flex: 1;">
+                            <label for="n2-protocolo-reclame-aqui">Qual Protocolo</label>
+                            <input type="text" id="n2-protocolo-reclame-aqui" class="velohub-input" placeholder="Digite o protocolo">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 0 0 200px;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="n2-procon" onchange="toggleProtocolo('n2-procon', 'n2-protocolo-procon')">
+                                <span class="checkmark"></span>
+                                Procon?
+                            </label>
+                        </div>
+                        <div class="form-group" id="n2-protocolo-procon-group" style="display: none; flex: 1;">
+                            <label for="n2-protocolo-procon">Qual Protocolo</label>
+                            <input type="text" id="n2-protocolo-procon" class="velohub-input" placeholder="Digite o protocolo">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="n2-protocolos-sem-acionamento">Protocolos em que não houve acionamento em nenhum dos canais de Atendimento</label>
+                        <input type="text" id="n2-protocolos-sem-acionamento" class="velohub-input" placeholder="Digite os protocolos (relacionados à reclamação)">
+                        <small class="form-hint">Lembrando, precisa estar relacionado à reclamação</small>
+                    </div>
+                </div>
+
+                <!-- Liberação do PIX -->
+                <div class="form-section">
+                    <h3>💳 Liberação do PIX</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="n2-pix-status">PIX liberado ou excluído?</label>
+                            <select id="n2-pix-status" class="velohub-input">
+                                <option value="">Selecione...</option>
+                                <option value="Liberado">Liberado</option>
+                                <option value="Excluído">Excluído</option>
+                                <option value="Não Aplicável">Não Aplicável</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Enviar para cobrança? *</label>
+                            <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                <label class="radio-label">
+                                    <input type="radio" name="n2-enviar-cobranca" value="Sim" required>
+                                    <span>Sim</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="n2-enviar-cobranca" value="Não" required>
+                                    <span>Não</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Observações -->
+                <div class="form-section">
+                    <h3>📝 Observações</h3>
+                    <div class="form-group">
+                        <label for="n2-observacoes">Observações</label>
+                        <textarea id="n2-observacoes" class="velohub-input" rows="4" placeholder="Digite as observações..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Casos Críticos (Blacklist) -->
+                <div class="form-section">
+                    <h3>⚠️ Casos Críticos (Blacklist)</h3>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="n2-casos-criticos">
+                            <span class="checkmark"></span>
+                            Marcar como caso crítico (Blacklist)
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Resolução -->
+                <div class="form-section">
+                    <h3>✅ Resolução</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="n2-status">Status *</label>
+                            <select id="n2-status" class="velohub-input" required>
+                                <option value="">Selecione...</option>
+                                <option value="nao-iniciado">Não Iniciado</option>
+                                <option value="em-tratativa">Em Tratativa</option>
+                                <option value="concluido">Concluído</option>
+                                <option value="respondido">Respondido</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="n2-finalizado-em">Finalizado em</label>
+                            <input type="date" id="n2-finalizado-em" class="velohub-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="velohub-btn">💾 Salvar Ficha N2</button>
+                    <button type="button" class="velohub-btn btn-secondary" onclick="limparFormN2()">🗑️ Limpar</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Lista de Fichas N2 -->
+        <section id="lista-n2" class="section">
+            <div class="n2-header">
+                <h2>📋 Lista de Fichas N2</h2>
+                <p>Todas as demandas de portabilidade e transferência</p>
+            </div>
+            
+            <div class="list-controls">
+                <div class="search-box">
+                    <input type="text" id="busca-n2" class="velohub-input" placeholder="🔍 Buscar por nome, CPF ou motivo...">
+                </div>
+                <div class="filter-controls">
+                    <select id="filtro-status-n2" class="velohub-input">
+                        <option value="">Todos os Status</option>
+                        <option value="nao-iniciado">Não Iniciado</option>
+                        <option value="em-tratativa">Em Tratativa</option>
+                        <option value="concluido">Concluído</option>
+                        <option value="respondido">Respondido</option>
+                    </select>
+                    <select id="filtro-portabilidade-n2" class="velohub-input">
+                        <option value="">Todos os Status de Portabilidade</option>
+                        <option value="solicitada">Solicitada</option>
+                        <option value="em-andamento">Em Andamento</option>
+                        <option value="concluida">Concluída</option>
+                        <option value="cancelada">Cancelada</option>
+                        <option value="pendente">Pendente</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="lista-fichas-n2" class="complaints-list">
+                <!-- Lista será populada dinamicamente -->
+            </div>
+        </section>
+
+        <!-- Relatórios N2 -->
+        <section id="relatorios-n2" class="section">
+            <div class="n2-header">
+                <h2>📈 Relatórios N2</h2>
+                <p>Relatórios específicos para demandas de portabilidade</p>
+            </div>
+            
+            <div class="reports-grid">
+                <div class="report-card">
+                    <h3>📊 Relatório por Período</h3>
+                    <p>Análise temporal das portabilidades</p>
+                    <button class="velohub-btn" onclick="gerarRelatorioPeriodoN2()">Gerar Relatório</button>
+                </div>
+                <div class="report-card">
+                    <h3>🏦 Relatório por Banco</h3>
+                    <p>Análise de bancos origem e destino</p>
+                    <button class="velohub-btn" onclick="gerarRelatorioBancosN2()">Gerar Relatório</button>
+                </div>
+                <div class="report-card">
+                    <h3>📋 Relatório Completo</h3>
+                    <p>Todas as fichas N2</p>
+                    <button class="velohub-btn" onclick="gerarRelatorioCompletoN2()">Gerar Relatório</button>
+                </div>
+            </div>
+            
+            <div id="conteudo-relatorio-n2" class="report-content" style="display: none;">
+                <!-- Conteúdo do relatório será exibido aqui -->
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript -->
+    <script src="js/loading.js"></script>
+    <script src="js/validador-velotax.js"></script>
+    <script src="js/auth-system.js"></script>
+    <script src="js/gerenciador-fichas-perfil.js"></script>
+    <script src="js/gerenciador-anexos.js"></script>
+    <script src="js/fichas-especificas.js"></script>
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/graficos-detalhados.js"></script>
+    <script src="js/lista-casos-abertos.js"></script>
+    <script src="js/filtros-exportacao-csv.js"></script>
+    <script src="js/n2-page.js"></script>
+    <script>
+        // Função para mostrar/ocultar campos de protocolo
+        function toggleProtocolo(checkboxId, protocoloInputId) {
+            const checkbox = document.getElementById(checkboxId);
+            const protocoloGroup = document.getElementById(protocoloInputId + '-group');
+            const protocoloInput = document.getElementById(protocoloInputId);
+            
+            if (checkbox && protocoloGroup) {
+                if (checkbox.checked) {
+                    protocoloGroup.style.display = 'flex';
+                    protocoloInput.required = true;
+                } else {
+                    protocoloGroup.style.display = 'none';
+                    protocoloInput.required = false;
+                    protocoloInput.value = '';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,560 @@
+/* === SISTEMA DE GESTÃO BACEN - PÁGINA ESPECÍFICA === */
+
+// Variáveis globais
+let fichasBacen = [];
+
+// Inicialização
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.loadingVelotax) {
+        window.loadingVelotax.mostrar();
+        window.loadingVelotax.esconderForcado(); // Segurança
+    }
+    
+    try {
+        inicializarBacen();
+        carregarFichasBacen();
+        atualizarDashboardBacen();
+        configurarEventosBacen();
+    } catch (error) {
+        console.error('Erro na inicialização BACEN:', error);
+    } finally {
+        setTimeout(() => {
+            if (window.loadingVelotax) {
+                window.loadingVelotax.esconder();
+            }
+        }, 500);
+    }
+});
+
+// === INICIALIZAÇÃO ===
+function inicializarBacen() {
+    // Configurar data atual
+    const today = new Date().toISOString().split('T')[0];
+    const dataEntrada = document.getElementById('bacen-data-entrada');
+    if (dataEntrada) {
+        dataEntrada.value = today;
+    }
+}
+
+// === NAVEGAÇÃO ===
+function mostrarSecao(secaoId) {
+    // Esconder todas as seções
+    document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    // Remover active de todos os botões
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Mostrar seção selecionada
+    const section = document.getElementById(secaoId);
+    if (section) {
+        section.classList.add('active');
+    }
+    
+    // Ativar botão correspondente
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${secaoId}'`)) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Ações específicas
+    if (secaoId === 'lista-bacen') {
+        carregarFichasBacen();
+        renderizarListaBacen();
+    } else if (secaoId === 'dashboard-bacen') {
+        atualizarDashboardBacen();
+        // Reinicializar gráficos
+        setTimeout(() => {
+            if (window.graficosDetalhadosBacen) {
+                window.graficosDetalhadosBacen.carregarDados();
+                window.graficosDetalhadosBacen.renderizarGraficos();
+            } else {
+                window.graficosDetalhadosBacen = new GraficosDetalhados('bacen');
+            }
+        }, 300);
+    }
+}
+
+// === CARREGAR FICHAS ===
+function carregarFichasBacen() {
+    // Aguarda o gerenciador estar disponível
+    if (window.gerenciadorFichas) {
+        fichasBacen = window.gerenciadorFichas.obterFichasPorTipo('bacen');
+    } else if (window.GerenciadorFichasPerfil) {
+        // Inicializa se não estiver
+        window.gerenciadorFichas = new GerenciadorFichasPerfil();
+        fichasBacen = window.gerenciadorFichas.obterFichasPorTipo('bacen');
+    } else {
+        // Fallback
+        const fichas = JSON.parse(localStorage.getItem('velotax_demandas_bacen') || '[]');
+        fichasBacen = fichas.map(f => ({ ...f, tipoDemanda: 'bacen' }));
+    }
+}
+
+// === FORMULÁRIO ===
+function configurarEventosBacen() {
+    const form = document.getElementById('form-bacen');
+    if (form) {
+        form.addEventListener('submit', handleSubmitBacen);
+    }
+    
+    const busca = document.getElementById('busca-bacen');
+    if (busca) {
+        busca.addEventListener('input', renderizarListaBacen);
+    }
+    
+    const filtroStatus = document.getElementById('filtro-status-bacen');
+    if (filtroStatus) {
+        filtroStatus.addEventListener('change', renderizarListaBacen);
+    }
+    
+    // Máscaras
+    const cpf = document.getElementById('bacen-cpf');
+    if (cpf) {
+        cpf.addEventListener('input', formatCPF);
+    }
+    
+    const telefone = document.getElementById('bacen-telefone');
+    if (telefone) {
+        telefone.addEventListener('input', formatPhone);
+    }
+}
+
+function handleSubmitBacen(e) {
+    e.preventDefault();
+    
+    // Obter anexos
+    const anexos = window.gerenciadorAnexos ? 
+        window.gerenciadorAnexos.obterAnexosDoFormulario('anexos-preview-bacen') : [];
+    
+    const ficha = {
+        id: gerarId(),
+        tipoDemanda: 'bacen',
+        dataEntrada: document.getElementById('bacen-data-entrada').value,
+        responsavel: document.getElementById('bacen-responsavel').value,
+        mes: document.getElementById('bacen-mes').value,
+        nomeCompleto: document.getElementById('bacen-nome').value,
+        cpf: document.getElementById('bacen-cpf').value,
+        telefone: document.getElementById('bacen-telefone').value,
+        origem: document.getElementById('bacen-origem').value,
+        motivoReduzido: document.getElementById('bacen-motivo-reduzido').value,
+        motivoDetalhado: document.getElementById('bacen-motivo-detalhado').value,
+        prazoBacen: document.getElementById('bacen-prazo-bacen').value,
+        primeiraTentativa: document.getElementById('bacen-1-tentativa').value,
+        segundaTentativa: document.getElementById('bacen-2-tentativa').value,
+        acionouCentral: document.getElementById('bacen-acionou-central').checked,
+        protocoloCentral: document.getElementById('bacen-protocolo-central').value,
+        n2SegundoNivel: document.getElementById('bacen-n2-segundo-nivel').checked,
+        protocoloN2: document.getElementById('bacen-protocolo-n2').value,
+        reclameAqui: document.getElementById('bacen-reclame-aqui').checked,
+        protocoloReclameAqui: document.getElementById('bacen-protocolo-reclame-aqui').value,
+        procon: document.getElementById('bacen-procon').checked,
+        protocoloProcon: document.getElementById('bacen-protocolo-procon').value,
+        protocolosSemAcionamento: document.getElementById('bacen-protocolos-sem-acionamento').value,
+        pixStatus: document.getElementById('bacen-pix-status').value,
+        enviarCobranca: document.querySelector('input[name="bacen-enviar-cobranca"]:checked')?.value || 'Não',
+        casosCriticos: document.getElementById('bacen-casos-criticos').checked,
+        status: document.getElementById('bacen-status').value,
+        finalizadoEm: document.getElementById('bacen-finalizado-em').value,
+        observacoes: document.getElementById('bacen-observacoes').value,
+        anexos: anexos, // Incluir anexos
+        dataCriacao: new Date().toISOString()
+    };
+    
+    // Validar
+    if (!validarFichaBacen(ficha)) {
+        return;
+    }
+    
+    // Salvar
+    if (window.gerenciadorFichas) {
+        window.gerenciadorFichas.adicionarFicha(ficha);
+    } else {
+        fichasBacen.push(ficha);
+        localStorage.setItem('velotax_demandas_bacen', JSON.stringify(fichasBacen));
+    }
+    
+    // Limpar e atualizar
+    limparFormBacen();
+    carregarFichasBacen();
+    atualizarDashboardBacen();
+    mostrarSecao('lista-bacen');
+    
+    mostrarAlerta('Ficha BACEN salva com sucesso!', 'success');
+}
+
+function validarFichaBacen(ficha) {
+    const camposObrigatorios = [
+        'dataEntrada', 'responsavel', 'mes', 'nomeCompleto', 'cpf', 
+        'origem', 'motivoReduzido', 'motivoDetalhado', 'status', 'enviarCobranca'
+    ];
+    
+    // Validação condicional: Prazo Bacen obrigatório apenas se Origem for Bacen Celcoin ou Bacen Via Capital
+    if ((ficha.origem === 'Bacen Celcoin' || ficha.origem === 'Bacen Via Capital') && !ficha.prazoBacen) {
+        mostrarAlerta('Prazo BACEN é obrigatório quando a origem é "Bacen Celcoin" ou "Bacen Via Capital"', 'error');
+        return false;
+    }
+    
+    for (let campo of camposObrigatorios) {
+        // Verificar se é checkbox
+        if (campo === 'enviarCobranca') {
+            if (!ficha[campo]) {
+                mostrarAlerta('Campo obrigatório não preenchido: Enviar para cobrança?', 'error');
+                return false;
+            }
+        } else if (!ficha[campo] || (typeof ficha[campo] === 'string' && ficha[campo].trim() === '')) {
+            mostrarAlerta(`Campo obrigatório não preenchido: ${campo}`, 'error');
+            return false;
+        }
+    }
+    
+    // Validar CPF
+    if (!validarCPF(ficha.cpf)) {
+        mostrarAlerta('CPF inválido', 'error');
+        return false;
+    }
+    
+    return true;
+}
+
+// === DASHBOARD ===
+function atualizarDashboardBacen() {
+    carregarFichasBacen();
+    
+    const total = fichasBacen.length;
+    const emTratativa = fichasBacen.filter(f => f.status === 'em-tratativa').length;
+    const concluidas = fichasBacen.filter(f => f.status === 'concluido' || f.status === 'respondido').length;
+    
+    // Calcular prazo vencendo (próximos 7 dias)
+    const hoje = new Date();
+    const prazoVencendo = fichasBacen.filter(f => {
+        if (!f.prazoBacen) return false;
+        const prazo = new Date(f.prazoBacen);
+        const diff = (prazo - hoje) / (1000 * 60 * 60 * 24);
+        return diff >= 0 && diff <= 7;
+    }).length;
+    
+    // Atualizar elementos
+    atualizarElemento('bacen-total-dash', total);
+    atualizarElemento('bacen-tratativa-dash', emTratativa);
+    atualizarElemento('bacen-concluidas-dash', concluidas);
+    atualizarElemento('bacen-prazo-vencendo', prazoVencendo);
+    
+    // Métricas específicas
+    const taxaResolucao = total > 0 ? ((concluidas / total) * 100).toFixed(1) : 0;
+    atualizarElemento('taxa-resolucao-bacen', `${taxaResolucao}%`);
+    
+    const comProcon = fichasBacen.filter(f => f.procon).length;
+    atualizarElemento('com-procon-bacen', comProcon);
+    
+    const liquidacao = fichasBacen.filter(f => f.liquidacaoAntecipada).length;
+    atualizarElemento('liquidacao-bacen', liquidacao);
+}
+
+// === LISTA ===
+function renderizarListaBacen() {
+    const container = document.getElementById('lista-fichas-bacen');
+    if (!container) return;
+    
+    const busca = document.getElementById('busca-bacen')?.value.toLowerCase() || '';
+    const filtroStatus = document.getElementById('filtro-status-bacen')?.value || '';
+    
+    let filtradas = fichasBacen;
+    
+    // Aplicar busca
+    if (busca) {
+        filtradas = filtradas.filter(f => {
+            const nome = (f.nomeCompleto || '').toLowerCase();
+            const cpf = (f.cpf || '').toLowerCase();
+            const motivo = (f.motivoReduzido || '').toLowerCase();
+            return nome.includes(busca) || cpf.includes(busca) || motivo.includes(busca);
+        });
+    }
+    
+    // Aplicar filtro de status
+    if (filtroStatus) {
+        filtradas = filtradas.filter(f => f.status === filtroStatus);
+    }
+    
+    if (filtradas.length === 0) {
+        container.innerHTML = '<div class="no-results">Nenhuma ficha BACEN encontrada</div>';
+        return;
+    }
+    
+    container.innerHTML = filtradas.map(f => criarCardBacen(f)).join('');
+}
+
+function criarCardBacen(ficha) {
+    const statusLabels = {
+        'nao-iniciado': 'Não Iniciado',
+        'em-tratativa': 'Em Tratativa',
+        'concluido': 'Concluído',
+        'respondido': 'Respondido'
+    };
+    
+    const statusClass = `status-${ficha.status}`;
+    const statusLabel = statusLabels[ficha.status] || ficha.status;
+    
+    // Verificar se prazo está vencendo
+    let prazoClass = '';
+    let prazoText = '';
+    if (ficha.prazoBacen) {
+        const prazo = new Date(ficha.prazoBacen);
+        const hoje = new Date();
+        const diff = (prazo - hoje) / (1000 * 60 * 60 * 24);
+        if (diff < 0) {
+            prazoClass = 'prazo-vencido';
+            prazoText = '⚠️ Prazo Vencido';
+        } else if (diff <= 7) {
+            prazoClass = 'prazo-vencendo';
+            prazoText = `⏰ Vence em ${Math.ceil(diff)} dias`;
+        }
+    }
+    
+    return `
+        <div class="complaint-item" onclick="abrirFichaBacen('${ficha.id}')">
+            <div class="complaint-header">
+                <div class="complaint-title">
+                    ${ficha.nomeCompleto || ficha.nomeCliente || 'Nome não informado'}
+                    <span class="bacen-badge">🏦 BACEN</span>
+                    ${prazoText ? `<span class="${prazoClass}">${prazoText}</span>` : ''}
+                </div>
+                <div class="complaint-status ${statusClass}">${statusLabel}</div>
+            </div>
+            <div class="complaint-summary">
+                <div class="complaint-detail"><strong>CPF:</strong> ${ficha.cpf}</div>
+                <div class="complaint-detail"><strong>Motivo:</strong> ${ficha.motivoReduzido}</div>
+                <div class="complaint-detail"><strong>Prazo BACEN:</strong> ${formatarData(ficha.prazoBacen)}</div>
+                <div class="complaint-detail"><strong>Responsável:</strong> ${ficha.responsavel}</div>
+                ${ficha.procon ? '<div class="complaint-detail"><strong>⚠️ Com Procon</strong></div>' : ''}
+            </div>
+        </div>
+    `;
+}
+
+function abrirFichaBacen(id) {
+    const ficha = fichasBacen.find(f => f.id === id);
+    if (!ficha) {
+        mostrarAlerta('Ficha não encontrada', 'error');
+        return;
+    }
+    
+    // Usa o sistema de fichas específicas
+    if (window.fichasEspecificas) {
+        window.fichasEspecificas.abrirFicha(ficha);
+    } else if (window.FichasEspecificas) {
+        window.fichasEspecificas = new FichasEspecificas();
+        window.fichasEspecificas.abrirFicha(ficha);
+    } else {
+        setTimeout(() => {
+            if (window.FichasEspecificas) {
+                window.fichasEspecificas = new FichasEspecificas();
+                window.fichasEspecificas.abrirFicha(ficha);
+            } else {
+                mostrarAlerta('Sistema de fichas não disponível. Recarregue a página.', 'error');
+            }
+        }, 200);
+    }
+}
+
+// === RELATÓRIOS ===
+function gerarRelatorioPeriodoBacen() {
+    const inicio = prompt('Data inicial (DD/MM/AAAA):');
+    const fim = prompt('Data final (DD/MM/AAAA):');
+    
+    if (!inicio || !fim) return;
+    
+    const inicioDate = parseDate(inicio);
+    const fimDate = parseDate(fim);
+    
+    const filtradas = fichasBacen.filter(f => {
+        const data = new Date(f.dataEntrada || f.dataReclamacao || f.dataCriacao);
+        return data >= inicioDate && data <= fimDate;
+    });
+    
+    mostrarRelatorio('Relatório por Período - BACEN', filtradas, `Período: ${inicio} a ${fim}`);
+}
+
+function gerarRelatorioPrazosBacen() {
+    const hoje = new Date();
+    const vencendo = fichasBacen.filter(f => {
+        const prazoBacen = f.prazoBacen || f.prazoRetorno;
+        if (!prazoBacen) return false;
+        const prazo = new Date(prazoBacen);
+        return prazo <= hoje || (prazo - hoje) / (1000 * 60 * 60 * 24) <= 7;
+    });
+    
+    mostrarRelatorio('Relatório de Prazos - BACEN', vencendo, 'Fichas com prazo vencendo ou vencido');
+}
+
+function gerarRelatorioCompletoBacen() {
+    mostrarRelatorio('Relatório Completo - BACEN', fichasBacen, `Total: ${fichasBacen.length} fichas`);
+}
+
+function mostrarRelatorio(titulo, dados, subtitulo) {
+    const container = document.getElementById('conteudo-relatorio-bacen');
+    if (!container) return;
+    
+    container.style.display = 'block';
+    container.innerHTML = `
+        <h3>${titulo}</h3>
+        <p>${subtitulo}</p>
+        <div class="report-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>CPF</th>
+                        <th>Status</th>
+                        <th>Prazo BACEN</th>
+                        <th>Procon</th>
+                        <th>Valor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${dados.map(f => `
+                        <tr>
+                            <td>${f.nomeCompleto || f.nomeCliente || '-'}</td>
+                            <td>${f.cpf || '-'}</td>
+                            <td>${f.status || '-'}</td>
+                            <td>${formatarData(f.prazoBacen || f.prazoRetorno)}</td>
+                            <td>${f.procon ? 'Sim' : 'Não'}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+        <button class="velohub-btn" onclick="filtrosExportacaoCSVBacen.mostrarModalFiltros(${JSON.stringify(dados).replace(/"/g, '&quot;').replace(/'/g, '&#39;')}, exportarRelatorioBacenDados)">📥 Exportar CSV com Filtros</button>
+    `;
+}
+
+function exportarRelatorioBacenDados(dados) {
+    if (!dados) {
+        // Tenta obter dados do contexto
+        const container = document.getElementById('conteudo-relatorio-bacen');
+        if (container) {
+            const table = container.querySelector('table tbody');
+            if (table) {
+                dados = fichasBacen;
+            }
+        }
+    }
+    
+    if (!dados || dados.length === 0) {
+        mostrarAlerta('Nenhum dado para exportar', 'error');
+        return;
+    }
+    
+    const headers = ['Cliente', 'CPF', 'Status', 'Prazo BACEN', 'Procon', 'Data Entrada'];
+    const rows = dados.map(f => [
+        f.nomeCompleto || f.nomeCliente || '',
+        f.cpf || '',
+        f.status || '',
+        formatarData(f.prazoBacen || f.prazoRetorno),
+        f.procon ? 'Sim' : 'Não',
+        formatarData(f.dataEntrada || f.dataReclamacao)
+    ]);
+    
+    const csv = [headers, ...rows]
+        .map(row => row.map(cell => `"${cell}"`).join(','))
+        .join('\n');
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relatorio-bacen-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// === UTILITÁRIOS ===
+function limparFormBacen() {
+    document.getElementById('form-bacen')?.reset();
+    const today = new Date().toISOString().split('T')[0];
+    const dataEntrada = document.getElementById('bacen-data-entrada');
+    if (dataEntrada) {
+        dataEntrada.value = today;
+    }
+    // Limpar anexos
+    if (window.gerenciadorAnexos) {
+        window.gerenciadorAnexos.limparAnexosFormulario('anexos-preview-bacen');
+    }
+}
+
+function atualizarElemento(id, valor) {
+    const elemento = document.getElementById(id);
+    if (elemento) {
+        elemento.textContent = valor;
+    }
+}
+
+function formatarData(dataString) {
+    if (!dataString) return 'Não informada';
+    return new Date(dataString).toLocaleDateString('pt-BR');
+}
+
+function parseDate(dateString) {
+    const [dia, mes, ano] = dateString.split('/');
+    return new Date(ano, mes - 1, dia);
+}
+
+function gerarId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+function mostrarAlerta(mensagem, tipo) {
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${tipo}`;
+    alert.textContent = mensagem;
+    document.body.insertBefore(alert, document.body.firstChild);
+    setTimeout(() => alert.remove(), 5000);
+}
+
+// Funções de máscara (reutilizar do main.js)
+function formatCPF(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    e.target.value = value;
+}
+
+function formatPhone(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 10) {
+        value = value.replace(/(\d{2})(\d)/, '($1) $2');
+        value = value.replace(/(\d{4})(\d)/, '$1-$2');
+    } else {
+        value = value.replace(/(\d{2})(\d)/, '($1) $2');
+        value = value.replace(/(\d{5})(\d)/, '$1-$2');
+    }
+    e.target.value = value;
+}
+
+function validarCPF(cpf) {
+    cpf = cpf.replace(/\D/g, '');
+    if (cpf.length !== 11) return false;
+    if (/^(\d)\1{10}$/.test(cpf)) return false;
+    
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+        sum += parseInt(cpf.charAt(i)) * (10 - i);
+    }
+    let remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cpf.charAt(9))) return false;
+    
+    sum = 0;
+    for (let i = 0; i < 10; i++) {
+        sum += parseInt(cpf.charAt(i)) * (11 - i);
+    }
+    remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    return remainder === parseInt(cpf.charAt(10));
+}
+
