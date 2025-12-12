@@ -148,12 +148,18 @@ body {
   color: #FFFFFF !important;
   border: 2px solid rgba(255, 255, 255, 0.4) !important;
   backdrop-filter: blur(10px);
-  padding: 10px 16px;
+  padding: 0;
   border-radius: 8px;
   font-size: 1.2rem;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  line-height: 1;
 }
 
 .theme-toggle-btn:hover {
