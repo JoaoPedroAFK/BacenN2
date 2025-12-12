@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/auth/google",
+      "destination": "/api/auth/google.js"
+    }
+  ]
+}
+
