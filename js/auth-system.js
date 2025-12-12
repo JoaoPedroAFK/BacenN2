@@ -260,7 +260,7 @@ class SistemaPerfis {
                 <div class="login-card">
                     <div class="login-header">
                         <div class="logo-velotax">
-                            <img src="img/velotax_ajustada_cor (1).png" alt="Velotax Logo" class="logo-velotax-img">
+                            <img src="img/LOGO_VELOTAX_NATAL.PNG" alt="Velotax Logo" class="logo-velotax-img">
                         </div>
                     </div>
                     
@@ -545,7 +545,7 @@ class SistemaPerfis {
                     position: fixed;
                     top: 0;
                     left: 0;
-                    background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul-royal) 100%);
+                    background: #000000;
                     padding: 0;
                     z-index: 10000;
                 }
