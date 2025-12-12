@@ -345,16 +345,16 @@ function renderizarListaChatbot() {
         console.warn('⚠️ Container lista-fichas-chatbot não encontrado');
         return;
     }
-    
-    console.log('📋 Renderizando lista com', fichasChatbot.length, 'fichas');
+
+    console.log('📋 Renderizando lista Chatbot geral com', fichasChatbot.length, 'fichas');
     console.log('📋 Fichas disponíveis:', fichasChatbot);
     
     const busca = document.getElementById('busca-chatbot')?.value.toLowerCase() || '';
     const filtroStatus = document.getElementById('filtro-status-chatbot')?.value || '';
     const filtroCanal = document.getElementById('filtro-canal-chatbot')?.value || '';
     
-    // NÃO FILTRAR POR USUÁRIO NA LISTA GERAL - mostrar todas as reclamações
-    let filtradas = fichasChatbot || [];
+    // NÃO FILTRAR POR USUÁRIO NA LISTA GERAL - mostrar TODAS as reclamações de TODOS os agentes
+    let filtradas = [...(fichasChatbot || [])]; // Criar cópia para não modificar o array original
     
     if (busca) {
         filtradas = filtradas.filter(f => {

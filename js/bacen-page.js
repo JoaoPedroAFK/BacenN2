@@ -59,11 +59,15 @@ function mostrarSecao(secaoId) {
     
     // Ações específicas
     if (secaoId === 'lista-bacen') {
-        carregarFichasBacen();
-        renderizarListaBacen();
+        carregarFichasBacen().then(() => {
+            console.log('📋 Fichas carregadas para lista geral:', fichasBacen.length);
+            renderizarListaBacen();
+        });
     } else if (secaoId === 'minhas-reclamacoes-bacen') {
-        carregarFichasBacen();
-        renderizarMinhasReclamacoesBacen();
+        carregarFichasBacen().then(() => {
+            console.log('📋 Fichas carregadas para minhas reclamações:', fichasBacen.length);
+            renderizarMinhasReclamacoesBacen();
+        });
     } else if (secaoId === 'nova-reclamacao-bacen' || secaoId === 'nova-ficha-bacen') {
         // Compatibilidade com ambos os nomes
         if (secaoId === 'nova-ficha-bacen') {
@@ -254,7 +258,9 @@ async function handleSubmitBacen(e) {
         console.log('🧹 Limpando formulário...');
         limparFormBacen();
         await carregarFichasBacen();
+        console.log('📋 Fichas carregadas após salvar:', fichasBacen.length);
         atualizarDashboardBacen();
+        renderizarListaBacen(); // Garantir que a lista seja atualizada
         mostrarSecao('lista-bacen');
         
         console.log('✅ Reclamação salva com sucesso!');
@@ -350,13 +356,19 @@ function atualizarDashboardBacen() {
 // === LISTA ===
 function renderizarListaBacen() {
     const container = document.getElementById('lista-fichas-bacen');
-    if (!container) return;
+    if (!container) {
+        console.warn('⚠️ Container lista-fichas-bacen não encontrado');
+        return;
+    }
+    
+    console.log('📋 Renderizando lista geral com', fichasBacen.length, 'fichas');
+    console.log('📋 Fichas disponíveis:', fichasBacen);
     
     const busca = document.getElementById('busca-bacen')?.value.toLowerCase() || '';
     const filtroStatus = document.getElementById('filtro-status-bacen')?.value || '';
     
-    // NÃO FILTRAR POR USUÁRIO NA LISTA GERAL - mostrar todas as reclamações
-    let filtradas = fichasBacen;
+    // NÃO FILTRAR POR USUÁRIO NA LISTA GERAL - mostrar TODAS as reclamações de TODOS os agentes
+    let filtradas = [...fichasBacen]; // Criar cópia para não modificar o array original
     
     // Aplicar busca
     if (busca) {
@@ -373,6 +385,8 @@ function renderizarListaBacen() {
         filtradas = filtradas.filter(f => f.status === filtroStatus);
     }
     
+    console.log('📋 Fichas após filtros:', filtradas.length);
+    
     if (filtradas.length === 0) {
         container.innerHTML = '<div class="no-results">Nenhuma ficha BACEN encontrada</div>';
         return;
@@ -384,7 +398,10 @@ function renderizarListaBacen() {
 // Renderizar "Minhas Reclamações"
 function renderizarMinhasReclamacoesBacen() {
     const container = document.getElementById('minhas-fichas-bacen');
-    if (!container) return;
+    if (!container) {
+        console.warn('⚠️ Container minhas-fichas-bacen não encontrado');
+        return;
+    }
     
     const usuarioAtual = window.sistemaPerfis?.usuarioAtual;
     if (!usuarioAtual) {
@@ -392,15 +409,30 @@ function renderizarMinhasReclamacoesBacen() {
         return;
     }
     
-    const responsavelAtual = usuarioAtual.nome || usuarioAtual.email;
+    console.log('👤 Usuário atual:', usuarioAtual);
+    console.log('📋 Total de fichas disponíveis:', fichasBacen.length);
     
-    // Filtrar apenas reclamações do usuário logado
+    const responsavelAtual = usuarioAtual.nome || usuarioAtual.email;
+    const emailAtual = usuarioAtual.email || '';
+    
+    // Filtrar apenas reclamações do usuário logado - comparação mais flexível
     const minhasFichas = fichasBacen.filter(f => {
-        const responsavelFicha = f.responsavel || '';
-        return responsavelFicha === responsavelAtual || 
-               responsavelFicha === usuarioAtual.email ||
-               responsavelFicha === usuarioAtual.nome;
+        const responsavelFicha = (f.responsavel || '').toString().toLowerCase().trim();
+        const nomeAtual = (responsavelAtual || '').toString().toLowerCase().trim();
+        const emailAtualLower = (emailAtual || '').toString().toLowerCase().trim();
+        
+        const match = responsavelFicha === nomeAtual || 
+                      responsavelFicha === emailAtualLower ||
+                      responsavelFicha === (usuarioAtual.nome || '').toString().toLowerCase().trim();
+        
+        if (match) {
+            console.log('✅ Match encontrado:', f.id, 'Responsável:', f.responsavel);
+        }
+        
+        return match;
     });
+    
+    console.log('📋 Minhas fichas encontradas:', minhasFichas.length);
     
     if (minhasFichas.length === 0) {
         container.innerHTML = '<div class="no-results">Você não possui reclamações atribuídas</div>';

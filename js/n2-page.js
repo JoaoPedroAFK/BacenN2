@@ -54,8 +54,10 @@ function mostrarSecao(secaoId) {
     });
     
     if (secaoId === 'lista-n2') {
-        carregarFichasN2();
-        renderizarListaN2();
+        carregarFichasN2().then(() => {
+            console.log('📋 Fichas N2 carregadas para lista geral:', fichasN2.length);
+            renderizarListaN2();
+        });
     } else if (secaoId === 'nova-reclamacao-n2' || secaoId === 'nova-ficha-n2') {
         // Compatibilidade com ambos os nomes
         if (secaoId === 'nova-ficha-n2') {
@@ -341,14 +343,19 @@ function atualizarDashboardN2() {
 // === LISTA ===
 function renderizarListaN2() {
     const container = document.getElementById('lista-fichas-n2');
-    if (!container) return;
+    if (!container) {
+        console.warn('⚠️ Container lista-fichas-n2 não encontrado');
+        return;
+    }
+    
+    console.log('📋 Renderizando lista N2 geral com', fichasN2.length, 'fichas');
     
     const busca = document.getElementById('busca-n2')?.value.toLowerCase() || '';
     const filtroStatus = document.getElementById('filtro-status-n2')?.value || '';
     const filtroPortabilidade = document.getElementById('filtro-portabilidade-n2')?.value || '';
     
-    // NÃO FILTRAR POR USUÁRIO NA LISTA GERAL - mostrar todas as reclamações
-    let filtradas = fichasN2;
+    // NÃO FILTRAR POR USUÁRIO NA LISTA GERAL - mostrar TODAS as reclamações de TODOS os agentes
+    let filtradas = [...fichasN2]; // Criar cópia para não modificar o array original
     
     if (busca) {
         filtradas = filtradas.filter(f => {
