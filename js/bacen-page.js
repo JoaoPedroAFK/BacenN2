@@ -351,6 +351,79 @@ function atualizarDashboardBacen() {
     
     const liquidacao = fichasBacen.filter(f => f.liquidacaoAntecipada).length;
     atualizarElemento('liquidacao-bacen', liquidacao);
+    
+    // Adicionar event listeners aos cards
+    configurarCardsDashboardBacen();
+}
+
+// Configurar cliques nos cards do dashboard
+function configurarCardsDashboardBacen() {
+    // Card Total
+    const cardTotal = document.querySelector('#bacen-total-dash')?.closest('.stat-card');
+    if (cardTotal) {
+        cardTotal.style.cursor = 'pointer';
+        cardTotal.onclick = () => mostrarCasosDashboardBacen('total');
+    }
+    
+    // Card Em Tratativa
+    const cardTratativa = document.querySelector('#bacen-tratativa-dash')?.closest('.stat-card');
+    if (cardTratativa) {
+        cardTratativa.style.cursor = 'pointer';
+        cardTratativa.onclick = () => mostrarCasosDashboardBacen('em-tratativa');
+    }
+    
+    // Card Concluídas
+    const cardConcluidas = document.querySelector('#bacen-concluidas-dash')?.closest('.stat-card');
+    if (cardConcluidas) {
+        cardConcluidas.style.cursor = 'pointer';
+        cardConcluidas.onclick = () => mostrarCasosDashboardBacen('concluidas');
+    }
+    
+    // Card Prazo Vencendo
+    const cardPrazo = document.querySelector('#bacen-prazo-vencendo')?.closest('.stat-card');
+    if (cardPrazo) {
+        cardPrazo.style.cursor = 'pointer';
+        cardPrazo.onclick = () => mostrarCasosDashboardBacen('prazo-vencendo');
+    }
+}
+
+// Mostrar casos relacionados ao card clicado
+function mostrarCasosDashboardBacen(tipo) {
+    let filtradas = [];
+    let titulo = '';
+    
+    switch(tipo) {
+        case 'total':
+            filtradas = fichasBacen;
+            titulo = 'Total de Reclamações BACEN';
+            break;
+        case 'em-tratativa':
+            filtradas = fichasBacen.filter(f => f.status === 'em-tratativa');
+            titulo = 'Reclamações em Tratativa';
+            break;
+        case 'concluidas':
+            filtradas = fichasBacen.filter(f => f.status === 'concluido' || f.status === 'respondido');
+            titulo = 'Reclamações Concluídas';
+            break;
+        case 'prazo-vencendo':
+            const hoje = new Date();
+            filtradas = fichasBacen.filter(f => {
+                if (!f.prazoBacen) return false;
+                const prazo = new Date(f.prazoBacen);
+                const diff = (prazo - hoje) / (1000 * 60 * 60 * 24);
+                return diff >= 0 && diff <= 7;
+            });
+            titulo = 'Reclamações com Prazo Vencendo';
+            break;
+    }
+    
+    if (filtradas.length === 0) {
+        mostrarAlerta(`Nenhuma reclamação encontrada para "${titulo}"`, 'info');
+        return;
+    }
+    
+    // Criar modal com os casos
+    criarModalCasosDashboard(titulo, filtradas, 'bacen');
 }
 
 // === LISTA ===
@@ -513,6 +586,65 @@ function criarCardBacen(ficha) {
             </div>
         </div>
     `;
+}
+
+// Criar modal para exibir casos do dashboard
+function criarModalCasosDashboard(titulo, casos, tipo) {
+    // Remover modal existente se houver
+    const modalExistente = document.getElementById('modal-casos-dashboard');
+    if (modalExistente) {
+        modalExistente.remove();
+    }
+    
+    // Criar modal
+    const modal = document.createElement('div');
+    modal.id = 'modal-casos-dashboard';
+    modal.className = 'modal-casos-dashboard';
+    
+    // Função para criar card baseado no tipo
+    const criarCard = (f) => {
+        if (tipo === 'bacen') {
+            return criarCardBacen(f);
+        } else if (tipo === 'n2') {
+            return criarCardN2 ? criarCardN2(f) : criarCardBacen(f);
+        } else if (tipo === 'chatbot') {
+            return criarCardChatbot ? criarCardChatbot(f) : criarCardBacen(f);
+        }
+        return criarCardBacen(f);
+    };
+    
+    modal.innerHTML = `
+        <div class="modal-casos-content">
+            <div class="modal-casos-header">
+                <h2>${titulo}</h2>
+                <span class="modal-casos-close" onclick="fecharModalCasosDashboard()">&times;</span>
+            </div>
+            <div class="modal-casos-body">
+                <div class="modal-casos-info">
+                    <p><strong>Total:</strong> ${casos.length} caso(s)</p>
+                </div>
+                <div class="modal-casos-list">
+                    ${casos.map(f => criarCard(f)).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Fechar ao clicar fora
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            fecharModalCasosDashboard();
+        }
+    };
+}
+
+function fecharModalCasosDashboard() {
+    const modal = document.getElementById('modal-casos-dashboard');
+    if (modal) {
+        modal.remove();
+    }
 }
 
 function abrirFichaBacen(id) {
