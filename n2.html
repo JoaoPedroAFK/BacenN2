@@ -40,7 +40,10 @@
     <header class="velohub-header">
         <div class="header-content">
                 <div class="header-logo">
-                    <img src="img/velotax_ajustada_branco.png" alt="Velotax" class="logo-header">
+                    <div class="logo-container-natal">
+                        <img src="img/chapeu-natal.svg" alt="Chapeuzinho de Natal" class="natal-chapeu-img">
+                        <img src="img/velotax_ajustada_branco.png" alt="Velotax" class="logo-header">
+                    </div>
                     <h1>N2</h1>
                 </div>
             <div class="header-actions">
@@ -50,11 +53,21 @@
         </div>
     </header>
 
+    <!-- Menu CANAIS -->
+    <nav class="nav nav-canais">
+        <div class="canais-menu">
+            <span class="canais-label">CANAIS:</span>
+            <a href="bacen.html" class="nav-btn canais-btn">BACEN</a>
+            <a href="n2.html" class="nav-btn canais-btn active">N2</a>
+            <a href="chatbot.html" class="nav-btn canais-btn">Chatbot</a>
+        </div>
+    </nav>
+
     <!-- Navegação -->
     <nav class="nav">
         <button class="nav-btn active" onclick="mostrarSecao('dashboard-n2')">📊 Dashboard</button>
-        <button class="nav-btn" onclick="mostrarSecao('nova-ficha-n2')">➕ Nova Ficha N2</button>
-        <button class="nav-btn" onclick="mostrarSecao('lista-n2')">📋 Lista de Fichas</button>
+        <button class="nav-btn" onclick="mostrarSecao('nova-reclamacao-n2')">➕ Nova Reclamação N2</button>
+        <button class="nav-btn" onclick="mostrarSecao('lista-n2')">📋 Lista de Reclamações</button>
         <button class="nav-btn" onclick="mostrarSecao('relatorios-n2')">📈 Relatórios</button>
     </nav>
 
@@ -69,7 +82,7 @@
             
             <div class="stats-grid">
                 <div class="stat-card n2-card">
-                    <h3>Total de Fichas N2</h3>
+                    <h3>Total de Reclamações N2</h3>
                     <span class="stat-number" id="n2-total-dash">0</span>
                 </div>
                 <div class="stat-card n2-card">
@@ -122,69 +135,21 @@
             </div>
         </section>
 
-        <!-- Nova Ficha N2 -->
-        <section id="nova-ficha-n2" class="section">
+        <!-- Nova Reclamação N2 -->
+        <section id="nova-reclamacao-n2" class="section">
             <div class="n2-header">
-                <h2>➕ Nova Ficha N2</h2>
+                <h2>➕ Nova Reclamação N2</h2>
                 <p>Registre uma nova demanda de portabilidade ou transferência</p>
             </div>
             
             <form id="form-n2" class="complaint-form">
-                <!-- Detalhes da Reclamação (PRIMEIRA SEÇÃO) -->
+                <!-- 1º Item: Dados Básicos -->
                 <div class="form-section">
-                    <h3>🎯 Detalhes da Reclamação</h3>
+                    <h3>1º Item: Dados Básicos</h3>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="n2-motivo-reduzido">Motivo Reduzido *</label>
-                            <select id="n2-motivo-reduzido" class="velohub-input" required>
-                                <option value="">Selecione...</option>
-                                <option value="CHAVE PIX">CHAVE PIX</option>
-                                <option value="Abatimento Juros">Abatimento Juros</option>
-                                <option value="Não recebeu restituição">Não recebeu restituição</option>
-                                <option value="Probl. App / Gov.">Probl. App / Gov.</option>
-                                <option value="Conta">Conta</option>
-                                <option value="Cancelamento Conta">Cancelamento Conta</option>
-                                <option value="Liquidação Antecipada">Liquidação Antecipada</option>
-                                <option value="Fraude">Fraude</option>
-                                <option value="Superendividamento">Superendividamento</option>
-                                <option value="Devolução à Celcoin">Devolução à Celcoin</option>
-                                <option value="Outros">Outros</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="n2-prazo-n2">Prazo N2 *</label>
-                            <input type="date" id="n2-prazo-n2" class="velohub-input" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="n2-motivo-detalhado">Motivo da Reclamação *</label>
-                        <textarea id="n2-motivo-detalhado" class="velohub-input" rows="4" placeholder="Descreva detalhadamente..." required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="n2-anexos">📎 Anexar Documentos (PDFs e Imagens)</label>
-                        <input type="file" id="n2-anexos" class="velohub-input" multiple accept=".pdf,.jpg,.jpeg,.png,.gif,.webp" onchange="gerenciadorAnexos.handleUpload(event, 'anexos-preview-n2')">
-                        <small class="form-hint">Você pode anexar múltiplos arquivos. Tamanho máximo: 10MB por arquivo.</small>
-                        <div id="anexos-preview-n2" class="anexos-preview-container"></div>
-                    </div>
-                </div>
-
-                <!-- Dados Básicos -->
-                <div class="form-section">
-                    <h3>📋 Dados Básicos</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="n2-data-entrada-atendimento">Data de entrada Atendimento *</label>
+                            <label for="n2-data-entrada-atendimento">Data entrada (dia/mês/ano) *</label>
                             <input type="date" id="n2-data-entrada-atendimento" class="velohub-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="n2-data-entrada-n2">Data Entrada N2 *</label>
-                            <input type="date" id="n2-data-entrada-n2" class="velohub-input" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="n2-data-entrada">Data de Entrada *</label>
-                            <input type="date" id="n2-data-entrada" class="velohub-input" required>
                         </div>
                         <div class="form-group">
                             <label for="n2-responsavel">Responsável *</label>
@@ -197,72 +162,92 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="n2-mes">Mês *</label>
-                            <select id="n2-mes" class="velohub-input" required>
-                                <option value="">Selecione...</option>
-                                <option value="1/2025">1/2025</option>
-                                <option value="2/2025">2/2025</option>
-                                <option value="3/2025">3/2025</option>
-                                <option value="4/2025">4/2025</option>
-                                <option value="5/2025">5/2025</option>
-                                <option value="6/2025">6/2025</option>
-                                <option value="7/2025">7/2025</option>
-                                <option value="8/2025">8/2025</option>
-                                <option value="9/2025">9/2025</option>
-                                <option value="10/2025">10/2025</option>
-                                <option value="11/2025">11/2025</option>
-                                <option value="12/2025">12/2025</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Dados do Cliente -->
-                <div class="form-section">
-                    <h3>👤 Dados do Cliente</h3>
-                    <div class="form-row">
-                        <div class="form-group">
                             <label for="n2-nome">Nome Completo *</label>
                             <input type="text" id="n2-nome" class="velohub-input" required>
                         </div>
                         <div class="form-group">
-                            <label for="n2-cpf">CPF *</label>
+                            <label for="n2-cpf">CPF (000.000.000-00) *</label>
                             <input type="text" id="n2-cpf" class="velohub-input cpf-mask" required placeholder="000.000.000-00">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="n2-telefone">Telefone</label>
-                            <input type="text" id="n2-telefone" class="velohub-input telefone-mask" placeholder="(00) 00000-0000">
-                        </div>
-                        <div class="form-group">
                             <label for="n2-origem">Origem *</label>
                             <select id="n2-origem" class="velohub-input" required>
                                 <option value="">Selecione...</option>
-                                <option value="Atendimento">Atendimento</option>
+                                <option value="Bacen Celcoin">Bacen Celcoin</option>
+                                <option value="Bacen Via Capital">Bacen Via Capital</option>
+                                <option value="Consumidor.Gov">Consumidor.Gov</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label for="n2-telefone">Telefone (DDD) 00000-0000</label>
+                            <input type="text" id="n2-telefone" class="velohub-input telefone-mask" placeholder="(00) 00000-0000">
+                        </div>
                     </div>
                 </div>
 
-                <!-- Tentativas de Contato -->
+                <!-- 2º Item: Detalhes da Reclamação -->
                 <div class="form-section">
-                    <h3>📞 Tentativas de Contato</h3>
+                    <h3>2º Item: Detalhes da Reclamação</h3>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="n2-1-tentativa">1ª tentativa</label>
-                            <input type="date" id="n2-1-tentativa" class="velohub-input">
+                            <label for="n2-motivo-reduzido">Motivo Reduzido *</label>
+                            <select id="n2-motivo-reduzido" class="velohub-input" required>
+                                <option value="">Selecione...</option>
+                                <option value="Abatimento Juros">Abatimento Juros</option>
+                                <option value="Abatimento Juros/Chave PIX">Abatimento Juros/Chave PIX</option>
+                                <option value="Cancelamento Conta">Cancelamento Conta</option>
+                                <option value="Chave PIX">Chave PIX</option>
+                                <option value="PIX/Abatimento Juros/Encerramento de conta">PIX/Abatimento Juros/Encerramento de conta</option>
+                                <option value="Chave PIX/Abatimento Juros/Prob. App">Chave PIX/Abatimento Juros/Prob. App</option>
+                                <option value="Chave PIX/Acesso ao App">Chave PIX/Acesso ao App</option>
+                                <option value="Chave PIX/Exclusão de Conta">Chave PIX/Exclusão de Conta</option>
+                                <option value="Conta">Conta</option>
+                                <option value="Devolução à Celcoin">Devolução à Celcoin</option>
+                                <option value="Fraude">Fraude</option>
+                                <option value="Liquidação Antecipada">Liquidação Antecipada</option>
+                                <option value="Liquidação Antecipada/Abatimento Juros">Liquidação Antecipada/Abatimento Juros</option>
+                                <option value="Não recebeu restituição">Não recebeu restituição</option>
+                                <option value="Não recebeu restituição/Abatimento Juros">Não recebeu restituição/Abatimento Juros</option>
+                                <option value="Não recebeu restituição/Abatimento Juros/Chave PIX">Não recebeu restituição/Abatimento Juros/Chave PIX</option>
+                                <option value="Não recebeu restituição/Chave PIX">Não recebeu restituição/Chave PIX</option>
+                                <option value="Probl. App/Gov">Probl. App/Gov</option>
+                                <option value="Superendividamento">Superendividamento</option>
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label for="n2-2-tentativa">2ª tentativa</label>
-                            <input type="date" id="n2-2-tentativa" class="velohub-input">
+                            <label for="n2-prazo-n2">Prazo Bacen (dia/mês/ano) *</label>
+                            <input type="date" id="n2-prazo-n2" class="velohub-input" required>
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="n2-motivo-detalhado">Motivo Reclamação *</label>
+                        <textarea id="n2-motivo-detalhado" class="velohub-input" rows="4" placeholder="Descreva detalhadamente a reclamação..." required></textarea>
                     </div>
                 </div>
 
-                <!-- Acionamentos ao Canais de Atendimento e Protocolos -->
+                <!-- 3º Item: Tentativas de Contato -->
                 <div class="form-section">
-                    <h3>📋 Acionamentos ao Canais de Atendimento e Protocolos</h3>
+                    <h3>3º Item: Tentativas de Contato</h3>
+                    <div id="tentativas-contato-n2">
+                        <div class="form-row tentativa-item">
+                            <div class="form-group">
+                                <label>1ª tentativa (dia/mês/ano)</label>
+                                <input type="date" class="velohub-input tentativa-data" data-tentativa="1">
+                            </div>
+                            <div class="form-group">
+                                <label>2ª tentativa (dia/mês/ano)</label>
+                                <input type="date" class="velohub-input tentativa-data" data-tentativa="2">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="velohub-btn btn-secondary" onclick="adicionarTentativaN2()">➕ Adicionar Tentativa</button>
+                </div>
+
+                <!-- 4º Item: Acionamentos ao Canais de Atendimento e Protocolos -->
+                <div class="form-section">
+                    <h3>4º Item: Acionamentos ao Canais de Atendimento e Protocolos</h3>
                     <div class="form-row">
                         <div class="form-group" style="flex: 0 0 200px;">
                             <label class="checkbox-label">
@@ -322,9 +307,9 @@
                     </div>
                 </div>
 
-                <!-- Liberação do PIX -->
+                <!-- 5º Item: Liberação do PIX -->
                 <div class="form-section">
-                    <h3>💳 Liberação do PIX</h3>
+                    <h3>5º Item: Liberação do PIX</h3>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="n2-pix-status">PIX liberado ou excluído?</label>
@@ -336,7 +321,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Enviar para cobrança? *</label>
+                            <label>Enviar para cobrança? (Opção Sim ou Não) *</label>
                             <div style="display: flex; gap: 16px; margin-top: 8px;">
                                 <label class="radio-label">
                                     <input type="radio" name="n2-enviar-cobranca" value="Sim" required>
@@ -347,22 +332,23 @@
                                     <span>Não</span>
                                 </label>
                             </div>
+                            <small class="form-hint">Obs: No futuro haver integração com o sistema de Cobrança.</small>
                         </div>
                     </div>
                 </div>
 
-                <!-- Observações -->
+                <!-- 6º Item: Observações (desfecho) -->
                 <div class="form-section">
-                    <h3>📝 Observações</h3>
+                    <h3>6º Item: Observações (desfecho)</h3>
                     <div class="form-group">
                         <label for="n2-observacoes">Observações</label>
                         <textarea id="n2-observacoes" class="velohub-input" rows="4" placeholder="Digite as observações..."></textarea>
                     </div>
                 </div>
 
-                <!-- Casos Críticos (Blacklist) -->
+                <!-- 7º Item: Casos Críticos (Blacklist) -->
                 <div class="form-section">
-                    <h3>⚠️ Casos Críticos (Blacklist)</h3>
+                    <h3>7º Item: Casos Críticos (Blacklist)</h3>
                     <div class="form-group">
                         <label class="checkbox-label">
                             <input type="checkbox" id="n2-casos-criticos">
@@ -394,16 +380,16 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="velohub-btn">💾 Salvar Ficha N2</button>
+                    <button type="submit" class="velohub-btn">💾 Salvar Reclamação N2</button>
                     <button type="button" class="velohub-btn btn-secondary" onclick="limparFormN2()">🗑️ Limpar</button>
                 </div>
             </form>
         </section>
 
-        <!-- Lista de Fichas N2 -->
+        <!-- Lista de Reclamações N2 -->
         <section id="lista-n2" class="section">
             <div class="n2-header">
-                <h2>📋 Lista de Fichas N2</h2>
+                <h2>📋 Lista de Reclamações N2</h2>
                 <p>Todas as demandas de portabilidade e transferência</p>
             </div>
             
@@ -467,6 +453,11 @@
     </main>
 
     <!-- JavaScript -->
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/supabase-db.js"></script>
+    <!-- Outros scripts -->
     <script src="js/loading.js"></script>
     <script src="js/validador-velotax.js"></script>
     <script src="js/auth-system.js"></script>
@@ -477,6 +468,7 @@
     <script src="js/graficos-detalhados.js"></script>
     <script src="js/lista-casos-abertos.js"></script>
     <script src="js/filtros-exportacao-csv.js"></script>
+    <script src="js/exportacao-excel.js"></script>
     <script src="js/n2-page.js"></script>
     <script>
         // Função para mostrar/ocultar campos de protocolo
@@ -495,6 +487,29 @@
                     protocoloInput.value = '';
                 }
             }
+        }
+
+        // Função para adicionar tentativas de contato N2
+        let contadorTentativasN2 = 2;
+        function adicionarTentativaN2() {
+            contadorTentativasN2++;
+            const container = document.getElementById('tentativas-contato-n2');
+            const novaTentativa = document.createElement('div');
+            novaTentativa.className = 'form-row tentativa-item';
+            novaTentativa.innerHTML = `
+                <div class="form-group">
+                    <label>${contadorTentativasN2}ª tentativa (dia/mês/ano)</label>
+                    <input type="date" class="velohub-input tentativa-data" data-tentativa="${contadorTentativasN2}">
+                </div>
+                <div class="form-group">
+                    <button type="button" class="velohub-btn btn-secondary" onclick="removerTentativaN2(this)" style="margin-top: 24px;">🗑️ Remover</button>
+                </div>
+            `;
+            container.appendChild(novaTentativa);
+        }
+
+        function removerTentativaN2(btn) {
+            btn.closest('.tentativa-item').remove();
         }
     </script>
 </body>

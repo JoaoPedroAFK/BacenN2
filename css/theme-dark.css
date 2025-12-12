@@ -3,7 +3,20 @@
 /* === APLICAR TEMA ESCURO NO BODY === */
 .dark body {
   background-color: var(--cor-fundo-escuro);
-  color: var(--texto-principal-escuro);
+  color: #ECECEC !important;
+}
+
+/* === REGRA GERAL PARA TEXTOS NO TEMA ESCURO === */
+.dark * {
+  color: inherit;
+}
+
+.dark p, .dark span, .dark div, .dark li, .dark td {
+  color: #ECECEC !important;
+}
+
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6, .dark th {
+  color: #FFFFFF !important;
 }
 
 /* === CONTAINERS NO TEMA ESCURO === */
@@ -42,35 +55,47 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.dark .nav-btn {
-  color: var(--texto-secundario-escuro);
+.dark .nav-btn,
+.dark a.nav-btn {
+  color: #FFFFFF !important;
+  background: transparent;
+}
+
+/* === MENU CANAIS NO TEMA ESCURO === */
+.dark .nav-canais {
+  background: var(--cor-header, #1634FF);
+}
+
+.dark .canais-label {
+  color: #FFFFFF !important;
+}
+
+.dark .canais-btn {
+  color: #FFFFFF !important;
+}
+
+.dark .canais-btn:hover {
+  color: #FFFFFF !important;
+}
+
+.dark .canais-btn.active {
+  background: white;
+  color: var(--cor-header, #1634FF) !important;
 }
 
 .dark .nav-btn:hover {
-  background: rgba(22, 148, 255, 0.15);
-  color: var(--azul-claro);
+  background: rgba(22, 52, 255, 0.2) !important;
+  color: #FFFFFF !important;
 }
 
 .dark .nav-btn.active {
-  background: linear-gradient(135deg, var(--azul-royal), var(--azul-claro));
-  color: var(--texto-claro);
-  box-shadow: 0 4px 12px rgba(22, 148, 255, 0.4);
+  background: linear-gradient(135deg, var(--azul-royal), #1DFDB9) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(22, 52, 255, 0.4);
 }
 
 /* === TEXTOS NO TEMA ESCURO === */
-.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
-  color: #FFFFFF !important;
-}
-
-.dark p, .dark span, .dark div, .dark li {
-  color: #ECECEC !important;
-}
-
-/* Garantir texto branco em fundos azuis/escuros */
-.dark .velohub-header h1,
-.dark .header-logo h1 {
-  color: #FFFFFF !important;
-}
+/* Regras já definidas acima - removidas duplicatas */
 
 .dark .stat-card,
 .dark .velohub-card,
@@ -220,7 +245,7 @@
 }
 
 .dark .stat-card h3 {
-  color: var(--texto-principal-escuro);
+  color: #FFFFFF !important;
 }
 
 .dark .stat-number {
@@ -236,6 +261,270 @@
   -webkit-text-fill-color: var(--azul-ciano) !important;
 }
 
+/* === CARDS DE SEGMENTO NO TEMA ESCURO === */
+.dark .segmento-card {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+}
+
+.dark .segmento-card h3 {
+  color: #FFFFFF !important;
+}
+
+.dark .segmento-descricao {
+  color: #B0BEC5 !important;
+}
+
+.dark .segmento-stats {
+  background: var(--cor-fundo-escuro) !important;
+}
+
+.dark .stat-label {
+  color: #B0BEC5 !important;
+}
+
+.dark .stat-value {
+  color: var(--azul-ciano) !important;
+}
+
+/* === TABELAS NO TEMA ESCURO === */
+.dark table {
+  color: #ECECEC !important;
+}
+
+.dark table th {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+.dark table td {
+  color: #ECECEC !important;
+  border-color: var(--borda-escura) !important;
+}
+
+.dark table tr:hover {
+  background: var(--cor-fundo-escuro) !important;
+}
+
+/* === CARDS DE MÉTRICAS NO TEMA ESCURO === */
+.dark .metrica-card {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+}
+
+.dark .metrica-card h4,
+.dark .metrica-card h3 {
+  color: #FFFFFF !important;
+}
+
+.dark .metrica-card p,
+.dark .metrica-card span {
+  color: #B0BEC5 !important;
+}
+
+/* === GRÁFICOS E CHART NO TEMA ESCURO === */
+.dark .chart-container,
+.dark .status-chart,
+.dark .responsible-chart {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+}
+
+.dark .chart-label,
+.dark .chart-title {
+  color: #FFFFFF !important;
+}
+
+.dark .chart-item,
+.dark .status-item,
+.dark .responsible-item {
+  color: #ECECEC !important;
+}
+
+.dark .status-label,
+.dark .responsible-label {
+  color: #B0BEC5 !important;
+}
+
+.dark .status-count,
+.dark .responsible-count {
+  color: var(--azul-ciano) !important;
+}
+
+/* === PERÍODO DE ANÁLISE NO TEMA ESCURO === */
+.dark .periodo-analise,
+.dark .filter-section {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+}
+
+.dark .periodo-analise label,
+.dark .filter-section label {
+  color: #FFFFFF !important;
+}
+
+.dark .periodo-analise select,
+.dark .filter-section select {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+/* === CARDS DE RESUMO NO TEMA ESCURO === */
+.dark .summary-card,
+.dark .dashboard-card {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+}
+
+.dark .summary-card h3,
+.dark .dashboard-card h3 {
+  color: #FFFFFF !important;
+}
+
+.dark .summary-card p,
+.dark .dashboard-card p {
+  color: #B0BEC5 !important;
+}
+
+/* === BADGES E STATUS PILLS NO TEMA ESCURO === */
+.dark .status-badge,
+.dark .badge {
+  color: #FFFFFF !important;
+}
+
+/* === TEXTOS GERAL NO TEMA ESCURO === */
+.dark label {
+  color: #ECECEC !important;
+}
+
+.dark .text-muted,
+.dark .text-secondary {
+  color: #B0BEC5 !important;
+}
+
+/* === DASHBOARD ESPECÍFICO NO TEMA ESCURO === */
+.dark .segmento-dashboard {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+}
+
+.dark .dashboard-urgencias-section {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+}
+
+.dark .dashboard-urgencias-section h3 {
+  color: #FFFFFF !important;
+}
+
+.dark .segmento-stat-card {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+}
+
+.dark .segmento-stat-card h4 {
+  color: #FFFFFF !important;
+}
+
+.dark .segmento-stat-card .stat-number {
+  color: var(--azul-ciano) !important;
+}
+
+/* === ELEMENTOS DE FORMULÁRIO NO TEMA ESCURO === */
+.dark select,
+.dark .velohub-select {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+.dark select option {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+}
+
+.dark textarea {
+  background: var(--cor-container-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+/* === LINKS NO TEMA ESCURO === */
+.dark a {
+  color: var(--azul-ciano) !important;
+}
+
+.dark a:hover {
+  color: var(--azul-ciano) !important;
+  opacity: 0.8;
+}
+
+/* === BOTÕES NO TEMA ESCURO === */
+.dark button:not(.canais-btn):not(.nav-btn) {
+  color: #FFFFFF !important;
+}
+
+.dark .velohub-btn-primary {
+  background: var(--azul-royal) !important;
+  color: #FFFFFF !important;
+}
+
+.dark .velohub-btn-secondary {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+/* === CARDS E CONTAINERS NO TEMA ESCURO === */
+.dark .velohub-card,
+.dark .card {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+  border-color: var(--borda-escura) !important;
+}
+
+.dark .velohub-card h2,
+.dark .velohub-card h3,
+.dark .velohub-card h4,
+.dark .card h2,
+.dark .card h3,
+.dark .card h4 {
+  color: #FFFFFF !important;
+}
+
+.dark .velohub-card p,
+.dark .card p {
+  color: #B0BEC5 !important;
+}
+
+/* === LISTAS NO TEMA ESCURO === */
+.dark ul,
+.dark ol {
+  color: #ECECEC !important;
+}
+
+.dark li {
+  color: #ECECEC !important;
+}
+
+/* === ELEMENTOS ESPECÍFICOS DO DASHBOARD === */
+.dark .no-results,
+.dark .empty-state {
+  color: #B0BEC5 !important;
+}
+
+.dark .percentage,
+.dark .percent {
+  color: var(--azul-ciano) !important;
+}
+
+.dark .value,
+.dark .number {
+  color: #FFFFFF !important;
+}
+
 /* === RELATÓRIOS NO TEMA ESCURO === */
 .dark .report-card {
   background: var(--cor-card-escuro);
@@ -248,11 +537,11 @@
 }
 
 .dark .report-card h3 {
-  color: var(--texto-principal-escuro);
+  color: #FFFFFF !important;
 }
 
 .dark .report-card p {
-  color: var(--texto-secundario-escuro);
+  color: #B0BEC5 !important;
 }
 
 .dark .report-content {

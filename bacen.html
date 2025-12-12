@@ -46,7 +46,10 @@
     <header class="velohub-header">
         <div class="header-content">
                 <div class="header-logo">
-                    <img src="img/velotax_ajustada_branco.png" alt="Velotax" class="logo-header">
+                    <div class="logo-container-natal">
+                        <img src="img/chapeu-natal.svg" alt="Chapeuzinho de Natal" class="natal-chapeu-img">
+                        <img src="img/velotax_ajustada_branco.png" alt="Velotax" class="logo-header">
+                    </div>
                     <h1>BACEN</h1>
                 </div>
             <div class="header-actions">
@@ -57,11 +60,21 @@
         </div>
     </header>
 
+    <!-- Menu CANAIS -->
+    <nav class="nav nav-canais">
+        <div class="canais-menu">
+            <span class="canais-label">CANAIS:</span>
+            <a href="bacen.html" class="nav-btn canais-btn active">BACEN</a>
+            <a href="n2.html" class="nav-btn canais-btn">N2</a>
+            <a href="chatbot.html" class="nav-btn canais-btn">Chatbot</a>
+        </div>
+    </nav>
+
     <!-- Navegação -->
     <nav class="nav">
         <button class="nav-btn active" onclick="mostrarSecao('dashboard-bacen')">📊 Dashboard</button>
-        <button class="nav-btn" onclick="mostrarSecao('nova-ficha-bacen')">➕ Nova Ficha BACEN</button>
-        <button class="nav-btn" onclick="mostrarSecao('lista-bacen')">📋 Lista de Fichas</button>
+        <button class="nav-btn" onclick="mostrarSecao('nova-reclamacao-bacen')">➕ Nova Reclamação BACEN</button>
+        <button class="nav-btn" onclick="mostrarSecao('lista-bacen')">📋 Lista de Reclamações</button>
         <button class="nav-btn" onclick="mostrarSecao('relatorios-bacen')">📈 Relatórios</button>
     </nav>
 
@@ -76,7 +89,7 @@
             
             <div class="stats-grid">
                 <div class="stat-card bacen-card">
-                    <h3>Total de Fichas BACEN</h3>
+                    <h3>Total de Reclamações BACEN</h3>
                     <span class="stat-number" id="bacen-total-dash">0</span>
                 </div>
                 <div class="stat-card bacen-card">
@@ -135,58 +148,20 @@
             </div>
         </section>
 
-        <!-- Nova Ficha BACEN -->
-        <section id="nova-ficha-bacen" class="section">
+        <!-- Nova Reclamação BACEN -->
+        <section id="nova-reclamacao-bacen" class="section">
             <div class="bacen-header">
-                <h2>➕ Nova Ficha BACEN</h2>
+                <h2>➕ Nova Reclamação BACEN</h2>
                 <p>Registre uma nova reclamação do Banco Central</p>
             </div>
             
             <form id="form-bacen" class="complaint-form">
-                <!-- Detalhes da Reclamação (PRIMEIRA SEÇÃO) -->
+                <!-- 1º Item: Dados Básicos -->
                 <div class="form-section">
-                    <h3>🎯 Detalhes da Reclamação</h3>
+                    <h3>1º Item: Dados Básicos</h3>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="bacen-motivo-reduzido">Motivo Reduzido *</label>
-                            <select id="bacen-motivo-reduzido" class="velohub-input" required>
-                                <option value="">Selecione...</option>
-                                <option value="CHAVE PIX">CHAVE PIX</option>
-                                <option value="Abatimento Juros">Abatimento Juros</option>
-                                <option value="Não recebeu restituição">Não recebeu restituição</option>
-                                <option value="Probl. App / Gov.">Probl. App / Gov.</option>
-                                <option value="Conta">Conta</option>
-                                <option value="Cancelamento Conta">Cancelamento Conta</option>
-                                <option value="Liquidação Antecipada">Liquidação Antecipada</option>
-                                <option value="Fraude">Fraude</option>
-                                <option value="Superendividamento">Superendividamento</option>
-                                <option value="Devolução à Celcoin">Devolução à Celcoin</option>
-                                <option value="Outros">Outros</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="bacen-prazo-bacen">Prazo BACEN <span id="prazo-bacen-obrigatorio" style="display:none;">*</span></label>
-                            <input type="date" id="bacen-prazo-bacen" class="velohub-input">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="bacen-motivo-detalhado">Motivo da Reclamação *</label>
-                        <textarea id="bacen-motivo-detalhado" class="velohub-input" rows="4" placeholder="Descreva detalhadamente a reclamação..." required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="bacen-anexos">📎 Anexar Documentos (PDFs e Imagens)</label>
-                        <input type="file" id="bacen-anexos" class="velohub-input" multiple accept=".pdf,.jpg,.jpeg,.png,.gif,.webp" onchange="gerenciadorAnexos.handleUpload(event, 'anexos-preview-bacen')">
-                        <small class="form-hint">Você pode anexar múltiplos arquivos. Tamanho máximo: 10MB por arquivo.</small>
-                        <div id="anexos-preview-bacen" class="anexos-preview-container"></div>
-                    </div>
-                </div>
-
-                <!-- Dados Básicos -->
-                <div class="form-section">
-                    <h3>📋 Dados Básicos</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="bacen-data-entrada">Data de Entrada *</label>
+                            <label for="bacen-data-entrada">Data de Entrada (dia/mês/ano) *</label>
                             <input type="date" id="bacen-data-entrada" class="velohub-input" required>
                         </div>
                         <div class="form-group">
@@ -200,44 +175,15 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="bacen-mes">Mês *</label>
-                            <select id="bacen-mes" class="velohub-input" required>
-                                <option value="">Selecione...</option>
-                                <option value="1/2025">1/2025</option>
-                                <option value="2/2025">2/2025</option>
-                                <option value="3/2025">3/2025</option>
-                                <option value="4/2025">4/2025</option>
-                                <option value="5/2025">5/2025</option>
-                                <option value="6/2025">6/2025</option>
-                                <option value="7/2025">7/2025</option>
-                                <option value="8/2025">8/2025</option>
-                                <option value="9/2025">9/2025</option>
-                                <option value="10/2025">10/2025</option>
-                                <option value="11/2025">11/2025</option>
-                                <option value="12/2025">12/2025</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Dados do Cliente -->
-                <div class="form-section">
-                    <h3>👤 Dados do Cliente</h3>
-                    <div class="form-row">
-                        <div class="form-group">
                             <label for="bacen-nome">Nome Completo *</label>
                             <input type="text" id="bacen-nome" class="velohub-input" required>
                         </div>
                         <div class="form-group">
-                            <label for="bacen-cpf">CPF *</label>
+                            <label for="bacen-cpf">CPF (000.000.000-00) *</label>
                             <input type="text" id="bacen-cpf" class="velohub-input cpf-mask" required placeholder="000.000.000-00">
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="bacen-telefone">Telefone</label>
-                            <input type="text" id="bacen-telefone" class="velohub-input telefone-mask" placeholder="(00) 00000-0000">
-                        </div>
                         <div class="form-group">
                             <label for="bacen-origem">Origem *</label>
                             <select id="bacen-origem" class="velohub-input" required onchange="validarPrazoBacen()">
@@ -247,27 +193,74 @@
                                 <option value="Consumidor.Gov">Consumidor.Gov</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label for="bacen-telefone">Telefone (DDD) 00000-0000</label>
+                            <input type="text" id="bacen-telefone" class="velohub-input telefone-mask" placeholder="(00) 00000-0000">
+                        </div>
                     </div>
                 </div>
 
-                <!-- Tentativas de Contato -->
+                <!-- 2º Item: Detalhes da Reclamação -->
                 <div class="form-section">
-                    <h3>📞 Tentativas de Contato</h3>
+                    <h3>2º Item: Detalhes da Reclamação</h3>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="bacen-1-tentativa">1ª tentativa</label>
-                            <input type="date" id="bacen-1-tentativa" class="velohub-input">
+                            <label for="bacen-motivo-reduzido">Motivo Reduzido *</label>
+                            <select id="bacen-motivo-reduzido" class="velohub-input" required>
+                                <option value="">Selecione...</option>
+                                <option value="Abatimento Juros">Abatimento Juros</option>
+                                <option value="Abatimento Juros/Chave PIX">Abatimento Juros/Chave PIX</option>
+                                <option value="Cancelamento Conta">Cancelamento Conta</option>
+                                <option value="Chave PIX">Chave PIX</option>
+                                <option value="PIX/Abatimento Juros/Encerramento de conta">PIX/Abatimento Juros/Encerramento de conta</option>
+                                <option value="Chave PIX/Abatimento Juros/Prob. App">Chave PIX/Abatimento Juros/Prob. App</option>
+                                <option value="Chave PIX/Acesso ao App">Chave PIX/Acesso ao App</option>
+                                <option value="Chave PIX/Exclusão de Conta">Chave PIX/Exclusão de Conta</option>
+                                <option value="Conta">Conta</option>
+                                <option value="Devolução à Celcoin">Devolução à Celcoin</option>
+                                <option value="Fraude">Fraude</option>
+                                <option value="Liquidação Antecipada">Liquidação Antecipada</option>
+                                <option value="Liquidação Antecipada/Abatimento Juros">Liquidação Antecipada/Abatimento Juros</option>
+                                <option value="Não recebeu restituição">Não recebeu restituição</option>
+                                <option value="Não recebeu restituição/Abatimento Juros">Não recebeu restituição/Abatimento Juros</option>
+                                <option value="Não recebeu restituição/Abatimento Juros/Chave PIX">Não recebeu restituição/Abatimento Juros/Chave PIX</option>
+                                <option value="Não recebeu restituição/Chave PIX">Não recebeu restituição/Chave PIX</option>
+                                <option value="Probl. App/Gov">Probl. App/Gov</option>
+                                <option value="Superendividamento">Superendividamento</option>
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label for="bacen-2-tentativa">2ª tentativa</label>
-                            <input type="date" id="bacen-2-tentativa" class="velohub-input">
+                            <label for="bacen-prazo-bacen">Prazo Bacen (dia/mês/ano) <span id="prazo-bacen-obrigatorio" style="display:none;">*</span></label>
+                            <input type="date" id="bacen-prazo-bacen" class="velohub-input">
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bacen-motivo-detalhado">Motivo Reclamação *</label>
+                        <textarea id="bacen-motivo-detalhado" class="velohub-input" rows="4" placeholder="Descreva detalhadamente a reclamação..." required></textarea>
                     </div>
                 </div>
 
-                <!-- Acionamentos ao Canais de Atendimento e Protocolos -->
+                <!-- 3º Item: Tentativas de Contato -->
                 <div class="form-section">
-                    <h3>📋 Acionamentos ao Canais de Atendimento e Protocolos</h3>
+                    <h3>3º Item: Tentativas de Contato</h3>
+                    <div id="tentativas-contato-bacen">
+                        <div class="form-row tentativa-item">
+                            <div class="form-group">
+                                <label>1ª tentativa (dia/mês/ano)</label>
+                                <input type="date" class="velohub-input tentativa-data" data-tentativa="1">
+                            </div>
+                            <div class="form-group">
+                                <label>2ª tentativa (dia/mês/ano)</label>
+                                <input type="date" class="velohub-input tentativa-data" data-tentativa="2">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="velohub-btn btn-secondary" onclick="adicionarTentativaBacen()">➕ Adicionar Tentativa</button>
+                </div>
+
+                <!-- 4º Item: Acionamentos ao Canais de Atendimento e Protocolos -->
+                <div class="form-section">
+                    <h3>4º Item: Acionamentos ao Canais de Atendimento e Protocolos</h3>
                     <div class="form-row">
                         <div class="form-group" style="flex: 0 0 200px;">
                             <label class="checkbox-label">
@@ -327,9 +320,9 @@
                     </div>
                 </div>
 
-                <!-- Liberação do PIX -->
+                <!-- 5º Item: Liberação do PIX -->
                 <div class="form-section">
-                    <h3>💳 Liberação do PIX</h3>
+                    <h3>5º Item: Liberação do PIX</h3>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="bacen-pix-status">PIX liberado ou excluído?</label>
@@ -341,7 +334,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Enviar para cobrança? *</label>
+                            <label>Enviar para cobrança? (Opção Sim ou Não) *</label>
                             <div style="display: flex; gap: 16px; margin-top: 8px;">
                                 <label class="radio-label">
                                     <input type="radio" name="bacen-enviar-cobranca" value="Sim" required>
@@ -352,22 +345,23 @@
                                     <span>Não</span>
                                 </label>
                             </div>
+                            <small class="form-hint">Obs: No futuro haver integração com o sistema de Cobrança.</small>
                         </div>
                     </div>
                 </div>
 
-                <!-- Observações -->
+                <!-- 6º Item: Observações (desfecho) -->
                 <div class="form-section">
-                    <h3>📝 Observações</h3>
+                    <h3>6º Item: Observações (desfecho)</h3>
                     <div class="form-group">
                         <label for="bacen-observacoes">Observações</label>
                         <textarea id="bacen-observacoes" class="velohub-input" rows="4" placeholder="Digite as observações..."></textarea>
                     </div>
                 </div>
 
-                <!-- Casos Críticos (Blacklist) -->
+                <!-- 7º Item: Casos Críticos (Blacklist) -->
                 <div class="form-section">
-                    <h3>⚠️ Casos Críticos (Blacklist)</h3>
+                    <h3>7º Item: Casos Críticos (Blacklist)</h3>
                     <div class="form-group">
                         <label class="checkbox-label">
                             <input type="checkbox" id="bacen-casos-criticos">
@@ -396,23 +390,19 @@
                             <input type="date" id="bacen-finalizado-em" class="velohub-input">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="bacen-observacoes">Observações</label>
-                        <textarea id="bacen-observacoes" class="velohub-input" rows="3" placeholder="Observações adicionais..."></textarea>
-                    </div>
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="velohub-btn">💾 Salvar Ficha BACEN</button>
+                    <button type="submit" class="velohub-btn">💾 Salvar Reclamação BACEN</button>
                     <button type="button" class="velohub-btn btn-secondary" onclick="limparFormBacen()">🗑️ Limpar</button>
                 </div>
             </form>
         </section>
 
-        <!-- Lista de Fichas BACEN -->
+        <!-- Lista de Reclamações BACEN -->
         <section id="lista-bacen" class="section">
             <div class="bacen-header">
-                <h2>📋 Lista de Fichas BACEN</h2>
+                <h2>📋 Lista de Reclamações BACEN</h2>
                 <p>Todas as reclamações registradas no Banco Central</p>
             </div>
             
@@ -468,6 +458,11 @@
     </main>
 
     <!-- JavaScript -->
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/supabase-db.js"></script>
+    <!-- Outros scripts -->
     <script src="js/loading.js"></script>
     <script src="js/validador-velotax.js"></script>
     <script src="js/auth-system.js"></script>
@@ -479,6 +474,7 @@
     <script src="js/historico-cliente.js"></script>
     <script src="js/atalhos-teclado.js"></script>
     <script src="js/exportacao-relatorios.js"></script>
+    <script src="js/exportacao-excel.js"></script>
     <script src="js/validacao-condicional.js"></script>
     <script src="js/theme-toggle.js"></script>
     <script src="js/graficos-detalhados.js"></script>
@@ -502,6 +498,29 @@
                     protocoloInput.value = '';
                 }
             }
+        }
+
+        // Função para adicionar tentativas de contato
+        let contadorTentativasBacen = 2;
+        function adicionarTentativaBacen() {
+            contadorTentativasBacen++;
+            const container = document.getElementById('tentativas-contato-bacen');
+            const novaTentativa = document.createElement('div');
+            novaTentativa.className = 'form-row tentativa-item';
+            novaTentativa.innerHTML = `
+                <div class="form-group">
+                    <label>${contadorTentativasBacen}ª tentativa (dia/mês/ano)</label>
+                    <input type="date" class="velohub-input tentativa-data" data-tentativa="${contadorTentativasBacen}">
+                </div>
+                <div class="form-group">
+                    <button type="button" class="velohub-btn btn-secondary" onclick="removerTentativaBacen(this)" style="margin-top: 24px;">🗑️ Remover</button>
+                </div>
+            `;
+            container.appendChild(novaTentativa);
+        }
+
+        function removerTentativaBacen(btn) {
+            btn.closest('.tentativa-item').remove();
         }
     </script>
 </body>

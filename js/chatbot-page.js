@@ -12,8 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     try {
         inicializarChatbot();
-        carregarFichasChatbot();
-        atualizarDashboardChatbot();
+        carregarFichasChatbot().then(() => {
+            atualizarDashboardChatbot();
+        });
         configurarEventosChatbot();
     } catch (error) {
         console.error('Erro na inicialização Chatbot:', error);
@@ -59,6 +60,12 @@ function mostrarSecao(secaoId) {
     if (secaoId === 'lista-chatbot') {
         carregarFichasChatbot();
         renderizarListaChatbot();
+    } else if (secaoId === 'nova-reclamacao-chatbot' || secaoId === 'nova-ficha-chatbot') {
+        // Compatibilidade com ambos os nomes
+        if (secaoId === 'nova-ficha-chatbot') {
+            mostrarSecao('nova-reclamacao-chatbot');
+            return;
+        }
     } else if (secaoId === 'dashboard-chatbot') {
         atualizarDashboardChatbot();
         // Reinicializar gráficos
@@ -74,13 +81,25 @@ function mostrarSecao(secaoId) {
 }
 
 // === CARREGAR FICHAS ===
-function carregarFichasChatbot() {
+async function carregarFichasChatbot() {
+    // Tentar usar Supabase primeiro
+    if (window.supabaseDB) {
+        try {
+            fichasChatbot = await window.supabaseDB.obterFichasChatbot();
+            return;
+        } catch (error) {
+            console.error('Erro ao carregar do Supabase:', error);
+        }
+    }
+    
+    // Fallback para gerenciador de fichas
     if (window.gerenciadorFichas) {
         fichasChatbot = window.gerenciadorFichas.obterFichasPorTipo('chatbot');
     } else if (window.GerenciadorFichasPerfil) {
         window.gerenciadorFichas = new GerenciadorFichasPerfil();
         fichasChatbot = window.gerenciadorFichas.obterFichasPorTipo('chatbot');
     } else {
+        // Fallback para localStorage
         const fichas = JSON.parse(localStorage.getItem('velotax_demandas_chatbot') || '[]');
         fichasChatbot = fichas.map(f => ({ ...f, tipoDemanda: 'chatbot' }));
     }
@@ -119,7 +138,7 @@ function configurarEventosChatbot() {
     }
 }
 
-function handleSubmitChatbot(e) {
+async function handleSubmitChatbot(e) {
     e.preventDefault();
     
     // Obter anexos
@@ -130,7 +149,11 @@ function handleSubmitChatbot(e) {
         id: gerarId(),
         tipoDemanda: 'chatbot',
         dataClienteChatbot: document.getElementById('chatbot-data-cliente').value,
+        responsavel: document.getElementById('chatbot-responsavel').value,
+        nomeCompleto: document.getElementById('chatbot-nome')?.value || '',
         cpf: document.getElementById('chatbot-cpf').value,
+        origem: document.getElementById('chatbot-origem')?.value || 'Atendimento',
+        telefone: document.getElementById('chatbot-telefone')?.value || '',
         notaAvaliacao: document.getElementById('chatbot-nota-avaliacao').value,
         avaliacaoCliente: document.getElementById('chatbot-avaliacao-cliente').value,
         produto: document.getElementById('chatbot-produto').value,
@@ -139,8 +162,6 @@ function handleSubmitChatbot(e) {
         pixStatus: document.getElementById('chatbot-pix-status').value,
         enviarCobranca: document.querySelector('input[name="chatbot-enviar-cobranca"]:checked')?.value || 'Não',
         casosCriticos: document.getElementById('chatbot-casos-criticos').checked,
-        finalizacao: document.querySelector('input[name="chatbot-finalizacao"]:checked')?.value || '',
-        responsavel: document.getElementById('chatbot-responsavel').value,
         observacoes: document.getElementById('chatbot-observacoes').value,
         anexos: anexos, // Incluir anexos
         dataCriacao: new Date().toISOString()
@@ -150,7 +171,21 @@ function handleSubmitChatbot(e) {
         return;
     }
     
-    if (window.gerenciadorFichas) {
+    // Salvar
+    if (window.supabaseDB) {
+        try {
+            await window.supabaseDB.salvarFichaChatbot(ficha);
+        } catch (error) {
+            console.error('Erro ao salvar no Supabase:', error);
+            // Fallback
+            if (window.gerenciadorFichas) {
+                window.gerenciadorFichas.adicionarFicha(ficha);
+            } else {
+                fichasChatbot.push(ficha);
+                localStorage.setItem('velotax_demandas_chatbot', JSON.stringify(fichasChatbot));
+            }
+        }
+    } else if (window.gerenciadorFichas) {
         window.gerenciadorFichas.adicionarFicha(ficha);
     } else {
         fichasChatbot.push(ficha);
@@ -158,11 +193,11 @@ function handleSubmitChatbot(e) {
     }
     
     limparFormChatbot();
-    carregarFichasChatbot();
+    await carregarFichasChatbot();
     atualizarDashboardChatbot();
     mostrarSecao('lista-chatbot');
     
-    mostrarAlerta('Ficha Chatbot salva com sucesso!', 'success');
+    mostrarAlerta('Reclamação Chatbot salva com sucesso!', 'success');
 }
 
 function validarFichaChatbot(ficha) {
@@ -416,7 +451,8 @@ function mostrarRelatorioChatbot(titulo, dados, subtitulo) {
                 </tbody>
             </table>
         </div>
-        <button class="velohub-btn" onclick="filtrosExportacaoCSVChatbot.mostrarModalFiltros(${JSON.stringify(dados).replace(/"/g, '&quot;').replace(/'/g, '&#39;')}, exportarRelatorioChatbotDados)">📥 Exportar CSV com Filtros</button>
+                    <button class="velohub-btn" onclick="filtrosExportacaoCSVChatbot.mostrarModalFiltros(${JSON.stringify(dados).replace(/"/g, '&quot;').replace(/'/g, '&#39;')}, exportarRelatorioChatbotDados)">📥 Exportar CSV com Filtros</button>
+                    <button class="velohub-btn" onclick="exportarParaExcel(${JSON.stringify(dados).replace(/"/g, '&quot;').replace(/'/g, '&#39;')}, 'relatorio-chatbot', 'chatbot')">📊 Exportar Excel</button>
     `;
 }
 

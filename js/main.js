@@ -182,7 +182,7 @@ function setupEventListeners() {
 }
 
 // === FORMULÁRIO ===
-function handleFormSubmit(e) {
+async function handleFormSubmit(e) {
     e.preventDefault();
     
     console.log('Tentando salvar reclamação...'); // Debug
@@ -236,31 +236,45 @@ function handleFormSubmit(e) {
     }
     
     // Adicionar reclamação usando gerenciador
-    if (window.gerenciadorFichas) {
-        window.gerenciadorFichas.adicionarFicha(complaint);
-        carregarFichas();
-    } else {
-        // Fallback
-        complaints.push(complaint);
-        saveComplaints();
+    try {
+        console.log('Salvando reclamação...', complaint); // Debug
+        
+        if (window.gerenciadorFichas) {
+            console.log('Usando gerenciadorFichas');
+            window.gerenciadorFichas.adicionarFicha(complaint);
+            carregarFichas();
+        } else if (window.supabaseDB) {
+            console.log('Usando Supabase');
+            // Tentar salvar no Supabase
+            await window.supabaseDB.adicionarFicha(complaint);
+            carregarFichas();
+        } else {
+            console.log('Usando localStorage fallback');
+            // Fallback para localStorage
+            complaints.push(complaint);
+            saveComplaints();
+        }
+        
+        console.log('Reclamação salva com sucesso!'); // Debug
+        
+        // Limpar dados salvos
+        clearFormData();
+        
+        // Limpar formulário
+        clearForm();
+        
+        // Mostrar mensagem de sucesso
+        mostrarAlertaGlobal('Reclamação salva com sucesso!', 'success');
+        
+        // Atualizar dashboard
+        updateDashboard();
+        
+        // Ir para a lista de reclamações
+        showSection('list');
+    } catch (error) {
+        console.error('Erro ao salvar reclamação:', error);
+        mostrarAlertaGlobal('Erro ao salvar reclamação: ' + (error.message || error), 'error');
     }
-    
-    console.log('Reclamação salva com sucesso!'); // Debug
-    
-    // Limpar dados salvos
-    clearFormData();
-    
-    // Limpar formulário
-    clearForm();
-    
-    // Mostrar mensagem de sucesso
-    showAlert('Reclamação salva com sucesso!', 'success');
-    
-    // Atualizar dashboard
-    updateDashboard();
-    
-    // Ir para a lista de reclamações
-    showSection('list');
 }
 
 // === VALIDAÇÃO ===
@@ -1149,6 +1163,28 @@ function saveComplaints() {
 
 function loadComplaints() {
     complaints = JSON.parse(localStorage.getItem('bacen-complaints')) || [];
+}
+
+// Função global para mostrar alertas
+function mostrarAlertaGlobal(message, type) {
+    if (window.mostrarAlerta) {
+        window.mostrarAlerta(message, type);
+    } else if (typeof showAlert === 'function') {
+        showAlert(message, type);
+    } else {
+        alert(message);
+    }
+}
+
+// Função global para mostrar alertas
+function mostrarAlertaGlobal(message, type) {
+    if (window.mostrarAlerta) {
+        window.mostrarAlerta(message, type);
+    } else if (typeof showAlert === 'function') {
+        showAlert(message, type);
+    } else {
+        alert(message);
+    }
 }
 
 function showAlert(message, type) {

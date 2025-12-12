@@ -1481,3 +1481,130 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* === ELEMENTOS DE NATAL === */
+.logo-container-natal {
+    position: relative;
+    display: inline-block;
+}
+
+.natal-chapeu {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 30px;
+    z-index: 10;
+    animation: bounce-natal 2s ease-in-out infinite;
+}
+
+.natal-chapeu-img {
+    position: absolute;
+    top: -15px;
+    right: -10px;
+    width: 50px;
+    height: 50px;
+    z-index: 10;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Animação removida - chapéu e robô agora estão fixos sobrepondo o logo */
+
+.segmento-icon-natal {
+    position: relative;
+    display: inline-block;
+    line-height: 1;
+}
+
+.natal-chapeu-icon {
+    position: absolute;
+    top: -12px;
+    right: 10px;
+    font-size: 24px;
+    z-index: 11;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.robot-icon-base {
+    display: inline-block;
+    font-size: 4rem;
+    position: relative;
+}
+
+.robot-chapeu-img {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 45px;
+    height: 45px;
+    z-index: 11;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.robot-icon {
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    font-size: 18px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* === MENU CANAIS === */
+.nav-canais {
+    background: var(--cor-header, #1634FF);
+    padding: 12px 24px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.canais-menu {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.canais-label {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #FFFFFF !important;
+    margin-right: 8px;
+}
+
+.canais-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #FFFFFF !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 20px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.canais-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #FFFFFF !important;
+    transform: translateY(-2px);
+}
+
+.canais-btn.active {
+    background: white;
+    color: var(--cor-header, #1634FF) !important;
+    font-weight: 600;
+}
+
+.tentativa-item {
+    margin-bottom: 12px;
+    padding: 12px;
+    background: var(--cor-sidebar, rgba(0, 0, 0, 0.05));
+    border-radius: 8px;
+}

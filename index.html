@@ -20,7 +20,10 @@
     <header class="velohub-header">
         <div class="header-content">
             <div class="header-logo">
-                <img src="img/velotax_ajustada_branco.png" alt="Velotax" class="logo-header">
+                <div class="logo-container-natal">
+                    <img src="img/chapeu-natal.svg" alt="Chapeuzinho de Natal" class="natal-chapeu-img">
+                    <img src="img/velotax_ajustada_branco.png" alt="Velotax" class="logo-header">
+                </div>
                 <h1>Home</h1>
             </div>
             <div class="header-actions">
@@ -28,6 +31,16 @@
             </div>
         </div>
     </header>
+
+    <!-- Menu CANAIS -->
+    <nav class="nav nav-canais">
+        <div class="canais-menu">
+            <span class="canais-label">CANAIS:</span>
+            <a href="bacen.html" class="nav-btn canais-btn">BACEN</a>
+            <a href="n2.html" class="nav-btn canais-btn">N2</a>
+            <a href="chatbot.html" class="nav-btn canais-btn">Chatbot</a>
+        </div>
+    </nav>
 
     <!-- Navegação -->
     <nav class="nav">
@@ -81,7 +94,10 @@
                 </a>
 
                 <a href="chatbot.html" class="segmento-card chatbot-card" style="text-decoration: none; color: inherit;">
-                    <div class="segmento-icon">🤖</div>
+                    <div class="segmento-icon segmento-icon-natal">
+                        <span class="robot-icon-base">🤖</span>
+                        <img src="img/chapeu-natal.svg" alt="Chapeuzinho" class="robot-chapeu-img">
+                    </div>
                     <h3>Chatbot</h3>
                     <p class="segmento-descricao">Demandas originadas no chatbot</p>
                     <div class="segmento-stats">
@@ -421,10 +437,16 @@
     </main>
 
     <!-- JavaScript -->
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/supabase-db.js"></script>
+    <!-- Outros scripts -->
     <script src="js/loading.js"></script>
     <script src="js/validador-velotax.js"></script>
     <script src="js/auth-system.js"></script>
     <script src="js/gerenciador-fichas-perfil.js"></script>
+    <script src="js/sistema-alertas.js"></script>
     <script src="js/ficha-detalhada.js"></script>
     <script src="js/busca-avancada.js"></script>
     <script src="js/dashboard-avancado.js"></script>

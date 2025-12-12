@@ -338,11 +338,11 @@ body {
 
 /* === FORMULÁRIO === */
 .complaint-form {
-  background: var(--cor-card);
+  background: #FFFFFF;
   border-radius: 16px;
   padding: 32px;
-  box-shadow: var(--sombra-suave);
-  border: 1px solid var(--borda-clara);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 2px solid #E1E8ED;
 }
 
 .form-grid {
@@ -352,15 +352,17 @@ body {
 }
 
 .form-section {
-  background: var(--cor-fundo);
+  background: #F5F7FA;
   border-radius: 12px;
   padding: 24px;
-  border: 1px solid var(--borda-clara);
+  border: 2px solid #E1E8ED;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .form-section:hover {
-  box-shadow: var(--sombra-suave);
+  box-shadow: 0 4px 12px rgba(22, 52, 255, 0.1);
+  border-color: #1634FF;
 }
 
 .form-section h3 {
@@ -455,6 +457,12 @@ body {
   color: var(--blue-medium);
 }
 
+.checkbox-label:hover .checkmark {
+  border-color: #1634FF;
+  background: #F0F4FF;
+  box-shadow: 0 2px 4px rgba(22, 52, 255, 0.2);
+}
+
 .checkbox-label input[type="checkbox"] {
   display: none;
 }
@@ -462,15 +470,16 @@ body {
 .checkmark {
   width: 20px;
   height: 20px;
-  border: 2px solid var(--blue-dark);
+  border: 2px solid #1634FF;
   border-radius: 4px;
   margin-right: 8px;
   position: relative;
   transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.1);
+  background: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .checkbox-label input[type="checkbox"]:checked + .checkmark {

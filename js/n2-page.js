@@ -12,8 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     try {
         inicializarN2();
-        carregarFichasN2();
-        atualizarDashboardN2();
+        carregarFichasN2().then(() => {
+            atualizarDashboardN2();
+        });
         configurarEventosN2();
     } catch (error) {
         console.error('Erro na inicialização N2:', error);
@@ -59,6 +60,12 @@ function mostrarSecao(secaoId) {
     if (secaoId === 'lista-n2') {
         carregarFichasN2();
         renderizarListaN2();
+    } else if (secaoId === 'nova-reclamacao-n2' || secaoId === 'nova-ficha-n2') {
+        // Compatibilidade com ambos os nomes
+        if (secaoId === 'nova-ficha-n2') {
+            mostrarSecao('nova-reclamacao-n2');
+            return;
+        }
     } else if (secaoId === 'dashboard-n2') {
         atualizarDashboardN2();
         // Reinicializar gráficos
@@ -74,13 +81,25 @@ function mostrarSecao(secaoId) {
 }
 
 // === CARREGAR FICHAS ===
-function carregarFichasN2() {
+async function carregarFichasN2() {
+    // Tentar usar Supabase primeiro
+    if (window.supabaseDB) {
+        try {
+            fichasN2 = await window.supabaseDB.obterFichasN2();
+            return;
+        } catch (error) {
+            console.error('Erro ao carregar do Supabase:', error);
+        }
+    }
+    
+    // Fallback para gerenciador de fichas
     if (window.gerenciadorFichas) {
         fichasN2 = window.gerenciadorFichas.obterFichasPorTipo('n2');
     } else if (window.GerenciadorFichasPerfil) {
         window.gerenciadorFichas = new GerenciadorFichasPerfil();
         fichasN2 = window.gerenciadorFichas.obterFichasPorTipo('n2');
     } else {
+        // Fallback para localStorage
         const fichas = JSON.parse(localStorage.getItem('velotax_demandas_n2') || '[]');
         fichasN2 = fichas.map(f => ({ ...f, tipoDemanda: 'n2' }));
     }
@@ -119,7 +138,7 @@ function configurarEventosN2() {
     }
 }
 
-function handleSubmitN2(e) {
+async function handleSubmitN2(e) {
     e.preventDefault();
     
     // Obter anexos
@@ -141,8 +160,7 @@ function handleSubmitN2(e) {
         motivoReduzido: document.getElementById('n2-motivo-reduzido').value,
         motivoDetalhado: document.getElementById('n2-motivo-detalhado').value,
         prazoN2: document.getElementById('n2-prazo-n2').value,
-        primeiraTentativa: document.getElementById('n2-1-tentativa').value,
-        segundaTentativa: document.getElementById('n2-2-tentativa').value,
+        tentativasContato: obterTentativasN2(), // Coletar todas as tentativas
         acionouCentral: document.getElementById('n2-acionou-central').checked,
         protocoloCentral: document.getElementById('n2-protocolo-central').value,
         n2SegundoNivel: document.getElementById('n2-n2-segundo-nivel').checked,
@@ -166,7 +184,21 @@ function handleSubmitN2(e) {
         return;
     }
     
-    if (window.gerenciadorFichas) {
+    // Salvar
+    if (window.supabaseDB) {
+        try {
+            await window.supabaseDB.salvarFichaN2(ficha);
+        } catch (error) {
+            console.error('Erro ao salvar no Supabase:', error);
+            // Fallback
+            if (window.gerenciadorFichas) {
+                window.gerenciadorFichas.adicionarFicha(ficha);
+            } else {
+                fichasN2.push(ficha);
+                localStorage.setItem('velotax_demandas_n2', JSON.stringify(fichasN2));
+            }
+        }
+    } else if (window.gerenciadorFichas) {
         window.gerenciadorFichas.adicionarFicha(ficha);
     } else {
         fichasN2.push(ficha);
@@ -174,11 +206,11 @@ function handleSubmitN2(e) {
     }
     
     limparFormN2();
-    carregarFichasN2();
+    await carregarFichasN2();
     atualizarDashboardN2();
     mostrarSecao('lista-n2');
     
-    mostrarAlerta('Ficha N2 salva com sucesso!', 'success');
+    mostrarAlerta('Reclamação N2 salva com sucesso!', 'success');
 }
 
 function validarFichaN2(ficha) {
@@ -418,7 +450,8 @@ function mostrarRelatorioN2(titulo, dados, subtitulo) {
                 </tbody>
             </table>
         </div>
-        <button class="velohub-btn" onclick="filtrosExportacaoCSVN2.mostrarModalFiltros(${JSON.stringify(dados).replace(/"/g, '&quot;').replace(/'/g, '&#39;')}, exportarRelatorioN2Dados)">📥 Exportar CSV com Filtros</button>
+                    <button class="velohub-btn" onclick="filtrosExportacaoCSVN2.mostrarModalFiltros(${JSON.stringify(dados).replace(/"/g, '&quot;').replace(/'/g, '&#39;')}, exportarRelatorioN2Dados)">📥 Exportar CSV com Filtros</button>
+                    <button class="velohub-btn" onclick="exportarParaExcel(${JSON.stringify(dados).replace(/"/g, '&quot;').replace(/'/g, '&#39;')}, 'relatorio-n2', 'n2')">📊 Exportar Excel</button>
     `;
 }
 
@@ -493,12 +526,43 @@ function mostrarRelatorioBancos(titulo, dados) {
 }
 
 // === UTILITÁRIOS ===
+// === OBTER TENTATIVAS DE CONTATO N2 ===
+function obterTentativasN2() {
+    const tentativas = [];
+    const tentativasInputs = document.querySelectorAll('#tentativas-contato-n2 .tentativa-data');
+    tentativasInputs.forEach((input, index) => {
+        if (input.value) {
+            tentativas.push({
+                numero: index + 1,
+                data: input.value
+            });
+        }
+    });
+    return tentativas;
+}
+
 function limparFormN2() {
     document.getElementById('form-n2')?.reset();
     const today = new Date().toISOString().split('T')[0];
-    const dataEntrada = document.getElementById('n2-data-entrada');
-    if (dataEntrada) {
-        dataEntrada.value = today;
+    const dataEntradaAtendimento = document.getElementById('n2-data-entrada-atendimento');
+    if (dataEntradaAtendimento) {
+        dataEntradaAtendimento.value = today;
+    }
+    // Limpar tentativas dinâmicas (manter apenas as 2 primeiras)
+    const container = document.getElementById('tentativas-contato-n2');
+    if (container) {
+        const tentativas = container.querySelectorAll('.tentativa-item');
+        tentativas.forEach((item, index) => {
+            if (index > 1) { // Manter apenas as 2 primeiras
+                item.remove();
+            } else {
+                const input = item.querySelector('.tentativa-data');
+                if (input) input.value = '';
+            }
+        });
+        if (window.contadorTentativasN2 !== undefined) {
+            window.contadorTentativasN2 = 2;
+        }
     }
     // Limpar anexos
     if (window.gerenciadorAnexos) {

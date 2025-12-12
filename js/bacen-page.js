@@ -12,8 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     try {
         inicializarBacen();
-        carregarFichasBacen();
-        atualizarDashboardBacen();
+        carregarFichasBacen().then(() => {
+            atualizarDashboardBacen();
+        });
         configurarEventosBacen();
     } catch (error) {
         console.error('Erro na inicialização BACEN:', error);
@@ -65,6 +66,12 @@ function mostrarSecao(secaoId) {
     if (secaoId === 'lista-bacen') {
         carregarFichasBacen();
         renderizarListaBacen();
+    } else if (secaoId === 'nova-reclamacao-bacen' || secaoId === 'nova-ficha-bacen') {
+        // Compatibilidade com ambos os nomes
+        if (secaoId === 'nova-ficha-bacen') {
+            mostrarSecao('nova-reclamacao-bacen');
+            return;
+        }
     } else if (secaoId === 'dashboard-bacen') {
         atualizarDashboardBacen();
         // Reinicializar gráficos
@@ -80,8 +87,18 @@ function mostrarSecao(secaoId) {
 }
 
 // === CARREGAR FICHAS ===
-function carregarFichasBacen() {
-    // Aguarda o gerenciador estar disponível
+async function carregarFichasBacen() {
+    // Tentar usar Supabase primeiro
+    if (window.supabaseDB) {
+        try {
+            fichasBacen = await window.supabaseDB.obterFichasBacen();
+            return;
+        } catch (error) {
+            console.error('Erro ao carregar do Supabase:', error);
+        }
+    }
+    
+    // Fallback para gerenciador de fichas
     if (window.gerenciadorFichas) {
         fichasBacen = window.gerenciadorFichas.obterFichasPorTipo('bacen');
     } else if (window.GerenciadorFichasPerfil) {
@@ -89,7 +106,7 @@ function carregarFichasBacen() {
         window.gerenciadorFichas = new GerenciadorFichasPerfil();
         fichasBacen = window.gerenciadorFichas.obterFichasPorTipo('bacen');
     } else {
-        // Fallback
+        // Fallback para localStorage
         const fichas = JSON.parse(localStorage.getItem('velotax_demandas_bacen') || '[]');
         fichasBacen = fichas.map(f => ({ ...f, tipoDemanda: 'bacen' }));
     }
@@ -124,7 +141,7 @@ function configurarEventosBacen() {
     }
 }
 
-function handleSubmitBacen(e) {
+async function handleSubmitBacen(e) {
     e.preventDefault();
     
     // Obter anexos
@@ -144,8 +161,7 @@ function handleSubmitBacen(e) {
         motivoReduzido: document.getElementById('bacen-motivo-reduzido').value,
         motivoDetalhado: document.getElementById('bacen-motivo-detalhado').value,
         prazoBacen: document.getElementById('bacen-prazo-bacen').value,
-        primeiraTentativa: document.getElementById('bacen-1-tentativa').value,
-        segundaTentativa: document.getElementById('bacen-2-tentativa').value,
+        tentativasContato: obterTentativasBacen(), // Coletar todas as tentativas
         acionouCentral: document.getElementById('bacen-acionou-central').checked,
         protocoloCentral: document.getElementById('bacen-protocolo-central').value,
         n2SegundoNivel: document.getElementById('bacen-n2-segundo-nivel').checked,
@@ -171,7 +187,20 @@ function handleSubmitBacen(e) {
     }
     
     // Salvar
-    if (window.gerenciadorFichas) {
+    if (window.supabaseDB) {
+        try {
+            await window.supabaseDB.salvarFichaBacen(ficha);
+        } catch (error) {
+            console.error('Erro ao salvar no Supabase:', error);
+            // Fallback
+            if (window.gerenciadorFichas) {
+                window.gerenciadorFichas.adicionarFicha(ficha);
+            } else {
+                fichasBacen.push(ficha);
+                localStorage.setItem('velotax_demandas_bacen', JSON.stringify(fichasBacen));
+            }
+        }
+    } else if (window.gerenciadorFichas) {
         window.gerenciadorFichas.adicionarFicha(ficha);
     } else {
         fichasBacen.push(ficha);
@@ -180,11 +209,11 @@ function handleSubmitBacen(e) {
     
     // Limpar e atualizar
     limparFormBacen();
-    carregarFichasBacen();
+    await carregarFichasBacen();
     atualizarDashboardBacen();
     mostrarSecao('lista-bacen');
     
-    mostrarAlerta('Ficha BACEN salva com sucesso!', 'success');
+    mostrarAlerta('Reclamação BACEN salva com sucesso!', 'success');
 }
 
 function validarFichaBacen(ficha) {
@@ -428,7 +457,8 @@ function mostrarRelatorio(titulo, dados, subtitulo) {
                 </tbody>
             </table>
         </div>
-        <button class="velohub-btn" onclick="filtrosExportacaoCSVBacen.mostrarModalFiltros(${JSON.stringify(dados).replace(/"/g, '&quot;').replace(/'/g, '&#39;')}, exportarRelatorioBacenDados)">📥 Exportar CSV com Filtros</button>
+                    <button class="velohub-btn" onclick="filtrosExportacaoCSVBacen.mostrarModalFiltros(${JSON.stringify(dados).replace(/"/g, '&quot;').replace(/'/g, '&#39;')}, exportarRelatorioBacenDados)">📥 Exportar CSV com Filtros</button>
+                    <button class="velohub-btn" onclick="exportarParaExcel(${JSON.stringify(dados).replace(/"/g, '&quot;').replace(/'/g, '&#39;')}, 'relatorio-bacen', 'bacen')">📊 Exportar Excel</button>
     `;
 }
 
@@ -473,12 +503,41 @@ function exportarRelatorioBacenDados(dados) {
 }
 
 // === UTILITÁRIOS ===
+// === OBTER TENTATIVAS DE CONTATO ===
+function obterTentativasBacen() {
+    const tentativas = [];
+    const tentativasInputs = document.querySelectorAll('#tentativas-contato-bacen .tentativa-data');
+    tentativasInputs.forEach((input, index) => {
+        if (input.value) {
+            tentativas.push({
+                numero: index + 1,
+                data: input.value
+            });
+        }
+    });
+    return tentativas;
+}
+
 function limparFormBacen() {
     document.getElementById('form-bacen')?.reset();
     const today = new Date().toISOString().split('T')[0];
     const dataEntrada = document.getElementById('bacen-data-entrada');
     if (dataEntrada) {
         dataEntrada.value = today;
+    }
+    // Limpar tentativas dinâmicas (manter apenas as 2 primeiras)
+    const container = document.getElementById('tentativas-contato-bacen');
+    if (container) {
+        const tentativas = container.querySelectorAll('.tentativa-item');
+        tentativas.forEach((item, index) => {
+            if (index > 1) { // Manter apenas as 2 primeiras
+                item.remove();
+            } else {
+                const input = item.querySelector('.tentativa-data');
+                if (input) input.value = '';
+            }
+        });
+        contadorTentativasBacen = 2;
     }
     // Limpar anexos
     if (window.gerenciadorAnexos) {
