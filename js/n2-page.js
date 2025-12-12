@@ -252,7 +252,9 @@ async function handleSubmitN2(e) {
         console.log('🧹 Limpando formulário...');
         limparFormN2();
         await carregarFichasN2();
+        console.log('📋 Fichas N2 carregadas após salvar:', fichasN2.length);
         atualizarDashboardN2();
+        renderizarListaN2(); // Garantir que a lista seja atualizada
         mostrarSecao('lista-n2');
         
         console.log('✅ Reclamação salva com sucesso!');
