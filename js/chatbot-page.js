@@ -243,32 +243,31 @@ async function handleSubmitChatbot(e) {
 function validarFichaChatbot(ficha) {
     console.log('🔍 Validando ficha Chatbot:', ficha);
     
-    // Campos obrigatórios do Chatbot (ajustados conforme o formulário real)
+    // Campos obrigatórios do Chatbot - APENAS OS QUE EXISTEM NO HTML
+    // Verificando campos que realmente existem no formulário
     const camposObrigatorios = [
-        'dataClienteChatbot', 'cpf', 'notaAvaliacao', 'avaliacaoCliente', 
-        'produto', 'motivo', 'respostaBot', 'pixStatus', 'enviarCobranca', 'finalizacao', 'responsavel'
+        { nome: 'dataClienteChatbot', label: 'Data do cliente com o chatbot' },
+        { nome: 'cpf', label: 'CPF' },
+        { nome: 'responsavel', label: 'Responsável' },
+        { nome: 'nomeCompleto', label: 'Nome Completo' },
+        { nome: 'enviarCobranca', label: 'Enviar para cobrança?', tipo: 'radio' }
     ];
     
     for (let campo of camposObrigatorios) {
-        const valor = ficha[campo];
-        console.log(`🔍 Validando campo ${campo}:`, valor, 'Tipo:', typeof valor, 'Vazio?', !valor || (typeof valor === 'string' && valor.trim() === ''));
+        const valor = ficha[campo.nome];
+        console.log(`🔍 Validando campo ${campo.nome}:`, valor, 'Tipo:', typeof valor);
         
-        // Verificar se é checkbox ou radio
-        if (campo === 'enviarCobranca') {
-            if (!valor || valor === 'Não') {
-                mostrarAlerta('Campo obrigatório não preenchido: Enviar para cobrança?', 'error');
+        // Verificar se é radio button
+        if (campo.tipo === 'radio') {
+            if (!valor || valor.trim() === '') {
+                mostrarAlerta(`Campo obrigatório não preenchido: ${campo.label}`, 'error');
                 return false;
             }
         } else {
             // Para campos de texto/data, verificar se tem valor
             const estaVazio = !valor || (typeof valor === 'string' && valor.trim() === '');
             if (estaVazio) {
-                // Mensagem mais específica para dataClienteChatbot
-                if (campo === 'dataClienteChatbot') {
-                    mostrarAlerta('Campo obrigatório não preenchido: Data do cliente com o chatbot. Por favor, selecione uma data.', 'error');
-                } else {
-                    mostrarAlerta(`Campo obrigatório não preenchido: ${campo}`, 'error');
-                }
+                mostrarAlerta(`Campo obrigatório não preenchido: ${campo.label}`, 'error');
                 return false;
             }
         }

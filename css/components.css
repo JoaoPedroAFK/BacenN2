@@ -1514,7 +1514,9 @@
 
 .segmento-icon-natal {
     position: relative;
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     line-height: 1;
 }
 
@@ -1531,19 +1533,21 @@
     display: inline-block;
     font-size: 4rem;
     position: relative;
+    text-align: center;
+    margin: 0 auto;
 }
 
 .robot-chapeu-img {
     position: absolute;
-    top: -20px;
+    top: -15px;
     left: 50%;
     transform: translateX(-50%);
-    width: 45px;
-    height: auto; /* Mantém proporção original */
-    aspect-ratio: 1 / 1; /* Garante formato quadrado sem deformar */
+    width: 40px;
+    height: 40px;
     z-index: 11;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-    object-fit: contain; /* Mantém proporção sem cortar */
+    object-fit: contain;
+    object-position: center;
 }
 
 .robot-icon {
