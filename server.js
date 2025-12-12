@@ -7,8 +7,8 @@ const path = require('path');
 const https = require('https');
 const { OAuth2Client } = require('google-auth-library');
 
-const PORT = 3000;
-const HOST = 'localhost';
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
 
 // Google OAuth Client ID
 const GOOGLE_CLIENT_ID = '638842930106-b0plff0sbbs0ljsm39n5kadsjfcj3u3q.apps.googleusercontent.com';
@@ -177,16 +177,26 @@ const server = http.createServer(async (req, res) => {
             res.end(content, 'utf-8');
         }
     });
-});
+}
 
-server.listen(PORT, HOST, () => {
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('🚀 SERVIDOR LOCAL INICIADO');
-    console.log('═══════════════════════════════════════════════════════');
-    console.log(`📍 URL: http://${HOST}:${PORT}`);
-    console.log(`📁 Diretório: ${__dirname}`);
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('💡 Pressione Ctrl+C para parar o servidor');
-    console.log('═══════════════════════════════════════════════════════');
-});
+const server = http.createServer(handler);
+
+// Exportar para Vercel (serverless)
+if (process.env.VERCEL) {
+    module.exports = server;
+} else {
+    // Rodar como servidor tradicional (local)
+    server.listen(PORT, HOST, () => {
+        console.log('═══════════════════════════════════════════════════════');
+        console.log('🚀 SERVIDOR INICIADO');
+        console.log('═══════════════════════════════════════════════════════');
+        console.log(`📍 URL: http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`);
+        console.log(`📁 Diretório: ${__dirname}`);
+        console.log('═══════════════════════════════════════════════════════');
+        if (HOST === 'localhost') {
+            console.log('💡 Pressione Ctrl+C para parar o servidor');
+        }
+        console.log('═══════════════════════════════════════════════════════');
+    });
+}
 
