@@ -284,8 +284,8 @@ function validarFichaChatbot(ficha) {
 }
 
 // === DASHBOARD ===
-function atualizarDashboardChatbot() {
-    carregarFichasChatbot();
+async function atualizarDashboardChatbot() {
+    await carregarFichasChatbot();
     
     const total = fichasChatbot.length;
     const resolvidasAuto = fichasChatbot.filter(f => f.resolvidoAutomaticamente).length;
