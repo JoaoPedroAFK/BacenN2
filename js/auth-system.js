@@ -619,9 +619,10 @@ class SistemaPerfis {
                 }
                 
                 #google-sso-container {
-                    margin: 16px 0;
+                    margin: 0;
                     display: flex;
                     justify-content: center;
+                    align-items: center;
                 }
 
                 .login-info {
