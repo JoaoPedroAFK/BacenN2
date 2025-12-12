@@ -1503,9 +1503,11 @@
     top: -15px;
     right: -10px;
     width: 50px;
-    height: 50px;
+    height: auto; /* Mantém proporção original */
+    aspect-ratio: 1 / 1; /* Garante formato quadrado sem deformar */
     z-index: 10;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    object-fit: contain; /* Mantém proporção sem cortar */
 }
 
 /* Animação removida - chapéu e robô agora estão fixos sobrepondo o logo */
@@ -1537,9 +1539,11 @@
     left: 50%;
     transform: translateX(-50%);
     width: 45px;
-    height: 45px;
+    height: auto; /* Mantém proporção original */
+    aspect-ratio: 1 / 1; /* Garante formato quadrado sem deformar */
     z-index: 11;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    object-fit: contain; /* Mantém proporção sem cortar */
 }
 
 .robot-icon {
