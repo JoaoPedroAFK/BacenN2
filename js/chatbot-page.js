@@ -74,6 +74,10 @@ function mostrarSecao(secaoId) {
                 window.graficosDetalhadosChatbot = new GraficosDetalhados('chatbot');
             }
         }, 300);
+        // Configurar cards após um pequeno delay
+        setTimeout(() => {
+            configurarCardsDashboardChatbot();
+        }, 500);
     }
 }
 
@@ -336,6 +340,64 @@ async function atualizarDashboardChatbot() {
     atualizarElemento('canal-mais-usado', canalMaisUsado);
     
     atualizarElemento('media-satisfacao', mediaSatisfacao);
+    
+    // Adicionar event listeners aos cards
+    configurarCardsDashboardChatbot();
+}
+
+// Configurar cliques nos cards do dashboard Chatbot
+function configurarCardsDashboardChatbot() {
+    // Card Total
+    const cardTotal = document.querySelector('#chatbot-total-dash')?.closest('.stat-card');
+    if (cardTotal) {
+        cardTotal.style.cursor = 'pointer';
+        cardTotal.onclick = () => mostrarCasosDashboardChatbot('total');
+    }
+    
+    // Card Resolvidas Automaticamente
+    const cardAuto = document.querySelector('#chatbot-auto-resolvidas')?.closest('.stat-card');
+    if (cardAuto) {
+        cardAuto.style.cursor = 'pointer';
+        cardAuto.onclick = () => mostrarCasosDashboardChatbot('auto-resolvidas');
+    }
+    
+    // Card Encaminhadas
+    const cardEncaminhadas = document.querySelector('#chatbot-encaminhadas')?.closest('.stat-card');
+    if (cardEncaminhadas) {
+        cardEncaminhadas.style.cursor = 'pointer';
+        cardEncaminhadas.onclick = () => mostrarCasosDashboardChatbot('encaminhadas');
+    }
+    
+    // Card Satisfação (não clicável, apenas informativo)
+}
+
+// Mostrar casos relacionados ao card clicado Chatbot
+function mostrarCasosDashboardChatbot(tipo) {
+    let filtradas = [];
+    let titulo = '';
+    
+    switch(tipo) {
+        case 'total':
+            filtradas = fichasChatbot;
+            titulo = 'Total de Reclamações Chatbot';
+            break;
+        case 'auto-resolvidas':
+            filtradas = fichasChatbot.filter(f => f.resolvidoAutomaticamente);
+            titulo = 'Reclamações Resolvidas Automaticamente';
+            break;
+        case 'encaminhadas':
+            filtradas = fichasChatbot.filter(f => f.encaminhadoHumano);
+            titulo = 'Reclamações Encaminhadas para Humano';
+            break;
+    }
+    
+    if (filtradas.length === 0) {
+        mostrarAlerta(`Nenhuma reclamação encontrada para "${titulo}"`, 'info');
+        return;
+    }
+    
+    // Criar modal com os casos
+    criarModalCasosDashboard(titulo, filtradas, 'chatbot');
 }
 
 // === LISTA ===
@@ -381,7 +443,8 @@ function renderizarListaChatbot() {
     container.innerHTML = filtradas.map(f => criarCardChatbot(f)).join('');
 }
 
-function criarCardChatbot(ficha) {
+// Tornar função global para uso no modal
+window.criarCardChatbot = function criarCardChatbot(ficha) {
     const statusLabels = {
         'nao-iniciado': 'Não Iniciado',
         'em-tratativa': 'Em Tratativa',

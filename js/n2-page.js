@@ -75,6 +75,10 @@ function mostrarSecao(secaoId) {
                 window.graficosDetalhadosN2 = new GraficosDetalhados('n2');
             }
         }, 300);
+        // Configurar cards após um pequeno delay
+        setTimeout(() => {
+            configurarCardsDashboardN2();
+        }, 500);
     }
 }
 
@@ -340,6 +344,73 @@ function atualizarDashboardN2() {
     
     const pixLiberado = fichasN2.filter(f => f.pixLiberado).length;
     atualizarElemento('pix-liberado-n2', pixLiberado);
+    
+    // Adicionar event listeners aos cards
+    configurarCardsDashboardN2();
+}
+
+// Configurar cliques nos cards do dashboard N2
+function configurarCardsDashboardN2() {
+    // Card Total
+    const cardTotal = document.querySelector('#n2-total-dash')?.closest('.stat-card');
+    if (cardTotal) {
+        cardTotal.style.cursor = 'pointer';
+        cardTotal.onclick = () => mostrarCasosDashboardN2('total');
+    }
+    
+    // Card Em Tratativa
+    const cardTratativa = document.querySelector('#n2-tratativa-dash')?.closest('.stat-card');
+    if (cardTratativa) {
+        cardTratativa.style.cursor = 'pointer';
+        cardTratativa.onclick = () => mostrarCasosDashboardN2('em-tratativa');
+    }
+    
+    // Card Concluídas
+    const cardConcluidas = document.querySelector('#n2-concluidas-dash')?.closest('.stat-card');
+    if (cardConcluidas) {
+        cardConcluidas.style.cursor = 'pointer';
+        cardConcluidas.onclick = () => mostrarCasosDashboardN2('concluidas');
+    }
+    
+    // Card Em Andamento
+    const cardAndamento = document.querySelector('#n2-andamento')?.closest('.stat-card');
+    if (cardAndamento) {
+        cardAndamento.style.cursor = 'pointer';
+        cardAndamento.onclick = () => mostrarCasosDashboardN2('em-andamento');
+    }
+}
+
+// Mostrar casos relacionados ao card clicado N2
+function mostrarCasosDashboardN2(tipo) {
+    let filtradas = [];
+    let titulo = '';
+    
+    switch(tipo) {
+        case 'total':
+            filtradas = fichasN2;
+            titulo = 'Total de Reclamações N2';
+            break;
+        case 'em-tratativa':
+            filtradas = fichasN2.filter(f => f.status === 'em-tratativa');
+            titulo = 'Reclamações N2 em Tratativa';
+            break;
+        case 'concluidas':
+            filtradas = fichasN2.filter(f => f.status === 'concluido' || f.status === 'respondido');
+            titulo = 'Reclamações N2 Concluídas';
+            break;
+        case 'em-andamento':
+            filtradas = fichasN2.filter(f => f.statusPortabilidade === 'em-andamento');
+            titulo = 'Portabilidades em Andamento';
+            break;
+    }
+    
+    if (filtradas.length === 0) {
+        mostrarAlerta(`Nenhuma reclamação encontrada para "${titulo}"`, 'info');
+        return;
+    }
+    
+    // Criar modal com os casos
+    criarModalCasosDashboard(titulo, filtradas, 'n2');
 }
 
 // === LISTA ===
@@ -384,7 +455,8 @@ function renderizarListaN2() {
     container.innerHTML = filtradas.map(f => criarCardN2(f)).join('');
 }
 
-function criarCardN2(ficha) {
+// Tornar função global para uso no modal
+window.criarCardN2 = function criarCardN2(ficha) {
     const statusLabels = {
         'nao-iniciado': 'Não Iniciado',
         'em-tratativa': 'Em Tratativa',

@@ -606,9 +606,21 @@ function criarModalCasosDashboard(titulo, casos, tipo) {
         if (tipo === 'bacen') {
             return criarCardBacen(f);
         } else if (tipo === 'n2') {
-            return criarCardN2 ? criarCardN2(f) : criarCardBacen(f);
+            // Tentar usar função global ou do window
+            if (typeof criarCardN2 === 'function') {
+                return criarCardN2(f);
+            } else if (window.criarCardN2) {
+                return window.criarCardN2(f);
+            }
+            return criarCardBacen(f); // Fallback
         } else if (tipo === 'chatbot') {
-            return criarCardChatbot ? criarCardChatbot(f) : criarCardBacen(f);
+            // Tentar usar função global ou do window
+            if (typeof criarCardChatbot === 'function') {
+                return criarCardChatbot(f);
+            } else if (window.criarCardChatbot) {
+                return window.criarCardChatbot(f);
+            }
+            return criarCardBacen(f); // Fallback
         }
         return criarCardBacen(f);
     };
