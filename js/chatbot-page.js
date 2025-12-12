@@ -29,11 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // === INICIALIZAÇÃO ===
 function inicializarChatbot() {
-    const today = new Date().toISOString().split('T')[0];
-    const dataEntrada = document.getElementById('chatbot-data-entrada');
-    if (dataEntrada) {
-        dataEntrada.value = today;
-    }
+    // Não preencher automaticamente - usuário deve inserir manualmente
 }
 
 // === NAVEGAÇÃO ===
@@ -152,15 +148,27 @@ function obterCheckboxChatbot(id) {
 
 async function handleSubmitChatbot(e) {
     e.preventDefault();
+    console.log('🚀 handleSubmitChatbot chamado');
     
-    // Obter anexos
-    const anexos = window.gerenciadorAnexos ? 
-        window.gerenciadorAnexos.obterAnexosDoFormulario('anexos-preview-chatbot') : [];
+    try {
+        // Obter anexos
+        const anexos = window.gerenciadorAnexos ? 
+            window.gerenciadorAnexos.obterAnexosDoFormulario('anexos-preview-chatbot') : [];
+        console.log('📎 Anexos coletados:', anexos.length);
+        
+        // Coletar dataClienteChatbot diretamente do campo
+        const campoDataCliente = document.getElementById('chatbot-data-cliente');
+        const dataClienteChatbot = campoDataCliente ? campoDataCliente.value : '';
+        console.log('📅 Data Cliente Chatbot coletada:', dataClienteChatbot);
+        console.log('📅 Campo existe?', campoDataCliente !== null);
+        console.log('📅 Valor direto do campo:', campoDataCliente?.value);
+        console.log('📅 Tipo do valor:', typeof dataClienteChatbot);
+        console.log('📅 Valor após trim:', dataClienteChatbot.trim());
     
-    const ficha = {
-        id: gerarId(),
-        tipoDemanda: 'chatbot',
-        dataClienteChatbot: obterValorCampoChatbot('chatbot-data-cliente'),
+        const ficha = {
+            id: gerarId(),
+            tipoDemanda: 'chatbot',
+            dataClienteChatbot: dataClienteChatbot,
         responsavel: obterValorCampoChatbot('chatbot-responsavel'),
         nomeCompleto: obterValorCampoChatbot('chatbot-nome') || '',
         cpf: obterValorCampoChatbot('chatbot-cpf'),
@@ -174,54 +182,95 @@ async function handleSubmitChatbot(e) {
         pixStatus: obterValorCampoChatbot('chatbot-pix-status'),
         enviarCobranca: document.querySelector('input[name="chatbot-enviar-cobranca"]:checked')?.value || 'Não',
         casosCriticos: obterCheckboxChatbot('chatbot-casos-criticos'),
-        observacoes: obterValorCampoChatbot('chatbot-observacoes'),
-        anexos: anexos, // Incluir anexos
-        dataCriacao: new Date().toISOString()
-    };
-    
-    if (!validarFichaChatbot(ficha)) {
-        return;
-    }
-    
-    // Salvar
-    if (window.supabaseDB) {
-        try {
-            await window.supabaseDB.salvarFichaChatbot(ficha);
-        } catch (error) {
-            console.error('Erro ao salvar no Supabase:', error);
-            // Fallback
-            if (window.gerenciadorFichas) {
-                window.gerenciadorFichas.adicionarFicha(ficha);
-            } else {
-                fichasChatbot.push(ficha);
-                localStorage.setItem('velotax_demandas_chatbot', JSON.stringify(fichasChatbot));
-            }
+            observacoes: obterValorCampoChatbot('chatbot-observacoes'),
+            anexos: anexos, // Incluir anexos
+            dataCriacao: new Date().toISOString()
+        };
+        
+        console.log('📋 Ficha coletada:', ficha);
+        
+        // Validar
+        console.log('✅ Validando ficha...');
+        if (!validarFichaChatbot(ficha)) {
+            console.error('❌ Validação falhou');
+            return;
         }
-    } else if (window.gerenciadorFichas) {
-        window.gerenciadorFichas.adicionarFicha(ficha);
-    } else {
-        fichasChatbot.push(ficha);
-        localStorage.setItem('velotax_demandas_chatbot', JSON.stringify(fichasChatbot));
+        console.log('✅ Validação passou');
+        
+        // Salvar
+        console.log('💾 Salvando ficha...');
+        if (window.supabaseDB) {
+            console.log('📦 Usando Supabase');
+            try {
+                await window.supabaseDB.salvarFichaChatbot(ficha);
+                console.log('✅ Salvo no Supabase');
+            } catch (error) {
+                console.error('❌ Erro ao salvar no Supabase:', error);
+                // Fallback
+                if (window.gerenciadorFichas) {
+                    window.gerenciadorFichas.adicionarFicha(ficha);
+                    console.log('💾 Fallback: salvo via gerenciadorFichas');
+                } else {
+                    fichasChatbot.push(ficha);
+                    localStorage.setItem('velotax_demandas_chatbot', JSON.stringify(fichasChatbot));
+                    console.log('💾 Fallback: salvo no localStorage');
+                }
+            }
+        } else if (window.gerenciadorFichas) {
+            window.gerenciadorFichas.adicionarFicha(ficha);
+            console.log('💾 Salvo via gerenciadorFichas');
+        } else {
+            fichasChatbot.push(ficha);
+            localStorage.setItem('velotax_demandas_chatbot', JSON.stringify(fichasChatbot));
+            console.log('💾 Salvo no localStorage');
+        }
+        
+        // Limpar e atualizar
+        console.log('🧹 Limpando formulário...');
+        limparFormChatbot();
+        await carregarFichasChatbot();
+        atualizarDashboardChatbot();
+        mostrarSecao('lista-chatbot');
+        
+        console.log('✅ Reclamação salva com sucesso!');
+        mostrarAlerta('Reclamação Chatbot salva com sucesso!', 'success');
+    } catch (error) {
+        console.error('❌ Erro ao processar submit:', error);
+        mostrarAlerta('Erro ao salvar reclamação: ' + error.message, 'error');
     }
-    
-    limparFormChatbot();
-    await carregarFichasChatbot();
-    atualizarDashboardChatbot();
-    mostrarSecao('lista-chatbot');
-    
-    mostrarAlerta('Reclamação Chatbot salva com sucesso!', 'success');
 }
 
 function validarFichaChatbot(ficha) {
+    console.log('🔍 Validando ficha Chatbot:', ficha);
+    
+    // Campos obrigatórios do Chatbot (ajustados conforme o formulário real)
     const camposObrigatorios = [
-        'dataEntrada', 'responsavel', 'nomeCompleto', 'cpf', 
-        'motivoReduzido', 'prazoResposta', 'canalChatbot', 'status'
+        'dataClienteChatbot', 'cpf', 'notaAvaliacao', 'avaliacaoCliente', 
+        'produto', 'motivo', 'respostaBot', 'pixStatus', 'enviarCobranca', 'finalizacao', 'responsavel'
     ];
     
     for (let campo of camposObrigatorios) {
-        if (!ficha[campo] || ficha[campo].trim() === '') {
-            mostrarAlerta(`Campo obrigatório não preenchido: ${campo}`, 'error');
-            return false;
+        const valor = ficha[campo];
+        console.log(`🔍 Validando campo ${campo}:`, valor, 'Tipo:', typeof valor, 'Vazio?', !valor || (typeof valor === 'string' && valor.trim() === ''));
+        
+        // Verificar se é checkbox ou radio
+        if (campo === 'enviarCobranca') {
+            if (!valor || valor === 'Não') {
+                mostrarAlerta('Campo obrigatório não preenchido: Enviar para cobrança?', 'error');
+                return false;
+            }
+        } else {
+            // Para campos de texto/data, verificar se tem valor
+            const estaVazio = !valor || (typeof valor === 'string' && valor.trim() === '');
+            if (estaVazio) {
+                // Mensagem mais específica para dataClienteChatbot
+                if (campo === 'dataClienteChatbot') {
+                    mostrarAlerta('Campo obrigatório não preenchido: Data do cliente com o chatbot. Por favor, selecione uma data.', 'error');
+                } else {
+                    mostrarAlerta(`Campo obrigatório não preenchido: ${campo}`, 'error');
+                }
+                return false;
+            }
         }
     }
     
@@ -551,11 +600,7 @@ function mostrarRelatorioSatisfacao(titulo, dados, subtitulo) {
 // === UTILITÁRIOS ===
 function limparFormChatbot() {
     document.getElementById('form-chatbot')?.reset();
-    const today = new Date().toISOString().split('T')[0];
-    const dataEntrada = document.getElementById('chatbot-data-entrada');
-    if (dataEntrada) {
-        dataEntrada.value = today;
-    }
+    // Não preencher automaticamente - usuário deve inserir manualmente
     // Limpar anexos
     if (window.gerenciadorAnexos) {
         window.gerenciadorAnexos.limparAnexosFormulario('anexos-preview-chatbot');
