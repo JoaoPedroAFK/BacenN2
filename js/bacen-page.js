@@ -29,15 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // === INICIALIZAÇÃO ===
 function inicializarBacen() {
-    // Configurar data atual
-    const today = new Date().toISOString().split('T')[0];
-    const dataEntrada = document.getElementById('bacen-data-entrada');
-    if (dataEntrada) {
-        dataEntrada.value = today;
-        console.log('✅ Data de entrada inicializada:', today);
-    } else {
-        console.warn('⚠️ Campo bacen-data-entrada não encontrado na inicialização');
-    }
+    // Não preencher automaticamente - usuário deve inserir manualmente
 }
 
 // === NAVEGAÇÃO ===
@@ -154,10 +146,8 @@ function obterValorCampo(id) {
         console.warn(`⚠️ Campo ${id} não encontrado`);
         return '';
     }
+    // Obter valor diretamente, sem verificação adicional
     const valor = campo.value || '';
-    if (id === 'bacen-data-entrada' && !valor) {
-        console.warn(`⚠️ Campo ${id} existe mas está vazio. Valor atual:`, valor);
-    }
     return valor;
 }
 
@@ -284,7 +274,7 @@ function validarFichaBacen(ficha) {
     
     for (let campo of camposObrigatorios) {
         const valor = ficha[campo];
-        console.log(`🔍 Validando campo ${campo}:`, valor, 'Tipo:', typeof valor);
+        console.log(`🔍 Validando campo ${campo}:`, valor, 'Tipo:', typeof valor, 'Vazio?', !valor || (typeof valor === 'string' && valor.trim() === ''));
         
         // Verificar se é checkbox
         if (campo === 'enviarCobranca') {
@@ -292,14 +282,18 @@ function validarFichaBacen(ficha) {
                 mostrarAlerta('Campo obrigatório não preenchido: Enviar para cobrança?', 'error');
                 return false;
             }
-        } else if (!valor || (typeof valor === 'string' && valor.trim() === '')) {
-            // Mensagem mais específica para dataEntrada
-            if (campo === 'dataEntrada') {
-                mostrarAlerta('Campo obrigatório não preenchido: Data de Entrada. Verifique se a data foi selecionada corretamente.', 'error');
-            } else {
-                mostrarAlerta(`Campo obrigatório não preenchido: ${campo}`, 'error');
+        } else {
+            // Para campos de texto/data, verificar se tem valor
+            const estaVazio = !valor || (typeof valor === 'string' && valor.trim() === '');
+            if (estaVazio) {
+                // Mensagem mais específica para dataEntrada
+                if (campo === 'dataEntrada') {
+                    mostrarAlerta('Campo obrigatório não preenchido: Data de Entrada. Por favor, selecione uma data.', 'error');
+                } else {
+                    mostrarAlerta(`Campo obrigatório não preenchido: ${campo}`, 'error');
+                }
+                return false;
             }
-            return false;
         }
     }
     
@@ -582,11 +576,7 @@ function obterTentativasBacen() {
 
 function limparFormBacen() {
     document.getElementById('form-bacen')?.reset();
-    const today = new Date().toISOString().split('T')[0];
-    const dataEntrada = document.getElementById('bacen-data-entrada');
-    if (dataEntrada) {
-        dataEntrada.value = today;
-    }
+    // Não preencher automaticamente após limpar
     // Limpar tentativas dinâmicas (manter apenas as 2 primeiras)
     const container = document.getElementById('tentativas-contato-bacen');
     if (container) {

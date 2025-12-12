@@ -29,19 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // === INICIALIZAÇÃO ===
 function inicializarN2() {
-    const today = new Date().toISOString().split('T')[0];
-    const dataEntradaAtendimento = document.getElementById('n2-data-entrada-atendimento');
-    if (dataEntradaAtendimento) {
-        dataEntradaAtendimento.value = today;
-        console.log('✅ Data entrada Atendimento inicializada:', today);
-    }
-    const dataEntradaN2 = document.getElementById('n2-data-entrada-n2');
-    if (dataEntradaN2) {
-        dataEntradaN2.value = today;
-        console.log('✅ Data Entrada N2 inicializada:', today);
-    } else {
-        console.warn('⚠️ Campo n2-data-entrada-n2 não encontrado na inicialização');
-    }
+    // Não preencher automaticamente - usuário deve inserir manualmente
 }
 
 // === NAVEGAÇÃO ===
@@ -153,10 +141,8 @@ function obterValorCampoN2(id) {
         console.warn(`⚠️ Campo ${id} não encontrado`);
         return '';
     }
+    // Obter valor diretamente, sem verificação adicional
     const valor = campo.value || '';
-    if ((id === 'n2-data-entrada-atendimento' || id === 'n2-data-entrada-n2') && !valor) {
-        console.warn(`⚠️ Campo ${id} existe mas está vazio. Valor atual:`, valor);
-    }
     return valor;
 }
 
@@ -280,7 +266,7 @@ function validarFichaN2(ficha) {
     
     for (let campo of camposObrigatorios) {
         const valor = ficha[campo];
-        console.log(`🔍 Validando campo ${campo}:`, valor, 'Tipo:', typeof valor);
+        console.log(`🔍 Validando campo ${campo}:`, valor, 'Tipo:', typeof valor, 'Vazio?', !valor || (typeof valor === 'string' && valor.trim() === ''));
         
         // Verificar se é checkbox
         if (campo === 'enviarCobranca') {
@@ -288,16 +274,20 @@ function validarFichaN2(ficha) {
                 mostrarAlerta('Campo obrigatório não preenchido: Enviar para cobrança?', 'error');
                 return false;
             }
-        } else if (!valor || (typeof valor === 'string' && valor.trim() === '')) {
-            // Mensagem mais específica para campos de data
-            if (campo === 'dataEntradaAtendimento') {
-                mostrarAlerta('Campo obrigatório não preenchido: Data entrada Atendimento. Verifique se a data foi selecionada corretamente.', 'error');
-            } else if (campo === 'dataEntradaN2') {
-                mostrarAlerta('Campo obrigatório não preenchido: Data Entrada N2. Verifique se a data foi selecionada corretamente.', 'error');
-            } else {
-                mostrarAlerta(`Campo obrigatório não preenchido: ${campo}`, 'error');
+        } else {
+            // Para campos de texto/data, verificar se tem valor
+            const estaVazio = !valor || (typeof valor === 'string' && valor.trim() === '');
+            if (estaVazio) {
+                // Mensagem mais específica para campos de data
+                if (campo === 'dataEntradaAtendimento') {
+                    mostrarAlerta('Campo obrigatório não preenchido: Data entrada Atendimento. Por favor, selecione uma data.', 'error');
+                } else if (campo === 'dataEntradaN2') {
+                    mostrarAlerta('Campo obrigatório não preenchido: Data Entrada N2. Por favor, selecione uma data.', 'error');
+                } else {
+                    mostrarAlerta(`Campo obrigatório não preenchido: ${campo}`, 'error');
+                }
+                return false;
             }
-            return false;
         }
     }
     
@@ -612,15 +602,7 @@ function obterTentativasN2() {
 
 function limparFormN2() {
     document.getElementById('form-n2')?.reset();
-    const today = new Date().toISOString().split('T')[0];
-    const dataEntradaAtendimento = document.getElementById('n2-data-entrada-atendimento');
-    if (dataEntradaAtendimento) {
-        dataEntradaAtendimento.value = today;
-    }
-    const dataEntradaN2 = document.getElementById('n2-data-entrada-n2');
-    if (dataEntradaN2) {
-        dataEntradaN2.value = today;
-    }
+    // Não preencher automaticamente após limpar
     // Limpar tentativas dinâmicas (manter apenas as 2 primeiras)
     const container = document.getElementById('tentativas-contato-n2');
     if (container) {
