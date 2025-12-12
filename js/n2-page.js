@@ -30,9 +30,17 @@ document.addEventListener('DOMContentLoaded', function() {
 // === INICIALIZAÇÃO ===
 function inicializarN2() {
     const today = new Date().toISOString().split('T')[0];
-    const dataEntrada = document.getElementById('n2-data-entrada');
-    if (dataEntrada) {
-        dataEntrada.value = today;
+    const dataEntradaAtendimento = document.getElementById('n2-data-entrada-atendimento');
+    if (dataEntradaAtendimento) {
+        dataEntradaAtendimento.value = today;
+        console.log('✅ Data entrada Atendimento inicializada:', today);
+    }
+    const dataEntradaN2 = document.getElementById('n2-data-entrada-n2');
+    if (dataEntradaN2) {
+        dataEntradaN2.value = today;
+        console.log('✅ Data Entrada N2 inicializada:', today);
+    } else {
+        console.warn('⚠️ Campo n2-data-entrada-n2 não encontrado na inicialização');
     }
 }
 
@@ -141,7 +149,15 @@ function configurarEventosN2() {
 // Função auxiliar para obter valor de campo de forma segura
 function obterValorCampoN2(id) {
     const campo = document.getElementById(id);
-    return campo ? campo.value : '';
+    if (!campo) {
+        console.warn(`⚠️ Campo ${id} não encontrado`);
+        return '';
+    }
+    const valor = campo.value || '';
+    if ((id === 'n2-data-entrada-atendimento' || id === 'n2-data-entrada-n2') && !valor) {
+        console.warn(`⚠️ Campo ${id} existe mas está vazio. Valor atual:`, valor);
+    }
+    return valor;
 }
 
 // Função auxiliar para obter checkbox de forma segura
@@ -152,16 +168,26 @@ function obterCheckboxN2(id) {
 
 async function handleSubmitN2(e) {
     e.preventDefault();
+    console.log('🚀 handleSubmitN2 chamado');
     
-    // Obter anexos
-    const anexos = window.gerenciadorAnexos ? 
-        window.gerenciadorAnexos.obterAnexosDoFormulario('anexos-preview-n2') : [];
+    try {
+        // Obter anexos
+        const anexos = window.gerenciadorAnexos ? 
+            window.gerenciadorAnexos.obterAnexosDoFormulario('anexos-preview-n2') : [];
+        console.log('📎 Anexos coletados:', anexos.length);
+        
+        const dataEntradaAtendimento = obterValorCampoN2('n2-data-entrada-atendimento');
+        const dataEntradaN2 = obterValorCampoN2('n2-data-entrada-n2');
+        console.log('📅 Data entrada Atendimento:', dataEntradaAtendimento);
+        console.log('📅 Data Entrada N2:', dataEntradaN2);
+        console.log('📅 Campo dataEntradaN2 existe?', document.getElementById('n2-data-entrada-n2') !== null);
+        console.log('📅 Valor direto do campo:', document.getElementById('n2-data-entrada-n2')?.value);
     
-    const ficha = {
-        id: gerarId(),
-        tipoDemanda: 'n2',
-        dataEntradaAtendimento: obterValorCampoN2('n2-data-entrada-atendimento'),
-        dataEntradaN2: obterValorCampoN2('n2-data-entrada-n2'),
+        const ficha = {
+            id: gerarId(),
+            tipoDemanda: 'n2',
+            dataEntradaAtendimento: dataEntradaAtendimento,
+            dataEntradaN2: dataEntradaN2,
         responsavel: obterValorCampoN2('n2-responsavel'),
         mes: obterValorCampoN2('n2-mes'),
         nomeCompleto: obterValorCampoN2('n2-nome'),
@@ -186,59 +212,91 @@ async function handleSubmitN2(e) {
         casosCriticos: obterCheckboxN2('n2-casos-criticos'),
         status: obterValorCampoN2('n2-status'),
         finalizadoEm: obterValorCampoN2('n2-finalizado-em'),
-        observacoes: obterValorCampoN2('n2-observacoes'),
-        anexos: anexos, // Incluir anexos
-        dataCriacao: new Date().toISOString()
-    };
-    
-    if (!validarFichaN2(ficha)) {
-        return;
-    }
-    
-    // Salvar
-    if (window.supabaseDB) {
-        try {
-            await window.supabaseDB.salvarFichaN2(ficha);
-        } catch (error) {
-            console.error('Erro ao salvar no Supabase:', error);
-            // Fallback
-            if (window.gerenciadorFichas) {
-                window.gerenciadorFichas.adicionarFicha(ficha);
-            } else {
-                fichasN2.push(ficha);
-                localStorage.setItem('velotax_demandas_n2', JSON.stringify(fichasN2));
-            }
+            observacoes: obterValorCampoN2('n2-observacoes'),
+            anexos: anexos, // Incluir anexos
+            dataCriacao: new Date().toISOString()
+        };
+        
+        console.log('📋 Ficha coletada:', ficha);
+        
+        // Validar
+        console.log('✅ Validando ficha...');
+        if (!validarFichaN2(ficha)) {
+            console.error('❌ Validação falhou');
+            return;
         }
-    } else if (window.gerenciadorFichas) {
-        window.gerenciadorFichas.adicionarFicha(ficha);
-    } else {
-        fichasN2.push(ficha);
-        localStorage.setItem('velotax_demandas_n2', JSON.stringify(fichasN2));
+        console.log('✅ Validação passou');
+        
+        // Salvar
+        console.log('💾 Salvando ficha...');
+        if (window.supabaseDB) {
+            console.log('📦 Usando Supabase');
+            try {
+                await window.supabaseDB.salvarFichaN2(ficha);
+                console.log('✅ Salvo no Supabase');
+            } catch (error) {
+                console.error('❌ Erro ao salvar no Supabase:', error);
+                // Fallback
+                if (window.gerenciadorFichas) {
+                    window.gerenciadorFichas.adicionarFicha(ficha);
+                    console.log('💾 Fallback: salvo via gerenciadorFichas');
+                } else {
+                    fichasN2.push(ficha);
+                    localStorage.setItem('velotax_demandas_n2', JSON.stringify(fichasN2));
+                    console.log('💾 Fallback: salvo no localStorage');
+                }
+            }
+        } else if (window.gerenciadorFichas) {
+            window.gerenciadorFichas.adicionarFicha(ficha);
+            console.log('💾 Salvo via gerenciadorFichas');
+        } else {
+            fichasN2.push(ficha);
+            localStorage.setItem('velotax_demandas_n2', JSON.stringify(fichasN2));
+            console.log('💾 Salvo no localStorage');
+        }
+        
+        // Limpar e atualizar
+        console.log('🧹 Limpando formulário...');
+        limparFormN2();
+        await carregarFichasN2();
+        atualizarDashboardN2();
+        mostrarSecao('lista-n2');
+        
+        console.log('✅ Reclamação salva com sucesso!');
+        mostrarAlerta('Reclamação N2 salva com sucesso!', 'success');
+    } catch (error) {
+        console.error('❌ Erro ao processar submit:', error);
+        mostrarAlerta('Erro ao salvar reclamação: ' + error.message, 'error');
     }
-    
-    limparFormN2();
-    await carregarFichasN2();
-    atualizarDashboardN2();
-    mostrarSecao('lista-n2');
-    
-    mostrarAlerta('Reclamação N2 salva com sucesso!', 'success');
 }
 
 function validarFichaN2(ficha) {
+    console.log('🔍 Validando ficha N2:', ficha);
+    
     const camposObrigatorios = [
-        'dataEntradaAtendimento', 'dataEntradaN2', 'dataEntrada', 'responsavel', 'mes', 
+        'dataEntradaAtendimento', 'dataEntradaN2', 'responsavel', 'mes', 
         'nomeCompleto', 'cpf', 'origem', 'motivoReduzido', 'motivoDetalhado', 'status', 'enviarCobranca'
     ];
     
     for (let campo of camposObrigatorios) {
+        const valor = ficha[campo];
+        console.log(`🔍 Validando campo ${campo}:`, valor, 'Tipo:', typeof valor);
+        
         // Verificar se é checkbox
         if (campo === 'enviarCobranca') {
-            if (!ficha[campo]) {
+            if (!valor || valor === 'Não') {
                 mostrarAlerta('Campo obrigatório não preenchido: Enviar para cobrança?', 'error');
                 return false;
             }
-        } else if (!ficha[campo] || (typeof ficha[campo] === 'string' && ficha[campo].trim() === '')) {
-            mostrarAlerta(`Campo obrigatório não preenchido: ${campo}`, 'error');
+        } else if (!valor || (typeof valor === 'string' && valor.trim() === '')) {
+            // Mensagem mais específica para campos de data
+            if (campo === 'dataEntradaAtendimento') {
+                mostrarAlerta('Campo obrigatório não preenchido: Data entrada Atendimento. Verifique se a data foi selecionada corretamente.', 'error');
+            } else if (campo === 'dataEntradaN2') {
+                mostrarAlerta('Campo obrigatório não preenchido: Data Entrada N2. Verifique se a data foi selecionada corretamente.', 'error');
+            } else {
+                mostrarAlerta(`Campo obrigatório não preenchido: ${campo}`, 'error');
+            }
             return false;
         }
     }
@@ -558,6 +616,10 @@ function limparFormN2() {
     const dataEntradaAtendimento = document.getElementById('n2-data-entrada-atendimento');
     if (dataEntradaAtendimento) {
         dataEntradaAtendimento.value = today;
+    }
+    const dataEntradaN2 = document.getElementById('n2-data-entrada-n2');
+    if (dataEntradaN2) {
+        dataEntradaN2.value = today;
     }
     // Limpar tentativas dinâmicas (manter apenas as 2 primeiras)
     const container = document.getElementById('tentativas-contato-n2');
