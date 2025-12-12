@@ -41,7 +41,7 @@
         <div class="header-content">
                 <div class="header-logo">
                     <div class="logo-container-natal">
-                        <img src="img/logo_velotax_natal.png" alt="Velotax" class="logo-header">
+                        <img src="img/velotax_ajustada_branco.png" alt="Velotax" class="logo-header" onerror="this.src='img/velotax_ajustada_cor (1).png'">
                     </div>
                     <h1>N2</h1>
                 </div>
@@ -65,6 +65,7 @@
     <!-- Navegação -->
     <nav class="nav">
         <button class="nav-btn active" onclick="mostrarSecao('dashboard-n2')">📊 Dashboard</button>
+        <button class="nav-btn" onclick="mostrarSecao('minhas-reclamacoes-n2')">👤 Minhas Reclamações</button>
         <button class="nav-btn" onclick="mostrarSecao('nova-reclamacao-n2')">➕ Nova Reclamação N2</button>
         <button class="nav-btn" onclick="mostrarSecao('lista-n2')">📋 Lista de Reclamações</button>
         <button class="nav-btn" onclick="mostrarSecao('relatorios-n2')">📈 Relatórios</button>
@@ -156,14 +157,8 @@
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="n2-responsavel">Responsável *</label>
-                            <select id="n2-responsavel" class="velohub-input" required>
-                                <option value="">Selecione...</option>
-                                <option value="Shirley">Shirley</option>
-                                <option value="Vanessa">Vanessa</option>
-                            </select>
-                        </div>
+                        <!-- Responsável será preenchido automaticamente com o usuário logado -->
+                        <input type="hidden" id="n2-responsavel">
                         <div class="form-group">
                             <label for="n2-mes">Mês *</label>
                             <select id="n2-mes" class="velohub-input" required>

@@ -47,7 +47,7 @@
         <div class="header-content">
                 <div class="header-logo">
                     <div class="logo-container-natal">
-                        <img src="img/logo_velotax_natal.png" alt="Velotax" class="logo-header">
+                        <img src="img/velotax_ajustada_branco.png" alt="Velotax" class="logo-header" onerror="this.src='img/velotax_ajustada_cor (1).png'">
                     </div>
                     <h1>BACEN</h1>
                 </div>
@@ -72,6 +72,7 @@
     <!-- Navegação -->
     <nav class="nav">
         <button class="nav-btn active" onclick="mostrarSecao('dashboard-bacen')">📊 Dashboard</button>
+        <button class="nav-btn" onclick="mostrarSecao('minhas-reclamacoes-bacen')">👤 Minhas Reclamações</button>
         <button class="nav-btn" onclick="mostrarSecao('nova-reclamacao-bacen')">➕ Nova Reclamação BACEN</button>
         <button class="nav-btn" onclick="mostrarSecao('lista-bacen')">📋 Lista de Reclamações</button>
         <button class="nav-btn" onclick="mostrarSecao('relatorios-bacen')">📈 Relatórios</button>
@@ -147,6 +148,18 @@
             </div>
         </section>
 
+        <!-- Minhas Reclamações BACEN -->
+        <section id="minhas-reclamacoes-bacen" class="section">
+            <div class="bacen-header">
+                <h2>👤 Minhas Reclamações BACEN</h2>
+                <p>Reclamações atribuídas a você</p>
+            </div>
+            
+            <div id="minhas-fichas-bacen" class="fichas-container">
+                <div class="loading-message">Carregando suas reclamações...</div>
+            </div>
+        </section>
+
         <!-- Nova Reclamação BACEN -->
         <section id="nova-reclamacao-bacen" class="section">
             <div class="bacen-header">
@@ -163,14 +176,8 @@
                             <label for="bacen-data-entrada">Data de Entrada (dia/mês/ano) *</label>
                             <input type="date" id="bacen-data-entrada" class="velohub-input" required>
                         </div>
-                        <div class="form-group">
-                            <label for="bacen-responsavel">Responsável *</label>
-                            <select id="bacen-responsavel" class="velohub-input" required>
-                                <option value="">Selecione...</option>
-                                <option value="Shirley">Shirley</option>
-                                <option value="Vanessa">Vanessa</option>
-                            </select>
-                        </div>
+                        <!-- Responsável será preenchido automaticamente com o usuário logado -->
+                        <input type="hidden" id="bacen-responsavel">
                     </div>
                     <div class="form-row">
                         <div class="form-group">

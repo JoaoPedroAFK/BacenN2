@@ -179,7 +179,7 @@ async function handleSubmitN2(e) {
             tipoDemanda: 'n2',
             dataEntradaAtendimento: dataEntradaAtendimento,
             dataEntradaN2: dataEntradaN2,
-        responsavel: obterValorCampoN2('n2-responsavel'),
+        responsavel: window.sistemaPerfis?.usuarioAtual?.nome || window.sistemaPerfis?.usuarioAtual?.email || 'Sistema',
         mes: obterValorCampoN2('n2-mes'),
         nomeCompleto: obterValorCampoN2('n2-nome'),
         cpf: obterValorCampoN2('n2-cpf'),
@@ -347,7 +347,21 @@ function renderizarListaN2() {
     const filtroStatus = document.getElementById('filtro-status-n2')?.value || '';
     const filtroPortabilidade = document.getElementById('filtro-portabilidade-n2')?.value || '';
     
+    // Obter usuário logado
+    const usuarioAtual = window.sistemaPerfis?.usuarioAtual;
+    const responsavelAtual = usuarioAtual?.nome || usuarioAtual?.email;
+    
     let filtradas = fichasN2;
+    
+    // FILTRAR APENAS CASOS DO USUÁRIO LOGADO (exceto admin)
+    if (usuarioAtual && usuarioAtual.perfil !== 'administrador') {
+        filtradas = filtradas.filter(f => {
+            const responsavelFicha = f.responsavel || '';
+            return responsavelFicha === responsavelAtual || 
+                   responsavelFicha === usuarioAtual.email ||
+                   responsavelFicha === usuarioAtual.nome;
+        });
+    }
     
     if (busca) {
         filtradas = filtradas.filter(f => {

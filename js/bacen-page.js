@@ -61,6 +61,9 @@ function mostrarSecao(secaoId) {
     if (secaoId === 'lista-bacen') {
         carregarFichasBacen();
         renderizarListaBacen();
+    } else if (secaoId === 'minhas-reclamacoes-bacen') {
+        carregarFichasBacen();
+        renderizarMinhasReclamacoesBacen();
     } else if (secaoId === 'nova-reclamacao-bacen' || secaoId === 'nova-ficha-bacen') {
         // Compatibilidade com ambos os nomes
         if (secaoId === 'nova-ficha-bacen') {
@@ -180,7 +183,7 @@ async function handleSubmitBacen(e) {
         id: gerarId(),
         tipoDemanda: 'bacen',
         dataEntrada: dataEntrada,
-        responsavel: obterValorCampo('bacen-responsavel'),
+        responsavel: window.sistemaPerfis?.usuarioAtual?.nome || window.sistemaPerfis?.usuarioAtual?.email || 'Sistema',
         mes: obterValorCampo('bacen-mes'),
         nomeCompleto: obterValorCampo('bacen-nome'),
         cpf: obterValorCampo('bacen-cpf'),
@@ -352,7 +355,21 @@ function renderizarListaBacen() {
     const busca = document.getElementById('busca-bacen')?.value.toLowerCase() || '';
     const filtroStatus = document.getElementById('filtro-status-bacen')?.value || '';
     
+    // Obter usuário logado
+    const usuarioAtual = window.sistemaPerfis?.usuarioAtual;
+    const responsavelAtual = usuarioAtual?.nome || usuarioAtual?.email;
+    
     let filtradas = fichasBacen;
+    
+    // FILTRAR APENAS CASOS DO USUÁRIO LOGADO (exceto admin)
+    if (usuarioAtual && usuarioAtual.perfil !== 'administrador') {
+        filtradas = filtradas.filter(f => {
+            const responsavelFicha = f.responsavel || '';
+            return responsavelFicha === responsavelAtual || 
+                   responsavelFicha === usuarioAtual.email ||
+                   responsavelFicha === usuarioAtual.nome;
+        });
+    }
     
     // Aplicar busca
     if (busca) {
@@ -375,6 +392,60 @@ function renderizarListaBacen() {
     }
     
     container.innerHTML = filtradas.map(f => criarCardBacen(f)).join('');
+}
+
+// Renderizar "Minhas Reclamações"
+function renderizarMinhasReclamacoesBacen() {
+    const container = document.getElementById('minhas-fichas-bacen');
+    if (!container) return;
+    
+    const usuarioAtual = window.sistemaPerfis?.usuarioAtual;
+    if (!usuarioAtual) {
+        container.innerHTML = '<div class="no-results">Você precisa estar logado para ver suas reclamações</div>';
+        return;
+    }
+    
+    const responsavelAtual = usuarioAtual.nome || usuarioAtual.email;
+    
+    // Filtrar apenas reclamações do usuário logado
+    const minhasFichas = fichasBacen.filter(f => {
+        const responsavelFicha = f.responsavel || '';
+        return responsavelFicha === responsavelAtual || 
+               responsavelFicha === usuarioAtual.email ||
+               responsavelFicha === usuarioAtual.nome;
+    });
+    
+    if (minhasFichas.length === 0) {
+        container.innerHTML = '<div class="no-results">Você não possui reclamações atribuídas</div>';
+        return;
+    }
+    
+    // Ordenar por data (mais recentes primeiro)
+    minhasFichas.sort((a, b) => {
+        const dataA = new Date(a.dataCriacao || a.dataEntrada || 0);
+        const dataB = new Date(b.dataCriacao || b.dataEntrada || 0);
+        return dataB - dataA;
+    });
+    
+    container.innerHTML = `
+        <div class="stats-summary">
+            <div class="stat-card">
+                <div class="stat-value">${minhasFichas.length}</div>
+                <div class="stat-label">Total de Reclamações</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${minhasFichas.filter(f => f.status === 'em-tratativa').length}</div>
+                <div class="stat-label">Em Tratativa</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${minhasFichas.filter(f => f.status === 'concluido').length}</div>
+                <div class="stat-label">Concluídas</div>
+            </div>
+        </div>
+        <div class="fichas-list">
+            ${minhasFichas.map(f => criarCardBacen(f)).join('')}
+        </div>
+    `;
 }
 
 function criarCardBacen(ficha) {

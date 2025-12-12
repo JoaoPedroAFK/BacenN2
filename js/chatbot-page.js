@@ -181,7 +181,7 @@ async function handleSubmitChatbot(e) {
             id: gerarId(),
             tipoDemanda: 'chatbot',
             dataClienteChatbot: dataClienteChatbot,
-        responsavel: obterValorCampoChatbot('chatbot-responsavel'),
+        responsavel: window.sistemaPerfis?.usuarioAtual?.nome || window.sistemaPerfis?.usuarioAtual?.email || 'Sistema',
         nomeCompleto: obterValorCampoChatbot('chatbot-nome') || '',
         cpf: obterValorCampoChatbot('chatbot-cpf'),
         origem: obterValorCampoChatbot('chatbot-origem') || 'Atendimento',
@@ -353,7 +353,21 @@ function renderizarListaChatbot() {
     const filtroStatus = document.getElementById('filtro-status-chatbot')?.value || '';
     const filtroCanal = document.getElementById('filtro-canal-chatbot')?.value || '';
     
+    // Obter usuário logado
+    const usuarioAtual = window.sistemaPerfis?.usuarioAtual;
+    const responsavelAtual = usuarioAtual?.nome || usuarioAtual?.email;
+    
     let filtradas = fichasChatbot || [];
+    
+    // FILTRAR APENAS CASOS DO USUÁRIO LOGADO (exceto admin)
+    if (usuarioAtual && usuarioAtual.perfil !== 'administrador') {
+        filtradas = filtradas.filter(f => {
+            const responsavelFicha = f.responsavel || '';
+            return responsavelFicha === responsavelAtual || 
+                   responsavelFicha === usuarioAtual.email ||
+                   responsavelFicha === usuarioAtual.nome;
+        });
+    }
     
     if (busca) {
         filtradas = filtradas.filter(f => {

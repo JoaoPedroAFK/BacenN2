@@ -41,7 +41,7 @@
         <div class="header-content">
                 <div class="header-logo">
                     <div class="logo-container-natal">
-                        <img src="img/logo_velotax_natal.png" alt="Velotax" class="logo-header">
+                        <img src="img/velotax_ajustada_branco.png" alt="Velotax" class="logo-header" onerror="this.src='img/velotax_ajustada_cor (1).png'">
                     </div>
                     <h1>Chatbot</h1>
                 </div>
@@ -65,6 +65,7 @@
     <!-- Navegação -->
     <nav class="nav">
         <button class="nav-btn active" onclick="mostrarSecao('dashboard-chatbot')">📊 Dashboard</button>
+        <button class="nav-btn" onclick="mostrarSecao('minhas-reclamacoes-chatbot')">👤 Minhas Reclamações</button>
         <button class="nav-btn" onclick="mostrarSecao('nova-reclamacao-chatbot')">➕ Nova Reclamação Chatbot</button>
         <button class="nav-btn" onclick="mostrarSecao('lista-chatbot')">📋 Lista de Reclamações</button>
         <button class="nav-btn" onclick="mostrarSecao('relatorios-chatbot')">📈 Relatórios</button>
@@ -150,14 +151,8 @@
                             <label for="chatbot-data-cliente">Data entrada (dia/mês/ano) *</label>
                             <input type="date" id="chatbot-data-cliente" class="velohub-input" required>
                         </div>
-                        <div class="form-group">
-                            <label for="chatbot-responsavel">Responsável *</label>
-                            <select id="chatbot-responsavel" class="velohub-input" required>
-                                <option value="">Selecione...</option>
-                                <option value="Shirley">Shirley</option>
-                                <option value="Vanessa">Vanessa</option>
-                            </select>
-                        </div>
+                        <!-- Responsável será preenchido automaticamente com o usuário logado -->
+                        <input type="hidden" id="chatbot-responsavel">
                     </div>
                     <div class="form-row">
                         <div class="form-group">

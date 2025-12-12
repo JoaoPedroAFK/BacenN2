@@ -97,16 +97,37 @@ class GoogleSSO {
     }
 
     async validarTokenGoogle(token) {
-        // Tentar validar localmente primeiro (para desenvolvimento)
-        // Em produção, isso deve ser feito no backend
+        // PRIORIDADE: Validar no backend primeiro (API já configurada)
+        const apiBackendUrl = window.API_BACKEND_URL || process.env.API_BACKEND_URL || 'https://api-bacen.velotax.com.br';
         
+        if (apiBackendUrl) {
+            try {
+                console.log('🔐 Validando token no backend:', apiBackendUrl);
+                const response = await fetch(`${apiBackendUrl}/auth/google`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token: token })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Validação backend bem-sucedida:', data);
+                    return data;
+                } else {
+                    console.warn('⚠️ Backend retornou erro, tentando fallback local');
+                }
+            } catch (err) {
+                console.warn('⚠️ Erro ao validar no backend, tentando fallback local:', err);
+            }
+        }
+        
+        // Fallback: validação local (apenas para desenvolvimento)
         try {
-            // Decodificar o JWT do Google (sem verificar assinatura - apenas para desenvolvimento)
             const payload = JSON.parse(atob(token.split('.')[1]));
+            console.log('📋 Payload do Google (fallback local):', payload);
             
-            console.log('📋 Payload do Google:', payload);
-            
-            // Verificar se o email está autorizado
             const emailAutorizado = this.verificarEmailAutorizado(payload.email);
             
             if (!emailAutorizado) {
@@ -116,7 +137,6 @@ class GoogleSSO {
                 };
             }
             
-            // Criar usuário a partir do payload do Google
             const usuario = {
                 id: payload.sub,
                 nome: payload.name || payload.email.split('@')[0],
@@ -131,26 +151,7 @@ class GoogleSSO {
                 usuario: usuario
             };
         } catch (error) {
-            console.error('Erro ao validar token:', error);
-            
-            // Fallback: tentar validar no backend se houver endpoint
-            if (window.API_BACKEND_URL) {
-                try {
-                    const response = await fetch(`${window.API_BACKEND_URL}/auth/google`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ token: token })
-                    });
-                    
-                    const data = await response.json();
-                    return data;
-                } catch (err) {
-                    console.error('Erro ao validar no backend:', err);
-                }
-            }
-            
+            console.error('❌ Erro ao validar token:', error);
             return {
                 sucesso: false,
                 erro: 'Erro ao validar credenciais do Google'
