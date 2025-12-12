@@ -1503,11 +1503,11 @@
     top: -15px;
     right: -10px;
     width: 50px;
-    height: auto; /* Mantém proporção original */
-    aspect-ratio: 1 / 1; /* Garante formato quadrado sem deformar */
+    height: 50px;
     z-index: 10;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-    object-fit: contain; /* Mantém proporção sem cortar */
+    object-fit: contain;
+    object-position: center;
 }
 
 /* Animação removida - chapéu e robô agora estão fixos sobrepondo o logo */
