@@ -150,7 +150,15 @@ function configurarEventosBacen() {
 // Função auxiliar para obter valor de campo de forma segura
 function obterValorCampo(id) {
     const campo = document.getElementById(id);
-    return campo ? campo.value : '';
+    if (!campo) {
+        console.warn(`⚠️ Campo ${id} não encontrado`);
+        return '';
+    }
+    const valor = campo.value || '';
+    if (id === 'bacen-data-entrada' && !valor) {
+        console.warn(`⚠️ Campo ${id} existe mas está vazio. Valor atual:`, valor);
+    }
+    return valor;
 }
 
 // Função auxiliar para obter checkbox de forma segura
