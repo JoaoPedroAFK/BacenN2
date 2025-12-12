@@ -1,0 +1,18 @@
+{
+  "name": "sistema-bacen-velotax",
+  "version": "1.0.0",
+  "description": "Sistema de gestão de reclamações BACEN, N2 e Chatbot - Velotax",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "bacen",
+    "velotax",
+    "reclamacoes"
+  ],
+  "author": "Velotax",
+  "license": "ISC"
+}
+
