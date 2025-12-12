@@ -230,7 +230,9 @@ async function handleSubmitChatbot(e) {
         console.log('🧹 Limpando formulário...');
         limparFormChatbot();
         await carregarFichasChatbot();
-        atualizarDashboardChatbot();
+        console.log('📋 Fichas carregadas:', fichasChatbot.length);
+        await atualizarDashboardChatbot();
+        console.log('📋 Renderizando lista com', fichasChatbot.length, 'fichas');
         renderizarListaChatbot(); // Garantir que a lista seja atualizada
         mostrarSecao('lista-chatbot');
         
@@ -328,13 +330,19 @@ async function atualizarDashboardChatbot() {
 // === LISTA ===
 function renderizarListaChatbot() {
     const container = document.getElementById('lista-fichas-chatbot');
-    if (!container) return;
+    if (!container) {
+        console.warn('⚠️ Container lista-fichas-chatbot não encontrado');
+        return;
+    }
+    
+    console.log('📋 Renderizando lista com', fichasChatbot.length, 'fichas');
+    console.log('📋 Fichas disponíveis:', fichasChatbot);
     
     const busca = document.getElementById('busca-chatbot')?.value.toLowerCase() || '';
     const filtroStatus = document.getElementById('filtro-status-chatbot')?.value || '';
     const filtroCanal = document.getElementById('filtro-canal-chatbot')?.value || '';
     
-    let filtradas = fichasChatbot;
+    let filtradas = fichasChatbot || [];
     
     if (busca) {
         filtradas = filtradas.filter(f => {
