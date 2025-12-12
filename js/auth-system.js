@@ -459,8 +459,41 @@ class SistemaPerfis {
     }
 
     mostrarSistema() {
+        // Remove overlay de login
+        this.removerTelaLogin();
+        
         // O sistema já está carregado, apenas atualiza interface
         this.atualizarInterfaceUsuario();
+        
+        // Carregar scripts do app se ainda não foram carregados
+        if (!window.appScriptsCarregados) {
+            this.carregarScriptsApp();
+            window.appScriptsCarregados = true;
+        }
+    }
+    
+    carregarScriptsApp() {
+        const scripts = [
+            'js/gerenciador-fichas-perfil.js',
+            'js/sistema-alertas.js',
+            'js/ficha-detalhada.js',
+            'js/busca-avancada.js',
+            'js/dashboard-avancado.js',
+            'js/relatorios-robusto.js',
+            'js/importador-dados.js',
+            'js/classificacao-demandas.js',
+            'js/theme-toggle.js',
+            'js/main.js',
+            'js/demo-data.js'
+        ];
+        
+        scripts.forEach(src => {
+            if (!document.querySelector(`script[src="${src}"]`)) {
+                const script = document.createElement('script');
+                script.src = src;
+                document.body.appendChild(script);
+            }
+        });
     }
 
     atualizarInterfaceUsuario() {
