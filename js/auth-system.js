@@ -261,8 +261,6 @@ class SistemaPerfis {
                     <div class="login-header">
                         <div class="logo-velotax">
                             <img src="img/velotax_ajustada_cor (1).png" alt="Velotax Logo" class="logo-velotax-img">
-                            <h2>VELOTAX</h2>
-                            <p>Sistema de Reclamações BACEN</p>
                         </div>
                     </div>
                     
