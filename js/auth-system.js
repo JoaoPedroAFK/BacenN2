@@ -260,7 +260,7 @@ class SistemaPerfis {
                 <div class="login-card">
                     <div class="login-header">
                         <div class="logo-velotax">
-                            <img src="img/LOGO_VELOTAX_NATAL.PNG" alt="Velotax Logo" class="logo-velotax-img">
+                            <img src="img/LOGO_VELOTAX_NATAL.png" alt="Velotax Logo" class="logo-velotax-img">
                         </div>
                     </div>
                     
