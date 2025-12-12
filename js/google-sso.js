@@ -261,9 +261,6 @@ if (document.readyState === 'loading') {
 } else {
     window.googleSSO = new GoogleSSO();
 }
-
-
-class GoogleSSO {
     constructor() {
         this.clientId = null;
         this.initialized = false;
