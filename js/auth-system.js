@@ -387,6 +387,20 @@ class SistemaPerfis {
                 await this.realizarLogin();
             });
         }
+        
+        // Renderizar botão Google SSO após um pequeno delay
+        setTimeout(() => {
+            if (window.googleSSO) {
+                window.googleSSO.renderizarBotao('google-sso-container');
+            } else {
+                // Tentar novamente após mais tempo se ainda não estiver inicializado
+                setTimeout(() => {
+                    if (window.googleSSO) {
+                        window.googleSSO.renderizarBotao('google-sso-container');
+                    }
+                }, 1000);
+            }
+        }, 500);
     }
 
     async realizarLogin() {
