@@ -167,10 +167,14 @@ async function handleSubmitBacen(e) {
             window.gerenciadorAnexos.obterAnexosDoFormulario('anexos-preview-bacen') : [];
         console.log('📎 Anexos coletados:', anexos.length);
     
-    const dataEntrada = obterValorCampo('bacen-data-entrada');
+    // Coletar dataEntrada diretamente do campo
+    const campoDataEntrada = document.getElementById('bacen-data-entrada');
+    const dataEntrada = campoDataEntrada ? campoDataEntrada.value : '';
     console.log('📅 Data de Entrada coletada:', dataEntrada);
-    console.log('📅 Campo existe?', document.getElementById('bacen-data-entrada') !== null);
-    console.log('📅 Valor direto do campo:', document.getElementById('bacen-data-entrada')?.value);
+    console.log('📅 Campo existe?', campoDataEntrada !== null);
+    console.log('📅 Valor direto do campo:', campoDataEntrada?.value);
+    console.log('📅 Tipo do valor:', typeof dataEntrada);
+    console.log('📅 Valor após trim:', dataEntrada.trim());
     
     const ficha = {
         id: gerarId(),

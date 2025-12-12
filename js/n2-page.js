@@ -162,12 +162,17 @@ async function handleSubmitN2(e) {
             window.gerenciadorAnexos.obterAnexosDoFormulario('anexos-preview-n2') : [];
         console.log('📎 Anexos coletados:', anexos.length);
         
-        const dataEntradaAtendimento = obterValorCampoN2('n2-data-entrada-atendimento');
-        const dataEntradaN2 = obterValorCampoN2('n2-data-entrada-n2');
+        // Coletar datas diretamente dos campos
+        const campoDataAtendimento = document.getElementById('n2-data-entrada-atendimento');
+        const campoDataN2 = document.getElementById('n2-data-entrada-n2');
+        const dataEntradaAtendimento = campoDataAtendimento ? campoDataAtendimento.value : '';
+        const dataEntradaN2 = campoDataN2 ? campoDataN2.value : '';
         console.log('📅 Data entrada Atendimento:', dataEntradaAtendimento);
         console.log('📅 Data Entrada N2:', dataEntradaN2);
-        console.log('📅 Campo dataEntradaN2 existe?', document.getElementById('n2-data-entrada-n2') !== null);
-        console.log('📅 Valor direto do campo:', document.getElementById('n2-data-entrada-n2')?.value);
+        console.log('📅 Campo dataEntradaN2 existe?', campoDataN2 !== null);
+        console.log('📅 Valor direto do campo dataEntradaN2:', campoDataN2?.value);
+        console.log('📅 Tipo do valor dataEntradaN2:', typeof dataEntradaN2);
+        console.log('📅 Valor após trim dataEntradaN2:', dataEntradaN2.trim());
     
         const ficha = {
             id: gerarId(),
