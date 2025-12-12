@@ -129,10 +129,9 @@ class GoogleSSO {
             console.error('❌ Erro ao validar no backend:', err);
             // Fallback: validação local (apenas para desenvolvimento)
             console.warn('⚠️ Usando validação local como fallback');
-        
-        // Fallback: validação local (apenas para desenvolvimento)
-        try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
+            
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
             console.log('📋 Payload do Google (fallback local):', payload);
             
             const emailAutorizado = this.verificarEmailAutorizado(payload.email);
