@@ -25,13 +25,17 @@ class GoogleSSO {
 
     configurarGoogleSignIn() {
         // O Client ID será obtido do backend ou configurado via variável de ambiente
-        // Por enquanto, vamos usar um placeholder que será substituído
-        this.clientId = window.GOOGLE_CLIENT_ID || 'SEU_GOOGLE_CLIENT_ID_AQUI';
+        // Client ID configurado: 638842930106-b0plff0sbbs0ljsm39n5kadsjfcj3u3q.apps.googleusercontent.com
+        this.clientId = window.GOOGLE_CLIENT_ID || 
+                       localStorage.getItem('GOOGLE_CLIENT_ID') ||
+                       '638842930106-b0plff0sbbs0ljsm39n5kadsjfcj3u3q.apps.googleusercontent.com';
         
-        if (this.clientId === 'SEU_GOOGLE_CLIENT_ID_AQUI') {
+        if (!this.clientId) {
             console.warn('⚠️ Google Client ID não configurado. SSO não funcionará.');
             return;
         }
+        
+        console.log('✅ Google Client ID configurado:', this.clientId.substring(0, 20) + '...');
 
         if (window.google && window.google.accounts) {
             window.google.accounts.id.initialize({
