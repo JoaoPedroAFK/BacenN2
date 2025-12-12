@@ -13,6 +13,8 @@
     "reclamacoes"
   ],
   "author": "Velotax",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "google-auth-library": "^9.15.1"
+  }
 }
-

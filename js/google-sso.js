@@ -101,31 +101,34 @@ class GoogleSSO {
     }
 
     async validarTokenGoogle(token) {
-        // PRIORIDADE: Validar no backend primeiro (API já configurada)
-        const apiBackendUrl = window.API_BACKEND_URL || process.env.API_BACKEND_URL || 'https://api-bacen.velotax.com.br';
+        // PRIORIDADE: Validar no backend local primeiro
+        const apiBackendUrl = window.API_BACKEND_URL || 
+                             (window.location.origin) || 
+                             'http://localhost:3000';
         
-        if (apiBackendUrl) {
-            try {
-                console.log('🔐 Validando token no backend:', apiBackendUrl);
-                const response = await fetch(`${apiBackendUrl}/auth/google`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ token: token })
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('✅ Validação backend bem-sucedida:', data);
-                    return data;
-                } else {
-                    console.warn('⚠️ Backend retornou erro, tentando fallback local');
-                }
-            } catch (err) {
-                console.warn('⚠️ Erro ao validar no backend, tentando fallback local:', err);
+        try {
+            console.log('🔐 Validando token no backend:', apiBackendUrl);
+            const response = await fetch(`${apiBackendUrl}/api/auth/google`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ token: token })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ Validação backend bem-sucedida:', data);
+                return data;
+            } else {
+                const errorData = await response.json().catch(() => ({ erro: 'Erro desconhecido' }));
+                console.warn('⚠️ Backend retornou erro:', errorData);
+                throw new Error(errorData.erro || 'Erro ao validar token');
             }
-        }
+        } catch (err) {
+            console.error('❌ Erro ao validar no backend:', err);
+            // Fallback: validação local (apenas para desenvolvimento)
+            console.warn('⚠️ Usando validação local como fallback');
         
         // Fallback: validação local (apenas para desenvolvimento)
         try {
