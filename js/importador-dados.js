@@ -191,7 +191,6 @@ class ImportadorDados {
                         "Aceitou liquidação Antecipada?": "FALSE",
                         "Observações": "Cliente aguardando retorno",
                         "Mês": "Janeiro",
-                        "Valor negociado": "1500.00",
                         "_aba": "Bacen"
                     },
                     {
@@ -220,7 +219,6 @@ class ImportadorDados {
                         "Aceitou liquidação Antecipada?": "TRUE",
                         "Observações": "Problema resolvido após contato com banco",
                         "Mês": "Janeiro",
-                        "Valor negociado": "2500.00",
                         "_aba": "Bacen"
                     },
                     
@@ -254,7 +252,6 @@ class ImportadorDados {
                         "Status Portabilidade": "Concluída",
                         "Observações": "Portabilidade realizada com sucesso",
                         "Mês": "Janeiro",
-                        "Valor negociado": "800.00",
                         "_aba": "N2"
                     },
                     {
@@ -286,7 +283,6 @@ class ImportadorDados {
                         "Status Portabilidade": "Em andamento",
                         "Observações": "Aguardando documentação complementar",
                         "Mês": "Janeiro",
-                        "Valor negociado": "1200.00",
                         "_aba": "N2"
                     },
                     
@@ -313,7 +309,6 @@ class ImportadorDados {
                         "Aceitou liquidação Antecipada?": "FALSE",
                         "Observações": "Resposta automática via chatbot",
                         "Mês": "Janeiro",
-                        "Valor negociado": "0.00",
                         "_aba": "Chatbot"
                     },
                     {
@@ -338,7 +333,6 @@ class ImportadorDados {
                         "Aceitou liquidação Antecipada?": "FALSE",
                         "Observações": "Encaminhado para atendente humano após tentativa falha",
                         "Mês": "Janeiro",
-                        "Valor negociado": "0.00",
                         "_aba": "Chatbot"
                     }
                 ]);

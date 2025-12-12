@@ -47,7 +47,6 @@ class DashboardAvancado {
                 dataCriacao: '2024-01-15',
                 responsavel: 'atendente@velotax.com',
                 origem: 'bacen',
-                valorNegociado: '1500.00',
                 modulosContato: { bacen: true, atendimento: true },
                 concluido: false
             },
@@ -59,7 +58,6 @@ class DashboardAvancado {
                 dataCriacao: '2024-01-10',
                 responsavel: 'admin@velotax.com',
                 origem: 'telefone',
-                valorNegociado: '2500.00',
                 modulosContato: { atendimento: true },
                 concluido: true
             },
@@ -71,7 +69,6 @@ class DashboardAvancado {
                 dataCriacao: '2024-01-20',
                 responsavel: 'atendente@velotax.com',
                 origem: 'reclame-aqui',
-                valorNegociado: '800.00',
                 modulosContato: { reclameAqui: true },
                 concluido: false
             },
@@ -83,7 +80,6 @@ class DashboardAvancado {
                 dataCriacao: '2024-01-08',
                 responsavel: 'admin@velotax.com',
                 origem: 'procon',
-                valorNegociado: '3200.00',
                 modulosContato: { procon: true, bacen: true },
                 concluido: true
             },
@@ -95,7 +91,6 @@ class DashboardAvancado {
                 dataCriacao: '2024-01-18',
                 responsavel: 'atendente@velotax.com',
                 origem: 'email',
-                valorNegociado: '1800.00',
                 modulosContato: { atendimento: true, n2: true },
                 concluido: false
             }

@@ -54,8 +54,9 @@ function mostrarSecao(secaoId) {
     });
     
     if (secaoId === 'lista-chatbot') {
-        carregarFichasChatbot();
-        renderizarListaChatbot();
+        carregarFichasChatbot().then(() => {
+            renderizarListaChatbot();
+        });
     } else if (secaoId === 'nova-reclamacao-chatbot' || secaoId === 'nova-ficha-chatbot') {
         // Compatibilidade com ambos os nomes
         if (secaoId === 'nova-ficha-chatbot') {
@@ -230,6 +231,7 @@ async function handleSubmitChatbot(e) {
         limparFormChatbot();
         await carregarFichasChatbot();
         atualizarDashboardChatbot();
+        renderizarListaChatbot(); // Garantir que a lista seja atualizada
         mostrarSecao('lista-chatbot');
         
         console.log('✅ Reclamação salva com sucesso!');
