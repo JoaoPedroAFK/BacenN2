@@ -34,6 +34,9 @@ function inicializarBacen() {
     const dataEntrada = document.getElementById('bacen-data-entrada');
     if (dataEntrada) {
         dataEntrada.value = today;
+        console.log('✅ Data de entrada inicializada:', today);
+    } else {
+        console.warn('⚠️ Campo bacen-data-entrada não encontrado na inicialização');
     }
 }
 
@@ -166,10 +169,15 @@ async function handleSubmitBacen(e) {
             window.gerenciadorAnexos.obterAnexosDoFormulario('anexos-preview-bacen') : [];
         console.log('📎 Anexos coletados:', anexos.length);
     
+    const dataEntrada = obterValorCampo('bacen-data-entrada');
+    console.log('📅 Data de Entrada coletada:', dataEntrada);
+    console.log('📅 Campo existe?', document.getElementById('bacen-data-entrada') !== null);
+    console.log('📅 Valor direto do campo:', document.getElementById('bacen-data-entrada')?.value);
+    
     const ficha = {
         id: gerarId(),
         tipoDemanda: 'bacen',
-        dataEntrada: obterValorCampo('bacen-data-entrada'),
+        dataEntrada: dataEntrada,
         responsavel: obterValorCampo('bacen-responsavel'),
         mes: obterValorCampo('bacen-mes'),
         nomeCompleto: obterValorCampo('bacen-nome'),
@@ -198,6 +206,8 @@ async function handleSubmitBacen(e) {
         anexos: anexos, // Incluir anexos
         dataCriacao: new Date().toISOString()
     };
+    
+    console.log('📋 Ficha coletada:', ficha);
     
         // Validar
         console.log('✅ Validando ficha...');
@@ -251,6 +261,8 @@ async function handleSubmitBacen(e) {
 }
 
 function validarFichaBacen(ficha) {
+    console.log('🔍 Validando ficha:', ficha);
+    
     const camposObrigatorios = [
         'dataEntrada', 'responsavel', 'mes', 'nomeCompleto', 'cpf', 
         'origem', 'motivoReduzido', 'motivoDetalhado', 'status', 'enviarCobranca'
@@ -263,14 +275,22 @@ function validarFichaBacen(ficha) {
     }
     
     for (let campo of camposObrigatorios) {
+        const valor = ficha[campo];
+        console.log(`🔍 Validando campo ${campo}:`, valor, 'Tipo:', typeof valor);
+        
         // Verificar se é checkbox
         if (campo === 'enviarCobranca') {
-            if (!ficha[campo]) {
+            if (!valor || valor === 'Não') {
                 mostrarAlerta('Campo obrigatório não preenchido: Enviar para cobrança?', 'error');
                 return false;
             }
-        } else if (!ficha[campo] || (typeof ficha[campo] === 'string' && ficha[campo].trim() === '')) {
-            mostrarAlerta(`Campo obrigatório não preenchido: ${campo}`, 'error');
+        } else if (!valor || (typeof valor === 'string' && valor.trim() === '')) {
+            // Mensagem mais específica para dataEntrada
+            if (campo === 'dataEntrada') {
+                mostrarAlerta('Campo obrigatório não preenchido: Data de Entrada. Verifique se a data foi selecionada corretamente.', 'error');
+            } else {
+                mostrarAlerta(`Campo obrigatório não preenchido: ${campo}`, 'error');
+            }
             return false;
         }
     }
