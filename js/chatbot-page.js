@@ -138,6 +138,18 @@ function configurarEventosChatbot() {
     }
 }
 
+// Função auxiliar para obter valor de campo de forma segura
+function obterValorCampoChatbot(id) {
+    const campo = document.getElementById(id);
+    return campo ? campo.value : '';
+}
+
+// Função auxiliar para obter checkbox de forma segura
+function obterCheckboxChatbot(id) {
+    const campo = document.getElementById(id);
+    return campo ? campo.checked : false;
+}
+
 async function handleSubmitChatbot(e) {
     e.preventDefault();
     
@@ -148,21 +160,21 @@ async function handleSubmitChatbot(e) {
     const ficha = {
         id: gerarId(),
         tipoDemanda: 'chatbot',
-        dataClienteChatbot: document.getElementById('chatbot-data-cliente').value,
-        responsavel: document.getElementById('chatbot-responsavel').value,
-        nomeCompleto: document.getElementById('chatbot-nome')?.value || '',
-        cpf: document.getElementById('chatbot-cpf').value,
-        origem: document.getElementById('chatbot-origem')?.value || 'Atendimento',
-        telefone: document.getElementById('chatbot-telefone')?.value || '',
-        notaAvaliacao: document.getElementById('chatbot-nota-avaliacao').value,
-        avaliacaoCliente: document.getElementById('chatbot-avaliacao-cliente').value,
-        produto: document.getElementById('chatbot-produto').value,
-        motivo: document.getElementById('chatbot-motivo').value,
+        dataClienteChatbot: obterValorCampoChatbot('chatbot-data-cliente'),
+        responsavel: obterValorCampoChatbot('chatbot-responsavel'),
+        nomeCompleto: obterValorCampoChatbot('chatbot-nome') || '',
+        cpf: obterValorCampoChatbot('chatbot-cpf'),
+        origem: obterValorCampoChatbot('chatbot-origem') || 'Atendimento',
+        telefone: obterValorCampoChatbot('chatbot-telefone') || '',
+        notaAvaliacao: obterValorCampoChatbot('chatbot-nota-avaliacao'),
+        avaliacaoCliente: obterValorCampoChatbot('chatbot-avaliacao-cliente'),
+        produto: obterValorCampoChatbot('chatbot-produto'),
+        motivo: obterValorCampoChatbot('chatbot-motivo'),
         respostaBot: document.querySelector('input[name="chatbot-resposta-bot"]:checked')?.value || '',
-        pixStatus: document.getElementById('chatbot-pix-status').value,
+        pixStatus: obterValorCampoChatbot('chatbot-pix-status'),
         enviarCobranca: document.querySelector('input[name="chatbot-enviar-cobranca"]:checked')?.value || 'Não',
-        casosCriticos: document.getElementById('chatbot-casos-criticos').checked,
-        observacoes: document.getElementById('chatbot-observacoes').value,
+        casosCriticos: obterCheckboxChatbot('chatbot-casos-criticos'),
+        observacoes: obterValorCampoChatbot('chatbot-observacoes'),
         anexos: anexos, // Incluir anexos
         dataCriacao: new Date().toISOString()
     };

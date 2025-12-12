@@ -138,6 +138,18 @@ function configurarEventosN2() {
     }
 }
 
+// Função auxiliar para obter valor de campo de forma segura
+function obterValorCampoN2(id) {
+    const campo = document.getElementById(id);
+    return campo ? campo.value : '';
+}
+
+// Função auxiliar para obter checkbox de forma segura
+function obterCheckboxN2(id) {
+    const campo = document.getElementById(id);
+    return campo ? campo.checked : false;
+}
+
 async function handleSubmitN2(e) {
     e.preventDefault();
     
@@ -148,34 +160,33 @@ async function handleSubmitN2(e) {
     const ficha = {
         id: gerarId(),
         tipoDemanda: 'n2',
-        dataEntradaAtendimento: document.getElementById('n2-data-entrada-atendimento').value,
-        dataEntradaN2: document.getElementById('n2-data-entrada-n2').value,
-        dataEntrada: document.getElementById('n2-data-entrada').value,
-        responsavel: document.getElementById('n2-responsavel').value,
-        mes: document.getElementById('n2-mes').value,
-        nomeCompleto: document.getElementById('n2-nome').value,
-        cpf: document.getElementById('n2-cpf').value,
-        telefone: document.getElementById('n2-telefone').value,
-        origem: document.getElementById('n2-origem').value,
-        motivoReduzido: document.getElementById('n2-motivo-reduzido').value,
-        motivoDetalhado: document.getElementById('n2-motivo-detalhado').value,
-        prazoN2: document.getElementById('n2-prazo-n2').value,
+        dataEntradaAtendimento: obterValorCampoN2('n2-data-entrada-atendimento'),
+        dataEntradaN2: obterValorCampoN2('n2-data-entrada-n2'),
+        responsavel: obterValorCampoN2('n2-responsavel'),
+        mes: obterValorCampoN2('n2-mes'),
+        nomeCompleto: obterValorCampoN2('n2-nome'),
+        cpf: obterValorCampoN2('n2-cpf'),
+        telefone: obterValorCampoN2('n2-telefone'),
+        origem: obterValorCampoN2('n2-origem'),
+        motivoReduzido: obterValorCampoN2('n2-motivo-reduzido'),
+        motivoDetalhado: obterValorCampoN2('n2-motivo-detalhado'),
+        prazoN2: obterValorCampoN2('n2-prazo-n2'),
         tentativasContato: obterTentativasN2(), // Coletar todas as tentativas
-        acionouCentral: document.getElementById('n2-acionou-central').checked,
-        protocoloCentral: document.getElementById('n2-protocolo-central').value,
-        n2SegundoNivel: document.getElementById('n2-n2-segundo-nivel').checked,
-        protocoloN2: document.getElementById('n2-protocolo-n2').value,
-        reclameAqui: document.getElementById('n2-reclame-aqui').checked,
-        protocoloReclameAqui: document.getElementById('n2-protocolo-reclame-aqui').value,
-        procon: document.getElementById('n2-procon').checked,
-        protocoloProcon: document.getElementById('n2-protocolo-procon').value,
-        protocolosSemAcionamento: document.getElementById('n2-protocolos-sem-acionamento').value,
-        pixStatus: document.getElementById('n2-pix-status').value,
+        acionouCentral: obterCheckboxN2('n2-acionou-central'),
+        protocoloCentral: obterValorCampoN2('n2-protocolo-central'),
+        n2SegundoNivel: obterCheckboxN2('n2-n2-segundo-nivel'),
+        protocoloN2: obterValorCampoN2('n2-protocolo-n2'),
+        reclameAqui: obterCheckboxN2('n2-reclame-aqui'),
+        protocoloReclameAqui: obterValorCampoN2('n2-protocolo-reclame-aqui'),
+        procon: obterCheckboxN2('n2-procon'),
+        protocoloProcon: obterValorCampoN2('n2-protocolo-procon'),
+        protocolosSemAcionamento: obterValorCampoN2('n2-protocolos-sem-acionamento'),
+        pixStatus: obterValorCampoN2('n2-pix-status'),
         enviarCobranca: document.querySelector('input[name="n2-enviar-cobranca"]:checked')?.value || 'Não',
-        casosCriticos: document.getElementById('n2-casos-criticos').checked,
-        status: document.getElementById('n2-status').value,
-        finalizadoEm: document.getElementById('n2-finalizado-em').value,
-        observacoes: document.getElementById('n2-observacoes').value,
+        casosCriticos: obterCheckboxN2('n2-casos-criticos'),
+        status: obterValorCampoN2('n2-status'),
+        finalizadoEm: obterValorCampoN2('n2-finalizado-em'),
+        observacoes: obterValorCampoN2('n2-observacoes'),
         anexos: anexos, // Incluir anexos
         dataCriacao: new Date().toISOString()
     };

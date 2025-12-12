@@ -144,6 +144,18 @@ function configurarEventosBacen() {
     }
 }
 
+// Função auxiliar para obter valor de campo de forma segura
+function obterValorCampo(id) {
+    const campo = document.getElementById(id);
+    return campo ? campo.value : '';
+}
+
+// Função auxiliar para obter checkbox de forma segura
+function obterCheckbox(id) {
+    const campo = document.getElementById(id);
+    return campo ? campo.checked : false;
+}
+
 async function handleSubmitBacen(e) {
     e.preventDefault();
     console.log('🚀 handleSubmitBacen chamado');
@@ -157,32 +169,32 @@ async function handleSubmitBacen(e) {
     const ficha = {
         id: gerarId(),
         tipoDemanda: 'bacen',
-        dataEntrada: document.getElementById('bacen-data-entrada').value,
-        responsavel: document.getElementById('bacen-responsavel').value,
-        mes: document.getElementById('bacen-mes').value,
-        nomeCompleto: document.getElementById('bacen-nome').value,
-        cpf: document.getElementById('bacen-cpf').value,
-        telefone: document.getElementById('bacen-telefone').value,
-        origem: document.getElementById('bacen-origem').value,
-        motivoReduzido: document.getElementById('bacen-motivo-reduzido').value,
-        motivoDetalhado: document.getElementById('bacen-motivo-detalhado').value,
-        prazoBacen: document.getElementById('bacen-prazo-bacen').value,
+        dataEntrada: obterValorCampo('bacen-data-entrada'),
+        responsavel: obterValorCampo('bacen-responsavel'),
+        mes: obterValorCampo('bacen-mes'),
+        nomeCompleto: obterValorCampo('bacen-nome'),
+        cpf: obterValorCampo('bacen-cpf'),
+        telefone: obterValorCampo('bacen-telefone'),
+        origem: obterValorCampo('bacen-origem'),
+        motivoReduzido: obterValorCampo('bacen-motivo-reduzido'),
+        motivoDetalhado: obterValorCampo('bacen-motivo-detalhado'),
+        prazoBacen: obterValorCampo('bacen-prazo-bacen'),
         tentativasContato: obterTentativasBacen(), // Coletar todas as tentativas
-        acionouCentral: document.getElementById('bacen-acionou-central').checked,
-        protocoloCentral: document.getElementById('bacen-protocolo-central').value,
-        n2SegundoNivel: document.getElementById('bacen-n2-segundo-nivel').checked,
-        protocoloN2: document.getElementById('bacen-protocolo-n2').value,
-        reclameAqui: document.getElementById('bacen-reclame-aqui').checked,
-        protocoloReclameAqui: document.getElementById('bacen-protocolo-reclame-aqui').value,
-        procon: document.getElementById('bacen-procon').checked,
-        protocoloProcon: document.getElementById('bacen-protocolo-procon').value,
-        protocolosSemAcionamento: document.getElementById('bacen-protocolos-sem-acionamento').value,
-        pixStatus: document.getElementById('bacen-pix-status').value,
+        acionouCentral: obterCheckbox('bacen-acionou-central'),
+        protocoloCentral: obterValorCampo('bacen-protocolo-central'),
+        n2SegundoNivel: obterCheckbox('bacen-n2-segundo-nivel'),
+        protocoloN2: obterValorCampo('bacen-protocolo-n2'),
+        reclameAqui: obterCheckbox('bacen-reclame-aqui'),
+        protocoloReclameAqui: obterValorCampo('bacen-protocolo-reclame-aqui'),
+        procon: obterCheckbox('bacen-procon'),
+        protocoloProcon: obterValorCampo('bacen-protocolo-procon'),
+        protocolosSemAcionamento: obterValorCampo('bacen-protocolos-sem-acionamento'),
+        pixStatus: obterValorCampo('bacen-pix-status'),
         enviarCobranca: document.querySelector('input[name="bacen-enviar-cobranca"]:checked')?.value || 'Não',
-        casosCriticos: document.getElementById('bacen-casos-criticos').checked,
-        status: document.getElementById('bacen-status').value,
-        finalizadoEm: document.getElementById('bacen-finalizado-em').value,
-        observacoes: document.getElementById('bacen-observacoes').value,
+        casosCriticos: obterCheckbox('bacen-casos-criticos'),
+        status: obterValorCampo('bacen-status'),
+        finalizadoEm: obterValorCampo('bacen-finalizado-em'),
+        observacoes: obterValorCampo('bacen-observacoes'),
         anexos: anexos, // Incluir anexos
         dataCriacao: new Date().toISOString()
     };
