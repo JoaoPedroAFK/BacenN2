@@ -108,7 +108,10 @@ class GoogleSSO {
         
         try {
             console.log('🔐 Validando token no backend:', apiBackendUrl);
-            const response = await fetch(`${apiBackendUrl}/api/auth/google`, {
+            // Na Vercel, o endpoint é /api/auth/google
+            const endpoint = `${apiBackendUrl}/api/auth/google`;
+            console.log('📍 Endpoint:', endpoint);
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
