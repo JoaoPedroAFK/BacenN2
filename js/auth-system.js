@@ -585,6 +585,8 @@ class SistemaPerfis {
                     width: 70%;
                     height: auto;
                     margin-bottom: 0;
+                    display: block;
+                    object-fit: contain;
                 }
 
                 .login-form {
