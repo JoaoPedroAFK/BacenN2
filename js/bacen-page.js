@@ -588,8 +588,8 @@ function criarCardBacen(ficha) {
     `;
 }
 
-// Criar modal para exibir casos do dashboard
-function criarModalCasosDashboard(titulo, casos, tipo) {
+// Criar modal para exibir casos do dashboard (função global)
+window.criarModalCasosDashboard = function criarModalCasosDashboard(titulo, casos, tipo) {
     // Remover modal existente se houver
     const modalExistente = document.getElementById('modal-casos-dashboard');
     if (modalExistente) {
@@ -652,7 +652,7 @@ function criarModalCasosDashboard(titulo, casos, tipo) {
     };
 }
 
-function fecharModalCasosDashboard() {
+window.fecharModalCasosDashboard = function fecharModalCasosDashboard() {
     const modal = document.getElementById('modal-casos-dashboard');
     if (modal) {
         modal.remove();
