@@ -76,7 +76,7 @@ body {
   background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul-royal) 100%);
   border-bottom: none;
   box-shadow: var(--sombra-media);
-  padding: 20px 24px;
+  padding: 10px 24px;
   transition: all 0.3s ease;
   position: relative;
   z-index: 100;
@@ -97,7 +97,7 @@ body {
 }
 
 .logo-header {
-  height: 120px;
+  height: 150px;
   width: auto;
   object-fit: contain;
 }
@@ -113,7 +113,7 @@ body {
 }
 
 .logo-header {
-  height: 120px;
+  height: 150px;
   width: auto;
   object-fit: contain;
 }

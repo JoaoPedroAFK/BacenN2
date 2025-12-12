@@ -156,7 +156,7 @@
   background-color: var(--cor-container);
   border-bottom: 1px solid var(--borda-escura);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 16px 24px;
+  padding: 10px 24px;
   transition: all 0.3s ease;
 }
 
@@ -173,7 +173,7 @@
 }
 
 .logo-header {
-  height: 120px;
+  height: 150px;
   width: auto;
   object-fit: contain;
 }
