@@ -355,21 +355,8 @@ function renderizarListaBacen() {
     const busca = document.getElementById('busca-bacen')?.value.toLowerCase() || '';
     const filtroStatus = document.getElementById('filtro-status-bacen')?.value || '';
     
-    // Obter usuário logado
-    const usuarioAtual = window.sistemaPerfis?.usuarioAtual;
-    const responsavelAtual = usuarioAtual?.nome || usuarioAtual?.email;
-    
+    // NÃO FILTRAR POR USUÁRIO NA LISTA GERAL - mostrar todas as reclamações
     let filtradas = fichasBacen;
-    
-    // FILTRAR APENAS CASOS DO USUÁRIO LOGADO (exceto admin)
-    if (usuarioAtual && usuarioAtual.perfil !== 'administrador') {
-        filtradas = filtradas.filter(f => {
-            const responsavelFicha = f.responsavel || '';
-            return responsavelFicha === responsavelAtual || 
-                   responsavelFicha === usuarioAtual.email ||
-                   responsavelFicha === usuarioAtual.nome;
-        });
-    }
     
     // Aplicar busca
     if (busca) {
@@ -428,7 +415,7 @@ function renderizarMinhasReclamacoesBacen() {
     });
     
     container.innerHTML = `
-        <div class="stats-summary">
+        <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-value">${minhasFichas.length}</div>
                 <div class="stat-label">Total de Reclamações</div>

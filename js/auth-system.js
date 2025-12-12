@@ -266,55 +266,7 @@ class SistemaPerfis {
                         </div>
                     </div>
                     
-                    <form id="login-form" class="login-form">
-                        <div class="form-group">
-                            <label for="login-email">Email</label>
-                            <input type="email" id="login-email" class="velohub-input" 
-                                   placeholder="seu@email.com" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="login-senha">Senha</label>
-                            <input type="password" id="login-senha" class="velohub-input" 
-                                   placeholder="••••••••" required>
-                        </div>
-                        
-                        <button type="submit" class="velohub-btn btn-primary login-btn">
-                            🚀 Entrar no Sistema
-                        </button>
-                    </form>
-                    
-                    <div class="login-divider">
-                        <span>ou</span>
-                    </div>
-                    
                     <div id="google-sso-container" class="google-signin-container"></div>
-                    
-                    <div class="login-info">
-                        <h4>📋 Acesso de Demonstração</h4>
-                        <div class="demo-accounts">
-                            <div class="account-card">
-                                <strong>Administrador:</strong>
-                                <br>admin@velotax.com / admin123
-                            </div>
-                            <div class="account-card">
-                                <strong>Operador BACEN:</strong>
-                                <br>operador1@velotax.com / oper1123
-                            </div>
-                            <div class="account-card">
-                                <strong>Operador N2/Chatbot:</strong>
-                                <br>operador2@velotax.com / oper2123
-                            </div>
-                            <div class="account-card">
-                                <strong>Atendente:</strong>
-                                <br>atendente@velotax.com / atend123
-                            </div>
-                            <div class="account-card">
-                                <strong>Usuário:</strong>
-                                <br>usuario@velotax.com / user123
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         `;

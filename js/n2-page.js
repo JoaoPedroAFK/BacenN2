@@ -347,21 +347,8 @@ function renderizarListaN2() {
     const filtroStatus = document.getElementById('filtro-status-n2')?.value || '';
     const filtroPortabilidade = document.getElementById('filtro-portabilidade-n2')?.value || '';
     
-    // Obter usuário logado
-    const usuarioAtual = window.sistemaPerfis?.usuarioAtual;
-    const responsavelAtual = usuarioAtual?.nome || usuarioAtual?.email;
-    
+    // NÃO FILTRAR POR USUÁRIO NA LISTA GERAL - mostrar todas as reclamações
     let filtradas = fichasN2;
-    
-    // FILTRAR APENAS CASOS DO USUÁRIO LOGADO (exceto admin)
-    if (usuarioAtual && usuarioAtual.perfil !== 'administrador') {
-        filtradas = filtradas.filter(f => {
-            const responsavelFicha = f.responsavel || '';
-            return responsavelFicha === responsavelAtual || 
-                   responsavelFicha === usuarioAtual.email ||
-                   responsavelFicha === usuarioAtual.nome;
-        });
-    }
     
     if (busca) {
         filtradas = filtradas.filter(f => {
