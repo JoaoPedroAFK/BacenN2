@@ -79,27 +79,38 @@ function mostrarSecao(secaoId) {
 
 // === CARREGAR FICHAS ===
 async function carregarFichasChatbot() {
+    console.log('🔄 Carregando fichas Chatbot...');
+    console.log('🔄 window.supabaseDB:', window.supabaseDB);
+    
     // Tentar usar Supabase primeiro
-    if (window.supabaseDB) {
+    if (window.supabaseDB && !window.supabaseDB.usarLocalStorage) {
         try {
-            fichasChatbot = await window.supabaseDB.obterFichasChatbot();
+            const fichas = await window.supabaseDB.obterFichasChatbot();
+            console.log('✅ Fichas carregadas do Supabase:', fichas.length);
+            fichasChatbot = fichas || [];
+            console.log('📋 fichasChatbot atualizado:', fichasChatbot.length);
             return;
         } catch (error) {
-            console.error('Erro ao carregar do Supabase:', error);
+            console.error('❌ Erro ao carregar do Supabase:', error);
         }
     }
     
     // Fallback para gerenciador de fichas
     if (window.gerenciadorFichas) {
-        fichasChatbot = window.gerenciadorFichas.obterFichasPorTipo('chatbot');
+        fichasChatbot = window.gerenciadorFichas.obterFichasPorTipo('chatbot') || [];
+        console.log('📋 Fichas carregadas do gerenciadorFichas:', fichasChatbot.length);
     } else if (window.GerenciadorFichasPerfil) {
         window.gerenciadorFichas = new GerenciadorFichasPerfil();
-        fichasChatbot = window.gerenciadorFichas.obterFichasPorTipo('chatbot');
+        fichasChatbot = window.gerenciadorFichas.obterFichasPorTipo('chatbot') || [];
+        console.log('📋 Fichas carregadas do GerenciadorFichasPerfil:', fichasChatbot.length);
     } else {
         // Fallback para localStorage
         const fichas = JSON.parse(localStorage.getItem('velotax_demandas_chatbot') || '[]');
         fichasChatbot = fichas.map(f => ({ ...f, tipoDemanda: 'chatbot' }));
+        console.log('📋 Fichas carregadas do localStorage:', fichasChatbot.length);
     }
+    
+    console.log('✅ Carregamento finalizado. Total de fichas:', fichasChatbot.length);
 }
 
 // === FORMULÁRIO ===

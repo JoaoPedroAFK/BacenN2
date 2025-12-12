@@ -107,11 +107,62 @@ class SistemaPerfis {
         this.usuarioAtual = null;
         localStorage.removeItem('velotax_usuario_atual');
         
+        // Logout do Google também
+        if (window.google && window.google.accounts) {
+            try {
+                window.google.accounts.id.disableAutoSelect();
+            } catch (e) {
+                console.log('Google logout:', e);
+            }
+        }
+        
         // Dispara evento de logout
         window.dispatchEvent(new CustomEvent('usuarioDeslogado'));
         
         // Redireciona para login
         window.location.hash = '#login';
+    }
+
+    // === LOGIN COM GOOGLE SSO ===
+    fazerLoginGoogle(usuarioGoogle) {
+        try {
+            // Verificar se usuário já existe
+            let usuario = this.usuarios.find(u => u.email === usuarioGoogle.email);
+            
+            if (!usuario) {
+                // Criar novo usuário do Google
+                usuario = {
+                    id: Date.now(),
+                    ...usuarioGoogle,
+                    senha: null, // Não tem senha, usa Google
+                    ativo: true
+                };
+                this.usuarios.push(usuario);
+                this.salvarUsuarios();
+            } else {
+                // Atualizar dados do Google
+                usuario.nome = usuarioGoogle.nome;
+                usuario.foto = usuarioGoogle.foto;
+                usuario.ultimoLogin = new Date().toISOString();
+                usuario.loginVia = 'google';
+                this.salvarUsuarios();
+            }
+
+            // Fazer login
+            this.usuarioAtual = usuario;
+            localStorage.setItem('velotax_usuario_atual', JSON.stringify(usuario));
+            
+            // Dispara evento de login
+            window.dispatchEvent(new CustomEvent('usuarioLogado', { detail: usuario }));
+            
+            // Recarrega a página para aplicar permissões
+            window.location.reload();
+            
+            return { sucesso: true, usuario: usuario };
+        } catch (erro) {
+            console.error('Erro no login Google:', erro);
+            return { sucesso: false, erro: erro.message };
+        }
     }
 
     // === VERIFICAÇÃO DE PERMISSÕES ===
@@ -232,6 +283,12 @@ class SistemaPerfis {
                             🚀 Entrar no Sistema
                         </button>
                     </form>
+                    
+                    <div class="login-divider">
+                        <span>ou</span>
+                    </div>
+                    
+                    <div id="google-sso-container" class="google-signin-container"></div>
                     
                     <div class="login-info">
                         <h4>📋 Acesso de Demonstração</h4>
