@@ -9,22 +9,27 @@ class SupabaseDB {
     }
 
     inicializar() {
-        // Verificar se Supabase está disponível
-        if (window.supabase && window.SUPABASE_CONFIG) {
-            try {
-                this.supabase = window.supabase.createClient(
-                    window.SUPABASE_CONFIG.url,
-                    window.SUPABASE_CONFIG.anonKey
-                );
-                console.log('✅ Supabase DB inicializado');
-            } catch (error) {
-                console.error('❌ Erro ao inicializar Supabase:', error);
+        // Aguardar um pouco para garantir que os scripts foram carregados
+        setTimeout(() => {
+            // Verificar se Supabase está disponível
+            if (window.supabase && window.SUPABASE_CONFIG) {
+                try {
+                    this.supabase = window.supabase.createClient(
+                        window.SUPABASE_CONFIG.url,
+                        window.SUPABASE_CONFIG.anonKey
+                    );
+                    console.log('✅ Supabase DB inicializado');
+                } catch (error) {
+                    console.error('❌ Erro ao inicializar Supabase:', error);
+                    this.usarLocalStorage = true;
+                }
+            } else {
+                console.warn('⚠️ Supabase não configurado. Usando localStorage.');
+                console.warn('window.supabase:', typeof window.supabase);
+                console.warn('window.SUPABASE_CONFIG:', window.SUPABASE_CONFIG);
                 this.usarLocalStorage = true;
             }
-        } else {
-            console.warn('⚠️ Supabase não configurado. Usando localStorage.');
-            this.usarLocalStorage = true;
-        }
+        }, 100);
     }
 
     // === FICHAS BACEN ===

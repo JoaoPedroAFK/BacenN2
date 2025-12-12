@@ -116,7 +116,10 @@ async function carregarFichasBacen() {
 function configurarEventosBacen() {
     const form = document.getElementById('form-bacen');
     if (form) {
+        console.log('✅ Formulário BACEN encontrado, adicionando listener de submit');
         form.addEventListener('submit', handleSubmitBacen);
+    } else {
+        console.error('❌ Formulário BACEN não encontrado!');
     }
     
     const busca = document.getElementById('busca-bacen');
@@ -143,10 +146,13 @@ function configurarEventosBacen() {
 
 async function handleSubmitBacen(e) {
     e.preventDefault();
+    console.log('🚀 handleSubmitBacen chamado');
     
-    // Obter anexos
-    const anexos = window.gerenciadorAnexos ? 
-        window.gerenciadorAnexos.obterAnexosDoFormulario('anexos-preview-bacen') : [];
+    try {
+        // Obter anexos
+        const anexos = window.gerenciadorAnexos ? 
+            window.gerenciadorAnexos.obterAnexosDoFormulario('anexos-preview-bacen') : [];
+        console.log('📎 Anexos coletados:', anexos.length);
     
     const ficha = {
         id: gerarId(),
@@ -181,39 +187,55 @@ async function handleSubmitBacen(e) {
         dataCriacao: new Date().toISOString()
     };
     
-    // Validar
-    if (!validarFichaBacen(ficha)) {
-        return;
-    }
-    
-    // Salvar
-    if (window.supabaseDB) {
-        try {
-            await window.supabaseDB.salvarFichaBacen(ficha);
-        } catch (error) {
-            console.error('Erro ao salvar no Supabase:', error);
-            // Fallback
-            if (window.gerenciadorFichas) {
-                window.gerenciadorFichas.adicionarFicha(ficha);
-            } else {
-                fichasBacen.push(ficha);
-                localStorage.setItem('velotax_demandas_bacen', JSON.stringify(fichasBacen));
-            }
+        // Validar
+        console.log('✅ Validando ficha...');
+        if (!validarFichaBacen(ficha)) {
+            console.error('❌ Validação falhou');
+            return;
         }
-    } else if (window.gerenciadorFichas) {
-        window.gerenciadorFichas.adicionarFicha(ficha);
-    } else {
-        fichasBacen.push(ficha);
-        localStorage.setItem('velotax_demandas_bacen', JSON.stringify(fichasBacen));
+        console.log('✅ Validação passou');
+        
+        // Salvar
+        console.log('💾 Salvando ficha...');
+        if (window.supabaseDB) {
+            console.log('📦 Usando Supabase');
+            try {
+                await window.supabaseDB.salvarFichaBacen(ficha);
+                console.log('✅ Salvo no Supabase');
+            } catch (error) {
+                console.error('❌ Erro ao salvar no Supabase:', error);
+                // Fallback
+                if (window.gerenciadorFichas) {
+                    window.gerenciadorFichas.adicionarFicha(ficha);
+                    console.log('💾 Fallback: salvo via gerenciadorFichas');
+                } else {
+                    fichasBacen.push(ficha);
+                    localStorage.setItem('velotax_demandas_bacen', JSON.stringify(fichasBacen));
+                    console.log('💾 Fallback: salvo no localStorage');
+                }
+            }
+        } else if (window.gerenciadorFichas) {
+            window.gerenciadorFichas.adicionarFicha(ficha);
+            console.log('💾 Salvo via gerenciadorFichas');
+        } else {
+            fichasBacen.push(ficha);
+            localStorage.setItem('velotax_demandas_bacen', JSON.stringify(fichasBacen));
+            console.log('💾 Salvo no localStorage');
+        }
+        
+        // Limpar e atualizar
+        console.log('🧹 Limpando formulário...');
+        limparFormBacen();
+        await carregarFichasBacen();
+        atualizarDashboardBacen();
+        mostrarSecao('lista-bacen');
+        
+        console.log('✅ Reclamação salva com sucesso!');
+        mostrarAlerta('Reclamação BACEN salva com sucesso!', 'success');
+    } catch (error) {
+        console.error('❌ Erro ao processar submit:', error);
+        mostrarAlerta('Erro ao salvar reclamação: ' + error.message, 'error');
     }
-    
-    // Limpar e atualizar
-    limparFormBacen();
-    await carregarFichasBacen();
-    atualizarDashboardBacen();
-    mostrarSecao('lista-bacen');
-    
-    mostrarAlerta('Reclamação BACEN salva com sucesso!', 'success');
 }
 
 function validarFichaBacen(ficha) {
