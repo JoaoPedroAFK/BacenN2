@@ -540,42 +540,51 @@ class SistemaPerfis {
                     justify-content: center;
                     align-items: center;
                     min-height: 100vh;
+                    width: 100vw;
+                    height: 100vh;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
                     background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul-royal) 100%);
-                    padding: 20px;
+                    padding: 0;
+                    z-index: 10000;
                 }
 
                 .login-card {
-                    background: var(--cor-container);
-                    border-radius: 16px;
-                    padding: 40px;
-                    box-shadow: var(--sombra-forte);
+                    background: transparent;
+                    border-radius: 0;
+                    padding: 0;
+                    box-shadow: none;
                     width: 100%;
-                    max-width: 450px;
+                    max-width: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 60px;
                 }
 
                 .login-header {
                     text-align: center;
-                    margin-bottom: 30px;
+                    margin-bottom: 0;
+                    width: 100%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+
+                .logo-velotax {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    width: 100%;
                 }
 
                 .logo-velotax-img {
-                    max-width: 200px;
+                    max-width: 600px;
+                    width: 70%;
                     height: auto;
-                    margin-bottom: 16px;
-                }
-
-                .logo-velotax h2 {
-                    color: var(--azul-royal);
-                    font-size: 2rem;
-                    margin-bottom: 8px;
-                    font-family: 'Poppins', sans-serif;
-                    font-weight: 700;
-                }
-
-                .logo-velotax p {
-                    color: var(--texto-secundario);
-                    font-size: 0.9rem;
-                    font-family: 'Poppins', sans-serif;
+                    margin-bottom: 0;
                 }
 
                 .login-form {
