@@ -564,6 +564,32 @@ class SistemaPerfis {
                     font-weight: 600;
                 }
 
+                .login-divider {
+                    display: flex;
+                    align-items: center;
+                    text-align: center;
+                    margin: 24px 0;
+                    color: var(--texto-secundario);
+                }
+                
+                .login-divider::before,
+                .login-divider::after {
+                    content: '';
+                    flex: 1;
+                    border-bottom: 1px solid var(--borda);
+                }
+                
+                .login-divider span {
+                    padding: 0 16px;
+                    font-size: 0.9rem;
+                }
+                
+                #google-sso-container {
+                    margin: 16px 0;
+                    display: flex;
+                    justify-content: center;
+                }
+
                 .login-info {
                     background: var(--cor-sidebar);
                     border-radius: 8px;
