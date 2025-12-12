@@ -371,13 +371,30 @@ class SistemaPerfis {
     }
 
     mostrarTelaLogin() {
-        // Só mostra login se não houver conteúdo já carregado
-        if (document.querySelector('.velohub-container') || document.querySelector('.login-container')) {
-            // Já tem conteúdo, não substitui
+        // Limpar qualquer conteúdo existente
+        const container = document.querySelector('.velohub-container');
+        if (container) {
+            container.style.display = 'none';
+        }
+        
+        // Se já tem tela de login, não substitui
+        if (document.querySelector('.login-container')) {
+            // Apenas garantir que o botão Google está renderizado
+            setTimeout(() => {
+                if (window.googleSSO) {
+                    window.googleSSO.renderizarBotao('google-sso-container');
+                }
+            }, 500);
             return;
         }
         
-        document.body.innerHTML = this.criarTelaLogin();
+        // Criar overlay para esconder conteúdo existente
+        const overlay = document.createElement('div');
+        overlay.id = 'login-overlay';
+        overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center;';
+        
+        overlay.innerHTML = this.criarTelaLogin();
+        document.body.appendChild(overlay);
         
         // Adiciona evento de submit ao formulário
         const form = document.getElementById('login-form');
@@ -401,6 +418,17 @@ class SistemaPerfis {
                 }, 1000);
             }
         }, 500);
+    }
+    
+    removerTelaLogin() {
+        const overlay = document.getElementById('login-overlay');
+        if (overlay) {
+            overlay.remove();
+        }
+        const container = document.querySelector('.velohub-container');
+        if (container) {
+            container.style.display = '';
+        }
     }
 
     async realizarLogin() {

@@ -445,16 +445,39 @@
     <script src="js/validador-velotax.js"></script>
     <script src="js/google-sso.js"></script>
     <script src="js/auth-system.js"></script>
-    <script src="js/gerenciador-fichas-perfil.js"></script>
-    <script src="js/sistema-alertas.js"></script>
-    <script src="js/ficha-detalhada.js"></script>
-    <script src="js/busca-avancada.js"></script>
-    <script src="js/dashboard-avancado.js"></script>
-    <script src="js/relatorios-robusto.js"></script>
-    <script src="js/importador-dados.js"></script>
-    <script src="js/classificacao-demandas.js"></script>
-    <script src="js/theme-toggle.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/demo-data.js"></script>
+    <!-- Aguardar autenticação antes de carregar o resto -->
+    <script>
+        // Só inicializa o app se o usuário estiver logado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Aguardar um pouco para o auth-system inicializar
+            setTimeout(() => {
+                if (window.sistemaPerfis && window.sistemaPerfis.usuarioAtual) {
+                    // Usuário logado, carregar scripts do app
+                    const scripts = [
+                        'js/gerenciador-fichas-perfil.js',
+                        'js/sistema-alertas.js',
+                        'js/ficha-detalhada.js',
+                        'js/busca-avancada.js',
+                        'js/dashboard-avancado.js',
+                        'js/relatorios-robusto.js',
+                        'js/importador-dados.js',
+                        'js/classificacao-demandas.js',
+                        'js/theme-toggle.js',
+                        'js/main.js',
+                        'js/demo-data.js'
+                    ];
+                    
+                    scripts.forEach(src => {
+                        const script = document.createElement('script');
+                        script.src = src;
+                        document.body.appendChild(script);
+                    });
+                } else {
+                    // Usuário não logado, não carregar scripts do app
+                    console.log('Usuário não autenticado. Aguardando login...');
+                }
+            }, 500);
+        });
+    </script>
 </body>
 </html>
