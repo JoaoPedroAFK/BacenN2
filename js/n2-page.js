@@ -3,6 +3,19 @@
 // Variáveis globais
 let fichasN2 = [];
 
+// Função para coletar todos os protocolos de um container
+function obterProtocolosDoContainer(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return [];
+    
+    const inputs = container.querySelectorAll('.protocolo-input');
+    const protocolos = Array.from(inputs)
+        .map(input => input.value.trim())
+        .filter(valor => valor.length > 0);
+    
+    return protocolos;
+}
+
 // Inicialização
 document.addEventListener('DOMContentLoaded', function() {
     if (window.loadingVelotax) {
@@ -195,13 +208,13 @@ async function handleSubmitN2(e) {
         prazoN2: obterValorCampoN2('n2-prazo-n2'),
         tentativasContato: obterTentativasN2(), // Coletar todas as tentativas
         acionouCentral: obterCheckboxN2('n2-acionou-central'),
-        protocoloCentral: obterValorCampoN2('n2-protocolo-central'),
+        protocoloCentral: obterProtocolosDoContainer('n2-protocolos-central-container') || [],
         n2SegundoNivel: obterCheckboxN2('n2-n2-segundo-nivel'),
-        protocoloN2: obterValorCampoN2('n2-protocolo-n2'),
+        protocoloN2: obterProtocolosDoContainer('n2-protocolos-n2-container') || [],
         reclameAqui: obterCheckboxN2('n2-reclame-aqui'),
-        protocoloReclameAqui: obterValorCampoN2('n2-protocolo-reclame-aqui'),
+        protocoloReclameAqui: obterProtocolosDoContainer('n2-protocolos-reclame-aqui-container') || [],
         procon: obterCheckboxN2('n2-procon'),
-        protocoloProcon: obterValorCampoN2('n2-protocolo-procon'),
+        protocoloProcon: obterProtocolosDoContainer('n2-protocolos-procon-container') || [],
         protocolosSemAcionamento: obterValorCampoN2('n2-protocolos-sem-acionamento'),
         pixStatus: obterValorCampoN2('n2-pix-status'),
         enviarCobranca: document.querySelector('input[name="n2-enviar-cobranca"]:checked')?.value || 'Não',

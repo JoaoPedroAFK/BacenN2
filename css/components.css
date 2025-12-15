@@ -1656,6 +1656,56 @@
     font-weight: 600;
 }
 
+/* === BUSCA CLIENTE INLINE === */
+.busca-cliente-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.busca-cliente-input {
+    min-width: 250px;
+    max-width: 350px;
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.busca-cliente-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.busca-cliente-input:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+    outline: none;
+}
+
+.btn-buscar-cliente {
+    padding: 8px 16px;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.2);
+    color: #FFFFFF !important;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-buscar-cliente:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.nav-canais {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
 .tentativa-item {
     margin-bottom: 12px;
     padding: 12px;

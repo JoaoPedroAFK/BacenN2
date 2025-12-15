@@ -176,24 +176,17 @@ class HistoricoCliente {
     }
 
     adicionarBotaoBusca() {
-        // Adicionar botão de busca por CPF nas páginas
-        const headers = document.querySelectorAll('.velohub-header, .bacen-header, .n2-header, .chatbot-header');
-        headers.forEach(header => {
-            if (header.querySelector('.btn-historico-cliente')) return; // Já existe
-
-            const btn = document.createElement('button');
-            btn.className = 'velohub-btn btn-secondary btn-historico-cliente';
-            btn.innerHTML = '🔍 Buscar Cliente';
-            btn.onclick = () => {
-                const cpf = prompt('Digite o CPF do cliente:');
-                if (cpf) this.mostrarHistorico(cpf);
-            };
-            
-            const actions = header.querySelector('.header-actions');
-            if (actions) {
-                actions.insertBefore(btn, actions.firstChild);
+        // Função global para buscar cliente por CPF
+        window.buscarClientePorCPF = () => {
+            const input = document.getElementById('busca-cliente-cpf');
+            const cpf = input ? input.value.trim() : '';
+            if (cpf) {
+                this.mostrarHistorico(cpf);
+                if (input) input.value = ''; // Limpar campo após busca
+            } else {
+                mostrarAlerta('Digite um CPF para buscar', 'info');
             }
-        });
+        };
     }
 }
 

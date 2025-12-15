@@ -67,6 +67,10 @@
             <a href="n2.html" class="nav-btn canais-btn">N2</a>
             <a href="chatbot.html" class="nav-btn canais-btn">Chatbot</a>
         </div>
+        <div class="busca-cliente-inline">
+            <input type="text" id="busca-cliente-cpf" class="velohub-input busca-cliente-input" placeholder="🔍 Buscar cliente por CPF..." onkeypress="if(event.key === 'Enter') buscarClientePorCPF()">
+            <button class="velohub-btn btn-secondary btn-buscar-cliente" onclick="buscarClientePorCPF()">Buscar</button>
+        </div>
     </nav>
 
     <!-- Navegação -->
@@ -322,7 +326,10 @@
                         </div>
                         <div class="form-group" id="bacen-protocolo-n2-group" style="display: none; flex: 1;">
                             <label for="bacen-protocolo-n2">Qual Protocolo</label>
-                            <input type="text" id="bacen-protocolo-n2" class="velohub-input" placeholder="Digite o protocolo">
+                            <div id="bacen-protocolos-n2-container">
+                                <input type="text" class="velohub-input protocolo-input" placeholder="Digite o protocolo">
+                            </div>
+                            <button type="button" class="btn-adicionar-protocolo" onclick="adicionarProtocolo('bacen-protocolos-n2-container')" style="margin-top: 8px; padding: 6px 12px; background: var(--azul-royal); color: white; border: none; border-radius: 4px; cursor: pointer;">+ Adicionar Protocolo</button>
                         </div>
                     </div>
                     <div class="form-row">
@@ -335,7 +342,10 @@
                         </div>
                         <div class="form-group" id="bacen-protocolo-reclame-aqui-group" style="display: none; flex: 1;">
                             <label for="bacen-protocolo-reclame-aqui">Qual Protocolo</label>
-                            <input type="text" id="bacen-protocolo-reclame-aqui" class="velohub-input" placeholder="Digite o protocolo">
+                            <div id="bacen-protocolos-reclame-aqui-container">
+                                <input type="text" class="velohub-input protocolo-input" placeholder="Digite o protocolo">
+                            </div>
+                            <button type="button" class="btn-adicionar-protocolo" onclick="adicionarProtocolo('bacen-protocolos-reclame-aqui-container')" style="margin-top: 8px; padding: 6px 12px; background: var(--azul-royal); color: white; border: none; border-radius: 4px; cursor: pointer;">+ Adicionar Protocolo</button>
                         </div>
                     </div>
                     <div class="form-row">
@@ -348,7 +358,10 @@
                         </div>
                         <div class="form-group" id="bacen-protocolo-procon-group" style="display: none; flex: 1;">
                             <label for="bacen-protocolo-procon">Qual Protocolo</label>
-                            <input type="text" id="bacen-protocolo-procon" class="velohub-input" placeholder="Digite o protocolo">
+                            <div id="bacen-protocolos-procon-container">
+                                <input type="text" class="velohub-input protocolo-input" placeholder="Digite o protocolo">
+                            </div>
+                            <button type="button" class="btn-adicionar-protocolo" onclick="adicionarProtocolo('bacen-protocolos-procon-container')" style="margin-top: 8px; padding: 6px 12px; background: var(--azul-royal); color: white; border: none; border-radius: 4px; cursor: pointer;">+ Adicionar Protocolo</button>
                         </div>
                     </div>
                     <div class="form-group">
@@ -556,6 +569,19 @@
                 <button type="button" onclick="this.parentElement.remove()" style="padding: 8px 12px; background: #ff4757; color: white; border: none; border-radius: 4px; cursor: pointer;">✕</button>
             `;
             container.appendChild(protocoloDiv);
+        }
+        
+        // Função para coletar todos os protocolos de um container
+        function obterProtocolosDoContainer(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return [];
+            
+            const inputs = container.querySelectorAll('.protocolo-input');
+            const protocolos = Array.from(inputs)
+                .map(input => input.value.trim())
+                .filter(valor => valor.length > 0);
+            
+            return protocolos;
         }
 
         // Função para adicionar tentativas de contato

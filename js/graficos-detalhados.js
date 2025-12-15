@@ -180,13 +180,22 @@ class GraficosDetalhados {
     renderizarGraficos() {
         const dadosFiltrados = this.obterDadosFiltrados();
         
-        // Gráfico de Status
+        // Gráfico de Status (Pizza)
+        this.renderizarGraficoStatusPizza(dadosFiltrados);
+        
+        // Gráfico de Status (Barras)
         this.renderizarGraficoStatus(dadosFiltrados);
         
-        // Gráfico por Mês
+        // Gráfico por Mês (Linhas)
         this.renderizarGraficoMensal(dadosFiltrados);
         
-        // Gráfico Enviado para Cobrança
+        // Gráfico por Dia (Linhas)
+        this.renderizarGraficoDiario(dadosFiltrados);
+        
+        // Gráfico Enviado para Cobrança (Pizza)
+        this.renderizarGraficoCobrancaPizza(dadosFiltrados);
+        
+        // Gráfico Enviado para Cobrança (Barras)
         this.renderizarGraficoCobranca(dadosFiltrados);
         
         // Gráfico Blacklist
@@ -196,6 +205,39 @@ class GraficosDetalhados {
         if (this.tipoDemanda === 'bacen' || this.tipoDemanda === 'n2') {
             this.renderizarGraficoOrigem(dadosFiltrados);
         }
+        
+        // Gráfico por Responsável (Pizza)
+        this.renderizarGraficoResponsavelPizza(dadosFiltrados);
+    }
+
+    renderizarGraficoStatusPizza(dados) {
+        const containerId = `grafico-status-pizza-${this.tipoDemanda}`;
+        let container = document.getElementById(containerId);
+        
+        if (!container) {
+            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (graficosContainer) {
+                const novoContainer = document.createElement('div');
+                novoContainer.className = 'grafico-card';
+                novoContainer.innerHTML = `<h3>Status das Reclamações (Pizza)</h3><div id="${containerId}"></div>`;
+                graficosContainer.appendChild(novoContainer);
+                container = document.getElementById(containerId);
+            } else {
+                return;
+            }
+        }
+
+        const statusCount = {};
+        dados.forEach(f => {
+            const status = f.status || 'sem-status';
+            const statusNormalizado = status.toLowerCase().trim().replace('í', 'i').replace('é', 'e');
+            statusCount[statusNormalizado] = (statusCount[statusNormalizado] || 0) + 1;
+        });
+
+        const labels = Object.keys(statusCount);
+        const values = Object.values(statusCount);
+
+        container.innerHTML = this.criarGraficoPizza(labels, values, 'Status');
     }
 
     renderizarGraficoStatus(dados) {
@@ -240,6 +282,109 @@ class GraficosDetalhados {
         const valores = meses.map(m => mesesCount[m]);
 
         container.innerHTML = this.criarGraficoLinha(meses, valores, 'Mês', '#1634FF');
+    }
+
+    renderizarGraficoDiario(dados) {
+        const containerId = `grafico-diario-${this.tipoDemanda}`;
+        let container = document.getElementById(containerId);
+        
+        if (!container) {
+            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (graficosContainer) {
+                const novoContainer = document.createElement('div');
+                novoContainer.className = 'grafico-card';
+                novoContainer.innerHTML = `<h3>Reclamações por Dia (Últimos 30 dias)</h3><div id="${containerId}"></div>`;
+                graficosContainer.appendChild(novoContainer);
+                container = document.getElementById(containerId);
+            } else {
+                return;
+            }
+        }
+
+        const diasCount = {};
+        const hoje = new Date();
+        const ultimos30Dias = [];
+        
+        for (let i = 29; i >= 0; i--) {
+            const data = new Date(hoje);
+            data.setDate(hoje.getDate() - i);
+            const dataStr = `${data.getDate()}/${data.getMonth() + 1}`;
+            ultimos30Dias.push(dataStr);
+            diasCount[dataStr] = 0;
+        }
+
+        dados.forEach(f => {
+            const dataEntrada = f.dataEntrada || f.dataCriacao || f.dataReclamacao;
+            if (dataEntrada) {
+                const data = new Date(dataEntrada);
+                const dataStr = `${data.getDate()}/${data.getMonth() + 1}`;
+                if (diasCount.hasOwnProperty(dataStr)) {
+                    diasCount[dataStr]++;
+                }
+            }
+        });
+
+        const dias = ultimos30Dias;
+        const valores = dias.map(d => diasCount[d] || 0);
+
+        container.innerHTML = this.criarGraficoLinha(dias, valores, 'Dia', '#1DFDB9');
+    }
+
+    renderizarGraficoCobrancaPizza(dados) {
+        const containerId = `grafico-cobranca-pizza-${this.tipoDemanda}`;
+        let container = document.getElementById(containerId);
+        
+        if (!container) {
+            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (graficosContainer) {
+                const novoContainer = document.createElement('div');
+                novoContainer.className = 'grafico-card';
+                novoContainer.innerHTML = `<h3>Enviado para Cobrança (Pizza)</h3><div id="${containerId}"></div>`;
+                graficosContainer.appendChild(novoContainer);
+                container = document.getElementById(containerId);
+            } else {
+                return;
+            }
+        }
+
+        const cobrancaCount = {
+            'Sim': dados.filter(f => f.enviarCobranca === true || f.enviarCobranca === 'Sim').length,
+            'Não': dados.filter(f => !f.enviarCobranca || f.enviarCobranca === false || f.enviarCobranca === 'Não').length
+        };
+
+        const labels = Object.keys(cobrancaCount);
+        const values = Object.values(cobrancaCount);
+
+        container.innerHTML = this.criarGraficoPizza(labels, values, 'Cobrança');
+    }
+
+    renderizarGraficoResponsavelPizza(dados) {
+        const containerId = `grafico-responsavel-pizza-${this.tipoDemanda}`;
+        let container = document.getElementById(containerId);
+        
+        if (!container) {
+            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (graficosContainer) {
+                const novoContainer = document.createElement('div');
+                novoContainer.className = 'grafico-card';
+                novoContainer.innerHTML = `<h3>Distribuição por Responsável (Pizza)</h3><div id="${containerId}"></div>`;
+                graficosContainer.appendChild(novoContainer);
+                container = document.getElementById(containerId);
+            } else {
+                return;
+            }
+        }
+
+        const responsavelCount = {};
+        dados.forEach(f => {
+            const responsavel = f.responsavel || 'Não atribuído';
+            responsavelCount[responsavel] = (responsavelCount[responsavel] || 0) + 1;
+        });
+
+        const labels = Object.keys(responsavelCount);
+        const values = Object.values(responsavelCount);
+
+        container.innerHTML = this.criarGraficoPizza(labels, values, 'Responsável');
     }
 
     renderizarGraficoCobranca(dados) {
