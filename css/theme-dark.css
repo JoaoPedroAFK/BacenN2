@@ -417,6 +417,127 @@
   border-color: var(--borda-escura) !important;
 }
 
+/* === FILTROS DE GRÁFICOS NO TEMA ESCURO === */
+.dark .filtros-graficos-container,
+.dark .filtros-graficos {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+  border: 1px solid var(--borda-escura) !important;
+  box-shadow: 0 4px 20px var(--sombra-escura) !important;
+}
+
+.dark .filtros-graficos h3 {
+  color: #FFFFFF !important;
+}
+
+.dark .filtros-graficos label {
+  color: #FFFFFF !important;
+}
+
+.dark .filtros-graficos select,
+.dark .filtros-graficos input,
+.dark .filtros-graficos .velohub-input,
+.dark .filtros-graficos .velohub-select {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+.dark .filtros-graficos select:focus,
+.dark .filtros-graficos input:focus,
+.dark .filtros-graficos .velohub-input:focus,
+.dark .filtros-graficos .velohub-select:focus {
+  border-color: #1634FF !important;
+  box-shadow: 0 0 0 3px rgba(22, 52, 255, 0.2) !important;
+}
+
+.dark .filtros-graficos select option {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+}
+
+/* === CONTROLES DE FILTRO NO TEMA ESCURO === */
+.dark .filter-controls {
+  background: transparent !important;
+}
+
+.dark .filter-controls label {
+  color: #FFFFFF !important;
+}
+
+.dark .filter-controls select,
+.dark .filter-controls input {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+.dark .filter-controls select option {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+}
+
+/* === CAIXA DE BUSCA NO TEMA ESCURO === */
+.dark .search-box,
+.dark .search-input-container {
+  background: transparent !important;
+}
+
+.dark .search-box input,
+.dark .search-input,
+.dark .search-input-container input {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+.dark .search-box input::placeholder,
+.dark .search-input::placeholder,
+.dark .search-input-container input::placeholder {
+  color: #B0BEC5 !important;
+}
+
+.dark .search-box input:focus,
+.dark .search-input:focus,
+.dark .search-input-container input:focus {
+  border-color: #1634FF !important;
+  box-shadow: 0 0 0 3px rgba(22, 52, 255, 0.2) !important;
+}
+
+.dark .search-button,
+.dark .search-box button {
+  background: var(--azul-royal) !important;
+  color: #FFFFFF !important;
+  border-color: var(--azul-royal) !important;
+}
+
+.dark .search-button:hover,
+.dark .search-box button:hover {
+  background: var(--azul-ciano) !important;
+  border-color: var(--azul-ciano) !important;
+}
+
+/* === BUSCA CLIENTE INLINE NO TEMA ESCURO === */
+.dark .busca-cliente-inline {
+  background: transparent !important;
+}
+
+.dark .busca-cliente-input {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+.dark .busca-cliente-input::placeholder {
+  color: #B0BEC5 !important;
+}
+
+.dark .busca-cliente-input:focus {
+  background: var(--cor-container-escuro) !important;
+  border-color: #1634FF !important;
+  box-shadow: 0 0 0 3px rgba(22, 52, 255, 0.2) !important;
+}
+
 /* === TODOS OS CARDS NO TEMA ESCURO === */
 .dark .card,
 .dark [class*="card"],
