@@ -55,7 +55,13 @@ function mostrarSecao(secaoId) {
     
     if (secaoId === 'lista-chatbot') {
         carregarFichasChatbot().then(() => {
+            console.log('📋 Fichas Chatbot carregadas para lista geral:', fichasChatbot.length);
             renderizarListaChatbot();
+        });
+    } else if (secaoId === 'minhas-reclamacoes-chatbot') {
+        carregarFichasChatbot().then(() => {
+            console.log('📋 Fichas Chatbot carregadas para minhas reclamações:', fichasChatbot.length);
+            renderizarMinhasReclamacoesChatbot();
         });
     } else if (secaoId === 'nova-reclamacao-chatbot' || secaoId === 'nova-ficha-chatbot') {
         // Compatibilidade com ambos os nomes
@@ -404,12 +410,20 @@ function mostrarCasosDashboardChatbot(tipo) {
 function renderizarListaChatbot() {
     const container = document.getElementById('lista-fichas-chatbot');
     if (!container) {
-        console.warn('⚠️ Container lista-fichas-chatbot não encontrado');
+        console.error('❌ Container lista-fichas-chatbot não encontrado!');
+        return;
+    }
+    
+    // Garantir que fichasChatbot está carregado
+    if (!fichasChatbot || fichasChatbot.length === 0) {
+        console.warn('⚠️ Nenhuma ficha Chatbot carregada, tentando carregar...');
+        carregarFichasChatbot().then(() => {
+            renderizarListaChatbot();
+        });
         return;
     }
 
     console.log('📋 Renderizando lista Chatbot geral com', fichasChatbot.length, 'fichas');
-    console.log('📋 Fichas disponíveis:', fichasChatbot);
     
     const busca = document.getElementById('busca-chatbot')?.value.toLowerCase() || '';
     const filtroStatus = document.getElementById('filtro-status-chatbot')?.value || '';
@@ -440,7 +454,99 @@ function renderizarListaChatbot() {
         return;
     }
     
+    // Ordenar por data (mais recentes primeiro)
+    filtradas.sort((a, b) => {
+        const dataA = new Date(a.dataCriacao || a.dataClienteChatbot || 0);
+        const dataB = new Date(b.dataCriacao || b.dataClienteChatbot || 0);
+        return dataB - dataA;
+    });
+    
     container.innerHTML = filtradas.map(f => criarCardChatbot(f)).join('');
+    console.log('✅ Lista Chatbot renderizada com sucesso!');
+}
+
+// Renderizar "Minhas Reclamações"
+function renderizarMinhasReclamacoesChatbot() {
+    const container = document.getElementById('minhas-fichas-chatbot');
+    if (!container) {
+        console.error('❌ Container minhas-fichas-chatbot não encontrado!');
+        return;
+    }
+    
+    // Garantir que fichasChatbot está carregado
+    if (!fichasChatbot || fichasChatbot.length === 0) {
+        console.warn('⚠️ Nenhuma ficha Chatbot carregada, tentando carregar...');
+        carregarFichasChatbot().then(() => {
+            renderizarMinhasReclamacoesChatbot();
+        });
+        return;
+    }
+    
+    const usuarioAtual = window.sistemaPerfis?.usuarioAtual;
+    if (!usuarioAtual) {
+        console.warn('⚠️ Usuário não logado');
+        container.innerHTML = '<div class="no-results">Você precisa estar logado para ver suas reclamações</div>';
+        return;
+    }
+    
+    console.log('👤 Usuário atual:', usuarioAtual);
+    console.log('📋 Total de fichas Chatbot disponíveis:', fichasChatbot.length);
+    
+    const responsavelAtual = usuarioAtual.nome || usuarioAtual.email;
+    const emailAtual = usuarioAtual.email || '';
+    
+    // Filtrar apenas reclamações do usuário logado
+    const minhasFichas = fichasChatbot.filter(f => {
+        const responsavelFicha = (f.responsavel || '').toString().toLowerCase().trim();
+        const nomeAtual = (responsavelAtual || '').toString().toLowerCase().trim();
+        const emailAtualLower = (emailAtual || '').toString().toLowerCase().trim();
+        
+        const match = responsavelFicha === nomeAtual || 
+                      responsavelFicha === emailAtualLower ||
+                      responsavelFicha === (usuarioAtual.nome || '').toString().toLowerCase().trim() ||
+                      responsavelFicha.includes(nomeAtual) ||
+                      responsavelFicha.includes(emailAtualLower);
+        
+        if (match) {
+            console.log('✅ Match encontrado:', f.id, 'Responsável:', f.responsavel, 'vs', nomeAtual);
+        }
+        
+        return match;
+    });
+    
+    console.log('📋 Minhas fichas Chatbot encontradas:', minhasFichas.length);
+    
+    if (minhasFichas.length === 0) {
+        container.innerHTML = '<div class="no-results">Você não possui reclamações atribuídas</div>';
+        return;
+    }
+    
+    // Ordenar por data (mais recentes primeiro)
+    minhasFichas.sort((a, b) => {
+        const dataA = new Date(a.dataCriacao || a.dataClienteChatbot || 0);
+        const dataB = new Date(b.dataCriacao || b.dataClienteChatbot || 0);
+        return dataB - dataA;
+    });
+    
+    container.innerHTML = `
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">${minhasFichas.length}</div>
+                <div class="stat-label">Total de Reclamações</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${minhasFichas.filter(f => f.status === 'em-tratativa').length}</div>
+                <div class="stat-label">Em Tratativa</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${minhasFichas.filter(f => f.status === 'concluido').length}</div>
+                <div class="stat-label">Concluídas</div>
+            </div>
+        </div>
+        <div class="fichas-list">
+            ${minhasFichas.map(f => criarCardChatbot(f)).join('')}
+        </div>
+    `;
 }
 
 // Tornar função global para uso no modal
