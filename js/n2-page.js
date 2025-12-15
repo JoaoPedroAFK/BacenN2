@@ -490,7 +490,15 @@ function renderizarListaN2() {
         return;
     }
     
+    // Ordenar por data (mais recentes primeiro)
+    filtradas.sort((a, b) => {
+        const dataA = new Date(a.dataCriacao || a.dataEntrada || 0);
+        const dataB = new Date(b.dataCriacao || b.dataEntrada || 0);
+        return dataB - dataA;
+    });
+    
     container.innerHTML = filtradas.map(f => criarCardN2(f)).join('');
+    console.log('✅ Lista N2 renderizada com sucesso!');
 }
 
 // Tornar função global para uso no modal
