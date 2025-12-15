@@ -190,7 +190,6 @@ async function handleSubmitN2(e) {
         nomeCompleto: obterValorCampoN2('n2-nome'),
         cpf: obterValorCampoN2('n2-cpf'),
         telefone: obterValorCampoN2('n2-telefone'),
-        origem: obterValorCampoN2('n2-origem'),
         motivoReduzido: obterValorCampoN2('n2-motivo-reduzido'),
         motivoDetalhado: obterValorCampoN2('n2-motivo-detalhado'),
         prazoN2: obterValorCampoN2('n2-prazo-n2'),

@@ -168,12 +168,12 @@
             </div>
             
             <form id="form-bacen" class="complaint-form">
-                <!-- 1º Item: Dados Básicos -->
+                <!-- Dados Básicos -->
                 <div class="form-section">
-                    <h3>1º Item: Dados Básicos</h3>
+                    <h3>Dados Básicos</h3>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="bacen-data-entrada">Data de Entrada (dia/mês/ano) *</label>
+                            <label for="bacen-data-entrada">Data de Entrada *</label>
                             <input type="date" id="bacen-data-entrada" class="velohub-input" required>
                         </div>
                         <!-- Responsável será preenchido automaticamente com o usuário logado -->
@@ -224,9 +224,20 @@
                     </div>
                 </div>
 
-                <!-- 2º Item: Detalhes da Reclamação -->
+                <!-- Detalhes da Reclamação -->
                 <div class="form-section">
-                    <h3>2º Item: Detalhes da Reclamação</h3>
+                    <h3>Detalhes da Reclamação</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bacen-rdr">RDR</label>
+                            <input type="number" id="bacen-rdr" class="velohub-input" placeholder="Digite o número do RDR">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bacen-anexo">Anexo (PDF, DOCX, etc.)</label>
+                        <input type="file" id="bacen-anexo" class="velohub-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple>
+                        <small class="form-hint">Você pode selecionar múltiplos arquivos</small>
+                    </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="bacen-motivo-reduzido">Motivo Reduzido *</label>
@@ -254,7 +265,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="bacen-prazo-bacen">Prazo Bacen (dia/mês/ano) <span id="prazo-bacen-obrigatorio" style="display:none;">*</span></label>
+                            <label for="bacen-prazo-bacen">Prazo Bacen <span id="prazo-bacen-obrigatorio" style="display:none;">*</span></label>
                             <input type="date" id="bacen-prazo-bacen" class="velohub-input">
                         </div>
                     </div>
@@ -264,17 +275,17 @@
                     </div>
                 </div>
 
-                <!-- 3º Item: Tentativas de Contato -->
+                <!-- Tentativas de Contato -->
                 <div class="form-section">
-                    <h3>3º Item: Tentativas de Contato</h3>
+                    <h3>Tentativas de Contato</h3>
                     <div id="tentativas-contato-bacen">
                         <div class="form-row tentativa-item">
                             <div class="form-group">
-                                <label>1ª tentativa (dia/mês/ano)</label>
+                                <label>1ª tentativa</label>
                                 <input type="date" class="velohub-input tentativa-data" data-tentativa="1">
                             </div>
                             <div class="form-group">
-                                <label>2ª tentativa (dia/mês/ano)</label>
+                                <label>2ª tentativa</label>
                                 <input type="date" class="velohub-input tentativa-data" data-tentativa="2">
                             </div>
                         </div>
@@ -282,9 +293,9 @@
                     <button type="button" class="velohub-btn btn-secondary" onclick="adicionarTentativaBacen()">➕ Adicionar Tentativa</button>
                 </div>
 
-                <!-- 4º Item: Acionamentos ao Canais de Atendimento e Protocolos -->
+                <!-- Acionamentos ao Canais de Atendimento e Protocolos -->
                 <div class="form-section">
-                    <h3>4º Item: Acionamentos ao Canais de Atendimento e Protocolos</h3>
+                    <h3>Acionamentos ao Canais de Atendimento e Protocolos</h3>
                     <div class="form-row">
                         <div class="form-group" style="flex: 0 0 200px;">
                             <label class="checkbox-label">
@@ -295,7 +306,10 @@
                         </div>
                         <div class="form-group" id="bacen-protocolo-central-group" style="display: none; flex: 1;">
                             <label for="bacen-protocolo-central">Qual Protocolo</label>
-                            <input type="text" id="bacen-protocolo-central" class="velohub-input" placeholder="Digite o protocolo">
+                            <div id="bacen-protocolos-central-container">
+                                <input type="text" class="velohub-input protocolo-input" placeholder="Digite o protocolo">
+                            </div>
+                            <button type="button" class="btn-adicionar-protocolo" onclick="adicionarProtocolo('bacen-protocolos-central-container')" style="margin-top: 8px; padding: 6px 12px; background: var(--azul-royal); color: white; border: none; border-radius: 4px; cursor: pointer;">+ Adicionar Protocolo</button>
                         </div>
                     </div>
                     <div class="form-row">
@@ -340,13 +354,12 @@
                     <div class="form-group">
                         <label for="bacen-protocolos-sem-acionamento">Protocolos em que não houve acionamento em nenhum dos canais de Atendimento</label>
                         <input type="text" id="bacen-protocolos-sem-acionamento" class="velohub-input" placeholder="Digite os protocolos (relacionados à reclamação)">
-                        <small class="form-hint">Lembrando, precisa estar relacionado à reclamação</small>
                     </div>
                 </div>
 
-                <!-- 5º Item: Liberação do PIX -->
+                <!-- Liberação do PIX -->
                 <div class="form-section">
-                    <h3>5º Item: Liberação do PIX</h3>
+                    <h3>Liberação do PIX</h3>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="bacen-pix-status">PIX liberado ou excluído?</label>
@@ -358,7 +371,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Enviar para cobrança? (Opção Sim ou Não) *</label>
+                            <label>Enviar para cobrança? *</label>
                             <div style="display: flex; gap: 16px; margin-top: 8px;">
                                 <label class="radio-label">
                                     <input type="radio" name="bacen-enviar-cobranca" value="Sim" required>
@@ -369,14 +382,13 @@
                                     <span>Não</span>
                                 </label>
                             </div>
-                            <small class="form-hint">Obs: No futuro haver integração com o sistema de Cobrança.</small>
                         </div>
                     </div>
                 </div>
 
-                <!-- 6º Item: Observações -->
+                <!-- Observações -->
                 <div class="form-section">
-                    <h3>6º Item: Observações</h3>
+                    <h3>Observações</h3>
                     <div class="form-group">
                         <label for="bacen-observacoes">Observações</label>
                         <textarea id="bacen-observacoes" class="velohub-input" rows="4" placeholder="Digite as observações..."></textarea>
@@ -527,6 +539,23 @@
                     protocoloInput.value = '';
                 }
             }
+        }
+        
+        // Função para adicionar múltiplos protocolos
+        function adicionarProtocolo(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const protocoloDiv = document.createElement('div');
+            protocoloDiv.className = 'protocolo-item-multiplo';
+            protocoloDiv.style.display = 'flex';
+            protocoloDiv.style.gap = '8px';
+            protocoloDiv.style.marginTop = '8px';
+            protocoloDiv.innerHTML = `
+                <input type="text" class="velohub-input protocolo-input" placeholder="Digite o protocolo" style="flex: 1;">
+                <button type="button" onclick="this.parentElement.remove()" style="padding: 8px 12px; background: #ff4757; color: white; border: none; border-radius: 4px; cursor: pointer;">✕</button>
+            `;
+            container.appendChild(protocoloDiv);
         }
 
         // Função para adicionar tentativas de contato

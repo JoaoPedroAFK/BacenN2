@@ -83,3 +83,4 @@ const HOST = 'localhost'; // Altere para '0.0.0.0' para acessar de outros dispos
 - Para produção, considere usar servidores mais robustos (Apache, Nginx, etc.)
 - O servidor suporta arquivos estáticos (HTML, CSS, JS, imagens, etc.)
 
+

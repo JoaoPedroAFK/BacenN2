@@ -93,3 +93,4 @@ Netlify é mais simples para sites estáticos e funciona igualmente bem.
 - [ ] Variável `GOOGLE_CLIENT_ID` está configurada
 - [ ] Redeploy foi feito após mudanças
 
+

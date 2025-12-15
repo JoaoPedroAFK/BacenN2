@@ -193,6 +193,7 @@ async function handleSubmitBacen(e) {
         cpf: obterValorCampo('bacen-cpf'),
         telefone: obterValorCampo('bacen-telefone'),
         origem: obterValorCampo('bacen-origem'),
+        rdr: obterValorCampo('bacen-rdr'),
         motivoReduzido: obterValorCampo('bacen-motivo-reduzido'),
         motivoDetalhado: obterValorCampo('bacen-motivo-detalhado'),
         prazoBacen: obterValorCampo('bacen-prazo-bacen'),
