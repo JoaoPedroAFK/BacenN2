@@ -358,37 +358,64 @@ function atualizarDashboardBacen() {
 
 // Configurar cliques nos cards do dashboard
 function configurarCardsDashboardBacen() {
+    console.log('🔧 Configurando cards do dashboard BACEN...');
+    
     // Card Total
     const cardTotal = document.querySelector('#bacen-total-dash')?.closest('.stat-card');
     if (cardTotal) {
         cardTotal.style.cursor = 'pointer';
-        cardTotal.onclick = () => mostrarCasosDashboardBacen('total');
+        cardTotal.onclick = () => {
+            console.log('📊 Card Total clicado');
+            mostrarCasosDashboardBacen('total');
+        };
+        console.log('✅ Card Total configurado');
+    } else {
+        console.warn('⚠️ Card Total não encontrado');
     }
     
     // Card Em Tratativa
     const cardTratativa = document.querySelector('#bacen-tratativa-dash')?.closest('.stat-card');
     if (cardTratativa) {
         cardTratativa.style.cursor = 'pointer';
-        cardTratativa.onclick = () => mostrarCasosDashboardBacen('em-tratativa');
+        cardTratativa.onclick = () => {
+            console.log('📊 Card Em Tratativa clicado');
+            mostrarCasosDashboardBacen('em-tratativa');
+        };
+        console.log('✅ Card Em Tratativa configurado');
+    } else {
+        console.warn('⚠️ Card Em Tratativa não encontrado');
     }
     
     // Card Concluídas
     const cardConcluidas = document.querySelector('#bacen-concluidas-dash')?.closest('.stat-card');
     if (cardConcluidas) {
         cardConcluidas.style.cursor = 'pointer';
-        cardConcluidas.onclick = () => mostrarCasosDashboardBacen('concluidas');
+        cardConcluidas.onclick = () => {
+            console.log('📊 Card Concluídas clicado');
+            mostrarCasosDashboardBacen('concluidas');
+        };
+        console.log('✅ Card Concluídas configurado');
+    } else {
+        console.warn('⚠️ Card Concluídas não encontrado');
     }
     
     // Card Prazo Vencendo
     const cardPrazo = document.querySelector('#bacen-prazo-vencendo')?.closest('.stat-card');
     if (cardPrazo) {
         cardPrazo.style.cursor = 'pointer';
-        cardPrazo.onclick = () => mostrarCasosDashboardBacen('prazo-vencendo');
+        cardPrazo.onclick = () => {
+            console.log('📊 Card Prazo Vencendo clicado');
+            mostrarCasosDashboardBacen('prazo-vencendo');
+        };
+        console.log('✅ Card Prazo Vencendo configurado');
+    } else {
+        console.warn('⚠️ Card Prazo Vencendo não encontrado');
     }
 }
 
 // Mostrar casos relacionados ao card clicado
 function mostrarCasosDashboardBacen(tipo) {
+    console.log('🔍 Mostrando casos do dashboard BACEN - tipo:', tipo);
     let filtradas = [];
     let titulo = '';
     
@@ -417,13 +444,20 @@ function mostrarCasosDashboardBacen(tipo) {
             break;
     }
     
+    console.log('📋 Casos filtrados:', filtradas.length);
+    
     if (filtradas.length === 0) {
         mostrarAlerta(`Nenhuma reclamação encontrada para "${titulo}"`, 'info');
         return;
     }
     
-    // Criar modal com os casos
-    criarModalCasosDashboard(titulo, filtradas, 'bacen');
+    // Criar sidebar com os casos
+    if (window.criarModalCasosDashboard) {
+        window.criarModalCasosDashboard(titulo, filtradas, 'bacen');
+    } else {
+        console.error('❌ Função criarModalCasosDashboard não encontrada');
+        mostrarAlerta('Erro ao abrir sidebar de casos', 'error');
+    }
 }
 
 // === LISTA ===
