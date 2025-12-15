@@ -90,28 +90,46 @@ function mostrarSecao(secaoId) {
 
 // === CARREGAR FICHAS ===
 async function carregarFichasBacen() {
+    console.log('🔄 Carregando fichas BACEN...');
+    
     // Tentar usar Supabase primeiro
-    if (window.supabaseDB) {
+    if (window.supabaseDB && !window.supabaseDB.usarLocalStorage) {
         try {
+            console.log('📦 Tentando carregar do Supabase...');
             fichasBacen = await window.supabaseDB.obterFichasBacen();
+            console.log('✅ Fichas carregadas do Supabase:', fichasBacen.length);
             return;
         } catch (error) {
-            console.error('Erro ao carregar do Supabase:', error);
+            console.error('❌ Erro ao carregar do Supabase:', error);
         }
     }
     
     // Fallback para gerenciador de fichas
     if (window.gerenciadorFichas) {
-        fichasBacen = window.gerenciadorFichas.obterFichasPorTipo('bacen');
+        console.log('📦 Carregando do gerenciadorFichas...');
+        fichasBacen = window.gerenciadorFichas.obterFichasPorTipo('bacen') || [];
+        console.log('✅ Fichas carregadas do gerenciadorFichas:', fichasBacen.length);
     } else if (window.GerenciadorFichasPerfil) {
         // Inicializa se não estiver
+        console.log('📦 Inicializando GerenciadorFichasPerfil...');
         window.gerenciadorFichas = new GerenciadorFichasPerfil();
-        fichasBacen = window.gerenciadorFichas.obterFichasPorTipo('bacen');
+        fichasBacen = window.gerenciadorFichas.obterFichasPorTipo('bacen') || [];
+        console.log('✅ Fichas carregadas do GerenciadorFichasPerfil:', fichasBacen.length);
     } else {
         // Fallback para localStorage
+        console.log('📦 Carregando do localStorage...');
         const fichas = JSON.parse(localStorage.getItem('velotax_demandas_bacen') || '[]');
         fichasBacen = fichas.map(f => ({ ...f, tipoDemanda: 'bacen' }));
+        console.log('✅ Fichas carregadas do localStorage:', fichasBacen.length);
     }
+    
+    // Garantir que fichasBacen seja um array
+    if (!Array.isArray(fichasBacen)) {
+        console.warn('⚠️ fichasBacen não é um array, convertendo...');
+        fichasBacen = [];
+    }
+    
+    console.log('📋 Total de fichas BACEN carregadas:', fichasBacen.length);
 }
 
 // === FORMULÁRIO ===
@@ -465,12 +483,20 @@ function mostrarCasosDashboardBacen(tipo) {
 function renderizarListaBacen() {
     const container = document.getElementById('lista-fichas-bacen');
     if (!container) {
-        console.warn('⚠️ Container lista-fichas-bacen não encontrado');
+        console.error('❌ Container lista-fichas-bacen não encontrado!');
+        return;
+    }
+    
+    // Garantir que fichasBacen está carregado
+    if (!fichasBacen || fichasBacen.length === 0) {
+        console.warn('⚠️ Nenhuma ficha carregada, tentando carregar...');
+        carregarFichasBacen().then(() => {
+            renderizarListaBacen();
+        });
         return;
     }
     
     console.log('📋 Renderizando lista geral com', fichasBacen.length, 'fichas');
-    console.log('📋 Fichas disponíveis:', fichasBacen);
     
     const busca = document.getElementById('busca-bacen')?.value.toLowerCase() || '';
     const filtroStatus = document.getElementById('filtro-status-bacen')?.value || '';
@@ -500,19 +526,37 @@ function renderizarListaBacen() {
         return;
     }
     
+    // Ordenar por data (mais recentes primeiro)
+    filtradas.sort((a, b) => {
+        const dataA = new Date(a.dataCriacao || a.dataEntrada || 0);
+        const dataB = new Date(b.dataCriacao || b.dataEntrada || 0);
+        return dataB - dataA;
+    });
+    
     container.innerHTML = filtradas.map(f => criarCardBacen(f)).join('');
+    console.log('✅ Lista renderizada com sucesso!');
 }
 
 // Renderizar "Minhas Reclamações"
 function renderizarMinhasReclamacoesBacen() {
     const container = document.getElementById('minhas-fichas-bacen');
     if (!container) {
-        console.warn('⚠️ Container minhas-fichas-bacen não encontrado');
+        console.error('❌ Container minhas-fichas-bacen não encontrado!');
+        return;
+    }
+    
+    // Garantir que fichasBacen está carregado
+    if (!fichasBacen || fichasBacen.length === 0) {
+        console.warn('⚠️ Nenhuma ficha carregada, tentando carregar...');
+        carregarFichasBacen().then(() => {
+            renderizarMinhasReclamacoesBacen();
+        });
         return;
     }
     
     const usuarioAtual = window.sistemaPerfis?.usuarioAtual;
     if (!usuarioAtual) {
+        console.warn('⚠️ Usuário não logado');
         container.innerHTML = '<div class="no-results">Você precisa estar logado para ver suas reclamações</div>';
         return;
     }
@@ -531,16 +575,19 @@ function renderizarMinhasReclamacoesBacen() {
         
         const match = responsavelFicha === nomeAtual || 
                       responsavelFicha === emailAtualLower ||
-                      responsavelFicha === (usuarioAtual.nome || '').toString().toLowerCase().trim();
+                      responsavelFicha === (usuarioAtual.nome || '').toString().toLowerCase().trim() ||
+                      responsavelFicha.includes(nomeAtual) ||
+                      responsavelFicha.includes(emailAtualLower);
         
         if (match) {
-            console.log('✅ Match encontrado:', f.id, 'Responsável:', f.responsavel);
+            console.log('✅ Match encontrado:', f.id, 'Responsável:', f.responsavel, 'vs', nomeAtual);
         }
         
         return match;
     });
     
     console.log('📋 Minhas fichas encontradas:', minhasFichas.length);
+    console.log('📋 Todas as fichas e seus responsáveis:', fichasBacen.map(f => ({ id: f.id, responsavel: f.responsavel })));
     
     if (minhasFichas.length === 0) {
         container.innerHTML = '<div class="no-results">Você não possui reclamações atribuídas</div>';
