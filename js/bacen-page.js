@@ -289,17 +289,24 @@ async function handleSubmitBacen(e) {
         console.log('🧹 Limpando formulário...');
         limparFormBacen();
         
-        // Recarregar fichas para garantir sincronização
+        // Recarregar fichas para garantir que a nova ficha esteja disponível
         await carregarFichasBacen();
         console.log('📋 Fichas BACEN carregadas após salvar:', fichasBacen.length);
+        console.log('📋 Última ficha salva:', fichasBacen[fichasBacen.length - 1]);
         console.log('📋 Ficha salva está no array?', fichasBacen.find(f => f.id === ficha.id) ? 'Sim' : 'Não');
         
+        // Atualizar dashboard e listas
         atualizarDashboardBacen();
         
-        // Renderizar lista geral (sem filtro de usuário)
+        // Atualizar lista geral (sem filtro de usuário)
         renderizarListaBacen();
         
-        // Mostrar lista geral
+        // Atualizar "Minhas Reclamações" se a seção estiver visível
+        const secaoMinhas = document.getElementById('minhas-reclamacoes-bacen');
+        if (secaoMinhas && secaoMinhas.classList.contains('active')) {
+            renderizarMinhasReclamacoesBacen();
+        }
+        
         mostrarSecao('lista-bacen');
         
         console.log('✅ Reclamação salva com sucesso!');

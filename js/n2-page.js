@@ -302,17 +302,24 @@ async function handleSubmitN2(e) {
         console.log('🧹 Limpando formulário...');
         limparFormN2();
         
-        // Recarregar fichas para garantir sincronização
+        // Recarregar fichas para garantir que a nova ficha esteja disponível
         await carregarFichasN2();
         console.log('📋 Fichas N2 carregadas após salvar:', fichasN2.length);
+        console.log('📋 Última ficha salva:', fichasN2[fichasN2.length - 1]);
         console.log('📋 Ficha salva está no array?', fichasN2.find(f => f.id === ficha.id) ? 'Sim' : 'Não');
         
+        // Atualizar dashboard e listas
         atualizarDashboardN2();
         
-        // Renderizar lista geral (sem filtro de usuário)
+        // Atualizar lista geral (sem filtro de usuário)
         renderizarListaN2();
         
-        // Mostrar lista geral
+        // Atualizar "Minhas Reclamações" se a seção estiver visível
+        const secaoMinhas = document.getElementById('minhas-reclamacoes-n2');
+        if (secaoMinhas && secaoMinhas.classList.contains('active')) {
+            renderizarMinhasReclamacoesN2();
+        }
+        
         mostrarSecao('lista-n2');
         
         console.log('✅ Reclamação salva com sucesso!');

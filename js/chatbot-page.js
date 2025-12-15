@@ -263,17 +263,24 @@ async function handleSubmitChatbot(e) {
         console.log('🧹 Limpando formulário...');
         limparFormChatbot();
         
-        // Recarregar fichas para garantir sincronização
+        // Recarregar fichas para garantir que a nova ficha esteja disponível
         await carregarFichasChatbot();
         console.log('📋 Fichas Chatbot carregadas após salvar:', fichasChatbot.length);
+        console.log('📋 Última ficha salva:', fichasChatbot[fichasChatbot.length - 1]);
         console.log('📋 Ficha salva está no array?', fichasChatbot.find(f => f.id === ficha.id) ? 'Sim' : 'Não');
         
+        // Atualizar dashboard e listas
         await atualizarDashboardChatbot();
         
-        // Renderizar lista geral (sem filtro de usuário)
+        // Atualizar lista geral (sem filtro de usuário)
         renderizarListaChatbot();
         
-        // Mostrar lista geral
+        // Atualizar "Minhas Reclamações" se a seção estiver visível
+        const secaoMinhas = document.getElementById('minhas-reclamacoes-chatbot');
+        if (secaoMinhas && secaoMinhas.classList.contains('active')) {
+            renderizarMinhasReclamacoesChatbot();
+        }
+        
         mostrarSecao('lista-chatbot');
         
         console.log('✅ Reclamação salva com sucesso!');
