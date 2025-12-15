@@ -286,13 +286,33 @@ async function handleSubmitN2(e) {
             console.log('💾 Salvo no localStorage');
         }
         
+        // Garantir que a ficha foi adicionada ao array local
+        if (!fichasN2.find(f => f.id === ficha.id)) {
+            fichasN2.push(ficha);
+            console.log('✅ Ficha adicionada ao array local');
+        }
+        
+        // Atualizar localStorage se não estiver usando Supabase
+        if (!window.supabaseDB || window.supabaseDB.usarLocalStorage) {
+            localStorage.setItem('velotax_demandas_n2', JSON.stringify(fichasN2));
+            console.log('💾 localStorage atualizado');
+        }
+        
         // Limpar e atualizar
         console.log('🧹 Limpando formulário...');
         limparFormN2();
+        
+        // Recarregar fichas para garantir sincronização
         await carregarFichasN2();
         console.log('📋 Fichas N2 carregadas após salvar:', fichasN2.length);
+        console.log('📋 Ficha salva está no array?', fichasN2.find(f => f.id === ficha.id) ? 'Sim' : 'Não');
+        
         atualizarDashboardN2();
-        renderizarListaN2(); // Garantir que a lista seja atualizada
+        
+        // Renderizar lista geral (sem filtro de usuário)
+        renderizarListaN2();
+        
+        // Mostrar lista geral
         mostrarSecao('lista-n2');
         
         console.log('✅ Reclamação salva com sucesso!');
@@ -438,13 +458,20 @@ function mostrarCasosDashboardN2(tipo) {
             break;
     }
     
+    console.log('📋 Casos filtrados N2:', filtradas.length);
+    
     if (filtradas.length === 0) {
         mostrarAlerta(`Nenhuma reclamação encontrada para "${titulo}"`, 'info');
         return;
     }
     
-    // Criar modal com os casos
-    criarModalCasosDashboard(titulo, filtradas, 'n2');
+    // Criar sidebar com os casos
+    if (window.criarModalCasosDashboard) {
+        window.criarModalCasosDashboard(titulo, filtradas, 'n2');
+    } else {
+        console.error('❌ Função criarModalCasosDashboard não encontrada');
+        mostrarAlerta('Erro ao abrir sidebar de casos', 'error');
+    }
 }
 
 // === LISTA ===

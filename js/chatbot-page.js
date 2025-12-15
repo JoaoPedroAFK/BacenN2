@@ -247,14 +247,33 @@ async function handleSubmitChatbot(e) {
             console.log('💾 Salvo no localStorage');
         }
         
+        // Garantir que a ficha foi adicionada ao array local
+        if (!fichasChatbot.find(f => f.id === ficha.id)) {
+            fichasChatbot.push(ficha);
+            console.log('✅ Ficha adicionada ao array local');
+        }
+        
+        // Atualizar localStorage se não estiver usando Supabase
+        if (!window.supabaseDB || window.supabaseDB.usarLocalStorage) {
+            localStorage.setItem('velotax_demandas_chatbot', JSON.stringify(fichasChatbot));
+            console.log('💾 localStorage atualizado');
+        }
+        
         // Limpar e atualizar
         console.log('🧹 Limpando formulário...');
         limparFormChatbot();
+        
+        // Recarregar fichas para garantir sincronização
         await carregarFichasChatbot();
-        console.log('📋 Fichas carregadas:', fichasChatbot.length);
+        console.log('📋 Fichas Chatbot carregadas após salvar:', fichasChatbot.length);
+        console.log('📋 Ficha salva está no array?', fichasChatbot.find(f => f.id === ficha.id) ? 'Sim' : 'Não');
+        
         await atualizarDashboardChatbot();
-        console.log('📋 Renderizando lista com', fichasChatbot.length, 'fichas');
-        renderizarListaChatbot(); // Garantir que a lista seja atualizada
+        
+        // Renderizar lista geral (sem filtro de usuário)
+        renderizarListaChatbot();
+        
+        // Mostrar lista geral
         mostrarSecao('lista-chatbot');
         
         console.log('✅ Reclamação salva com sucesso!');
@@ -397,13 +416,20 @@ function mostrarCasosDashboardChatbot(tipo) {
             break;
     }
     
+    console.log('📋 Casos filtrados Chatbot:', filtradas.length);
+    
     if (filtradas.length === 0) {
         mostrarAlerta(`Nenhuma reclamação encontrada para "${titulo}"`, 'info');
         return;
     }
     
-    // Criar modal com os casos
-    criarModalCasosDashboard(titulo, filtradas, 'chatbot');
+    // Criar sidebar com os casos
+    if (window.criarModalCasosDashboard) {
+        window.criarModalCasosDashboard(titulo, filtradas, 'chatbot');
+    } else {
+        console.error('❌ Função criarModalCasosDashboard não encontrada');
+        mostrarAlerta('Erro ao abrir sidebar de casos', 'error');
+    }
 }
 
 // === LISTA ===
