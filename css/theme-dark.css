@@ -352,11 +352,57 @@
   color: var(--azul-ciano) !important;
 }
 
+/* === CARDS DE GRÁFICOS NO TEMA ESCURO === */
+.dark .grafico-card {
+  background: var(--cor-card-escuro) !important;
+  border: 1px solid var(--borda-escura) !important;
+  color: #ECECEC !important;
+  box-shadow: 0 4px 20px var(--sombra-escura) !important;
+}
+
+.dark .grafico-card h3 {
+  color: #FFFFFF !important;
+}
+
+.dark .grafico-card p,
+.dark .grafico-card span,
+.dark .grafico-card div {
+  color: #ECECEC !important;
+}
+
+/* Canvas e gráficos dentro dos cards */
+.dark .grafico-card canvas {
+  filter: brightness(1.2) contrast(1.1);
+}
+
+/* Labels e textos dentro dos gráficos */
+.dark .grafico-card .chartjs-render-monitor,
+.dark .grafico-card svg text,
+.dark .grafico-card svg tspan {
+  fill: #ECECEC !important;
+  color: #ECECEC !important;
+}
+
+/* Elementos de gráfico específicos */
+.dark .grafico-card .chart-legend,
+.dark .grafico-card .legend {
+  color: #ECECEC !important;
+}
+
+.dark .grafico-card .legend-item {
+  color: #B0BEC5 !important;
+}
+
+.dark .grafico-card .legend-item strong {
+  color: #FFFFFF !important;
+}
+
 /* === PERÍODO DE ANÁLISE NO TEMA ESCURO === */
 .dark .periodo-analise,
 .dark .filter-section {
   background: var(--cor-card-escuro) !important;
   color: #ECECEC !important;
+  border: 1px solid var(--borda-escura) !important;
 }
 
 .dark .periodo-analise label,
@@ -369,6 +415,60 @@
   background: var(--cor-fundo-escuro) !important;
   color: #FFFFFF !important;
   border-color: var(--borda-escura) !important;
+}
+
+/* === TODOS OS CARDS NO TEMA ESCURO === */
+.dark .card,
+.dark [class*="card"],
+.dark [class*="Card"] {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+  border: 1px solid var(--borda-escura) !important;
+}
+
+.dark .card *,
+.dark [class*="card"] *,
+.dark [class*="Card"] * {
+  color: inherit;
+}
+
+.dark .card h1,
+.dark .card h2,
+.dark .card h3,
+.dark .card h4,
+.dark .card h5,
+.dark .card h6,
+.dark [class*="card"] h1,
+.dark [class*="card"] h2,
+.dark [class*="card"] h3,
+.dark [class*="card"] h4,
+.dark [class*="card"] h5,
+.dark [class*="card"] h6 {
+  color: #FFFFFF !important;
+}
+
+.dark .card p,
+.dark .card span,
+.dark .card div,
+.dark [class*="card"] p,
+.dark [class*="card"] span,
+.dark [class*="card"] div {
+  color: #ECECEC !important;
+}
+
+/* === ELEMENTOS DE TEXTO DENTRO DOS CARDS === */
+.dark .card strong,
+.dark .card b,
+.dark [class*="card"] strong,
+.dark [class*="card"] b {
+  color: #FFFFFF !important;
+}
+
+.dark .card em,
+.dark .card i,
+.dark [class*="card"] em,
+.dark [class*="card"] i {
+  color: #B0BEC5 !important;
 }
 
 /* === CARDS DE RESUMO NO TEMA ESCURO === */
