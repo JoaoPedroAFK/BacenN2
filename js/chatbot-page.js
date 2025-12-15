@@ -482,9 +482,15 @@ function criarSidebarCasosDashboard(titulo, casos, tipo) {
     // Função para criar card baseado no tipo
     const criarCard = (f) => {
         if (tipo === 'chatbot') {
-            return criarCardChatbot(f);
+            // Tentar usar função global ou local
+            if (typeof criarCardChatbot === 'function') {
+                return criarCardChatbot(f);
+            } else if (window.criarCardChatbot) {
+                return window.criarCardChatbot(f);
+            }
         }
-        return criarCardChatbot(f); // Fallback
+        // Fallback: criar card básico
+        return `<div class="ficha-card">Ficha ${f.id || 'N/A'}</div>`;
     };
     
     sidebar.innerHTML = `

@@ -527,9 +527,15 @@ function criarSidebarCasosDashboard(titulo, casos, tipo) {
     // Função para criar card baseado no tipo
     const criarCard = (f) => {
         if (tipo === 'n2') {
-            return criarCardN2(f);
+            // Tentar usar função global ou local
+            if (typeof criarCardN2 === 'function') {
+                return criarCardN2(f);
+            } else if (window.criarCardN2) {
+                return window.criarCardN2(f);
+            }
         }
-        return criarCardN2(f); // Fallback
+        // Fallback: criar card básico
+        return `<div class="ficha-card">Ficha ${f.id || 'N/A'}</div>`;
     };
     
     sidebar.innerHTML = `
