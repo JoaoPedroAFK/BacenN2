@@ -588,18 +588,18 @@ function criarCardBacen(ficha) {
     `;
 }
 
-// Criar modal para exibir casos do dashboard (função global)
+// Criar sidebar para exibir casos do dashboard (função global)
 window.criarModalCasosDashboard = function criarModalCasosDashboard(titulo, casos, tipo) {
-    // Remover modal existente se houver
-    const modalExistente = document.getElementById('modal-casos-dashboard');
-    if (modalExistente) {
-        modalExistente.remove();
+    // Remover sidebar existente se houver
+    const sidebarExistente = document.getElementById('sidebar-casos-dashboard');
+    if (sidebarExistente) {
+        sidebarExistente.remove();
     }
     
-    // Criar modal
-    const modal = document.createElement('div');
-    modal.id = 'modal-casos-dashboard';
-    modal.className = 'modal-casos-dashboard';
+    // Criar sidebar
+    const sidebar = document.createElement('div');
+    sidebar.id = 'sidebar-casos-dashboard';
+    sidebar.className = 'sidebar-casos-dashboard';
     
     // Função para criar card baseado no tipo
     const criarCard = (f) => {
@@ -625,37 +625,34 @@ window.criarModalCasosDashboard = function criarModalCasosDashboard(titulo, caso
         return criarCardBacen(f);
     };
     
-    modal.innerHTML = `
-        <div class="modal-casos-content">
-            <div class="modal-casos-header">
-                <h2>${titulo}</h2>
-                <span class="modal-casos-close" onclick="fecharModalCasosDashboard()">&times;</span>
-            </div>
-            <div class="modal-casos-body">
-                <div class="modal-casos-info">
-                    <p><strong>Total:</strong> ${casos.length} caso(s)</p>
-                </div>
-                <div class="modal-casos-list">
-                    ${casos.map(f => criarCard(f)).join('')}
-                </div>
-            </div>
+    sidebar.innerHTML = `
+        <div class="sidebar-header">
+            <h3>${titulo}</h3>
+            <button class="btn-fechar-sidebar" onclick="fecharSidebarCasosDashboard()">✕</button>
+        </div>
+        <div class="sidebar-info">
+            <p><strong>Total:</strong> ${casos.length} caso(s)</p>
+        </div>
+        <div class="sidebar-content" id="conteudo-casos-dashboard">
+            ${casos.map(f => criarCard(f)).join('')}
         </div>
     `;
     
-    document.body.appendChild(modal);
+    document.body.appendChild(sidebar);
     
-    // Fechar ao clicar fora
-    modal.onclick = (e) => {
-        if (e.target === modal) {
-            fecharModalCasosDashboard();
-        }
-    };
+    // Abrir sidebar com animação
+    setTimeout(() => {
+        sidebar.classList.add('aberta');
+    }, 10);
 }
 
-window.fecharModalCasosDashboard = function fecharModalCasosDashboard() {
-    const modal = document.getElementById('modal-casos-dashboard');
-    if (modal) {
-        modal.remove();
+window.fecharSidebarCasosDashboard = function fecharSidebarCasosDashboard() {
+    const sidebar = document.getElementById('sidebar-casos-dashboard');
+    if (sidebar) {
+        sidebar.classList.remove('aberta');
+        setTimeout(() => {
+            sidebar.remove();
+        }, 300); // Aguardar animação de fechamento
     }
 }
 
