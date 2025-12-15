@@ -97,27 +97,44 @@ function mostrarSecao(secaoId) {
 
 // === CARREGAR FICHAS ===
 async function carregarFichasN2() {
+    console.log('🔄 Carregando fichas N2...');
+    
     // Tentar usar Supabase primeiro
-    if (window.supabaseDB) {
+    if (window.supabaseDB && !window.supabaseDB.usarLocalStorage) {
         try {
+            console.log('📦 Tentando carregar do Supabase...');
             fichasN2 = await window.supabaseDB.obterFichasN2();
+            console.log('✅ Fichas N2 carregadas do Supabase:', fichasN2.length);
             return;
         } catch (error) {
-            console.error('Erro ao carregar do Supabase:', error);
+            console.error('❌ Erro ao carregar do Supabase:', error);
         }
     }
     
     // Fallback para gerenciador de fichas
     if (window.gerenciadorFichas) {
-        fichasN2 = window.gerenciadorFichas.obterFichasPorTipo('n2');
+        console.log('📦 Carregando do gerenciadorFichas...');
+        fichasN2 = window.gerenciadorFichas.obterFichasPorTipo('n2') || [];
+        console.log('✅ Fichas N2 carregadas do gerenciadorFichas:', fichasN2.length);
     } else if (window.GerenciadorFichasPerfil) {
+        console.log('📦 Inicializando GerenciadorFichasPerfil...');
         window.gerenciadorFichas = new GerenciadorFichasPerfil();
-        fichasN2 = window.gerenciadorFichas.obterFichasPorTipo('n2');
+        fichasN2 = window.gerenciadorFichas.obterFichasPorTipo('n2') || [];
+        console.log('✅ Fichas N2 carregadas do GerenciadorFichasPerfil:', fichasN2.length);
     } else {
-        // Fallback para localStorage
+        console.log('📦 Carregando do localStorage...');
         const fichas = JSON.parse(localStorage.getItem('velotax_demandas_n2') || '[]');
         fichasN2 = fichas.map(f => ({ ...f, tipoDemanda: 'n2' }));
+        console.log('✅ Fichas N2 carregadas do localStorage:', fichasN2.length);
     }
+    
+    // Garantir que fichasN2 seja um array
+    if (!Array.isArray(fichasN2)) {
+        console.warn('⚠️ fichasN2 não é um array, convertendo...');
+        fichasN2 = [];
+    }
+    
+    console.log('📋 Total de fichas N2 carregadas:', fichasN2.length);
 }
 
 // === FORMULÁRIO ===
