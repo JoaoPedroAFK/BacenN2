@@ -273,13 +273,33 @@ async function handleSubmitBacen(e) {
             console.log('💾 Salvo no localStorage');
         }
         
+        // Garantir que a ficha foi adicionada ao array local
+        if (!fichasBacen.find(f => f.id === ficha.id)) {
+            fichasBacen.push(ficha);
+            console.log('✅ Ficha adicionada ao array local');
+        }
+        
+        // Atualizar localStorage se não estiver usando Supabase
+        if (!window.supabaseDB || window.supabaseDB.usarLocalStorage) {
+            localStorage.setItem('velotax_demandas_bacen', JSON.stringify(fichasBacen));
+            console.log('💾 localStorage atualizado');
+        }
+        
         // Limpar e atualizar
         console.log('🧹 Limpando formulário...');
         limparFormBacen();
+        
+        // Recarregar fichas para garantir sincronização
         await carregarFichasBacen();
-        console.log('📋 Fichas carregadas após salvar:', fichasBacen.length);
+        console.log('📋 Fichas BACEN carregadas após salvar:', fichasBacen.length);
+        console.log('📋 Ficha salva está no array?', fichasBacen.find(f => f.id === ficha.id) ? 'Sim' : 'Não');
+        
         atualizarDashboardBacen();
-        renderizarListaBacen(); // Garantir que a lista seja atualizada
+        
+        // Renderizar lista geral (sem filtro de usuário)
+        renderizarListaBacen();
+        
+        // Mostrar lista geral
         mostrarSecao('lista-bacen');
         
         console.log('✅ Reclamação salva com sucesso!');
