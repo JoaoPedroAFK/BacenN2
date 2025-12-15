@@ -15,7 +15,7 @@ class FichasEspecificas {
             <div class="ficha-detalhada-container">
                 <div class="ficha-header">
                     <div class="ficha-titulo">
-                        <h2>🏦 Ficha BACEN - ${dados.nomeCompleto || dados.nomeCliente || 'Não informado'}</h2>
+                        <h2>🏦 Reclamação BACEN - ${dados.nomeCompleto || dados.nomeCliente || 'Não informado'}</h2>
                         <button class="btn-fechar" onclick="fichasEspecificas.fecharFicha()">✕</button>
                     </div>
                     <div class="ficha-status">
@@ -139,7 +139,7 @@ class FichasEspecificas {
 
                 <div class="ficha-rodape">
                     <button class="velohub-btn btn-primary" onclick="fichasEspecificas.toggleEdicao()">
-                        ✏️ Editar Ficha
+                        ✏️ Editar Reclamação
                     </button>
                     <button class="velohub-btn btn-secondary" onclick="fichasEspecificas.salvarFicha()">
                         💾 Salvar Alterações
@@ -158,7 +158,7 @@ class FichasEspecificas {
             <div class="ficha-detalhada-container">
                 <div class="ficha-header">
                     <div class="ficha-titulo">
-                        <h2>🔄 Ficha N2 - ${dados.nomeCompleto || dados.nomeCliente || 'Não informado'}</h2>
+                        <h2>🔄 Reclamação N2 - ${dados.nomeCompleto || dados.nomeCliente || 'Não informado'}</h2>
                         <button class="btn-fechar" onclick="fichasEspecificas.fecharFicha()">✕</button>
                     </div>
                     <div class="ficha-status">
@@ -286,7 +286,7 @@ class FichasEspecificas {
 
                 <div class="ficha-rodape">
                     <button class="velohub-btn btn-primary" onclick="fichasEspecificas.toggleEdicao()">
-                        ✏️ Editar Ficha
+                        ✏️ Editar Reclamação
                     </button>
                     <button class="velohub-btn btn-secondary" onclick="fichasEspecificas.salvarFicha()">
                         💾 Salvar Alterações
@@ -305,7 +305,7 @@ class FichasEspecificas {
             <div class="ficha-detalhada-container">
                 <div class="ficha-header">
                     <div class="ficha-titulo">
-                        <h2>🤖 Ficha Chatbot - ${dados.nomeCompleto || dados.nomeCliente || 'Não informado'}</h2>
+                        <h2>🤖 Reclamação Chatbot - ${dados.nomeCompleto || dados.nomeCliente || 'Não informado'}</h2>
                         <button class="btn-fechar" onclick="fichasEspecificas.fecharFicha()">✕</button>
                     </div>
                     <div class="ficha-status">
@@ -429,7 +429,7 @@ class FichasEspecificas {
 
                 <div class="ficha-rodape">
                     <button class="velohub-btn btn-primary" onclick="fichasEspecificas.toggleEdicao()">
-                        ✏️ Editar Ficha
+                        ✏️ Editar Reclamação
                     </button>
                     <button class="velohub-btn btn-secondary" onclick="fichasEspecificas.salvarFicha()">
                         💾 Salvar Alterações

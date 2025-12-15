@@ -78,7 +78,7 @@ class SistemaFichas {
                             📥 Exportar Ficha
                         </button>
                         <button class="velohub-btn btn-danger" onclick="sistemaFichas.excluirFicha()">
-                            🗑️ Excluir Ficha
+                            🗑️ Excluir Reclamação
                         </button>
                     </div>
                 </div>
@@ -1140,9 +1140,9 @@ GERADO EM: ${new Date().toLocaleString('pt-BR')}
     }
 
     excluirFicha() {
-        if (confirm('Tem certeza que deseja excluir esta ficha?')) {
+        if (confirm('Tem certeza que deseja excluir esta reclamação?')) {
             // Implementar exclusão
-            this.mostrarNotificacao('Ficha excluída com sucesso', 'sucesso');
+            this.mostrarNotificacao('Reclamação excluída com sucesso', 'sucesso');
             this.fecharFicha();
         }
     }
