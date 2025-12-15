@@ -446,7 +446,16 @@ function mostrarCasosDashboardN2(tipo) {
 function renderizarListaN2() {
     const container = document.getElementById('lista-fichas-n2');
     if (!container) {
-        console.warn('⚠️ Container lista-fichas-n2 não encontrado');
+        console.error('❌ Container lista-fichas-n2 não encontrado!');
+        return;
+    }
+    
+    // Garantir que fichasN2 está carregado
+    if (!fichasN2 || fichasN2.length === 0) {
+        console.warn('⚠️ Nenhuma ficha N2 carregada, tentando carregar...');
+        carregarFichasN2().then(() => {
+            renderizarListaN2();
+        });
         return;
     }
     
