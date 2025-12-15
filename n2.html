@@ -369,14 +369,14 @@
                     </div>
                 </div>
 
-                <!-- 7º Item: Casos Críticos (Blacklist) -->
+                <!-- Casos Críticos (Blacklist) -->
                 <div class="form-section">
-                    <h3>7º Item: Casos Críticos (Blacklist)</h3>
+                    <h3>Casos Críticos (Blacklist)</h3>
                     <div class="form-group">
                         <label class="checkbox-label">
                             <input type="checkbox" id="n2-casos-criticos">
                             <span class="checkmark"></span>
-                            Marcar como caso crítico (Blacklist)
+                            Blacklist
                         </label>
                     </div>
                 </div>
@@ -538,6 +538,43 @@
 
         function removerTentativaN2(btn) {
             btn.closest('.tentativa-item').remove();
+        }
+        
+        // Função para adicionar múltiplos protocolos (global)
+        if (!window.adicionarProtocolo) {
+            window.adicionarProtocolo = function(containerId) {
+                const container = document.getElementById(containerId);
+                if (!container) {
+                    console.error('Container não encontrado:', containerId);
+                    return;
+                }
+                
+                const protocoloDiv = document.createElement('div');
+                protocoloDiv.className = 'protocolo-item-multiplo';
+                protocoloDiv.style.display = 'flex';
+                protocoloDiv.style.gap = '8px';
+                protocoloDiv.style.marginTop = '8px';
+                protocoloDiv.innerHTML = `
+                    <input type="text" class="velohub-input protocolo-input" placeholder="Digite o protocolo" style="flex: 1;">
+                    <button type="button" onclick="this.parentElement.remove()" style="padding: 8px 12px; background: #ff4757; color: white; border: none; border-radius: 4px; cursor: pointer;">✕</button>
+                `;
+                container.appendChild(protocoloDiv);
+            };
+        }
+        
+        // Função para coletar todos os protocolos de um container (global)
+        if (!window.obterProtocolosDoContainer) {
+            window.obterProtocolosDoContainer = function(containerId) {
+                const container = document.getElementById(containerId);
+                if (!container) return [];
+                
+                const inputs = container.querySelectorAll('.protocolo-input');
+                const protocolos = Array.from(inputs)
+                    .map(input => input.value.trim())
+                    .filter(valor => valor.length > 0);
+                
+                return protocolos;
+            };
         }
     </script>
 </body>

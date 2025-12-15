@@ -286,7 +286,7 @@ function validarFichaN2(ficha) {
     
     const camposObrigatorios = [
         'dataEntradaAtendimento', 'dataEntradaN2', 'responsavel', 'mes', 
-        'nomeCompleto', 'cpf', 'origem', 'motivoReduzido', 'motivoDetalhado', 'status', 'enviarCobranca'
+        'nomeCompleto', 'cpf', 'motivoReduzido', 'motivoDetalhado', 'status', 'enviarCobranca'
     ];
     
     for (let campo of camposObrigatorios) {

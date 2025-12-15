@@ -1,5 +1,36 @@
 /* === HISTÓRICO COMPLETO DO CLIENTE === */
 
+// Função global para abrir ficha completa
+window.abrirFichaCompleta = function(tipoDemanda, id) {
+    const pagina = `${tipoDemanda}.html`;
+    
+    // Navegar para a página e depois abrir a ficha
+    if (window.location.pathname.includes(pagina)) {
+        // Já estamos na página correta, apenas abrir a ficha
+        setTimeout(() => {
+            if (tipoDemanda === 'bacen' && window.abrirFichaBacen) {
+                window.abrirFichaBacen(id);
+            } else if (tipoDemanda === 'n2' && window.abrirFichaN2) {
+                window.abrirFichaN2(id);
+            } else if (tipoDemanda === 'chatbot' && window.abrirFichaChatbot) {
+                window.abrirFichaChatbot(id);
+            } else if (window.fichasEspecificas) {
+                // Buscar a ficha e abrir
+                const fichas = tipoDemanda === 'bacen' ? window.fichasBacen || [] :
+                              tipoDemanda === 'n2' ? window.fichasN2 || [] :
+                              window.fichasChatbot || [];
+                const ficha = fichas.find(f => f.id === id);
+                if (ficha) {
+                    window.fichasEspecificas.abrirFicha(ficha);
+                }
+            }
+        }, 100);
+    } else {
+        // Navegar para a página e depois abrir a ficha
+        window.location.href = `${pagina}?ficha=${id}`;
+    }
+};
+
 class HistoricoCliente {
     constructor() {
         this.clienteAtual = null;
@@ -138,7 +169,7 @@ class HistoricoCliente {
                           ficha.prazoN2 ? `Prazo N2: ${this.formatarData(ficha.prazoN2)}` : '';
 
         return `
-            <div class="historico-ficha-card" onclick="window.location.href='${pagina}#ficha-${ficha.id}'">
+            <div class="historico-ficha-card" onclick="abrirFichaCompleta('${ficha.tipoDemanda}', '${ficha.id}')" style="cursor: pointer;">
                 <div class="historico-ficha-numero">${numero}</div>
                 <div class="historico-ficha-content">
                     <div class="historico-ficha-header">

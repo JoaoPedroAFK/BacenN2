@@ -408,14 +408,14 @@
                     </div>
                 </div>
 
-                <!-- 7º Item: Casos Críticos (Blacklist) -->
+                <!-- Casos Críticos (Blacklist) -->
                 <div class="form-section">
-                    <h3>7º Item: Casos Críticos (Blacklist)</h3>
+                    <h3>Casos Críticos (Blacklist)</h3>
                     <div class="form-group">
                         <label class="checkbox-label">
                             <input type="checkbox" id="bacen-casos-criticos">
                             <span class="checkmark"></span>
-                            Marcar como caso crítico (Blacklist)
+                            Blacklist
                         </label>
                     </div>
                 </div>
@@ -554,10 +554,13 @@
             }
         }
         
-        // Função para adicionar múltiplos protocolos
-        function adicionarProtocolo(containerId) {
+        // Função para adicionar múltiplos protocolos (global)
+        window.adicionarProtocolo = function(containerId) {
             const container = document.getElementById(containerId);
-            if (!container) return;
+            if (!container) {
+                console.error('Container não encontrado:', containerId);
+                return;
+            }
             
             const protocoloDiv = document.createElement('div');
             protocoloDiv.className = 'protocolo-item-multiplo';
@@ -569,10 +572,10 @@
                 <button type="button" onclick="this.parentElement.remove()" style="padding: 8px 12px; background: #ff4757; color: white; border: none; border-radius: 4px; cursor: pointer;">✕</button>
             `;
             container.appendChild(protocoloDiv);
-        }
+        };
         
-        // Função para coletar todos os protocolos de um container
-        function obterProtocolosDoContainer(containerId) {
+        // Função para coletar todos os protocolos de um container (global)
+        window.obterProtocolosDoContainer = function(containerId) {
             const container = document.getElementById(containerId);
             if (!container) return [];
             
@@ -582,7 +585,7 @@
                 .filter(valor => valor.length > 0);
             
             return protocolos;
-        }
+        };
 
         // Função para adicionar tentativas de contato
         let contadorTentativasBacen = 2;
