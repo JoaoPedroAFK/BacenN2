@@ -473,7 +473,7 @@ window.criarCardChatbot = function criarCardChatbot(ficha) {
     }
     if (ficha.satisfacao) {
         const estrelas = '⭐'.repeat(parseInt(ficha.satisfacao));
-        badges += `<span style="background: #FF8400; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 8px;">${estrelas}</span>`;
+        badges += `<span style="background: #1634FF; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 8px;">${estrelas}</span>`;
     }
     
     return `
