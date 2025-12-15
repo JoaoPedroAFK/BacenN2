@@ -753,7 +753,7 @@
 }
 
 .segmento-card.chatbot-card::before {
-  background: linear-gradient(90deg, #FF8400, #FF00D7);
+  background: linear-gradient(90deg, #1634FF, #1DFDB9);
 }
 
 .segmento-card:hover {
@@ -771,7 +771,7 @@
 }
 
 .segmento-card.chatbot-card:hover {
-  border-color: #FF8400;
+  border-color: #1634FF;
 }
 
 .segmento-icon {
@@ -845,7 +845,7 @@
 }
 
 .segmento-card.chatbot-card .segmento-btn {
-  background: linear-gradient(135deg, #FF8400, #FF00D7);
+  background: linear-gradient(135deg, #1634FF, #1DFDB9);
 }
 
 /* === MÉTRICAS E GRÁFICOS === */

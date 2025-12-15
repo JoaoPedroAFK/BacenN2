@@ -134,7 +134,7 @@ class DashboardAvancado {
                     <div class="tipos-kpi-grid">
                         ${this.criarKPITipo('bacen', '🏦 BACEN', '#1634FF')}
                         ${this.criarKPITipo('n2', '🔄 N2', '#1DFDB9')}
-                        ${this.criarKPITipo('chatbot', '🤖 Chatbot', '#FF8400')}
+                        ${this.criarKPITipo('chatbot', '🤖 Chatbot', '#1634FF')}
                     </div>
                 </div>
 
