@@ -1884,3 +1884,74 @@
 .dark .historico-ficha-item strong {
     color: var(--azul-ciano);
 }
+
+/* === POPUP ATALHOS === */
+.popup-atalhos {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--cor-card);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    z-index: 10001;
+    padding: 24px;
+    min-width: 300px;
+    max-width: 400px;
+    transition: opacity 0.3s ease;
+}
+
+.popup-atalhos-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.popup-atalhos-header h3 {
+    margin: 0;
+    color: var(--azul-escuro);
+    font-size: 1.2rem;
+}
+
+.atalhos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.atalho-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    background: var(--cor-sidebar);
+    border-radius: 6px;
+}
+
+.atalho-item kbd {
+    background: var(--azul-royal);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    min-width: 30px;
+    text-align: center;
+}
+
+.atalho-item span {
+    color: var(--texto-principal);
+    font-size: 0.9rem;
+}
+
+.dark .popup-atalhos {
+    background: var(--cor-card-escuro);
+}
+
+.dark .popup-atalhos-header h3 {
+    color: #FFFFFF;
+}
+
+.dark .atalho-item {
+    background: var(--cor-card-escuro);
+}

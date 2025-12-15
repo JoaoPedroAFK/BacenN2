@@ -133,13 +133,19 @@ class AtalhosTeclado {
     }
 
     mostrarAjuda() {
-        const modal = document.createElement('div');
-        modal.className = 'modal-ajuda';
-        modal.innerHTML = `
-            <div class="modal-ajuda-content">
-                <div class="modal-ajuda-header">
-                    <h2>⌨️ Atalhos de Teclado</h2>
-                    <button onclick="this.closest('.modal-ajuda').remove()">✕</button>
+        // Remover popup existente se houver
+        const popupExistente = document.getElementById('popup-atalhos');
+        if (popupExistente) {
+            popupExistente.remove();
+        }
+        
+        const popup = document.createElement('div');
+        popup.id = 'popup-atalhos';
+        popup.className = 'popup-atalhos';
+        popup.innerHTML = `
+            <div class="popup-atalhos-content">
+                <div class="popup-atalhos-header">
+                    <h3>⌨️ Atalhos de Teclado</h3>
                 </div>
                 <div class="atalhos-lista">
                     <div class="atalho-item">
@@ -148,7 +154,7 @@ class AtalhosTeclado {
                     </div>
                     <div class="atalho-item">
                         <kbd>Ctrl</kbd> + <kbd>N</kbd>
-                        <span>Nova ficha</span>
+                        <span>Nova Reclamação</span>
                     </div>
                     <div class="atalho-item">
                         <kbd>Esc</kbd>
@@ -161,7 +167,27 @@ class AtalhosTeclado {
                 </div>
             </div>
         `;
-        document.body.appendChild(modal);
+        document.body.appendChild(popup);
+        
+        let timeoutId;
+        const iniciarTimeout = () => {
+            timeoutId = setTimeout(() => {
+                if (popup && !popup.matches(':hover')) {
+                    popup.style.opacity = '0';
+                    setTimeout(() => popup.remove(), 300);
+                }
+            }, 5000);
+        };
+        
+        popup.addEventListener('mouseenter', () => {
+            clearTimeout(timeoutId);
+        });
+        
+        popup.addEventListener('mouseleave', () => {
+            iniciarTimeout();
+        });
+        
+        iniciarTimeout();
     }
 
     criarDicaAtalhos() {
