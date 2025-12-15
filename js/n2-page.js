@@ -71,6 +71,11 @@ function mostrarSecao(secaoId) {
             console.log('📋 Fichas N2 carregadas para lista geral:', fichasN2.length);
             renderizarListaN2();
         });
+    } else if (secaoId === 'minhas-reclamacoes-n2') {
+        carregarFichasN2().then(() => {
+            console.log('📋 Fichas N2 carregadas para minhas reclamações:', fichasN2.length);
+            renderizarMinhasReclamacoesN2();
+        });
     } else if (secaoId === 'nova-reclamacao-n2' || secaoId === 'nova-ficha-n2') {
         // Compatibilidade com ambos os nomes
         if (secaoId === 'nova-ficha-n2') {
