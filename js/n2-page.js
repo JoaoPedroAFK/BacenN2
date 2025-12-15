@@ -506,6 +506,90 @@ function renderizarListaN2() {
     console.log('✅ Lista N2 renderizada com sucesso!');
 }
 
+// Renderizar "Minhas Reclamações"
+function renderizarMinhasReclamacoesN2() {
+    const container = document.getElementById('minhas-fichas-n2');
+    if (!container) {
+        console.error('❌ Container minhas-fichas-n2 não encontrado!');
+        return;
+    }
+    
+    // Garantir que fichasN2 está carregado
+    if (!fichasN2 || fichasN2.length === 0) {
+        console.warn('⚠️ Nenhuma ficha N2 carregada, tentando carregar...');
+        carregarFichasN2().then(() => {
+            renderizarMinhasReclamacoesN2();
+        });
+        return;
+    }
+    
+    const usuarioAtual = window.sistemaPerfis?.usuarioAtual;
+    if (!usuarioAtual) {
+        console.warn('⚠️ Usuário não logado');
+        container.innerHTML = '<div class="no-results">Você precisa estar logado para ver suas reclamações</div>';
+        return;
+    }
+    
+    console.log('👤 Usuário atual:', usuarioAtual);
+    console.log('📋 Total de fichas N2 disponíveis:', fichasN2.length);
+    
+    const responsavelAtual = usuarioAtual.nome || usuarioAtual.email;
+    const emailAtual = usuarioAtual.email || '';
+    
+    // Filtrar apenas reclamações do usuário logado
+    const minhasFichas = fichasN2.filter(f => {
+        const responsavelFicha = (f.responsavel || '').toString().toLowerCase().trim();
+        const nomeAtual = (responsavelAtual || '').toString().toLowerCase().trim();
+        const emailAtualLower = (emailAtual || '').toString().toLowerCase().trim();
+        
+        const match = responsavelFicha === nomeAtual || 
+                      responsavelFicha === emailAtualLower ||
+                      responsavelFicha === (usuarioAtual.nome || '').toString().toLowerCase().trim() ||
+                      responsavelFicha.includes(nomeAtual) ||
+                      responsavelFicha.includes(emailAtualLower);
+        
+        if (match) {
+            console.log('✅ Match encontrado:', f.id, 'Responsável:', f.responsavel, 'vs', nomeAtual);
+        }
+        
+        return match;
+    });
+    
+    console.log('📋 Minhas fichas N2 encontradas:', minhasFichas.length);
+    
+    if (minhasFichas.length === 0) {
+        container.innerHTML = '<div class="no-results">Você não possui reclamações atribuídas</div>';
+        return;
+    }
+    
+    // Ordenar por data (mais recentes primeiro)
+    minhasFichas.sort((a, b) => {
+        const dataA = new Date(a.dataCriacao || a.dataEntrada || 0);
+        const dataB = new Date(b.dataCriacao || b.dataEntrada || 0);
+        return dataB - dataA;
+    });
+    
+    container.innerHTML = `
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">${minhasFichas.length}</div>
+                <div class="stat-label">Total de Reclamações</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${minhasFichas.filter(f => f.status === 'em-tratativa').length}</div>
+                <div class="stat-label">Em Tratativa</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${minhasFichas.filter(f => f.status === 'concluido').length}</div>
+                <div class="stat-label">Concluídas</div>
+            </div>
+        </div>
+        <div class="fichas-list">
+            ${minhasFichas.map(f => criarCardN2(f)).join('')}
+        </div>
+    `;
+}
+
 // Tornar função global para uso no modal
 window.criarCardN2 = function criarCardN2(ficha) {
     const statusLabels = {
