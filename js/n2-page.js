@@ -435,7 +435,15 @@ function configurarCardsDashboardN2() {
 }
 
 // Mostrar casos relacionados ao card clicado N2
-function mostrarCasosDashboardN2(tipo) {
+async function mostrarCasosDashboardN2(tipo) {
+    console.log('🔍 Mostrando casos do dashboard N2 - tipo:', tipo);
+    
+    // Garantir que fichasN2 está carregado
+    if (!fichasN2 || fichasN2.length === 0) {
+        console.warn('⚠️ Nenhuma ficha N2 carregada, tentando carregar...');
+        await carregarFichasN2();
+    }
+    
     let filtradas = [];
     let titulo = '';
     
@@ -465,13 +473,90 @@ function mostrarCasosDashboardN2(tipo) {
         return;
     }
     
+    // Garantir que fichasN2 está carregado
+    if (!fichasN2 || fichasN2.length === 0) {
+        console.warn('⚠️ Nenhuma ficha N2 carregada, tentando carregar...');
+        await carregarFichasN2();
+        // Recarregar filtradas após carregar
+        switch(tipo) {
+            case 'total':
+                filtradas = fichasN2;
+                break;
+            case 'em-tratativa':
+                filtradas = fichasN2.filter(f => f.status === 'em-tratativa');
+                break;
+            case 'concluidas':
+                filtradas = fichasN2.filter(f => f.status === 'concluido' || f.status === 'respondido');
+                break;
+            case 'em-andamento':
+                filtradas = fichasN2.filter(f => f.statusPortabilidade === 'em-andamento');
+                break;
+        }
+    }
+    
     // Criar sidebar com os casos
     if (window.criarModalCasosDashboard) {
         window.criarModalCasosDashboard(titulo, filtradas, 'n2');
     } else {
-        console.error('❌ Função criarModalCasosDashboard não encontrada');
-        mostrarAlerta('Erro ao abrir sidebar de casos', 'error');
+        console.error('❌ Função criarModalCasosDashboard não encontrada, criando...');
+        // Criar função se não existir
+        criarSidebarCasosDashboard(titulo, filtradas, 'n2');
     }
+}
+
+// Função para criar sidebar de casos do dashboard (fallback se não estiver no bacen-page.js)
+function criarSidebarCasosDashboard(titulo, casos, tipo) {
+    // Remover sidebar existente se houver
+    const sidebarExistente = document.getElementById('sidebar-casos-dashboard');
+    if (sidebarExistente) {
+        sidebarExistente.remove();
+    }
+    
+    // Criar sidebar
+    const sidebar = document.createElement('div');
+    sidebar.id = 'sidebar-casos-dashboard';
+    sidebar.className = 'sidebar-casos-dashboard';
+    
+    // Função para criar card baseado no tipo
+    const criarCard = (f) => {
+        if (tipo === 'n2') {
+            return criarCardN2(f);
+        }
+        return criarCardN2(f); // Fallback
+    };
+    
+    sidebar.innerHTML = `
+        <div class="sidebar-header">
+            <h3>${titulo}</h3>
+            <button class="btn-fechar-sidebar" onclick="fecharSidebarCasosDashboard()">✕</button>
+        </div>
+        <div class="sidebar-info">
+            <p><strong>Total:</strong> ${casos.length} caso(s)</p>
+        </div>
+        <div class="sidebar-content" id="conteudo-casos-dashboard">
+            ${casos.map(f => criarCard(f)).join('')}
+        </div>
+    `;
+    
+    document.body.appendChild(sidebar);
+    
+    // Abrir sidebar com animação
+    setTimeout(() => {
+        sidebar.classList.add('aberta');
+    }, 10);
+}
+
+// Função global para fechar sidebar
+if (!window.fecharSidebarCasosDashboard) {
+    window.fecharSidebarCasosDashboard = function fecharSidebarCasosDashboard() {
+        const sidebar = document.getElementById('sidebar-casos-dashboard');
+        if (sidebar) {
+            sidebar.classList.remove('aberta');
+            setTimeout(() => {
+                sidebar.remove();
+            }, 300);
+        }
+    };
 }
 
 // === LISTA ===
