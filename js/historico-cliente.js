@@ -67,6 +67,12 @@ class HistoricoCliente {
             return;
         }
 
+        // Remover modal existente se houver
+        const modalExistente = document.querySelector('.modal-historico');
+        if (modalExistente) {
+            modalExistente.remove();
+        }
+
         // Criar modal com histórico
         const modal = document.createElement('div');
         modal.className = 'modal-historico';
@@ -77,7 +83,7 @@ class HistoricoCliente {
                     <button class="btn-fechar" onclick="this.closest('.modal-historico').remove()">✕</button>
                 </div>
                 
-                <div class="cliente-info">
+                <div class="cliente-info" id="cliente-info-section">
                     <div class="cliente-card">
                         <h3>${resultado.cliente.nome}</h3>
                         <p><strong>CPF:</strong> ${resultado.cliente.cpf}</p>
@@ -86,21 +92,30 @@ class HistoricoCliente {
                     </div>
                 </div>
 
-                <div class="historico-fichas">
+                <div class="historico-fichas" id="historico-fichas-section">
                     <h3>Fichas (${resultado.fichas.length})</h3>
                     <div class="historico-lista">
-                        ${resultado.fichas.map(ficha => this.criarCardFicha(ficha)).join('')}
+                        ${resultado.fichas.map((ficha, index) => this.criarCardFicha(ficha, index + 1)).join('')}
                     </div>
                 </div>
             </div>
         `;
 
         document.body.appendChild(modal);
+        
+        // Scroll automático para a seção de informações do cliente
+        setTimeout(() => {
+            const clienteSection = document.getElementById('cliente-info-section');
+            if (clienteSection) {
+                clienteSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 100);
     }
 
-    criarCardFicha(ficha) {
+    criarCardFicha(ficha, numero) {
         const tipoDemanda = ficha.tipoDemanda || 'bacen';
-        const tipoLabel = tipoDemanda.toUpperCase();
+        const tipoLabel = tipoDemanda === 'bacen' ? 'BACEN' : 
+                         tipoDemanda === 'n2' ? 'N2' : 'CHATBOT';
         const tipoCor = tipoDemanda === 'bacen' ? '#1634FF' : 
                        tipoDemanda === 'n2' ? '#1DFDB9' : '#FF8400';
         
@@ -112,21 +127,42 @@ class HistoricoCliente {
         };
 
         const status = statusLabels[ficha.status] || ficha.status;
+        const statusClass = ficha.status === 'em-tratativa' ? 'status-em-tratativa' : 
+                           ficha.status === 'concluido' || ficha.status === 'respondido' ? 'status-concluido' : 
+                           'status-outro';
         const dataEntrada = this.formatarData(ficha.dataEntrada || ficha.dataReclamacao);
         const pagina = `${tipoDemanda}.html`;
+        
+        // Determinar qual prazo mostrar
+        const prazoTexto = ficha.prazoBacen ? `Prazo BACEN: ${this.formatarData(ficha.prazoBacen)}` :
+                          ficha.prazoN2 ? `Prazo N2: ${this.formatarData(ficha.prazoN2)}` : '';
 
         return `
             <div class="historico-ficha-card" onclick="window.location.href='${pagina}#ficha-${ficha.id}'">
-                <div class="historico-ficha-header">
-                    <span class="tipo-badge" style="background: ${tipoCor}">${tipoLabel}</span>
-                    <span class="status-badge status-${ficha.status}">${status}</span>
-                </div>
-                <div class="historico-ficha-body">
-                    <p><strong>Data de Entrada:</strong> ${dataEntrada}</p>
-                    <p><strong>Responsável:</strong> ${ficha.responsavel || 'Não atribuído'}</p>
-                    ${ficha.motivoReduzido ? `<p><strong>Motivo:</strong> ${ficha.motivoReduzido}</p>` : ''}
-                    ${ficha.prazoBacen ? `<p><strong>Prazo BACEN:</strong> ${this.formatarData(ficha.prazoBacen)}</p>` : ''}
-                    ${ficha.prazoN2 ? `<p><strong>Prazo N2:</strong> ${this.formatarData(ficha.prazoN2)}</p>` : ''}
+                <div class="historico-ficha-numero">${numero}</div>
+                <div class="historico-ficha-content">
+                    <div class="historico-ficha-header">
+                        <span class="status-badge ${statusClass}">${status}</span>
+                        <span class="tipo-badge" style="background: ${tipoCor}">${tipoLabel}</span>
+                    </div>
+                    <div class="historico-ficha-body">
+                        <div class="historico-ficha-item">
+                            <strong>Data de Entrada:</strong> ${dataEntrada}
+                        </div>
+                        <div class="historico-ficha-item">
+                            <strong>Responsável:</strong> ${ficha.responsavel || 'Não atribuído'}
+                        </div>
+                        ${ficha.motivoReduzido ? `
+                        <div class="historico-ficha-item">
+                            <strong>Motivo:</strong> ${ficha.motivoReduzido}
+                        </div>
+                        ` : ''}
+                        ${prazoTexto ? `
+                        <div class="historico-ficha-item">
+                            <strong>${prazoTexto}</strong>
+                        </div>
+                        ` : ''}
+                    </div>
                 </div>
             </div>
         `;
