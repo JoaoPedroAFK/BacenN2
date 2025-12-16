@@ -19,10 +19,10 @@ class DashboardAvancado {
         if (window.gerenciadorFichas) {
             this.dados = window.gerenciadorFichas.obterFichasPorPerfil();
         } else {
-            // Obtém dados do localStorage ou usa dados demo
-            const fichasBacen = JSON.parse(localStorage.getItem('velotax_demandas_bacen') || '[]');
-            const fichasN2 = JSON.parse(localStorage.getItem('velotax_demandas_n2') || '[]');
-            const fichasChatbot = JSON.parse(localStorage.getItem('velotax_demandas_chatbot') || '[]');
+            // Obtém dados do localStorage (usando chaves novas e antigas para compatibilidade)
+            const fichasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
+            const fichasN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || localStorage.getItem('velotax_demandas_n2') || '[]');
+            const fichasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
             
             this.dados = [
                 ...fichasBacen.map(f => ({ ...f, tipoDemanda: 'bacen' })),

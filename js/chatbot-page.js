@@ -848,7 +848,12 @@ function gerarRelatorioPeriodoChatbot() {
 }
 
 function gerarRelatorioAutoChatbot() {
+    // RECARREGAR fichas antes de gerar relatório
+    console.log('📦 Carregando fichas antes de gerar relatório de auto-resolução...');
+    carregarFichasChatbot();
+    
     const auto = fichasChatbot.filter(f => f.resolvidoAutomaticamente);
+    console.log('📋 Fichas auto-resolvidas:', auto.length);
     mostrarRelatorioChatbot('Relatório de Resolução Automática - Chatbot', auto, 
         `${auto.length} fichas resolvidas automaticamente`);
 }
@@ -900,6 +905,11 @@ function gerarRelatorioSatisfacaoChatbot() {
 }
 
 function gerarRelatorioCompletoChatbot() {
+    // RECARREGAR fichas antes de gerar relatório
+    console.log('📦 Carregando fichas antes de gerar relatório completo...');
+    carregarFichasChatbot();
+    
+    console.log('📋 Total de fichas para relatório:', fichasChatbot.length);
     mostrarRelatorioChatbot('Relatório Completo - Chatbot', fichasChatbot, 
         `Total: ${fichasChatbot.length} fichas`);
 }

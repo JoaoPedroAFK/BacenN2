@@ -40,10 +40,10 @@ class HistoricoCliente {
         // Remove formatação do CPF
         const cpfLimpo = cpf.replace(/\D/g, '');
 
-        // Buscar em todas as demandas
-        const fichasBacen = JSON.parse(localStorage.getItem('velotax_demandas_bacen') || '[]');
-        const fichasN2 = JSON.parse(localStorage.getItem('velotax_demandas_n2') || '[]');
-        const fichasChatbot = JSON.parse(localStorage.getItem('velotax_demandas_chatbot') || '[]');
+        // Buscar em todas as demandas (usando chaves novas e antigas para compatibilidade)
+        const fichasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
+        const fichasN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || localStorage.getItem('velotax_demandas_n2') || '[]');
+        const fichasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
 
         const todasFichas = [
             ...fichasBacen.map(f => ({ ...f, tipoDemanda: 'bacen' })),

@@ -22,9 +22,14 @@ class GraficosDetalhados {
     carregarDados() {
         if (window.gerenciadorFichas) {
             this.dados = window.gerenciadorFichas.obterFichasPorTipo(this.tipoDemanda);
+        } else if (window.armazenamentoReclamacoes) {
+            // Usar o novo sistema de armazenamento
+            this.dados = window.armazenamentoReclamacoes.carregarTodos(this.tipoDemanda);
         } else {
-            const key = `velotax_demandas_${this.tipoDemanda}`;
-            this.dados = JSON.parse(localStorage.getItem(key) || '[]');
+            // Fallback: tentar chave nova primeiro, depois antiga
+            const keyNova = `velotax_reclamacoes_${this.tipoDemanda}`;
+            const keyAntiga = `velotax_demandas_${this.tipoDemanda}`;
+            this.dados = JSON.parse(localStorage.getItem(keyNova) || localStorage.getItem(keyAntiga) || '[]');
         }
     }
 
