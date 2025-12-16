@@ -1014,6 +1014,9 @@ function mostrarRelatorioChatbot(titulo, dados, subtitulo) {
     const container = document.getElementById('conteudo-relatorio-chatbot');
     if (!container) return;
     
+    console.log('📊 Gerando relatório com', dados.length, 'registros');
+    console.log('📊 Primeira ficha:', dados[0] ? Object.keys(dados[0]) : 'nenhuma');
+    
     container.style.display = 'block';
     container.innerHTML = `
         <h3>${titulo}</h3>
@@ -1025,10 +1028,15 @@ function mostrarRelatorioChatbot(titulo, dados, subtitulo) {
                         <th>Cliente</th>
                         <th>CPF</th>
                         <th>Canal</th>
+                        <th>Data Cliente</th>
+                        <th>Produto</th>
+                        <th>Motivo</th>
                         <th>Resolvido Auto</th>
                         <th>Encaminhado</th>
-                        <th>Satisfação</th>
+                        <th>Nota Avaliação</th>
+                        <th>Avaliação Cliente</th>
                         <th>Status</th>
+                        <th>Responsável</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1037,10 +1045,15 @@ function mostrarRelatorioChatbot(titulo, dados, subtitulo) {
                             <td>${f.nomeCompleto || f.nomeCliente || '-'}</td>
                             <td>${f.cpf || '-'}</td>
                             <td>${f.canalChatbot || '-'}</td>
+                            <td>${f.dataClienteChatbot ? new Date(f.dataClienteChatbot).toLocaleDateString('pt-BR') : '-'}</td>
+                            <td>${f.produto || '-'}</td>
+                            <td>${f.motivo || f.motivoReduzido || '-'}</td>
                             <td>${f.resolvidoAutomaticamente ? 'Sim' : 'Não'}</td>
                             <td>${f.encaminhadoHumano ? 'Sim' : 'Não'}</td>
-                            <td>${f.satisfacao ? '⭐'.repeat(parseInt(f.satisfacao)) : '-'}</td>
+                            <td>${f.notaAvaliacao ? '⭐'.repeat(parseInt(f.notaAvaliacao)) + ' (' + f.notaAvaliacao + ')' : '-'}</td>
+                            <td>${f.avaliacaoCliente || '-'}</td>
                             <td>${f.status || '-'}</td>
+                            <td>${f.responsavel || '-'}</td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -1055,7 +1068,12 @@ function exportarRelatorioChatbotDados(dados) {
     if (!dados) {
         const container = document.getElementById('conteudo-relatorio-chatbot');
         if (container) {
-            dados = fichasChatbot;
+            // Tentar recarregar dados
+            if (window.armazenamentoReclamacoes) {
+                dados = window.armazenamentoReclamacoes.carregarTodos('chatbot');
+            } else {
+                dados = fichasChatbot;
+            }
         }
     }
     
@@ -1064,40 +1082,94 @@ function exportarRelatorioChatbotDados(dados) {
         return;
     }
     
-    const headers = ['Cliente', 'CPF', 'Canal', 'Resolvido Auto', 'Encaminhado Humano', 'Satisfação', 'Status'];
+    console.log('📥 Exportando CSV com', dados.length, 'registros');
+    
+    // Headers completos com todos os campos
+    const headers = [
+        'Cliente', 
+        'CPF', 
+        'Canal', 
+        'Data Cliente',
+        'Data Criação',
+        'Produto',
+        'Motivo',
+        'Resolvido Auto', 
+        'Encaminhado Humano', 
+        'Nota Avaliação',
+        'Avaliação Cliente',
+        'Satisfação',
+        'Status',
+        'Responsável',
+        'Telefone',
+        'Origem',
+        'PIX Status',
+        'Enviar Cobrança',
+        'Casos Críticos',
+        'Observações'
+    ];
+    
     const rows = dados.map(f => [
         f.nomeCompleto || f.nomeCliente || '',
         f.cpf || '',
         f.canalChatbot || '',
+        f.dataClienteChatbot ? new Date(f.dataClienteChatbot).toLocaleDateString('pt-BR') : '',
+        f.dataCriacao ? new Date(f.dataCriacao).toLocaleDateString('pt-BR') : '',
+        f.produto || '',
+        f.motivo || f.motivoReduzido || '',
         f.resolvidoAutomaticamente ? 'Sim' : 'Não',
         f.encaminhadoHumano ? 'Sim' : 'Não',
+        f.notaAvaliacao || '',
+        f.avaliacaoCliente || '',
         f.satisfacao || '',
-        f.status || ''
+        f.status || '',
+        f.responsavel || '',
+        f.telefone || '',
+        f.origem || '',
+        f.pixStatus || '',
+        f.enviarCobranca || '',
+        f.casosCriticos ? 'Sim' : 'Não',
+        f.observacoes || ''
     ]);
     
     const csv = [headers, ...rows]
-        .map(row => row.map(cell => `"${cell}"`).join(','))
+        .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
         .join('\n');
     
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    // Adicionar BOM para Excel reconhecer UTF-8
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `relatorio-chatbot-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+    
+    console.log('✅ CSV exportado com sucesso');
 }
 
 function mostrarRelatorioSatisfacao(titulo, dados, subtitulo) {
     const container = document.getElementById('conteudo-relatorio-chatbot');
     if (!container) return;
     
-    // Agrupar por nível de satisfação
+    console.log('📊 Gerando relatório de satisfação com', dados.length, 'avaliações');
+    console.log('📊 Dados recebidos:', dados.map(f => ({
+        id: f.id,
+        notaAvaliacao: f.notaAvaliacao,
+        satisfacao: f.satisfacao,
+        avaliacaoCliente: f.avaliacaoCliente
+    })));
+    
+    // Agrupar por nível de satisfação - usar notaAvaliacao (que é o campo correto)
     const porNivel = {};
     dados.forEach(f => {
-        const nivel = f.satisfacao;
-        porNivel[nivel] = (porNivel[nivel] || 0) + 1;
+        // Tentar notaAvaliacao primeiro, depois satisfacao como fallback
+        const nivel = parseInt(f.notaAvaliacao || f.satisfacao || 0);
+        if (nivel > 0 && nivel <= 5) {
+            porNivel[nivel] = (porNivel[nivel] || 0) + 1;
+        }
     });
+    
+    console.log('📊 Agrupamento por nível:', porNivel);
     
     container.style.display = 'block';
     container.innerHTML = `
@@ -1127,8 +1199,77 @@ function mostrarRelatorioSatisfacao(titulo, dados, subtitulo) {
                 </tbody>
             </table>
         </div>
-        <button class="velohub-btn" onclick="exportarRelatorioChatbot()">📥 Exportar CSV</button>
+        <button class="velohub-btn" onclick="exportarRelatorioSatisfacaoChatbot(${JSON.stringify(dados).replace(/"/g, '&quot;')})">📥 Exportar CSV</button>
     `;
+}
+
+// Função para exportar CSV do relatório de satisfação
+function exportarRelatorioSatisfacaoChatbot(dados) {
+    if (!dados || dados.length === 0) {
+        mostrarAlerta('Nenhum dado para exportar', 'error');
+        return;
+    }
+    
+    console.log('📥 Exportando relatório de satisfação com', dados.length, 'avaliações');
+    
+    // Agrupar por nível
+    const porNivel = {};
+    dados.forEach(f => {
+        const nivel = parseInt(f.notaAvaliacao || f.satisfacao || 0);
+        if (nivel > 0 && nivel <= 5) {
+            porNivel[nivel] = (porNivel[nivel] || 0) + 1;
+        }
+    });
+    
+    // Criar CSV com dados detalhados
+    const headers = ['Nível de Satisfação', 'Quantidade', 'Percentual', 'Cliente', 'CPF', 'Avaliação'];
+    const rows = [];
+    
+    // Adicionar linha de resumo por nível
+    [5, 4, 3, 2, 1].forEach(nivel => {
+        const count = porNivel[nivel] || 0;
+        const percentual = dados.length > 0 ? ((count / dados.length) * 100).toFixed(1) : 0;
+        rows.push([
+            `${'⭐'.repeat(nivel)} (${nivel})`,
+            count,
+            `${percentual}%`,
+            '',
+            '',
+            ''
+        ]);
+    });
+    
+    // Adicionar linha em branco
+    rows.push(['', '', '', '', '', '']);
+    
+    // Adicionar detalhes de cada avaliação
+    rows.push(['Detalhes das Avaliações', '', '', '', '', '']);
+    rows.push(['Cliente', 'CPF', 'Nota', 'Avaliação Texto', 'Data', 'Status']);
+    
+    dados.forEach(f => {
+        rows.push([
+            f.nomeCompleto || f.nomeCliente || '',
+            f.cpf || '',
+            f.notaAvaliacao || f.satisfacao || '',
+            f.avaliacaoCliente || '',
+            f.dataCriacao ? new Date(f.dataCriacao).toLocaleDateString('pt-BR') : '',
+            f.status || ''
+        ]);
+    });
+    
+    const csv = [headers, ...rows]
+        .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+    
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relatorio-satisfacao-chatbot-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    console.log('✅ CSV exportado com sucesso');
 }
 
 // === UTILITÁRIOS ===
