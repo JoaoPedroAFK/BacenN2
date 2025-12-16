@@ -368,13 +368,13 @@ function configurarCardsDashboardChatbot() {
 }
 
 // Mostrar casos relacionados ao card clicado Chatbot
-async function mostrarCasosDashboardChatbot(tipo) {
+function mostrarCasosDashboardChatbot(tipo) {
     console.log('🔍 Mostrando casos do dashboard Chatbot - tipo:', tipo);
     
     // Garantir que fichasChatbot está carregado
     if (!fichasChatbot || fichasChatbot.length === 0) {
         console.warn('⚠️ Nenhuma ficha Chatbot carregada, tentando carregar...');
-        await carregarFichasChatbot();
+        carregarFichasChatbot();
     }
     
     let filtradas = [];
