@@ -408,6 +408,41 @@
     <script src="js/filtros-exportacao-csv.js"></script>
     <script src="js/exportacao-excel.js"></script>
     <script src="js/armazenamento-reclamacoes.js"></script>
+    <script>
+        // RESETAR DADOS ANTIGOS AO CARREGAR A PÁGINA
+        (function() {
+            console.log('🔄 Verificando e resetando dados antigos...');
+            
+            // Remover dados antigos (chaves antigas)
+            const chavesAntigas = [
+                'velotax_demandas_bacen',
+                'velotax_demandas_n2',
+                'velotax_demandas_chatbot'
+            ];
+            
+            let removidas = 0;
+            chavesAntigas.forEach(chave => {
+                if (localStorage.getItem(chave)) {
+                    console.log(`🗑️ Removendo dados antigos: ${chave}`);
+                    localStorage.removeItem(chave);
+                    removidas++;
+                }
+            });
+            
+            if (removidas > 0) {
+                console.log(`✅ ${removidas} chaves antigas removidas.`);
+            }
+            
+            // Aguardar o sistema de armazenamento carregar e resetar também
+            setTimeout(() => {
+                if (window.armazenamentoReclamacoes) {
+                    console.log('🔄 Resetando sistema de armazenamento...');
+                    window.armazenamentoReclamacoes.resetar();
+                    console.log('✅ Sistema resetado. Pronto para uso.');
+                }
+            }, 100);
+        })();
+    </script>
     <script src="js/chatbot-page.js"></script>
 </body>
 </html>
