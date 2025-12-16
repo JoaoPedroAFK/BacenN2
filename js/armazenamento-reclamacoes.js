@@ -70,17 +70,41 @@ class ArmazenamentoReclamacoes {
         }
         
         try {
-            const dados = localStorage.getItem(chave);
-            if (!dados) {
-                console.log(`📦 Nenhuma reclamação ${tipo} encontrada`);
-                return [];
+            // Tentar carregar da chave nova primeiro
+            let dados = localStorage.getItem(chave);
+            let reclamacoes = [];
+            
+            if (dados) {
+                reclamacoes = JSON.parse(dados);
+                if (!Array.isArray(reclamacoes)) {
+                    console.warn(`⚠️ Dados inválidos para ${tipo}, resetando...`);
+                    localStorage.removeItem(chave);
+                    reclamacoes = [];
+                }
             }
             
-            const reclamacoes = JSON.parse(dados);
-            if (!Array.isArray(reclamacoes)) {
-                console.warn(`⚠️ Dados inválidos para ${tipo}, resetando...`);
-                localStorage.removeItem(chave);
-                return [];
+            // MIGRAÇÃO: Se não encontrou na chave nova, tentar chave antiga e migrar
+            if (reclamacoes.length === 0) {
+                const chaveAntiga = `velotax_demandas_${tipo}`;
+                const dadosAntigos = localStorage.getItem(chaveAntiga);
+                
+                if (dadosAntigos) {
+                    console.log(`🔄 Migrando dados de ${chaveAntiga} para ${chave}...`);
+                    try {
+                        const dadosMigrados = JSON.parse(dadosAntigos);
+                        if (Array.isArray(dadosMigrados) && dadosMigrados.length > 0) {
+                            reclamacoes = dadosMigrados;
+                            // Salvar na chave nova
+                            localStorage.setItem(chave, JSON.stringify(reclamacoes));
+                            console.log(`✅ ${reclamacoes.length} reclamações migradas`);
+                            // Remover chave antiga
+                            localStorage.removeItem(chaveAntiga);
+                            console.log(`🗑️ Chave antiga removida: ${chaveAntiga}`);
+                        }
+                    } catch (error) {
+                        console.error(`❌ Erro ao migrar dados:`, error);
+                    }
+                }
             }
             
             console.log(`📦 Carregadas ${reclamacoes.length} reclamações ${tipo}`);

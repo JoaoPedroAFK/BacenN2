@@ -87,17 +87,42 @@ function mostrarSecao(secaoId) {
 // === CARREGAR FICHAS ===
 function carregarFichasChatbot() {
     console.log('🔄 Carregando fichas Chatbot...');
+    console.log('🔍 window.armazenamentoReclamacoes:', typeof window.armazenamentoReclamacoes);
     
     // Usar o novo sistema de armazenamento
     if (window.armazenamentoReclamacoes) {
         fichasChatbot = window.armazenamentoReclamacoes.carregarTodos('chatbot');
         console.log('✅ Fichas carregadas:', fichasChatbot.length);
-        console.log('📋 IDs:', fichasChatbot.map(f => f.id).join(', '));
+        if (fichasChatbot.length > 0) {
+            console.log('📋 IDs:', fichasChatbot.map(f => f.id).join(', '));
+            console.log('📋 Primeira ficha:', fichasChatbot[0]);
+        }
     } else {
         console.error('❌ Sistema de armazenamento não encontrado!');
+        console.error('🔍 Tentando carregar diretamente do localStorage...');
+        // Fallback: tentar carregar diretamente
+        try {
+            const dados = localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot');
+            if (dados) {
+                fichasChatbot = JSON.parse(dados);
+                console.log('✅ Carregado do localStorage (fallback):', fichasChatbot.length);
+            } else {
+                fichasChatbot = [];
+                console.log('📦 Nenhum dado encontrado no localStorage');
+            }
+        } catch (error) {
+            console.error('❌ Erro ao carregar do localStorage:', error);
+            fichasChatbot = [];
+        }
+    }
+    
+    // Garantir que é um array
+    if (!Array.isArray(fichasChatbot)) {
+        console.warn('⚠️ fichasChatbot não é um array, convertendo...');
         fichasChatbot = [];
     }
     
+    console.log('📋 Total final de fichas:', fichasChatbot.length);
     return fichasChatbot;
 }
 
@@ -491,11 +516,15 @@ if (!window.fecharSidebarCasosDashboard) {
 
 // === LISTA ===
 function renderizarListaChatbot() {
+    console.log('🎨 renderizarListaChatbot() chamado');
     const container = document.getElementById('lista-fichas-chatbot');
     if (!container) {
         console.error('❌ Container lista-fichas-chatbot não encontrado!');
+        console.error('🔍 Elementos disponíveis:', Array.from(document.querySelectorAll('[id*="lista"]')).map(e => e.id));
         return;
     }
+    
+    console.log('✅ Container encontrado:', container);
     
     // SEMPRE recarregar as fichas antes de renderizar para garantir que temos os dados mais recentes
     console.log('🔄 Recarregando fichas antes de renderizar lista...');
@@ -508,7 +537,9 @@ function renderizarListaChatbot() {
     }
 
     console.log('📋 Renderizando lista Chatbot geral com', fichasChatbot.length, 'fichas');
-    console.log('📋 Primeiras 3 fichas:', fichasChatbot.slice(0, 3).map(f => ({ id: f.id, nome: f.nomeCompleto })));
+    if (fichasChatbot.length > 0) {
+        console.log('📋 Primeiras 3 fichas:', fichasChatbot.slice(0, 3).map(f => ({ id: f.id, nome: f.nomeCompleto })));
+    }
     
     const busca = document.getElementById('busca-chatbot')?.value.toLowerCase() || '';
     const filtroStatus = document.getElementById('filtro-status-chatbot')?.value || '';
@@ -571,19 +602,27 @@ function renderizarListaChatbot() {
 
 // Renderizar "Minhas Reclamações"
 function renderizarMinhasReclamacoesChatbot() {
+    console.log('🎨 renderizarMinhasReclamacoesChatbot() chamado');
     const container = document.getElementById('minhas-fichas-chatbot');
     if (!container) {
         console.error('❌ Container minhas-fichas-chatbot não encontrado!');
+        console.error('🔍 Elementos disponíveis:', Array.from(document.querySelectorAll('[id*="minhas"]')).map(e => e.id));
         return;
     }
     
-    // Garantir que fichasChatbot está carregado
-    if (!fichasChatbot || fichasChatbot.length === 0) {
-        console.warn('⚠️ Nenhuma ficha Chatbot carregada, tentando carregar...');
-        carregarFichasChatbot();
-        renderizarMinhasReclamacoesChatbot();
-        return;
+    console.log('✅ Container encontrado:', container);
+    
+    // SEMPRE recarregar as fichas antes de renderizar
+    console.log('🔄 Recarregando fichas antes de renderizar minhas reclamações...');
+    carregarFichasChatbot();
+    
+    // Verificar novamente após carregar
+    if (!fichasChatbot || !Array.isArray(fichasChatbot)) {
+        console.warn('⚠️ fichasChatbot não é um array válido, inicializando...');
+        fichasChatbot = [];
     }
+    
+    console.log('📋 Total de fichas disponíveis:', fichasChatbot.length);
     
     const usuarioAtual = window.sistemaPerfis?.usuarioAtual;
     if (!usuarioAtual) {
