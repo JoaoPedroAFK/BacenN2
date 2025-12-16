@@ -686,7 +686,10 @@ function renderizarMinhasReclamacoesChatbot() {
             </div>
         </div>
         <div class="fichas-list">
-            ${minhasFichas.map(f => criarCardChatbot(f)).join('')}
+            ${minhasFichas.map(f => {
+                const criarCard = typeof criarCardChatbot === 'function' ? criarCardChatbot : (window.criarCardChatbot || (() => `<div class="ficha-card">Ficha ${f.id || 'N/A'}</div>`));
+                return criarCard(f);
+            }).join('')}
         </div>
     `;
 }
