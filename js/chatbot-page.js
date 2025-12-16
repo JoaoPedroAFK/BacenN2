@@ -951,7 +951,7 @@ function gerarRelatorioSatisfacaoChatbot() {
     })));
     
     // Buscar por notaAvaliacao ou avaliacaoCliente
-    const comSatisfacao = fichasChatbot.filter(f => {
+    const comSatisfacao = fichasParaRelatorio.filter(f => {
         const temNota = f.notaAvaliacao && f.notaAvaliacao !== '' && f.notaAvaliacao !== '0';
         const temAvaliacao = f.avaliacaoCliente && f.avaliacaoCliente !== '';
         return temNota || temAvaliacao;
