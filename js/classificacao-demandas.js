@@ -362,8 +362,9 @@ class SistemaClassificacaoDemandas {
     // === MÉTODOS DE DADOS ===
     obterTodasDemandas() {
         // Obtém do localStorage separadamente por tipo
-        const demandasBacen = JSON.parse(localStorage.getItem('velotax_demandas_bacen') || '[]');
-        const demandasN2 = JSON.parse(localStorage.getItem('velotax_demandas_n2') || '[]');
+        // Usar chaves novas e antigas para compatibilidade
+        const demandasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
+        const demandasN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || localStorage.getItem('velotax_demandas_n2') || '[]');
         // Usar chaves novas e antigas para compatibilidade
         const demandasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
         

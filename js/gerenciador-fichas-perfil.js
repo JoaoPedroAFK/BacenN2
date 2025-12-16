@@ -14,8 +14,9 @@ class GerenciadorFichasPerfil {
     // === CARREGAR FICHAS ===
     carregarFichas() {
         // Carrega fichas de todos os tipos
-        const fichasBacen = JSON.parse(localStorage.getItem('velotax_demandas_bacen') || '[]');
-        const fichasN2 = JSON.parse(localStorage.getItem('velotax_demandas_n2') || '[]');
+        // Usar chaves novas e antigas para compatibilidade
+        const fichasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
+        const fichasN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || localStorage.getItem('velotax_demandas_n2') || '[]');
         // Usar chaves novas e antigas para compatibilidade
         const fichasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
         

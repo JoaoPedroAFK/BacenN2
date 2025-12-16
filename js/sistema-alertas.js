@@ -22,7 +22,8 @@ class SistemaAlertas {
         hoje.setHours(0, 0, 0, 0);
 
         // Verificar fichas BACEN
-        const fichasBacen = JSON.parse(localStorage.getItem('velotax_demandas_bacen') || '[]');
+        // Usar chaves novas e antigas para compatibilidade
+        const fichasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
         fichasBacen.forEach(ficha => {
             if (ficha.prazoBacen) {
                 const prazo = new Date(ficha.prazoBacen);
@@ -66,7 +67,8 @@ class SistemaAlertas {
         });
 
         // Verificar fichas N2
-        const fichasN2 = JSON.parse(localStorage.getItem('velotax_demandas_n2') || '[]');
+        // Usar chaves novas e antigas para compatibilidade
+        const fichasN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || localStorage.getItem('velotax_demandas_n2') || '[]');
         fichasN2.forEach(ficha => {
             if (ficha.prazoN2) {
                 const prazo = new Date(ficha.prazoN2);
