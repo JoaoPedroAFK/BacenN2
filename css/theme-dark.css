@@ -430,8 +430,17 @@
   color: #FFFFFF !important;
 }
 
-.dark .filtros-graficos label {
+.dark .filtros-graficos label,
+.dark .filtro-item label {
   color: #FFFFFF !important;
+}
+
+.dark .filtros-grid {
+  background: transparent !important;
+}
+
+.dark .filtro-item {
+  background: transparent !important;
 }
 
 .dark .filtros-graficos select,
