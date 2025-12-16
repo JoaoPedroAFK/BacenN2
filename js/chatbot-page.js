@@ -576,23 +576,25 @@ if (!window.fecharSidebarCasosDashboard) {
 }
 
 // === LISTA ===
-function renderizarListaChatbot() {
+async function renderizarListaChatbot() {
     const container = document.getElementById('lista-fichas-chatbot');
     if (!container) {
         console.error('❌ Container lista-fichas-chatbot não encontrado!');
         return;
     }
     
-    // Garantir que fichasChatbot está carregado
-    if (!fichasChatbot || fichasChatbot.length === 0) {
-        console.warn('⚠️ Nenhuma ficha Chatbot carregada, tentando carregar...');
-        carregarFichasChatbot().then(() => {
-            renderizarListaChatbot();
-        });
-        return;
+    // SEMPRE recarregar as fichas antes de renderizar para garantir que temos os dados mais recentes
+    console.log('🔄 Recarregando fichas antes de renderizar lista...');
+    await carregarFichasChatbot();
+    
+    // Verificar novamente após carregar
+    if (!fichasChatbot || !Array.isArray(fichasChatbot)) {
+        console.error('❌ fichasChatbot não é um array válido após carregamento');
+        fichasChatbot = [];
     }
 
     console.log('📋 Renderizando lista Chatbot geral com', fichasChatbot.length, 'fichas');
+    console.log('📋 Primeiras 3 fichas:', fichasChatbot.slice(0, 3).map(f => ({ id: f.id, nome: f.nomeCompleto })));
     
     const busca = document.getElementById('busca-chatbot')?.value.toLowerCase() || '';
     const filtroStatus = document.getElementById('filtro-status-chatbot')?.value || '';

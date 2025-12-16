@@ -615,23 +615,25 @@ if (!window.fecharSidebarCasosDashboard) {
 }
 
 // === LISTA ===
-function renderizarListaN2() {
+async function renderizarListaN2() {
     const container = document.getElementById('lista-fichas-n2');
     if (!container) {
         console.error('❌ Container lista-fichas-n2 não encontrado!');
         return;
     }
     
-    // Garantir que fichasN2 está carregado
-    if (!fichasN2 || fichasN2.length === 0) {
-        console.warn('⚠️ Nenhuma ficha N2 carregada, tentando carregar...');
-        carregarFichasN2().then(() => {
-            renderizarListaN2();
-        });
-        return;
+    // SEMPRE recarregar as fichas antes de renderizar para garantir que temos os dados mais recentes
+    console.log('🔄 Recarregando fichas antes de renderizar lista...');
+    await carregarFichasN2();
+    
+    // Verificar novamente após carregar
+    if (!fichasN2 || !Array.isArray(fichasN2)) {
+        console.error('❌ fichasN2 não é um array válido após carregamento');
+        fichasN2 = [];
     }
     
     console.log('📋 Renderizando lista N2 geral com', fichasN2.length, 'fichas');
+    console.log('📋 Primeiras 3 fichas:', fichasN2.slice(0, 3).map(f => ({ id: f.id, nome: f.nomeCompleto })));
     
     const busca = document.getElementById('busca-n2')?.value.toLowerCase() || '';
     const filtroStatus = document.getElementById('filtro-status-n2')?.value || '';

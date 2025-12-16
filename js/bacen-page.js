@@ -547,23 +547,25 @@ function mostrarCasosDashboardBacen(tipo) {
 }
 
 // === LISTA ===
-function renderizarListaBacen() {
+async function renderizarListaBacen() {
     const container = document.getElementById('lista-fichas-bacen');
     if (!container) {
         console.error('❌ Container lista-fichas-bacen não encontrado!');
         return;
     }
     
-    // Garantir que fichasBacen está carregado
-    if (!fichasBacen || fichasBacen.length === 0) {
-        console.warn('⚠️ Nenhuma ficha carregada, tentando carregar...');
-        carregarFichasBacen().then(() => {
-            renderizarListaBacen();
-        });
-        return;
+    // SEMPRE recarregar as fichas antes de renderizar para garantir que temos os dados mais recentes
+    console.log('🔄 Recarregando fichas antes de renderizar lista...');
+    await carregarFichasBacen();
+    
+    // Verificar novamente após carregar
+    if (!fichasBacen || !Array.isArray(fichasBacen)) {
+        console.error('❌ fichasBacen não é um array válido após carregamento');
+        fichasBacen = [];
     }
     
     console.log('📋 Renderizando lista geral com', fichasBacen.length, 'fichas');
+    console.log('📋 Primeiras 3 fichas:', fichasBacen.slice(0, 3).map(f => ({ id: f.id, nome: f.nomeCompleto })));
     
     const busca = document.getElementById('busca-bacen')?.value.toLowerCase() || '';
     const filtroStatus = document.getElementById('filtro-status-bacen')?.value || '';
@@ -574,10 +576,11 @@ function renderizarListaBacen() {
     // Aplicar busca
     if (busca) {
         filtradas = filtradas.filter(f => {
-            const nome = (f.nomeCompleto || '').toLowerCase();
+            const nome = (f.nomeCompleto || f.nomeCliente || '').toLowerCase();
             const cpf = (f.cpf || '').toLowerCase();
             const motivo = (f.motivoReduzido || '').toLowerCase();
-            return nome.includes(busca) || cpf.includes(busca) || motivo.includes(busca);
+            const id = (f.id || '').toLowerCase();
+            return nome.includes(busca) || cpf.includes(busca) || motivo.includes(busca) || id.includes(busca);
         });
     }
     
@@ -589,7 +592,11 @@ function renderizarListaBacen() {
     console.log('📋 Fichas após filtros:', filtradas.length);
     
     if (filtradas.length === 0) {
-        container.innerHTML = '<div class="no-results">Nenhuma ficha BACEN encontrada</div>';
+        if (fichasBacen.length === 0) {
+            container.innerHTML = '<div class="no-results">Nenhuma reclamação BACEN cadastrada ainda</div>';
+        } else {
+            container.innerHTML = '<div class="no-results">Nenhuma reclamação BACEN encontrada com os filtros aplicados</div>';
+        }
         return;
     }
     
@@ -601,7 +608,7 @@ function renderizarListaBacen() {
     });
     
     container.innerHTML = filtradas.map(f => criarCardBacen(f)).join('');
-    console.log('✅ Lista renderizada com sucesso!');
+    console.log('✅ Lista renderizada com sucesso! Total de cards:', filtradas.length);
 }
 
 // Renderizar "Minhas Reclamações"
