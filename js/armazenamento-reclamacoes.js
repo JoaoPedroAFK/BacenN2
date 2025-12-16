@@ -36,8 +36,23 @@ class ArmazenamentoReclamacoes {
             return false;
         }
         
-        // Carregar reclamações existentes
-        let reclamacoes = this.carregarTodos(tipo);
+        // Carregar reclamações existentes DIRETAMENTE do localStorage (evitar problemas de cache)
+        let reclamacoes = [];
+        try {
+            const dados = localStorage.getItem(chave);
+            if (dados) {
+                reclamacoes = JSON.parse(dados);
+                if (!Array.isArray(reclamacoes)) {
+                    console.warn(`⚠️ Dados inválidos para ${tipo}, resetando...`);
+                    reclamacoes = [];
+                }
+            }
+        } catch (error) {
+            console.error(`❌ Erro ao carregar antes de salvar:`, error);
+            reclamacoes = [];
+        }
+        
+        console.log(`📦 Reclamações existentes antes de salvar: ${reclamacoes.length}`);
         
         // Verificar se já existe (atualizar) ou adicionar nova
         const index = reclamacoes.findIndex(r => r.id === reclamacao.id);
@@ -51,12 +66,33 @@ class ArmazenamentoReclamacoes {
         
         // Salvar no localStorage
         try {
-            localStorage.setItem(chave, JSON.stringify(reclamacoes));
-            console.log(`✅ Salvo no localStorage: ${reclamacoes.length} reclamações ${tipo}`);
-            console.log(`📋 IDs salvos:`, reclamacoes.map(r => r.id).join(', '));
+            const dadosParaSalvar = JSON.stringify(reclamacoes);
+            localStorage.setItem(chave, dadosParaSalvar);
+            
+            // VERIFICAR IMEDIATAMENTE se foi salvo corretamente
+            const verificado = localStorage.getItem(chave);
+            if (verificado) {
+                const dadosVerificados = JSON.parse(verificado);
+                console.log(`✅ Salvo no localStorage: ${dadosVerificados.length} reclamações ${tipo}`);
+                console.log(`📋 IDs salvos:`, dadosVerificados.map(r => r.id).join(', '));
+                
+                // Verificar se a reclamação salva está lá
+                const encontrada = dadosVerificados.find(r => r.id === reclamacao.id);
+                if (encontrada) {
+                    console.log(`✅ Reclamação ${reclamacao.id} confirmada no localStorage`);
+                } else {
+                    console.error(`❌ ERRO CRÍTICO: Reclamação ${reclamacao.id} NÃO foi salva corretamente!`);
+                    return false;
+                }
+            } else {
+                console.error(`❌ ERRO CRÍTICO: localStorage não retornou dados após salvar!`);
+                return false;
+            }
+            
             return true;
         } catch (error) {
             console.error(`❌ Erro ao salvar no localStorage:`, error);
+            console.error(`❌ Detalhes do erro:`, error.message, error.stack);
             return false;
         }
     }
