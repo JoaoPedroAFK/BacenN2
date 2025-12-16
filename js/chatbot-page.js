@@ -297,8 +297,8 @@ function validarFichaChatbot(ficha) {
 }
 
 // === DASHBOARD ===
-async function atualizarDashboardChatbot() {
-    await carregarFichasChatbot();
+function atualizarDashboardChatbot() {
+    carregarFichasChatbot();
     
     const total = fichasChatbot.length;
     const resolvidasAuto = fichasChatbot.filter(f => f.resolvidoAutomaticamente).length;
@@ -405,7 +405,7 @@ async function mostrarCasosDashboardChatbot(tipo) {
     // Garantir que fichasChatbot está carregado
     if (!fichasChatbot || fichasChatbot.length === 0) {
         console.warn('⚠️ Nenhuma ficha Chatbot carregada, tentando carregar...');
-        await carregarFichasChatbot();
+        carregarFichasChatbot();
         // Recarregar filtradas após carregar
         switch(tipo) {
             case 'total':
@@ -582,9 +582,8 @@ function renderizarMinhasReclamacoesChatbot() {
     // Garantir que fichasChatbot está carregado
     if (!fichasChatbot || fichasChatbot.length === 0) {
         console.warn('⚠️ Nenhuma ficha Chatbot carregada, tentando carregar...');
-        carregarFichasChatbot().then(() => {
-            renderizarMinhasReclamacoesChatbot();
-        });
+        carregarFichasChatbot();
+        renderizarMinhasReclamacoesChatbot();
         return;
     }
     
