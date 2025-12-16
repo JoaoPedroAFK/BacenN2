@@ -585,7 +585,13 @@ function renderizarListaChatbot() {
     }
     
     if (filtradas.length === 0) {
-        container.innerHTML = '<div class="no-results">Nenhuma ficha Chatbot encontrada</div>';
+        if (fichasChatbot.length === 0) {
+            container.innerHTML = '<div class="no-results">Nenhuma reclamação Chatbot cadastrada ainda</div>';
+            console.log('📭 Nenhuma reclamação cadastrada');
+        } else {
+            container.innerHTML = '<div class="no-results">Nenhuma reclamação Chatbot encontrada com os filtros aplicados</div>';
+            console.log('🔍 Nenhuma reclamação encontrada com os filtros. Total disponível:', fichasChatbot.length);
+        }
         return;
     }
     
@@ -596,8 +602,23 @@ function renderizarListaChatbot() {
         return dataB - dataA;
     });
     
-    container.innerHTML = filtradas.map(f => criarCardChatbot(f)).join('');
-    console.log('✅ Lista Chatbot renderizada com sucesso!');
+    // Verificar se a função criarCardChatbot existe
+    if (typeof criarCardChatbot !== 'function' && typeof window.criarCardChatbot !== 'function') {
+        console.error('❌ Função criarCardChatbot não encontrada!');
+        container.innerHTML = '<div class="no-results">Erro: função de criação de cards não encontrada</div>';
+        return;
+    }
+    
+    const criarCard = typeof criarCardChatbot === 'function' ? criarCardChatbot : window.criarCardChatbot;
+    
+    try {
+        console.log('📋 Renderizando', filtradas.length, 'reclamações filtradas');
+        container.innerHTML = filtradas.map(f => criarCard(f)).join('');
+        console.log('✅ Lista Chatbot renderizada com sucesso! Total de cards:', filtradas.length);
+    } catch (error) {
+        console.error('❌ Erro ao renderizar cards:', error);
+        container.innerHTML = `<div class="no-results">Erro ao renderizar lista: ${error.message}</div>`;
+    }
 }
 
 // Renderizar "Minhas Reclamações"
