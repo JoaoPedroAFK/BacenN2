@@ -199,21 +199,23 @@ function handleSubmitChatbot(e) {
             id: id,
             tipoDemanda: 'chatbot',
             dataClienteChatbot: dataClienteChatbot,
-        responsavel: window.sistemaPerfis?.usuarioAtual?.nome || window.sistemaPerfis?.usuarioAtual?.email || 'Sistema',
-        nomeCompleto: obterValorCampoChatbot('chatbot-nome') || '',
-        cpf: obterValorCampoChatbot('chatbot-cpf'),
-        origem: obterValorCampoChatbot('chatbot-origem') || 'Atendimento',
-        telefone: obterValorCampoChatbot('chatbot-telefone') || '',
-        notaAvaliacao: obterValorCampoChatbot('chatbot-nota-avaliacao'),
-        avaliacaoCliente: obterValorCampoChatbot('chatbot-avaliacao-cliente'),
-        produto: obterValorCampoChatbot('chatbot-produto'),
-        motivo: obterValorCampoChatbot('chatbot-motivo'),
-        respostaBot: document.querySelector('input[name="chatbot-resposta-bot"]:checked')?.value || '',
-        pixStatus: obterValorCampoChatbot('chatbot-pix-status'),
-        enviarCobranca: document.querySelector('input[name="chatbot-enviar-cobranca"]:checked')?.value || 'Não',
-        casosCriticos: obterCheckboxChatbot('chatbot-casos-criticos'),
+            responsavel: window.sistemaPerfis?.usuarioAtual?.nome || window.sistemaPerfis?.usuarioAtual?.email || 'Sistema',
+            nomeCompleto: obterValorCampoChatbot('chatbot-nome') || '',
+            cpf: obterValorCampoChatbot('chatbot-cpf'),
+            origem: obterValorCampoChatbot('chatbot-origem') || 'Atendimento',
+            telefone: obterValorCampoChatbot('chatbot-telefone') || '',
+            notaAvaliacao: obterValorCampoChatbot('chatbot-nota-avaliacao'),
+            avaliacaoCliente: obterValorCampoChatbot('chatbot-avaliacao-cliente'),
+            produto: obterValorCampoChatbot('chatbot-produto'),
+            motivo: obterValorCampoChatbot('chatbot-motivo'),
+            respostaBot: document.querySelector('input[name="chatbot-resposta-bot"]:checked')?.value || '',
+            pixStatus: obterValorCampoChatbot('chatbot-pix-status'),
+            enviarCobranca: document.querySelector('input[name="chatbot-enviar-cobranca"]:checked')?.value || 'Não',
+            casosCriticos: obterCheckboxChatbot('chatbot-casos-criticos'),
             observacoes: obterValorCampoChatbot('chatbot-observacoes'),
             anexos: anexos, // Incluir anexos
+            status: obterValorCampoChatbot('chatbot-status') || 'nao-iniciado', // Status padrão
+            canalChatbot: obterValorCampoChatbot('chatbot-canal') || '', // Canal do chatbot
             dataCriacao: new Date().toISOString()
         };
         
