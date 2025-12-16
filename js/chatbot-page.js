@@ -295,6 +295,15 @@ function handleSubmitChatbot(e) {
         // Mostrar lista
         mostrarSecao('lista-chatbot');
         
+        // Disparar evento para atualizar home e relatórios
+        if (typeof window !== 'undefined') {
+            const evento = new CustomEvent('reclamacaoSalva', {
+                detail: { tipo: 'chatbot', reclamacao: ficha, total: fichasChatbot.length }
+            });
+            window.dispatchEvent(evento);
+            console.log('📢 Evento reclamacaoSalva disparado do chatbot-page');
+        }
+        
         // Mostrar sucesso
         mostrarAlerta('Reclamação Chatbot salva com sucesso!', 'success');
     } catch (error) {
@@ -854,9 +863,23 @@ function abrirFichaChatbot(id) {
 
 // === RELATÓRIOS ===
 function gerarRelatorioPeriodoChatbot() {
-    // RECARREGAR fichas antes de gerar relatório
+    // RECARREGAR fichas ANTES de gerar relatório - DIRETAMENTE do sistema
     console.log('📦 Carregando fichas antes de gerar relatório por período...');
-    carregarFichasChatbot();
+    
+    // Carregar diretamente do sistema de armazenamento
+    let fichasParaRelatorio = [];
+    if (window.armazenamentoReclamacoes) {
+        fichasParaRelatorio = window.armazenamentoReclamacoes.carregarTodos('chatbot');
+        console.log('📋 Fichas carregadas do sistema:', fichasParaRelatorio.length);
+    } else {
+        const dados = localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot');
+        if (dados) {
+            fichasParaRelatorio = JSON.parse(dados);
+        }
+    }
+    
+    // Atualizar variável global
+    fichasChatbot = fichasParaRelatorio;
     
     const inicio = prompt('Data inicial (DD/MM/AAAA):');
     const fim = prompt('Data final (DD/MM/AAAA):');
@@ -866,7 +889,7 @@ function gerarRelatorioPeriodoChatbot() {
     const inicioDate = parseDate(inicio);
     const fimDate = parseDate(fim);
     
-    const filtradas = fichasChatbot.filter(f => {
+    const filtradas = fichasParaRelatorio.filter(f => {
         const data = new Date(f.dataCriacao || f.dataClienteChatbot || f.dataEntrada);
         return data >= inicioDate && data <= fimDate;
     });
@@ -876,23 +899,51 @@ function gerarRelatorioPeriodoChatbot() {
 }
 
 function gerarRelatorioAutoChatbot() {
-    // RECARREGAR fichas antes de gerar relatório
+    // RECARREGAR fichas ANTES de gerar relatório - DIRETAMENTE do sistema
     console.log('📦 Carregando fichas antes de gerar relatório de auto-resolução...');
-    carregarFichasChatbot();
     
-    const auto = fichasChatbot.filter(f => f.resolvidoAutomaticamente);
+    // Carregar diretamente do sistema de armazenamento
+    let fichasParaRelatorio = [];
+    if (window.armazenamentoReclamacoes) {
+        fichasParaRelatorio = window.armazenamentoReclamacoes.carregarTodos('chatbot');
+        console.log('📋 Fichas carregadas do sistema:', fichasParaRelatorio.length);
+    } else {
+        const dados = localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot');
+        if (dados) {
+            fichasParaRelatorio = JSON.parse(dados);
+        }
+    }
+    
+    // Atualizar variável global
+    fichasChatbot = fichasParaRelatorio;
+    
+    const auto = fichasParaRelatorio.filter(f => f.resolvidoAutomaticamente);
     console.log('📋 Fichas auto-resolvidas:', auto.length);
     mostrarRelatorioChatbot('Relatório de Resolução Automática - Chatbot', auto, 
         `${auto.length} fichas resolvidas automaticamente`);
 }
 
 function gerarRelatorioSatisfacaoChatbot() {
-    // RECARREGAR fichas antes de gerar relatório
-    console.log('📦 Carregando fichas antes de gerar relatório...');
-    carregarFichasChatbot();
+    // RECARREGAR fichas ANTES de gerar relatório - DIRETAMENTE do sistema
+    console.log('📦 Carregando fichas antes de gerar relatório de satisfação...');
     
-    console.log('📋 Total de fichas carregadas:', fichasChatbot.length);
-    console.log('📋 Primeiras 3 fichas:', fichasChatbot.slice(0, 3).map(f => ({ 
+    // Carregar diretamente do sistema de armazenamento
+    let fichasParaRelatorio = [];
+    if (window.armazenamentoReclamacoes) {
+        fichasParaRelatorio = window.armazenamentoReclamacoes.carregarTodos('chatbot');
+        console.log('📋 Fichas carregadas do sistema:', fichasParaRelatorio.length);
+    } else {
+        const dados = localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot');
+        if (dados) {
+            fichasParaRelatorio = JSON.parse(dados);
+        }
+    }
+    
+    // Atualizar variável global
+    fichasChatbot = fichasParaRelatorio;
+    
+    console.log('📋 Total de fichas carregadas:', fichasParaRelatorio.length);
+    console.log('📋 Primeiras 3 fichas:', fichasParaRelatorio.slice(0, 3).map(f => ({ 
         id: f.id, 
         nome: f.nomeCompleto, 
         nota: f.notaAvaliacao,
@@ -933,13 +984,30 @@ function gerarRelatorioSatisfacaoChatbot() {
 }
 
 function gerarRelatorioCompletoChatbot() {
-    // RECARREGAR fichas antes de gerar relatório
+    // RECARREGAR fichas ANTES de gerar relatório - DIRETAMENTE do sistema
     console.log('📦 Carregando fichas antes de gerar relatório completo...');
-    carregarFichasChatbot();
     
-    console.log('📋 Total de fichas para relatório:', fichasChatbot.length);
-    mostrarRelatorioChatbot('Relatório Completo - Chatbot', fichasChatbot, 
-        `Total: ${fichasChatbot.length} fichas`);
+    // Carregar diretamente do sistema de armazenamento (não confiar na variável global)
+    let fichasParaRelatorio = [];
+    if (window.armazenamentoReclamacoes) {
+        fichasParaRelatorio = window.armazenamentoReclamacoes.carregarTodos('chatbot');
+        console.log('📋 Fichas carregadas do sistema:', fichasParaRelatorio.length);
+        console.log('📋 IDs:', fichasParaRelatorio.map(f => f.id).join(', '));
+    } else {
+        // Fallback
+        const dados = localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot');
+        if (dados) {
+            fichasParaRelatorio = JSON.parse(dados);
+            console.log('📋 Fichas carregadas do localStorage (fallback):', fichasParaRelatorio.length);
+        }
+    }
+    
+    // Atualizar variável global também
+    fichasChatbot = fichasParaRelatorio;
+    
+    console.log('📋 Total de fichas para relatório:', fichasParaRelatorio.length);
+    mostrarRelatorioChatbot('Relatório Completo - Chatbot', fichasParaRelatorio, 
+        `Total: ${fichasParaRelatorio.length} fichas`);
 }
 
 function mostrarRelatorioChatbot(titulo, dados, subtitulo) {
