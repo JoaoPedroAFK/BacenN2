@@ -86,7 +86,8 @@ class SistemaAlertas {
         });
 
         // Verificar fichas Chatbot
-        const fichasChatbot = JSON.parse(localStorage.getItem('velotax_demandas_chatbot') || '[]');
+        // Usar chaves novas e antigas para compatibilidade
+        const fichasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
         fichasChatbot.forEach(ficha => {
             if (ficha.prazoResposta) {
                 const prazo = new Date(ficha.prazoResposta);

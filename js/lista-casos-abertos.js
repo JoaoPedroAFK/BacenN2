@@ -71,7 +71,8 @@ class ListaCasosAbertos {
         // Carregar casos de todos os tipos
         const fichasBacen = JSON.parse(localStorage.getItem('velotax_demandas_bacen') || '[]');
         const fichasN2 = JSON.parse(localStorage.getItem('velotax_demandas_n2') || '[]');
-        const fichasChatbot = JSON.parse(localStorage.getItem('velotax_demandas_chatbot') || '[]');
+        // Usar chaves novas e antigas para compatibilidade
+        const fichasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
 
         // Filtrar apenas casos em aberto (não concluídos)
         const casosAbertos = [
