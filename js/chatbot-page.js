@@ -604,11 +604,30 @@ async function renderizarListaChatbot() {
     let filtradas = [...(fichasChatbot || [])]; // Criar cópia para não modificar o array original
     
     if (busca) {
+        // Normalizar busca (remover formatação de CPF)
+        const buscaNormalizada = busca.replace(/\D/g, ''); // Remove tudo que não é dígito
+        const buscaLower = busca.toLowerCase();
+        
         filtradas = filtradas.filter(f => {
-            const nome = (f.nomeCompleto || '').toLowerCase();
-            const cpf = (f.cpf || '').toLowerCase();
+            const nome = (f.nomeCompleto || f.nomeCliente || '').toLowerCase();
             const motivo = (f.motivoReduzido || '').toLowerCase();
-            return nome.includes(busca) || cpf.includes(busca) || motivo.includes(busca);
+            const id = (f.id || '').toLowerCase();
+            
+            // Para CPF, comparar tanto formatado quanto sem formatação
+            const cpfFormatado = (f.cpf || '').toLowerCase();
+            const cpfSemFormatacao = (f.cpf || '').replace(/\D/g, '');
+            
+            // Busca por nome, motivo ou ID (texto normal)
+            const matchTexto = nome.includes(buscaLower) || motivo.includes(buscaLower) || id.includes(buscaLower);
+            
+            // Busca por CPF (com ou sem formatação)
+            const matchCPF = buscaNormalizada.length > 0 && (
+                cpfFormatado.includes(buscaLower) || 
+                cpfSemFormatacao.includes(buscaNormalizada) ||
+                (buscaNormalizada.length >= 3 && cpfSemFormatacao.startsWith(buscaNormalizada))
+            );
+            
+            return matchTexto || matchCPF;
         });
     }
     
