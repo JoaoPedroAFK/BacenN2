@@ -4,13 +4,32 @@
 let complaints = [];
 let currentFilter = 'all';
 
-// Carrega fichas usando o gerenciador
+// Carrega fichas usando o gerenciador ou sistema de armazenamento
 function carregarFichas() {
     if (window.gerenciadorFichas) {
         complaints = window.gerenciadorFichas.obterFichasPorPerfil();
+    } else if (window.armazenamentoReclamacoes) {
+        // Usar o novo sistema de armazenamento - carregar todas as reclamações
+        const fichasBacen = window.armazenamentoReclamacoes.carregarTodos('bacen');
+        const fichasN2 = window.armazenamentoReclamacoes.carregarTodos('n2');
+        const fichasChatbot = window.armazenamentoReclamacoes.carregarTodos('chatbot');
+        complaints = [
+            ...fichasBacen,
+            ...fichasN2,
+            ...fichasChatbot
+        ];
+        console.log('📋 Reclamações carregadas para home:', complaints.length, '(BACEN:', fichasBacen.length, 'N2:', fichasN2.length, 'Chatbot:', fichasChatbot.length, ')');
     } else {
-        // Fallback para compatibilidade
-        complaints = JSON.parse(localStorage.getItem('bacen-complaints') || '[]');
+        // Fallback: tentar chaves novas e antigas
+        const fichasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
+        const fichasN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || localStorage.getItem('velotax_demandas_n2') || '[]');
+        const fichasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
+        complaints = [
+            ...fichasBacen,
+            ...fichasN2,
+            ...fichasChatbot
+        ];
+        console.log('📋 Reclamações carregadas (fallback):', complaints.length);
     }
 }
 
@@ -105,31 +124,46 @@ function showSection(sectionId) {
 
 // === FUNÇÕES DE HOME ===
 function atualizarHomeStats() {
-    if (!window.gerenciadorFichas) {
-        // Tenta novamente após um tempo
-        setTimeout(atualizarHomeStats, 500);
-        return;
+    let fichasBacen = [];
+    let fichasN2 = [];
+    let fichasChatbot = [];
+    
+    if (window.gerenciadorFichas) {
+        // Usar gerenciador de fichas se disponível
+        fichasBacen = window.gerenciadorFichas.obterFichasPorTipo('bacen');
+        fichasN2 = window.gerenciadorFichas.obterFichasPorTipo('n2');
+        fichasChatbot = window.gerenciadorFichas.obterFichasPorTipo('chatbot');
+    } else if (window.armazenamentoReclamacoes) {
+        // Usar novo sistema de armazenamento
+        fichasBacen = window.armazenamentoReclamacoes.carregarTodos('bacen');
+        fichasN2 = window.armazenamentoReclamacoes.carregarTodos('n2');
+        fichasChatbot = window.armazenamentoReclamacoes.carregarTodos('chatbot');
+    } else {
+        // Fallback: tentar chaves novas e antigas
+        fichasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
+        fichasN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || localStorage.getItem('velotax_demandas_n2') || '[]');
+        fichasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
     }
     
-    const stats = window.gerenciadorFichas.obterEstatisticas();
-    
     // Atualiza stats BACEN
-    const fichasBacen = window.gerenciadorFichas.obterFichasPorTipo('bacen');
-    document.getElementById('bacen-total').textContent = fichasBacen.length || 0;
-    document.getElementById('bacen-tratativa').textContent = 
-        fichasBacen.filter(f => f.status === 'em-tratativa').length;
+    const bacenTotalEl = document.getElementById('bacen-total');
+    const bacenTratativaEl = document.getElementById('bacen-tratativa');
+    if (bacenTotalEl) bacenTotalEl.textContent = fichasBacen.length || 0;
+    if (bacenTratativaEl) bacenTratativaEl.textContent = fichasBacen.filter(f => f.status === 'em-tratativa').length;
     
     // Atualiza stats N2
-    const fichasN2 = window.gerenciadorFichas.obterFichasPorTipo('n2');
-    document.getElementById('n2-total').textContent = fichasN2.length || 0;
-    document.getElementById('n2-tratativa').textContent = 
-        fichasN2.filter(f => f.status === 'em-tratativa').length;
+    const n2TotalEl = document.getElementById('n2-total');
+    const n2TratativaEl = document.getElementById('n2-tratativa');
+    if (n2TotalEl) n2TotalEl.textContent = fichasN2.length || 0;
+    if (n2TratativaEl) n2TratativaEl.textContent = fichasN2.filter(f => f.status === 'em-tratativa').length;
     
     // Atualiza stats Chatbot
-    const fichasChatbot = window.gerenciadorFichas.obterFichasPorTipo('chatbot');
-    document.getElementById('chatbot-total').textContent = fichasChatbot.length || 0;
-    document.getElementById('chatbot-tratativa').textContent = 
-        fichasChatbot.filter(f => f.status === 'em-tratativa').length;
+    const chatbotTotalEl = document.getElementById('chatbot-total');
+    const chatbotTratativaEl = document.getElementById('chatbot-tratativa');
+    if (chatbotTotalEl) chatbotTotalEl.textContent = fichasChatbot.length || 0;
+    if (chatbotTratativaEl) chatbotTratativaEl.textContent = fichasChatbot.filter(f => f.status === 'em-tratativa').length;
+    
+    console.log('📊 Home stats atualizadas - BACEN:', fichasBacen.length, 'N2:', fichasN2.length, 'Chatbot:', fichasChatbot.length);
 }
 
 // === CONFIGURAR EVENT LISTENERS ===
