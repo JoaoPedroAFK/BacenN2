@@ -148,7 +148,7 @@ function obterCheckboxChatbot(id) {
     return campo ? campo.checked : false;
 }
 
-async function handleSubmitChatbot(e) {
+function handleSubmitChatbot(e) {
     e.preventDefault();
     console.log('🚀 handleSubmitChatbot chamado');
     
@@ -167,8 +167,13 @@ async function handleSubmitChatbot(e) {
         console.log('📅 Tipo do valor:', typeof dataClienteChatbot);
         console.log('📅 Valor após trim:', dataClienteChatbot.trim());
     
+        // Gerar ID usando o sistema de armazenamento
+        const id = window.armazenamentoReclamacoes ? 
+            window.armazenamentoReclamacoes.gerarId() : 
+            `rec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
         const ficha = {
-            id: gerarId(),
+            id: id,
             tipoDemanda: 'chatbot',
             dataClienteChatbot: dataClienteChatbot,
         responsavel: window.sistemaPerfis?.usuarioAtual?.nome || window.sistemaPerfis?.usuarioAtual?.email || 'Sistema',
@@ -219,24 +224,18 @@ async function handleSubmitChatbot(e) {
         
         console.log('✅ Reclamação salva com sucesso!');
         
-        // RECARREGAR IMEDIATAMENTE
+        // RECARREGAR IMEDIATAMENTE (síncrono)
         carregarFichasChatbot();
         console.log('📋 Fichas recarregadas:', fichasChatbot.length);
+        console.log('📋 Última ficha salva:', fichasChatbot[fichasChatbot.length - 1]);
+        console.log('📋 Ficha salva está no array?', fichasChatbot.find(f => f.id === ficha.id) ? 'Sim' : 'Não');
         
         // Limpar formulário
         console.log('🧹 Limpando formulário...');
         limparFormChatbot();
         
-        // Recarregar fichas para garantir que a nova ficha esteja disponível
-        await carregarFichasChatbot();
-        console.log('📋 Fichas Chatbot carregadas após salvar:', fichasChatbot.length);
-        console.log('📋 Última ficha salva:', fichasChatbot[fichasChatbot.length - 1]);
-        console.log('📋 Ficha salva está no array?', fichasChatbot.find(f => f.id === ficha.id) ? 'Sim' : 'Não');
-        
-        // Atualizar dashboard e listas
-        await atualizarDashboardChatbot();
-        
-        // Atualizar lista geral (sem filtro de usuário)
+        // Atualizar dashboard e listas IMEDIATAMENTE
+        atualizarDashboardChatbot();
         renderizarListaChatbot();
         
         // Atualizar "Minhas Reclamações" se a seção estiver visível
@@ -245,9 +244,10 @@ async function handleSubmitChatbot(e) {
             renderizarMinhasReclamacoesChatbot();
         }
         
+        // Mostrar lista
         mostrarSecao('lista-chatbot');
         
-        console.log('✅ Reclamação salva com sucesso!');
+        // Mostrar sucesso
         mostrarAlerta('Reclamação Chatbot salva com sucesso!', 'success');
     } catch (error) {
         console.error('❌ Erro ao processar submit:', error);
