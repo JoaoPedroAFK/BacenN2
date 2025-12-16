@@ -41,7 +41,7 @@
         <div class="header-content">
                 <div class="header-logo">
                     <div class="logo-container-natal">
-                        <img src="img/LOGO_VELOTAX_NATAL.png" alt="Velotax" class="logo-header">
+                        <img src="img/velotax_natal.png" alt="Velotax" class="logo-header">
                     </div>
                     <h1>Chatbot</h1>
                 </div>
@@ -409,38 +409,73 @@
     <script src="js/exportacao-excel.js"></script>
     <script src="js/armazenamento-reclamacoes.js"></script>
     <script>
-        // RESETAR DADOS ANTIGOS AO CARREGAR A PÁGINA
+        // MIGRAÇÃO DE DADOS ANTIGOS (SEM RESETAR) - APENAS UMA VEZ
         (function() {
-            console.log('🔄 Verificando e resetando dados antigos...');
+            // Verificar se já migrou (usar uma flag)
+            const flagMigracao = 'velotax_migracao_concluida';
+            if (localStorage.getItem(flagMigracao) === 'true') {
+                console.log('✅ Migração já foi concluída anteriormente. Pulando...');
+                return;
+            }
             
-            // Remover dados antigos (chaves antigas)
-            const chavesAntigas = [
-                'velotax_demandas_bacen',
-                'velotax_demandas_n2',
-                'velotax_demandas_chatbot'
+            console.log('🔄 Verificando e migrando dados antigos (primeira vez)...');
+            
+            // Migrar dados das chaves antigas para as novas (sem apagar)
+            const migracoes = [
+                { antiga: 'velotax_demandas_bacen', nova: 'velotax_reclamacoes_bacen' },
+                { antiga: 'velotax_demandas_n2', nova: 'velotax_reclamacoes_n2' },
+                { antiga: 'velotax_demandas_chatbot', nova: 'velotax_reclamacoes_chatbot' }
             ];
             
-            let removidas = 0;
-            chavesAntigas.forEach(chave => {
-                if (localStorage.getItem(chave)) {
-                    console.log(`🗑️ Removendo dados antigos: ${chave}`);
-                    localStorage.removeItem(chave);
-                    removidas++;
+            let migradas = 0;
+            migracoes.forEach(({ antiga, nova }) => {
+                const dadosAntigos = localStorage.getItem(antiga);
+                const dadosNovos = localStorage.getItem(nova);
+                
+                if (dadosAntigos && !dadosNovos) {
+                    try {
+                        console.log(`🔄 Migrando dados de ${antiga} para ${nova}...`);
+                        const dados = JSON.parse(dadosAntigos);
+                        if (Array.isArray(dados) && dados.length > 0) {
+                            localStorage.setItem(nova, JSON.stringify(dados));
+                            console.log(`✅ ${dados.length} reclamações migradas de ${antiga} para ${nova}`);
+                            migradas++;
+                            // Remover chave antiga apenas após migração bem-sucedida
+                            localStorage.removeItem(antiga);
+                        }
+                    } catch (error) {
+                        console.error(`❌ Erro ao migrar ${antiga}:`, error);
+                    }
+                } else if (dadosAntigos && dadosNovos) {
+                    // Se ambas existem, mesclar (evitar duplicatas)
+                    try {
+                        const antigos = JSON.parse(dadosAntigos);
+                        const novos = JSON.parse(dadosNovos);
+                        if (Array.isArray(antigos) && Array.isArray(novos)) {
+                            const idsNovos = new Set(novos.map(n => n.id));
+                            const paraAdicionar = antigos.filter(a => a.id && !idsNovos.has(a.id));
+                            if (paraAdicionar.length > 0) {
+                                const mesclados = [...novos, ...paraAdicionar];
+                                localStorage.setItem(nova, JSON.stringify(mesclados));
+                                console.log(`✅ ${paraAdicionar.length} reclamações mescladas de ${antiga} para ${nova}`);
+                                migradas++;
+                            }
+                            localStorage.removeItem(antiga);
+                        }
+                    } catch (error) {
+                        console.error(`❌ Erro ao mesclar ${antiga}:`, error);
+                    }
                 }
             });
             
-            if (removidas > 0) {
-                console.log(`✅ ${removidas} chaves antigas removidas.`);
+            if (migradas > 0) {
+                console.log(`✅ ${migradas} migrações concluídas.`);
+            } else {
+                console.log('✅ Nenhuma migração necessária.');
             }
             
-            // Aguardar o sistema de armazenamento carregar e resetar também
-            setTimeout(() => {
-                if (window.armazenamentoReclamacoes) {
-                    console.log('🔄 Resetando sistema de armazenamento...');
-                    window.armazenamentoReclamacoes.resetar();
-                    console.log('✅ Sistema resetado. Pronto para uso.');
-                }
-            }, 100);
+            // Marcar migração como concluída
+            localStorage.setItem(flagMigracao, 'true');
         })();
     </script>
     <script src="js/chatbot-page.js"></script>

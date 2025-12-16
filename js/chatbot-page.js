@@ -89,10 +89,20 @@ function carregarFichasChatbot() {
     console.log('🔄 Carregando fichas Chatbot...');
     console.log('🔍 window.armazenamentoReclamacoes:', typeof window.armazenamentoReclamacoes);
     
+    // Verificar diretamente no localStorage primeiro (para debug)
+    const chaveNova = 'velotax_reclamacoes_chatbot';
+    const chaveAntiga = 'velotax_demandas_chatbot';
+    const dadosNovos = localStorage.getItem(chaveNova);
+    const dadosAntigos = localStorage.getItem(chaveAntiga);
+    
+    console.log('🔍 localStorage verificação:');
+    console.log(`  - ${chaveNova}:`, dadosNovos ? `${JSON.parse(dadosNovos).length} reclamações` : 'vazio');
+    console.log(`  - ${chaveAntiga}:`, dadosAntigos ? `${JSON.parse(dadosAntigos).length} reclamações` : 'vazio');
+    
     // Usar o novo sistema de armazenamento
     if (window.armazenamentoReclamacoes) {
         fichasChatbot = window.armazenamentoReclamacoes.carregarTodos('chatbot');
-        console.log('✅ Fichas carregadas:', fichasChatbot.length);
+        console.log('✅ Fichas carregadas via sistema:', fichasChatbot.length);
         if (fichasChatbot.length > 0) {
             console.log('📋 IDs:', fichasChatbot.map(f => f.id).join(', '));
             console.log('📋 Primeira ficha:', fichasChatbot[0]);
@@ -102,7 +112,7 @@ function carregarFichasChatbot() {
         console.error('🔍 Tentando carregar diretamente do localStorage...');
         // Fallback: tentar carregar diretamente
         try {
-            const dados = localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot');
+            const dados = dadosNovos || dadosAntigos;
             if (dados) {
                 fichasChatbot = JSON.parse(dados);
                 console.log('✅ Carregado do localStorage (fallback):', fichasChatbot.length);
@@ -120,6 +130,19 @@ function carregarFichasChatbot() {
     if (!Array.isArray(fichasChatbot)) {
         console.warn('⚠️ fichasChatbot não é um array, convertendo...');
         fichasChatbot = [];
+    }
+    
+    // Verificar novamente após carregar
+    const verificacaoFinal = localStorage.getItem(chaveNova);
+    if (verificacaoFinal) {
+        const dadosFinais = JSON.parse(verificacaoFinal);
+        console.log('🔍 Verificação final no localStorage:', dadosFinais.length, 'reclamações');
+        if (dadosFinais.length !== fichasChatbot.length) {
+            console.warn('⚠️ DISCREPÂNCIA: localStorage tem', dadosFinais.length, 'mas fichasChatbot tem', fichasChatbot.length);
+            // Sincronizar
+            fichasChatbot = dadosFinais;
+            console.log('✅ Sincronizado com localStorage');
+        }
     }
     
     console.log('📋 Total final de fichas:', fichasChatbot.length);
