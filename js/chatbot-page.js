@@ -544,8 +544,16 @@ function renderizarListaChatbot() {
     }
     
     const busca = document.getElementById('busca-chatbot')?.value.toLowerCase() || '';
-    const filtroStatus = document.getElementById('filtro-status-chatbot')?.value || '';
-    const filtroCanal = document.getElementById('filtro-canal-chatbot')?.value || '';
+    let filtroStatus = document.getElementById('filtro-status-chatbot')?.value || '';
+    let filtroCanal = document.getElementById('filtro-canal-chatbot')?.value || '';
+    
+    // Tratar "todos" como vazio (alguns selects podem retornar "todos" em vez de "")
+    if (filtroStatus.toLowerCase() === 'todos' || filtroStatus === '') {
+        filtroStatus = '';
+    }
+    if (filtroCanal.toLowerCase() === 'todos' || filtroCanal === '') {
+        filtroCanal = '';
+    }
     
     console.log('🔍 Filtros aplicados:', { busca, filtroStatus, filtroCanal });
     console.log('📋 Primeira ficha completa:', fichasChatbot.length > 0 ? fichasChatbot[0] : 'Nenhuma');
