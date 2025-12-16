@@ -831,6 +831,10 @@ function abrirFichaChatbot(id) {
 
 // === RELATÓRIOS ===
 function gerarRelatorioPeriodoChatbot() {
+    // RECARREGAR fichas antes de gerar relatório
+    console.log('📦 Carregando fichas antes de gerar relatório por período...');
+    carregarFichasChatbot();
+    
     const inicio = prompt('Data inicial (DD/MM/AAAA):');
     const fim = prompt('Data final (DD/MM/AAAA):');
     
@@ -840,10 +844,11 @@ function gerarRelatorioPeriodoChatbot() {
     const fimDate = parseDate(fim);
     
     const filtradas = fichasChatbot.filter(f => {
-        const data = new Date(f.dataEntrada);
+        const data = new Date(f.dataCriacao || f.dataClienteChatbot || f.dataEntrada);
         return data >= inicioDate && data <= fimDate;
     });
     
+    console.log('📋 Fichas no período:', filtradas.length);
     mostrarRelatorioChatbot('Relatório por Período - Chatbot', filtradas, `Período: ${inicio} a ${fim}`);
 }
 
