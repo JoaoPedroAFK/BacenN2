@@ -92,36 +92,72 @@ function mostrarSecao(secaoId) {
 async function carregarFichasBacen() {
     console.log('🔄 Carregando fichas BACEN...');
     
-    // Tentar usar Supabase primeiro
+    let fichasCarregadas = [];
+    
+    // 1. Tentar carregar do Supabase
     if (window.supabaseDB && !window.supabaseDB.usarLocalStorage) {
         try {
             console.log('📦 Tentando carregar do Supabase...');
-            fichasBacen = await window.supabaseDB.obterFichasBacen();
-            console.log('✅ Fichas carregadas do Supabase:', fichasBacen.length);
-            return;
+            const fichasSupabase = await window.supabaseDB.obterFichasBacen();
+            if (Array.isArray(fichasSupabase) && fichasSupabase.length > 0) {
+                fichasCarregadas = fichasSupabase;
+                console.log('✅ Fichas carregadas do Supabase:', fichasCarregadas.length);
+            }
         } catch (error) {
             console.error('❌ Erro ao carregar do Supabase:', error);
         }
     }
     
-    // Fallback para gerenciador de fichas
-    if (window.gerenciadorFichas) {
-        console.log('📦 Carregando do gerenciadorFichas...');
-        fichasBacen = window.gerenciadorFichas.obterFichasPorTipo('bacen') || [];
-        console.log('✅ Fichas carregadas do gerenciadorFichas:', fichasBacen.length);
-    } else if (window.GerenciadorFichasPerfil) {
-        // Inicializa se não estiver
-        console.log('📦 Inicializando GerenciadorFichasPerfil...');
-        window.gerenciadorFichas = new GerenciadorFichasPerfil();
-        fichasBacen = window.gerenciadorFichas.obterFichasPorTipo('bacen') || [];
-        console.log('✅ Fichas carregadas do GerenciadorFichasPerfil:', fichasBacen.length);
-    } else {
-        // Fallback para localStorage
-        console.log('📦 Carregando do localStorage...');
-        const fichas = JSON.parse(localStorage.getItem('velotax_demandas_bacen') || '[]');
-        fichasBacen = fichas.map(f => ({ ...f, tipoDemanda: 'bacen' }));
-        console.log('✅ Fichas carregadas do localStorage:', fichasBacen.length);
+    // 2. Carregar do localStorage (sempre, para garantir que não perdemos dados)
+    try {
+        const fichasLocal = JSON.parse(localStorage.getItem('velotax_demandas_bacen') || '[]');
+        if (Array.isArray(fichasLocal) && fichasLocal.length > 0) {
+            console.log('📦 Fichas encontradas no localStorage:', fichasLocal.length);
+            // Mesclar com fichas do Supabase (evitar duplicatas)
+            fichasLocal.forEach(fichaLocal => {
+                if (!fichasCarregadas.find(f => f.id === fichaLocal.id)) {
+                    fichasCarregadas.push({ ...fichaLocal, tipoDemanda: 'bacen' });
+                }
+            });
+        }
+    } catch (error) {
+        console.error('❌ Erro ao carregar do localStorage:', error);
     }
+    
+    // 3. Tentar carregar do gerenciador de fichas
+    if (window.gerenciadorFichas) {
+        try {
+            const fichasGerenciador = window.gerenciadorFichas.obterFichasPorTipo('bacen') || [];
+            if (Array.isArray(fichasGerenciador) && fichasGerenciador.length > 0) {
+                console.log('📦 Fichas encontradas no gerenciadorFichas:', fichasGerenciador.length);
+                fichasGerenciador.forEach(fichaGer => {
+                    if (!fichasCarregadas.find(f => f.id === fichaGer.id)) {
+                        fichasCarregadas.push({ ...fichaGer, tipoDemanda: 'bacen' });
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('❌ Erro ao carregar do gerenciadorFichas:', error);
+        }
+    } else if (window.GerenciadorFichasPerfil) {
+        try {
+            window.gerenciadorFichas = new GerenciadorFichasPerfil();
+            const fichasGerenciador = window.gerenciadorFichas.obterFichasPorTipo('bacen') || [];
+            if (Array.isArray(fichasGerenciador) && fichasGerenciador.length > 0) {
+                console.log('📦 Fichas encontradas no GerenciadorFichasPerfil:', fichasGerenciador.length);
+                fichasGerenciador.forEach(fichaGer => {
+                    if (!fichasCarregadas.find(f => f.id === fichaGer.id)) {
+                        fichasCarregadas.push({ ...fichaGer, tipoDemanda: 'bacen' });
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('❌ Erro ao carregar do GerenciadorFichasPerfil:', error);
+        }
+    }
+    
+    // Atualizar array global
+    fichasBacen = fichasCarregadas;
     
     // Garantir que fichasBacen seja um array
     if (!Array.isArray(fichasBacen)) {
@@ -129,7 +165,13 @@ async function carregarFichasBacen() {
         fichasBacen = [];
     }
     
+    // Sincronizar com localStorage (backup)
+    if (fichasBacen.length > 0) {
+        localStorage.setItem('velotax_demandas_bacen', JSON.stringify(fichasBacen));
+    }
+    
     console.log('📋 Total de fichas BACEN carregadas:', fichasBacen.length);
+    console.log('📋 IDs das fichas:', fichasBacen.map(f => f.id).join(', '));
 }
 
 // === FORMULÁRIO ===
@@ -247,42 +289,40 @@ async function handleSubmitBacen(e) {
         
         // Salvar
         console.log('💾 Salvando ficha...');
-        if (window.supabaseDB) {
-            console.log('📦 Usando Supabase');
+        
+        // SEMPRE adicionar ao array local primeiro
+        const indexExistente = fichasBacen.findIndex(f => f.id === ficha.id);
+        if (indexExistente >= 0) {
+            fichasBacen[indexExistente] = ficha;
+            console.log('✅ Ficha atualizada no array local');
+        } else {
+            fichasBacen.push(ficha);
+            console.log('✅ Ficha adicionada ao array local');
+        }
+        
+        // Salvar no localStorage (sempre, como backup)
+        localStorage.setItem('velotax_demandas_bacen', JSON.stringify(fichasBacen));
+        console.log('💾 Salvo no localStorage:', fichasBacen.length, 'fichas');
+        
+        // Tentar salvar no Supabase (se disponível)
+        if (window.supabaseDB && !window.supabaseDB.usarLocalStorage) {
             try {
                 await window.supabaseDB.salvarFichaBacen(ficha);
                 console.log('✅ Salvo no Supabase');
             } catch (error) {
                 console.error('❌ Erro ao salvar no Supabase:', error);
-                // Fallback
-                if (window.gerenciadorFichas) {
-                    window.gerenciadorFichas.adicionarFicha(ficha);
-                    console.log('💾 Fallback: salvo via gerenciadorFichas');
-                } else {
-                    fichasBacen.push(ficha);
-                    localStorage.setItem('velotax_demandas_bacen', JSON.stringify(fichasBacen));
-                    console.log('💾 Fallback: salvo no localStorage');
-                }
+                console.log('⚠️ Continuando com localStorage apenas');
             }
-        } else if (window.gerenciadorFichas) {
-            window.gerenciadorFichas.adicionarFicha(ficha);
-            console.log('💾 Salvo via gerenciadorFichas');
-        } else {
-            fichasBacen.push(ficha);
-            localStorage.setItem('velotax_demandas_bacen', JSON.stringify(fichasBacen));
-            console.log('💾 Salvo no localStorage');
         }
         
-        // Garantir que a ficha foi adicionada ao array local
-        if (!fichasBacen.find(f => f.id === ficha.id)) {
-            fichasBacen.push(ficha);
-            console.log('✅ Ficha adicionada ao array local');
-        }
-        
-        // Atualizar localStorage se não estiver usando Supabase
-        if (!window.supabaseDB || window.supabaseDB.usarLocalStorage) {
-            localStorage.setItem('velotax_demandas_bacen', JSON.stringify(fichasBacen));
-            console.log('💾 localStorage atualizado');
+        // Tentar salvar no gerenciador de fichas (se disponível)
+        if (window.gerenciadorFichas) {
+            try {
+                window.gerenciadorFichas.adicionarFicha(ficha);
+                console.log('✅ Salvo no gerenciadorFichas');
+            } catch (error) {
+                console.error('❌ Erro ao salvar no gerenciadorFichas:', error);
+            }
         }
         
         // Limpar e atualizar

@@ -90,37 +90,87 @@ function mostrarSecao(secaoId) {
 // === CARREGAR FICHAS ===
 async function carregarFichasChatbot() {
     console.log('🔄 Carregando fichas Chatbot...');
-    console.log('🔄 window.supabaseDB:', window.supabaseDB);
     
-    // Tentar usar Supabase primeiro
+    let fichasCarregadas = [];
+    
+    // 1. Tentar carregar do Supabase
     if (window.supabaseDB && !window.supabaseDB.usarLocalStorage) {
         try {
-            const fichas = await window.supabaseDB.obterFichasChatbot();
-            console.log('✅ Fichas carregadas do Supabase:', fichas.length);
-            fichasChatbot = fichas || [];
-            console.log('📋 fichasChatbot atualizado:', fichasChatbot.length);
-            return;
+            console.log('📦 Tentando carregar do Supabase...');
+            const fichasSupabase = await window.supabaseDB.obterFichasChatbot();
+            if (Array.isArray(fichasSupabase) && fichasSupabase.length > 0) {
+                fichasCarregadas = fichasSupabase;
+                console.log('✅ Fichas carregadas do Supabase:', fichasCarregadas.length);
+            }
         } catch (error) {
             console.error('❌ Erro ao carregar do Supabase:', error);
         }
     }
     
-    // Fallback para gerenciador de fichas
-    if (window.gerenciadorFichas) {
-        fichasChatbot = window.gerenciadorFichas.obterFichasPorTipo('chatbot') || [];
-        console.log('📋 Fichas carregadas do gerenciadorFichas:', fichasChatbot.length);
-    } else if (window.GerenciadorFichasPerfil) {
-        window.gerenciadorFichas = new GerenciadorFichasPerfil();
-        fichasChatbot = window.gerenciadorFichas.obterFichasPorTipo('chatbot') || [];
-        console.log('📋 Fichas carregadas do GerenciadorFichasPerfil:', fichasChatbot.length);
-    } else {
-        // Fallback para localStorage
-        const fichas = JSON.parse(localStorage.getItem('velotax_demandas_chatbot') || '[]');
-        fichasChatbot = fichas.map(f => ({ ...f, tipoDemanda: 'chatbot' }));
-        console.log('📋 Fichas carregadas do localStorage:', fichasChatbot.length);
+    // 2. Carregar do localStorage (sempre, para garantir que não perdemos dados)
+    try {
+        const fichasLocal = JSON.parse(localStorage.getItem('velotax_demandas_chatbot') || '[]');
+        if (Array.isArray(fichasLocal) && fichasLocal.length > 0) {
+            console.log('📦 Fichas encontradas no localStorage:', fichasLocal.length);
+            // Mesclar com fichas do Supabase (evitar duplicatas)
+            fichasLocal.forEach(fichaLocal => {
+                if (!fichasCarregadas.find(f => f.id === fichaLocal.id)) {
+                    fichasCarregadas.push({ ...fichaLocal, tipoDemanda: 'chatbot' });
+                }
+            });
+        }
+    } catch (error) {
+        console.error('❌ Erro ao carregar do localStorage:', error);
     }
     
-    console.log('✅ Carregamento finalizado. Total de fichas:', fichasChatbot.length);
+    // 3. Tentar carregar do gerenciador de fichas
+    if (window.gerenciadorFichas) {
+        try {
+            const fichasGerenciador = window.gerenciadorFichas.obterFichasPorTipo('chatbot') || [];
+            if (Array.isArray(fichasGerenciador) && fichasGerenciador.length > 0) {
+                console.log('📦 Fichas encontradas no gerenciadorFichas:', fichasGerenciador.length);
+                fichasGerenciador.forEach(fichaGer => {
+                    if (!fichasCarregadas.find(f => f.id === fichaGer.id)) {
+                        fichasCarregadas.push({ ...fichaGer, tipoDemanda: 'chatbot' });
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('❌ Erro ao carregar do gerenciadorFichas:', error);
+        }
+    } else if (window.GerenciadorFichasPerfil) {
+        try {
+            window.gerenciadorFichas = new GerenciadorFichasPerfil();
+            const fichasGerenciador = window.gerenciadorFichas.obterFichasPorTipo('chatbot') || [];
+            if (Array.isArray(fichasGerenciador) && fichasGerenciador.length > 0) {
+                console.log('📦 Fichas encontradas no GerenciadorFichasPerfil:', fichasGerenciador.length);
+                fichasGerenciador.forEach(fichaGer => {
+                    if (!fichasCarregadas.find(f => f.id === fichaGer.id)) {
+                        fichasCarregadas.push({ ...fichaGer, tipoDemanda: 'chatbot' });
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('❌ Erro ao carregar do GerenciadorFichasPerfil:', error);
+        }
+    }
+    
+    // Atualizar array global
+    fichasChatbot = fichasCarregadas;
+    
+    // Garantir que fichasChatbot seja um array
+    if (!Array.isArray(fichasChatbot)) {
+        console.warn('⚠️ fichasChatbot não é um array, convertendo...');
+        fichasChatbot = [];
+    }
+    
+    // Sincronizar com localStorage (backup)
+    if (fichasChatbot.length > 0) {
+        localStorage.setItem('velotax_demandas_chatbot', JSON.stringify(fichasChatbot));
+    }
+    
+    console.log('📋 Total de fichas Chatbot carregadas:', fichasChatbot.length);
+    console.log('📋 IDs das fichas:', fichasChatbot.map(f => f.id).join(', '));
 }
 
 // === FORMULÁRIO ===
@@ -221,42 +271,40 @@ async function handleSubmitChatbot(e) {
         
         // Salvar
         console.log('💾 Salvando ficha...');
-        if (window.supabaseDB) {
-            console.log('📦 Usando Supabase');
+        
+        // SEMPRE adicionar ao array local primeiro
+        const indexExistente = fichasChatbot.findIndex(f => f.id === ficha.id);
+        if (indexExistente >= 0) {
+            fichasChatbot[indexExistente] = ficha;
+            console.log('✅ Ficha atualizada no array local');
+        } else {
+            fichasChatbot.push(ficha);
+            console.log('✅ Ficha adicionada ao array local');
+        }
+        
+        // Salvar no localStorage (sempre, como backup)
+        localStorage.setItem('velotax_demandas_chatbot', JSON.stringify(fichasChatbot));
+        console.log('💾 Salvo no localStorage:', fichasChatbot.length, 'fichas');
+        
+        // Tentar salvar no Supabase (se disponível)
+        if (window.supabaseDB && !window.supabaseDB.usarLocalStorage) {
             try {
                 await window.supabaseDB.salvarFichaChatbot(ficha);
                 console.log('✅ Salvo no Supabase');
             } catch (error) {
                 console.error('❌ Erro ao salvar no Supabase:', error);
-                // Fallback
-                if (window.gerenciadorFichas) {
-                    window.gerenciadorFichas.adicionarFicha(ficha);
-                    console.log('💾 Fallback: salvo via gerenciadorFichas');
-                } else {
-                    fichasChatbot.push(ficha);
-                    localStorage.setItem('velotax_demandas_chatbot', JSON.stringify(fichasChatbot));
-                    console.log('💾 Fallback: salvo no localStorage');
-                }
+                console.log('⚠️ Continuando com localStorage apenas');
             }
-        } else if (window.gerenciadorFichas) {
-            window.gerenciadorFichas.adicionarFicha(ficha);
-            console.log('💾 Salvo via gerenciadorFichas');
-        } else {
-            fichasChatbot.push(ficha);
-            localStorage.setItem('velotax_demandas_chatbot', JSON.stringify(fichasChatbot));
-            console.log('💾 Salvo no localStorage');
         }
         
-        // Garantir que a ficha foi adicionada ao array local
-        if (!fichasChatbot.find(f => f.id === ficha.id)) {
-            fichasChatbot.push(ficha);
-            console.log('✅ Ficha adicionada ao array local');
-        }
-        
-        // Atualizar localStorage se não estiver usando Supabase
-        if (!window.supabaseDB || window.supabaseDB.usarLocalStorage) {
-            localStorage.setItem('velotax_demandas_chatbot', JSON.stringify(fichasChatbot));
-            console.log('💾 localStorage atualizado');
+        // Tentar salvar no gerenciador de fichas (se disponível)
+        if (window.gerenciadorFichas) {
+            try {
+                window.gerenciadorFichas.adicionarFicha(ficha);
+                console.log('✅ Salvo no gerenciadorFichas');
+            } catch (error) {
+                console.error('❌ Erro ao salvar no gerenciadorFichas:', error);
+            }
         }
         
         // Limpar e atualizar
@@ -772,14 +820,27 @@ function gerarRelatorioAutoChatbot() {
         `${auto.length} fichas resolvidas automaticamente`);
 }
 
-function gerarRelatorioSatisfacaoChatbot() {
-    const comSatisfacao = fichasChatbot.filter(f => f.satisfacao);
+async function gerarRelatorioSatisfacaoChatbot() {
+    // Garantir que as fichas estão carregadas
+    if (!fichasChatbot || fichasChatbot.length === 0) {
+        console.log('📦 Carregando fichas antes de gerar relatório...');
+        await carregarFichasChatbot();
+    }
+    
+    const comSatisfacao = fichasChatbot.filter(f => f.satisfacao && f.satisfacao !== '');
+    console.log('📊 Fichas com satisfação:', comSatisfacao.length);
+    
     const media = comSatisfacao.length > 0 
-        ? (comSatisfacao.reduce((s, f) => s + parseInt(f.satisfacao), 0) / comSatisfacao.length).toFixed(1)
+        ? (comSatisfacao.reduce((s, f) => s + parseInt(f.satisfacao || 0), 0) / comSatisfacao.length).toFixed(1)
         : 0;
     
+    if (comSatisfacao.length === 0) {
+        mostrarAlerta('Nenhuma avaliação de satisfação encontrada', 'info');
+        return;
+    }
+    
     mostrarRelatorioSatisfacao('Relatório de Satisfação - Chatbot', comSatisfacao, 
-        `Média de satisfação: ${media}/5`);
+        `Média de satisfação: ${media}/5 (${comSatisfacao.length} avaliações)`);
 }
 
 function gerarRelatorioCompletoChatbot() {

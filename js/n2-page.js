@@ -104,34 +104,72 @@ function mostrarSecao(secaoId) {
 async function carregarFichasN2() {
     console.log('🔄 Carregando fichas N2...');
     
-    // Tentar usar Supabase primeiro
+    let fichasCarregadas = [];
+    
+    // 1. Tentar carregar do Supabase
     if (window.supabaseDB && !window.supabaseDB.usarLocalStorage) {
         try {
             console.log('📦 Tentando carregar do Supabase...');
-            fichasN2 = await window.supabaseDB.obterFichasN2();
-            console.log('✅ Fichas N2 carregadas do Supabase:', fichasN2.length);
-            return;
+            const fichasSupabase = await window.supabaseDB.obterFichasN2();
+            if (Array.isArray(fichasSupabase) && fichasSupabase.length > 0) {
+                fichasCarregadas = fichasSupabase;
+                console.log('✅ Fichas carregadas do Supabase:', fichasCarregadas.length);
+            }
         } catch (error) {
             console.error('❌ Erro ao carregar do Supabase:', error);
         }
     }
     
-    // Fallback para gerenciador de fichas
-    if (window.gerenciadorFichas) {
-        console.log('📦 Carregando do gerenciadorFichas...');
-        fichasN2 = window.gerenciadorFichas.obterFichasPorTipo('n2') || [];
-        console.log('✅ Fichas N2 carregadas do gerenciadorFichas:', fichasN2.length);
-    } else if (window.GerenciadorFichasPerfil) {
-        console.log('📦 Inicializando GerenciadorFichasPerfil...');
-        window.gerenciadorFichas = new GerenciadorFichasPerfil();
-        fichasN2 = window.gerenciadorFichas.obterFichasPorTipo('n2') || [];
-        console.log('✅ Fichas N2 carregadas do GerenciadorFichasPerfil:', fichasN2.length);
-    } else {
-        console.log('📦 Carregando do localStorage...');
-        const fichas = JSON.parse(localStorage.getItem('velotax_demandas_n2') || '[]');
-        fichasN2 = fichas.map(f => ({ ...f, tipoDemanda: 'n2' }));
-        console.log('✅ Fichas N2 carregadas do localStorage:', fichasN2.length);
+    // 2. Carregar do localStorage (sempre, para garantir que não perdemos dados)
+    try {
+        const fichasLocal = JSON.parse(localStorage.getItem('velotax_demandas_n2') || '[]');
+        if (Array.isArray(fichasLocal) && fichasLocal.length > 0) {
+            console.log('📦 Fichas encontradas no localStorage:', fichasLocal.length);
+            // Mesclar com fichas do Supabase (evitar duplicatas)
+            fichasLocal.forEach(fichaLocal => {
+                if (!fichasCarregadas.find(f => f.id === fichaLocal.id)) {
+                    fichasCarregadas.push({ ...fichaLocal, tipoDemanda: 'n2' });
+                }
+            });
+        }
+    } catch (error) {
+        console.error('❌ Erro ao carregar do localStorage:', error);
     }
+    
+    // 3. Tentar carregar do gerenciador de fichas
+    if (window.gerenciadorFichas) {
+        try {
+            const fichasGerenciador = window.gerenciadorFichas.obterFichasPorTipo('n2') || [];
+            if (Array.isArray(fichasGerenciador) && fichasGerenciador.length > 0) {
+                console.log('📦 Fichas encontradas no gerenciadorFichas:', fichasGerenciador.length);
+                fichasGerenciador.forEach(fichaGer => {
+                    if (!fichasCarregadas.find(f => f.id === fichaGer.id)) {
+                        fichasCarregadas.push({ ...fichaGer, tipoDemanda: 'n2' });
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('❌ Erro ao carregar do gerenciadorFichas:', error);
+        }
+    } else if (window.GerenciadorFichasPerfil) {
+        try {
+            window.gerenciadorFichas = new GerenciadorFichasPerfil();
+            const fichasGerenciador = window.gerenciadorFichas.obterFichasPorTipo('n2') || [];
+            if (Array.isArray(fichasGerenciador) && fichasGerenciador.length > 0) {
+                console.log('📦 Fichas encontradas no GerenciadorFichasPerfil:', fichasGerenciador.length);
+                fichasGerenciador.forEach(fichaGer => {
+                    if (!fichasCarregadas.find(f => f.id === fichaGer.id)) {
+                        fichasCarregadas.push({ ...fichaGer, tipoDemanda: 'n2' });
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('❌ Erro ao carregar do GerenciadorFichasPerfil:', error);
+        }
+    }
+    
+    // Atualizar array global
+    fichasN2 = fichasCarregadas;
     
     // Garantir que fichasN2 seja um array
     if (!Array.isArray(fichasN2)) {
@@ -139,7 +177,13 @@ async function carregarFichasN2() {
         fichasN2 = [];
     }
     
+    // Sincronizar com localStorage (backup)
+    if (fichasN2.length > 0) {
+        localStorage.setItem('velotax_demandas_n2', JSON.stringify(fichasN2));
+    }
+    
     console.log('📋 Total de fichas N2 carregadas:', fichasN2.length);
+    console.log('📋 IDs das fichas:', fichasN2.map(f => f.id).join(', '));
 }
 
 // === FORMULÁRIO ===
@@ -260,42 +304,40 @@ async function handleSubmitN2(e) {
         
         // Salvar
         console.log('💾 Salvando ficha...');
-        if (window.supabaseDB) {
-            console.log('📦 Usando Supabase');
+        
+        // SEMPRE adicionar ao array local primeiro
+        const indexExistente = fichasN2.findIndex(f => f.id === ficha.id);
+        if (indexExistente >= 0) {
+            fichasN2[indexExistente] = ficha;
+            console.log('✅ Ficha atualizada no array local');
+        } else {
+            fichasN2.push(ficha);
+            console.log('✅ Ficha adicionada ao array local');
+        }
+        
+        // Salvar no localStorage (sempre, como backup)
+        localStorage.setItem('velotax_demandas_n2', JSON.stringify(fichasN2));
+        console.log('💾 Salvo no localStorage:', fichasN2.length, 'fichas');
+        
+        // Tentar salvar no Supabase (se disponível)
+        if (window.supabaseDB && !window.supabaseDB.usarLocalStorage) {
             try {
                 await window.supabaseDB.salvarFichaN2(ficha);
                 console.log('✅ Salvo no Supabase');
             } catch (error) {
                 console.error('❌ Erro ao salvar no Supabase:', error);
-                // Fallback
-                if (window.gerenciadorFichas) {
-                    window.gerenciadorFichas.adicionarFicha(ficha);
-                    console.log('💾 Fallback: salvo via gerenciadorFichas');
-                } else {
-                    fichasN2.push(ficha);
-                    localStorage.setItem('velotax_demandas_n2', JSON.stringify(fichasN2));
-                    console.log('💾 Fallback: salvo no localStorage');
-                }
+                console.log('⚠️ Continuando com localStorage apenas');
             }
-        } else if (window.gerenciadorFichas) {
-            window.gerenciadorFichas.adicionarFicha(ficha);
-            console.log('💾 Salvo via gerenciadorFichas');
-        } else {
-            fichasN2.push(ficha);
-            localStorage.setItem('velotax_demandas_n2', JSON.stringify(fichasN2));
-            console.log('💾 Salvo no localStorage');
         }
         
-        // Garantir que a ficha foi adicionada ao array local
-        if (!fichasN2.find(f => f.id === ficha.id)) {
-            fichasN2.push(ficha);
-            console.log('✅ Ficha adicionada ao array local');
-        }
-        
-        // Atualizar localStorage se não estiver usando Supabase
-        if (!window.supabaseDB || window.supabaseDB.usarLocalStorage) {
-            localStorage.setItem('velotax_demandas_n2', JSON.stringify(fichasN2));
-            console.log('💾 localStorage atualizado');
+        // Tentar salvar no gerenciador de fichas (se disponível)
+        if (window.gerenciadorFichas) {
+            try {
+                window.gerenciadorFichas.adicionarFicha(ficha);
+                console.log('✅ Salvo no gerenciadorFichas');
+            } catch (error) {
+                console.error('❌ Erro ao salvar no gerenciadorFichas:', error);
+            }
         }
         
         // Limpar e atualizar
