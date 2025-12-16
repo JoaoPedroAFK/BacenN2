@@ -538,15 +538,19 @@ function renderizarListaChatbot() {
 
     console.log('📋 Renderizando lista Chatbot geral com', fichasChatbot.length, 'fichas');
     if (fichasChatbot.length > 0) {
-        console.log('📋 Primeiras 3 fichas:', fichasChatbot.slice(0, 3).map(f => ({ id: f.id, nome: f.nomeCompleto })));
+        console.log('📋 Primeiras 3 fichas:', fichasChatbot.slice(0, 3).map(f => ({ id: f.id, nome: f.nomeCompleto, status: f.status })));
     }
     
     const busca = document.getElementById('busca-chatbot')?.value.toLowerCase() || '';
     const filtroStatus = document.getElementById('filtro-status-chatbot')?.value || '';
     const filtroCanal = document.getElementById('filtro-canal-chatbot')?.value || '';
     
+    console.log('🔍 Filtros aplicados:', { busca, filtroStatus, filtroCanal });
+    console.log('📋 Primeira ficha completa:', fichasChatbot.length > 0 ? fichasChatbot[0] : 'Nenhuma');
+    
     // NÃO FILTRAR POR USUÁRIO NA LISTA GERAL - mostrar TODAS as reclamações de TODOS os agentes
     let filtradas = [...(fichasChatbot || [])]; // Criar cópia para não modificar o array original
+    console.log('📋 Fichas antes dos filtros:', filtradas.length);
     
     if (busca) {
         // Normalizar busca (remover formatação de CPF)
@@ -576,13 +580,35 @@ function renderizarListaChatbot() {
         });
     }
     
-    if (filtroStatus) {
-        filtradas = filtradas.filter(f => f.status === filtroStatus);
+    if (filtroStatus && filtroStatus.trim() !== '') {
+        const antesStatus = filtradas.length;
+        filtradas = filtradas.filter(f => {
+            const statusFicha = (f.status || '').toString().toLowerCase().trim();
+            const statusFiltro = filtroStatus.toLowerCase().trim();
+            const match = statusFicha === statusFiltro;
+            if (!match && antesStatus <= 5) {
+                console.log(`❌ Ficha ${f.id} não passou no filtro de status: "${statusFicha}" !== "${statusFiltro}"`);
+            }
+            return match;
+        });
+        console.log(`🔍 Filtro de status: ${antesStatus} -> ${filtradas.length}`);
     }
     
-    if (filtroCanal) {
-        filtradas = filtradas.filter(f => f.canalChatbot === filtroCanal);
+    if (filtroCanal && filtroCanal.trim() !== '') {
+        const antesCanal = filtradas.length;
+        filtradas = filtradas.filter(f => {
+            const canalFicha = (f.canalChatbot || f.canal || '').toString().toLowerCase().trim();
+            const canalFiltro = filtroCanal.toLowerCase().trim();
+            const match = canalFicha === canalFiltro;
+            if (!match && antesCanal <= 5) {
+                console.log(`❌ Ficha ${f.id} não passou no filtro de canal: "${canalFicha}" !== "${canalFiltro}"`);
+            }
+            return match;
+        });
+        console.log(`🔍 Filtro de canal: ${antesCanal} -> ${filtradas.length}`);
     }
+    
+    console.log('📋 Fichas após todos os filtros:', filtradas.length);
     
     if (filtradas.length === 0) {
         if (fichasChatbot.length === 0) {
