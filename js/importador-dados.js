@@ -288,41 +288,46 @@ class ImportadorDados {
                     continue;
                 }
                 
-                // Verificar se o nome é apenas zeros ou está vazio (priorizar coluna "Nome completo")
-                const nomeBruto = dadoBruto["Nome completo"] || dadoBruto["Nome"] || dadoBruto["Cliente"] || '';
-                const nomeStr = nomeBruto.toString().trim();
+                // Identificar tipo ANTES de validar nome/CPF (para aplicar regras específicas)
+                const tipoIdentificado = this.identificarTipoDemanda(dadoBruto);
                 
-                if (!nomeStr || nomeStr === '' || /^0+$/.test(nomeStr)) {
+                // Para chatbot, verificar CPF primeiro (obrigatório)
+                if (tipoIdentificado === 'chatbot') {
+                    const cpfBruto = dadoBruto["CPF"] || dadoBruto["CPF Tratado"] || dadoBruto["CPF Tratado "] || '';
+                    const cpfStr = (cpfBruto || '').toString().trim().replace(/\D/g, '');
+                    
+                    if (!cpfStr || cpfStr === '' || /^0+$/.test(cpfStr) || cpfStr.length !== 11) {
+                        this.adicionarLog(`⏭️ Registro ${i + 1}: Ignorado (CPF em branco ou inválido - obrigatório para Chatbot)`, 'aviso');
+                        processados++;
+                        continue;
+                    }
+                }
+                
+                // Mapear primeiro para obter nomeCliente (pode vir de várias colunas)
+                const ficha = this.mapearParaFicha(dadoBruto);
+                
+                // Verificar nome após mapeamento (mais flexível)
+                const nomeFinal = (ficha.nomeCliente || ficha.nomeCompleto || '').toString().trim();
+                
+                // Para chatbot, se não tiver nome mas tiver CPF, gerar nome do CPF
+                if (tipoIdentificado === 'chatbot' && (!nomeFinal || nomeFinal === '' || /^0+$/.test(nomeFinal))) {
+                    if (ficha.cpf && ficha.cpf.length === 11) {
+                        ficha.nomeCliente = `Cliente ${ficha.cpf}`;
+                        ficha.nomeCompleto = `Cliente ${ficha.cpf}`;
+                    } else {
+                        this.adicionarLog(`⏭️ Registro ${i + 1}: Ignorado (sem nome e sem CPF válido)`, 'aviso');
+                        processados++;
+                        continue;
+                    }
+                } else if (!nomeFinal || nomeFinal === '' || /^0+$/.test(nomeFinal) || nomeFinal.startsWith('Cliente Importado')) {
+                    // Para outros tipos, nome é obrigatório
                     this.adicionarLog(`⏭️ Registro ${i + 1}: Ignorado (nome vazio ou contém apenas zeros)`, 'aviso');
                     processados++;
                     continue;
                 }
                 
-                // Identificar tipo antes de validar CPF (chatbot requer CPF)
-                const tipoIdentificado = this.identificarTipoDemanda(dadoBruto);
-                
-                // Verificar CPF em branco (para chatbot, não considerar registros sem CPF)
-                const cpfBruto = dadoBruto["CPF"] || dadoBruto["CPF Tratado"] || '';
-                const cpfStr = (cpfBruto || '').toString().trim().replace(/\D/g, '');
-                
-                if (tipoIdentificado === 'chatbot' && (!cpfStr || cpfStr === '' || /^0+$/.test(cpfStr))) {
-                    this.adicionarLog(`⏭️ Registro ${i + 1}: Ignorado (CPF em branco - obrigatório para Chatbot)`, 'aviso');
-                    processados++;
-                    continue;
-                }
-                
-                const ficha = this.mapearParaFicha(dadoBruto);
-                
                 // Validação
                 this.validarFicha(ficha);
-                
-                // Verificar novamente após mapeamento (caso tenha sido gerado automaticamente)
-                const nomeFinal = (ficha.nomeCliente || '').toString().trim();
-                if (!nomeFinal || nomeFinal === '' || /^0+$/.test(nomeFinal) || nomeFinal.startsWith('Cliente Importado')) {
-                    this.adicionarLog(`⏭️ Registro ${i + 1}: Ignorado (nome inválido ou gerado automaticamente)`, 'aviso');
-                    processados++;
-                    continue;
-                }
                 
                 this.dadosImportados.push(ficha);
                 sucesso++;

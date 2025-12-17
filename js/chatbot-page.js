@@ -3,62 +3,30 @@
 // Variáveis globais
 let fichasChatbot = [];
 
-// Declarar mostrarSecao no escopo global ANTES de definir a função
-// Isso garante que esteja disponível quando os botões HTML forem clicados
-window.mostrarSecao = null;
-
-// Inicialização
-document.addEventListener('DOMContentLoaded', async function() {
-    if (window.loadingVelotax) {
-        window.loadingVelotax.mostrar();
-        window.loadingVelotax.esconderForcado(); // Segurança
-    }
-    
-    try {
-        // Garantir que mostrarSecao está no escopo global ANTES de qualquer coisa
-        window.mostrarSecao = mostrarSecao;
-        
-        inicializarChatbot();
-        await carregarFichasChatbot();
-        atualizarDashboardChatbot();
-        configurarEventosChatbot();
-        
-        // Garantir que buscarClientePorCPF está disponível
-        if (!window.buscarClientePorCPF) {
-            window.buscarClientePorCPF = function() {
-                const input = document.getElementById('busca-cliente-cpf');
-                const cpf = input ? input.value.trim() : '';
-                if (cpf) {
-                    if (window.historicoCliente && window.historicoCliente.mostrarHistorico) {
-                        window.historicoCliente.mostrarHistorico(cpf);
-                    } else {
-                        mostrarAlerta('Sistema de histórico não disponível', 'error');
-                    }
-                    if (input) input.value = '';
-                } else {
-                    mostrarAlerta('Digite um CPF para buscar', 'info');
-                }
-            };
-        }
-    } catch (error) {
-        console.error('Erro na inicialização Chatbot:', error);
-    } finally {
-        setTimeout(() => {
-            if (window.loadingVelotax) {
-                window.loadingVelotax.esconder();
-            }
-        }, 500);
-    }
-});
-
-// === INICIALIZAÇÃO ===
-function inicializarChatbot() {
-    // Não preencher automaticamente - usuário deve inserir manualmente
-}
-
 // === NAVEGAÇÃO ===
 function mostrarSecao(secaoId) {
-    console.log('🔍 mostrarSecao chamado com:', secaoId);
+    // Esconder todas as seções
+    document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    // Remover active de todos os botões
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Mostrar seção selecionada
+    const section = document.getElementById(secaoId);
+    if (section) {
+        section.classList.add('active');
+    }
+    
+    // Ativar botão correspondente
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${secaoId}'`)) {
+            btn.classList.add('active');
+        }
+    });
     
     // Esconder todas as seções
     document.querySelectorAll('.section').forEach(section => {
