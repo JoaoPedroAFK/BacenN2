@@ -858,7 +858,20 @@ class ImportadorDados {
             localStorage.setItem('velotax_reclamacoes_n2', JSON.stringify(n2Final));
             localStorage.setItem('velotax_reclamacoes_chatbot', JSON.stringify(chatbotFinal));
             
-            this.adicionarLog(`💾 Dados salvos no localStorage: BACEN=${bacenFinal.length}, N2=${n2Final.length}, Chatbot=${chatbotFinal.length}`, 'sucesso');
+            // Verificar se foi salvo corretamente
+            const verificarBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || '[]');
+            const verificarN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || '[]');
+            const verificarChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || '[]');
+            
+            this.adicionarLog(`💾 Dados salvos no localStorage: BACEN=${verificarBacen.length}, N2=${verificarN2.length}, Chatbot=${verificarChatbot.length}`, 'sucesso');
+            this.adicionarLog(`🔍 Verificação: BACEN=${verificarBacen.length === bacenFinal.length ? 'OK' : 'ERRO'}, N2=${verificarN2.length === n2Final.length ? 'OK' : 'ERRO'}, Chatbot=${verificarChatbot.length === chatbotFinal.length ? 'OK' : 'ERRO'}`, 'info');
+            
+            if (verificarBacen.length > 0) {
+                this.adicionarLog(`📋 Exemplo BACEN: ${verificarBacen[0].nomeCliente || verificarBacen[0].nomeCompleto || 'Sem nome'} (ID: ${verificarBacen[0].id})`, 'info');
+            }
+            if (verificarN2.length > 0) {
+                this.adicionarLog(`📋 Exemplo N2: ${verificarN2[0].nomeCliente || verificarN2[0].nomeCompleto || 'Sem nome'} (ID: ${verificarN2[0].id})`, 'info');
+            }
             
             // Usar o sistema de armazenamento se disponível (para sincronização)
             if (window.armazenamentoReclamacoes) {
