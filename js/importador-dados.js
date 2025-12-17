@@ -830,7 +830,7 @@ class ImportadorDados {
     }
 
     // === AÇÕES FINAIS ===
-    salvarDados() {
+    async salvarDados() {
         try {
             // Verificar se há dados importados
             this.adicionarLog(`🔍 Verificando dados importados...`, 'info');
@@ -968,22 +968,19 @@ class ImportadorDados {
             if (window.armazenamentoReclamacoes) {
                 let salvosBacen = 0, salvosN2 = 0, salvosChatbot = 0;
                 
-                // Salva usando o sistema de armazenamento
-                dadosSeparados.bacen.forEach(ficha => {
-                    if (window.armazenamentoReclamacoes.salvar('bacen', ficha)) {
-                        salvosBacen++;
-                    }
-                });
-                dadosSeparados.n2.forEach(ficha => {
-                    if (window.armazenamentoReclamacoes.salvar('n2', ficha)) {
-                        salvosN2++;
-                    }
-                });
-                dadosSeparados.chatbot.forEach(ficha => {
-                    if (window.armazenamentoReclamacoes.salvar('chatbot', ficha)) {
-                        salvosChatbot++;
-                    }
-                });
+                // Salva usando o sistema de armazenamento (assíncrono)
+                for (const ficha of dadosSeparados.bacen) {
+                    const resultado = await window.armazenamentoReclamacoes.salvar('bacen', ficha);
+                    if (resultado) salvosBacen++;
+                }
+                for (const ficha of dadosSeparados.n2) {
+                    const resultado = await window.armazenamentoReclamacoes.salvar('n2', ficha);
+                    if (resultado) salvosN2++;
+                }
+                for (const ficha of dadosSeparados.chatbot) {
+                    const resultado = await window.armazenamentoReclamacoes.salvar('chatbot', ficha);
+                    if (resultado) salvosChatbot++;
+                }
                 
                 this.adicionarLog(`✅ Dados salvos via sistema: BACEN=${salvosBacen}, N2=${salvosN2}, Chatbot=${salvosChatbot}`, 'sucesso');
             }

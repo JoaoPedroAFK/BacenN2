@@ -261,8 +261,8 @@ function handleSubmitChatbot(e) {
             return;
         }
         
-        // Salvar usando o novo sistema (síncrono e direto)
-        const sucesso = window.armazenamentoReclamacoes.salvar('chatbot', ficha);
+        // Salvar usando o novo sistema (assíncrono)
+        const sucesso = await window.armazenamentoReclamacoes.salvar('chatbot', ficha);
         
         if (!sucesso) {
             console.error('❌ Erro ao salvar reclamação');

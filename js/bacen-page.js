@@ -268,7 +268,7 @@ async function handleSubmitBacen(e) {
         // PRIORIDADE 1: Salvar no armazenamentoReclamacoes (sistema novo e confiável)
         if (window.armazenamentoReclamacoes) {
             try {
-                const sucesso = window.armazenamentoReclamacoes.salvar('bacen', ficha);
+                const sucesso = await window.armazenamentoReclamacoes.salvar('bacen', ficha);
                 if (sucesso) {
                     console.log('✅ Salvo no armazenamentoReclamacoes');
                 } else {

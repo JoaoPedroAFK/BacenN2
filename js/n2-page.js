@@ -110,7 +110,7 @@ async function carregarFichasN2() {
     if (window.armazenamentoReclamacoes) {
         try {
             console.log('📦 Carregando do armazenamentoReclamacoes...');
-            fichasCarregadas = window.armazenamentoReclamacoes.carregarTodos('n2') || [];
+            fichasCarregadas = await window.armazenamentoReclamacoes.carregarTodos('n2') || [];
             console.log('✅ Fichas carregadas do armazenamentoReclamacoes:', fichasCarregadas.length);
         } catch (error) {
             console.error('❌ Erro ao carregar do armazenamentoReclamacoes:', error);
@@ -283,7 +283,7 @@ async function handleSubmitN2(e) {
         // PRIORIDADE 1: Salvar no armazenamentoReclamacoes (sistema novo e confiável)
         if (window.armazenamentoReclamacoes) {
             try {
-                const sucesso = window.armazenamentoReclamacoes.salvar('n2', ficha);
+                const sucesso = await window.armazenamentoReclamacoes.salvar('n2', ficha);
                 if (sucesso) {
                     console.log('✅ Salvo no armazenamentoReclamacoes');
                 } else {
