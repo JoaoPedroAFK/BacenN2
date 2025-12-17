@@ -1083,9 +1083,10 @@
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    height: 250px;
+    min-height: 300px;
+    height: 300px;
     gap: 12px;
-    padding: 0 20px;
+    padding: 0 20px 80px 20px;
 }
 
 .barra-item {
@@ -1118,9 +1119,17 @@
 .barra-label {
     font-size: 11px;
     color: #666;
-    text-align: center;
-    word-break: break-word;
-    max-width: 100px;
+    text-align: left;
+    white-space: nowrap;
+    max-width: 120px;
+    overflow: visible;
+    padding-top: 5px;
+    transform: rotate(-45deg);
+    transform-origin: top left;
+    margin-left: 10px;
+    height: 60px;
+    display: flex;
+    align-items: flex-start;
 }
 
 .grafico-linha {

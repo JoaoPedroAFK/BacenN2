@@ -522,10 +522,10 @@ class GraficosDetalhados {
 
     criarGraficoBarras(labels, values, cores, titulo) {
         const maxValue = Math.max(...values, 1);
-        const alturaMax = 200;
+        const alturaMax = 250; // Altura fixa para todos os gráficos
 
         return `
-            <div class="grafico-barras">
+            <div class="grafico-barras" style="min-height: 350px;">
                 <div class="grafico-barras-container">
                     ${labels.map((label, i) => {
                         const altura = (values[i] / maxValue) * alturaMax;
@@ -534,7 +534,7 @@ class GraficosDetalhados {
                             <div class="barra-item">
                                 <div class="barra-valor">${values[i]}</div>
                                 <div class="barra" style="height: ${altura}px; background: ${cor};" title="${label}: ${values[i]}"></div>
-                                <div class="barra-label">${this.formatarLabel(label)}</div>
+                                <div class="barra-label" style="transform: rotate(-45deg); transform-origin: top left; white-space: nowrap; margin-top: 5px; margin-left: 10px;">${this.formatarLabel(label)}</div>
                             </div>
                         `;
                     }).join('')}
@@ -723,7 +723,13 @@ class GraficosDetalhados {
 
         const responsavelCount = {};
         dados.forEach(f => {
-            const responsavel = f.responsavel || 'Não atribuído';
+            let responsavel = (f.responsavel || 'Não atribuído').toString().trim();
+            
+            // Normalizar "Shirley" - agregar todas as variações
+            if (responsavel.toLowerCase().includes('shirley')) {
+                responsavel = 'Shirley';
+            }
+            
             responsavelCount[responsavel] = (responsavelCount[responsavel] || 0) + 1;
         });
 
@@ -732,7 +738,7 @@ class GraficosDetalhados {
             .sort((a, b) => b[1] - a[1])
             .slice(0, 10);
 
-        const labels = sorted.map(([nome]) => nome.length > 20 ? nome.substring(0, 20) + '...' : nome);
+        const labels = sorted.map(([nome]) => nome);
         const values = sorted.map(([, count]) => count);
 
         container.innerHTML = this.criarGraficoBarras(labels, values, null, 'Responsável');
