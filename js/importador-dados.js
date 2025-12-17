@@ -832,10 +832,23 @@ class ImportadorDados {
     // === AÇÕES FINAIS ===
     salvarDados() {
         try {
+            // Verificar se há dados importados
+            this.adicionarLog(`🔍 Verificando dados importados...`, 'info');
+            this.adicionarLog(`   📦 this.dadosImportados.length: ${this.dadosImportados ? this.dadosImportados.length : 'UNDEFINED'}`, 'info');
+            
+            if (!this.dadosImportados || this.dadosImportados.length === 0) {
+                this.adicionarLog(`❌ ERRO: Nenhum dado importado encontrado!`, 'erro');
+                this.adicionarLog(`   💡 Tente importar o arquivo novamente`, 'info');
+                this.mostrarNotificacao('Nenhum dado para salvar. Por favor, importe o arquivo novamente.', 'erro');
+                return;
+            }
+            
             // Filtra apenas registros sem erro
             const dadosValidos = this.dadosImportados.filter(d => !d._erroImportacao);
             
+            this.adicionarLog(`📊 Total de registros no array: ${this.dadosImportados.length}`, 'info');
             this.adicionarLog(`📊 Total de registros válidos para salvar: ${dadosValidos.length}`, 'info');
+            this.adicionarLog(`📊 Total de registros com erro: ${this.dadosImportados.length - dadosValidos.length}`, 'info');
             
             // Verificar tipos antes de separar
             const tiposEncontrados = {};
