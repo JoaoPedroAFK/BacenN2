@@ -195,19 +195,16 @@ class GraficosDetalhados {
             this.renderizarGraficoCasosCriticos(dadosFiltrados);
             this.renderizarGraficoResponsavel(dadosFiltrados);
         } else if (this.tipoDemanda === 'n2') {
-            // N2: 8 gráficos conforme proposta
+            // N2: 5 gráficos (removidos: StatusPortabilidade, BancoDestino)
             this.renderizarGraficoStatusPizza(dadosFiltrados);
-            this.renderizarGraficoStatusPortabilidade(dadosFiltrados);
             this.renderizarGraficoMensal(dadosFiltrados);
             this.renderizarGraficoOrigem(dadosFiltrados);
-            this.renderizarGraficoBancoDestino(dadosFiltrados);
             this.renderizarGraficoCobrancaPizza(dadosFiltrados);
             this.renderizarGraficoCasosCriticos(dadosFiltrados);
             this.renderizarGraficoResponsavel(dadosFiltrados);
         } else if (this.tipoDemanda === 'chatbot') {
-            // Chatbot: 8 gráficos conforme proposta
+            // Chatbot: 6 gráficos (removidos: ResolucaoAuto)
             this.renderizarGraficoStatusPizza(dadosFiltrados);
-            this.renderizarGraficoResolucaoAuto(dadosFiltrados);
             this.renderizarGraficoCanal(dadosFiltrados);
             this.renderizarGraficoSatisfacao(dadosFiltrados);
             this.renderizarGraficoMensal(dadosFiltrados);
@@ -218,11 +215,30 @@ class GraficosDetalhados {
     }
 
     renderizarGraficoStatusPizza(dados) {
-        const containerId = `grafico-status-pizza-${this.tipoDemanda}`;
-        let container = document.getElementById(containerId);
+        // Tentar primeiro o ID padrão do HTML, depois criar se não existir
+        let container = document.getElementById(`grafico-status-${this.tipoDemanda}`);
+        const containerId = container ? `grafico-status-${this.tipoDemanda}` : `grafico-status-pizza-${this.tipoDemanda}`;
         
         if (!container) {
-            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            container = document.getElementById(containerId);
+        }
+        
+        if (!container) {
+            // Tentar encontrar container de gráficos de várias formas
+            let graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-chatbot`);
+            }
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-bacen`);
+            }
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-n2`);
+            }
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda}`);
+            }
+            
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
@@ -230,6 +246,7 @@ class GraficosDetalhados {
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
+                console.error(`❌ Container de gráficos não encontrado para ${this.tipoDemanda}`);
                 return;
             }
         }
@@ -338,11 +355,30 @@ class GraficosDetalhados {
     }
 
     renderizarGraficoCobrancaPizza(dados) {
-        const containerId = `grafico-cobranca-pizza-${this.tipoDemanda}`;
-        let container = document.getElementById(containerId);
+        // Tentar primeiro o ID padrão do HTML, depois criar se não existir
+        let container = document.getElementById(`grafico-cobranca-${this.tipoDemanda}`);
+        const containerId = container ? `grafico-cobranca-${this.tipoDemanda}` : `grafico-cobranca-pizza-${this.tipoDemanda}`;
         
         if (!container) {
-            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            container = document.getElementById(containerId);
+        }
+        
+        if (!container) {
+            // Tentar encontrar container de gráficos de várias formas
+            let graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-chatbot`);
+            }
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-bacen`);
+            }
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-n2`);
+            }
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda}`);
+            }
+            
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
@@ -350,6 +386,7 @@ class GraficosDetalhados {
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
+                console.error(`❌ Container de gráficos não encontrado para ${this.tipoDemanda}`);
                 return;
             }
         }
@@ -674,7 +711,7 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Top 10 Responsáveis</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = `<h3>Por Responsável</h3><div id="${containerId}"></div>`;
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
@@ -873,14 +910,29 @@ class GraficosDetalhados {
         let container = document.getElementById(containerId);
         
         if (!container) {
-            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            // Tentar encontrar container de gráficos de várias formas
+            let graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-chatbot`);
+            }
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-bacen`);
+            }
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-n2`);
+            }
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda}`);
+            }
+            
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Top 10 Produtos</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = `<h3>Por Produto</h3><div id="${containerId}"></div>`;
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
+                console.error(`❌ Container de gráficos não encontrado para ${this.tipoDemanda}`);
                 return;
             }
         }
