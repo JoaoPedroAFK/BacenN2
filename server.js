@@ -89,7 +89,7 @@ function determinarTiposDemanda(email) {
     return ['bacen', 'n2', 'chatbot'];
 }
 
-const server = http.createServer(async (req, res) => {
+const handler = async (req, res) => {
     console.log(`${req.method} ${req.url}`);
 
     // Endpoint para validar token do Google
@@ -177,7 +177,7 @@ const server = http.createServer(async (req, res) => {
             res.end(content, 'utf-8');
         }
     });
-}
+};
 
 const server = http.createServer(handler);
 
