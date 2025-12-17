@@ -346,6 +346,13 @@ class ImportadorDados {
         // Identifica o tipo de demanda com base na aba ou campos específicos
         const tipoDemanda = this.identificarTipoDemanda(dadoBruto);
         
+        // Log para debug (apenas os primeiros 5 registros)
+        if (!this._debugCount) this._debugCount = 0;
+        if (this._debugCount < 5) {
+            console.log(`🔍 [${this._debugCount + 1}] Aba: "${dadoBruto._aba || 'N/A'}", Tipo identificado: "${tipoDemanda || 'N/A'}"`);
+            this._debugCount++;
+        }
+        
         // Normalizar chaves (remover espaços extras, normalizar maiúsculas/minúsculas)
         const normalizarChave = (chave) => {
             return Object.keys(dadoBruto).find(k => 
