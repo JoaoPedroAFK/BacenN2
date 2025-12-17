@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
         inicializarBacen();
         carregarFichasBacen().then(() => {
-            atualizarDashboardBacen();
+            atualizarDashboardBacen(); // async, mas não precisa await aqui
         });
         configurarEventosBacen();
     } catch (error) {
@@ -71,9 +71,9 @@ function mostrarSecao(secaoId) {
     } else if (secaoId === 'dashboard-bacen') {
         atualizarDashboardBacen();
         // Reinicializar gráficos
-        setTimeout(() => {
+        setTimeout(async () => {
             if (window.graficosDetalhadosBacen) {
-                window.graficosDetalhadosBacen.carregarDados();
+                await window.graficosDetalhadosBacen.carregarDados();
                 window.graficosDetalhadosBacen.renderizarGraficos();
             } else {
                 window.graficosDetalhadosBacen = new GraficosDetalhados('bacen');
@@ -92,7 +92,7 @@ async function carregarFichasBacen() {
     if (window.armazenamentoReclamacoes) {
         try {
             console.log('📦 Carregando do armazenamentoReclamacoes...');
-            fichasCarregadas = window.armazenamentoReclamacoes.carregarTodos('bacen') || [];
+            fichasCarregadas = await window.armazenamentoReclamacoes.carregarTodos('bacen') || [];
             console.log('✅ Fichas carregadas do armazenamentoReclamacoes:', fichasCarregadas.length);
         } catch (error) {
             console.error('❌ Erro ao carregar do armazenamentoReclamacoes:', error);
@@ -402,8 +402,8 @@ function validarFichaBacen(ficha) {
 }
 
 // === DASHBOARD ===
-function atualizarDashboardBacen() {
-    carregarFichasBacen();
+async function atualizarDashboardBacen() {
+    await carregarFichasBacen();
     
     const total = fichasBacen.length;
     const emTratativa = fichasBacen.filter(f => f.status === 'em-tratativa').length;

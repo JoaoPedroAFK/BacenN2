@@ -156,13 +156,45 @@ class ArmazenamentoReclamacoes {
     }
 
     // === CARREGAR TODAS AS RECLAMAÇÕES ===
-    carregarTodos(tipo) {
+    async carregarTodos(tipo) {
         const chave = this.chaves[tipo];
         if (!chave) {
             console.error(`❌ Tipo inválido: ${tipo}`);
             return [];
         }
         
+        // PRIORIDADE 1: Tentar carregar do Supabase (armazenamento compartilhado)
+        if (this.usarSupabase && window.supabaseDB && window.supabaseDB.supabase) {
+            try {
+                const nomeTabela = `fichas_${tipo}`;
+                console.log(`☁️ Carregando do Supabase (tabela: ${nomeTabela})...`);
+                
+                const { data, error } = await window.supabaseDB.supabase
+                    .from(nomeTabela)
+                    .select('*')
+                    .order('dataCriacao', { ascending: false });
+                
+                if (error) throw error;
+                
+                if (data && Array.isArray(data) && data.length > 0) {
+                    console.log(`✅ ${data.length} reclamações ${tipo} carregadas do Supabase`);
+                    
+                    // Sincronizar com localStorage como backup
+                    localStorage.setItem(chave, JSON.stringify(data));
+                    console.log(`💾 Dados sincronizados com localStorage`);
+                    
+                    return data;
+                } else {
+                    console.log(`⚠️ Nenhuma reclamação ${tipo} encontrada no Supabase`);
+                }
+            } catch (error) {
+                console.error(`❌ Erro ao carregar do Supabase:`, error);
+                console.warn(`⚠️ Fallback para localStorage...`);
+                // Continuar para carregar do localStorage
+            }
+        }
+        
+        // FALLBACK: Carregar do localStorage
         try {
             // Tentar carregar da chave nova primeiro
             let dados = localStorage.getItem(chave);
@@ -201,7 +233,7 @@ class ArmazenamentoReclamacoes {
                 }
             }
             
-            console.log(`📦 Carregadas ${reclamacoes.length} reclamações ${tipo}`);
+            console.log(`📦 Carregadas ${reclamacoes.length} reclamações ${tipo} do localStorage`);
             return reclamacoes;
         } catch (error) {
             console.error(`❌ Erro ao carregar ${tipo}:`, error);
@@ -210,8 +242,8 @@ class ArmazenamentoReclamacoes {
     }
 
     // === OBTER RECLAMAÇÃO POR ID ===
-    obterPorId(tipo, id) {
-        const reclamacoes = this.carregarTodos(tipo);
+    async obterPorId(tipo, id) {
+        const reclamacoes = await this.carregarTodos(tipo);
         return reclamacoes.find(r => r.id === id) || null;
     }
 

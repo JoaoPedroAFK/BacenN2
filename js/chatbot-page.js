@@ -39,11 +39,11 @@ function mostrarSecao(secaoId) {
             return;
         }
     } else if (secaoId === 'dashboard-chatbot') {
-        atualizarDashboardChatbot();
+        atualizarDashboardChatbot(); // async, mas não precisa await aqui
         // Reinicializar gráficos
-        setTimeout(() => {
+        setTimeout(async () => {
             if (window.graficosDetalhadosChatbot) {
-                window.graficosDetalhadosChatbot.carregarDados();
+                await window.graficosDetalhadosChatbot.carregarDados();
                 window.graficosDetalhadosChatbot.renderizarGraficos();
             } else {
                 window.graficosDetalhadosChatbot = new GraficosDetalhados('chatbot');
@@ -258,7 +258,7 @@ async function handleSubmitChatbot(e) {
         limparFormChatbot();
         
         // Atualizar dashboard e listas IMEDIATAMENTE
-        atualizarDashboardChatbot();
+        atualizarDashboardChatbot(); // async, mas não precisa await aqui
         renderizarListaChatbot();
         
         // Atualizar "Minhas Reclamações" se a seção estiver visível
@@ -329,8 +329,8 @@ function validarFichaChatbot(ficha) {
 }
 
 // === DASHBOARD ===
-function atualizarDashboardChatbot() {
-    carregarFichasChatbot();
+async function atualizarDashboardChatbot() {
+    await carregarFichasChatbot();
     
     const total = fichasChatbot.length;
     const resolvidasAuto = fichasChatbot.filter(f => f.resolvidoAutomaticamente).length;

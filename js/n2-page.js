@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
         inicializarN2();
         carregarFichasN2().then(() => {
-            atualizarDashboardN2();
+            atualizarDashboardN2(); // async, mas não precisa await aqui
         });
         configurarEventosN2();
     } catch (error) {
@@ -79,9 +79,9 @@ function mostrarSecao(secaoId) {
     } else if (secaoId === 'dashboard-n2') {
         atualizarDashboardN2();
         // Reinicializar gráficos
-        setTimeout(() => {
+        setTimeout(async () => {
             if (window.graficosDetalhadosN2) {
-                window.graficosDetalhadosN2.carregarDados();
+                await window.graficosDetalhadosN2.carregarDados();
                 window.graficosDetalhadosN2.renderizarGraficos();
             } else {
                 window.graficosDetalhadosN2 = new GraficosDetalhados('n2');
@@ -412,8 +412,8 @@ function validarFichaN2(ficha) {
 }
 
 // === DASHBOARD ===
-function atualizarDashboardN2() {
-    carregarFichasN2();
+async function atualizarDashboardN2() {
+    await carregarFichasN2();
     
     const total = fichasN2.length;
     const emTratativa = fichasN2.filter(f => f.status === 'em-tratativa').length;

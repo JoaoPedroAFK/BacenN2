@@ -14,17 +14,19 @@ class GraficosDetalhados {
     }
 
     inicializar() {
-        this.carregarDados();
-        this.renderizarFiltros();
-        this.renderizarGraficos();
+        // Carregar dados de forma assíncrona
+        this.carregarDados().then(() => {
+            this.renderizarFiltros();
+            this.renderizarGraficos();
+        });
     }
 
-    carregarDados() {
+    async carregarDados() {
         if (window.gerenciadorFichas) {
             this.dados = window.gerenciadorFichas.obterFichasPorTipo(this.tipoDemanda);
         } else if (window.armazenamentoReclamacoes) {
-            // Usar o novo sistema de armazenamento
-            this.dados = window.armazenamentoReclamacoes.carregarTodos(this.tipoDemanda);
+            // Usar o novo sistema de armazenamento (AGUARDAR carregamento do Supabase)
+            this.dados = await window.armazenamentoReclamacoes.carregarTodos(this.tipoDemanda);
         } else {
             // Fallback: tentar chave nova primeiro, depois antiga
             const keyNova = `velotax_reclamacoes_${this.tipoDemanda}`;
@@ -1058,14 +1060,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(() => {
                         const tipo = secaoId.replace('dashboard-', '');
                         if (tipo === 'bacen' && window.graficosDetalhadosBacen) {
-                            window.graficosDetalhadosBacen.carregarDados();
-                            window.graficosDetalhadosBacen.renderizarGraficos();
+                            window.graficosDetalhadosBacen.carregarDados().then(() => {
+                                window.graficosDetalhadosBacen.renderizarGraficos();
+                            });
                         } else if (tipo === 'n2' && window.graficosDetalhadosN2) {
-                            window.graficosDetalhadosN2.carregarDados();
-                            window.graficosDetalhadosN2.renderizarGraficos();
+                            window.graficosDetalhadosN2.carregarDados().then(() => {
+                                window.graficosDetalhadosN2.renderizarGraficos();
+                            });
                         } else if (tipo === 'chatbot' && window.graficosDetalhadosChatbot) {
-                            window.graficosDetalhadosChatbot.carregarDados();
-                            window.graficosDetalhadosChatbot.renderizarGraficos();
+                            window.graficosDetalhadosChatbot.carregarDados().then(() => {
+                                window.graficosDetalhadosChatbot.renderizarGraficos();
+                            });
                         }
                     }, 300);
                 }
