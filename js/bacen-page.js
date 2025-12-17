@@ -94,65 +94,43 @@ async function carregarFichasBacen() {
     
     let fichasCarregadas = [];
     
-    // 1. Tentar carregar do Supabase
-    if (window.supabaseDB && !window.supabaseDB.usarLocalStorage) {
+    // PRIORIDADE 1: Usar armazenamentoReclamacoes (sistema novo e confiável)
+    if (window.armazenamentoReclamacoes) {
         try {
-            console.log('📦 Tentando carregar do Supabase...');
-            const fichasSupabase = await window.supabaseDB.obterFichasBacen();
-            if (Array.isArray(fichasSupabase) && fichasSupabase.length > 0) {
-                fichasCarregadas = fichasSupabase;
-                console.log('✅ Fichas carregadas do Supabase:', fichasCarregadas.length);
-            }
+            console.log('📦 Carregando do armazenamentoReclamacoes...');
+            fichasCarregadas = window.armazenamentoReclamacoes.carregarTodos('bacen') || [];
+            console.log('✅ Fichas carregadas do armazenamentoReclamacoes:', fichasCarregadas.length);
         } catch (error) {
-            console.error('❌ Erro ao carregar do Supabase:', error);
+            console.error('❌ Erro ao carregar do armazenamentoReclamacoes:', error);
         }
     }
     
-    // 2. Carregar do localStorage (sempre, para garantir que não perdemos dados)
-    try {
-        const fichasLocal = JSON.parse(localStorage.getItem('velotax_demandas_bacen') || '[]');
-        if (Array.isArray(fichasLocal) && fichasLocal.length > 0) {
-            console.log('📦 Fichas encontradas no localStorage:', fichasLocal.length);
-            // Mesclar com fichas do Supabase (evitar duplicatas)
-            fichasLocal.forEach(fichaLocal => {
-                if (!fichasCarregadas.find(f => f.id === fichaLocal.id)) {
-                    fichasCarregadas.push({ ...fichaLocal, tipoDemanda: 'bacen' });
-                }
-            });
+    // FALLBACK: Se não encontrou nada, tentar localStorage (chaves novas e antigas)
+    if (fichasCarregadas.length === 0) {
+        try {
+            const fichasNovas = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || '[]');
+            const fichasAntigas = JSON.parse(localStorage.getItem('velotax_demandas_bacen') || '[]');
+            fichasCarregadas = [...fichasNovas, ...fichasAntigas];
+            // Remover duplicatas por ID
+            fichasCarregadas = fichasCarregadas.filter((f, index, self) => 
+                index === self.findIndex(t => t.id === f.id)
+            );
+            console.log('📦 Fichas carregadas do localStorage (fallback):', fichasCarregadas.length);
+        } catch (error) {
+            console.error('❌ Erro ao carregar do localStorage:', error);
         }
-    } catch (error) {
-        console.error('❌ Erro ao carregar do localStorage:', error);
     }
     
-    // 3. Tentar carregar do gerenciador de fichas
-    if (window.gerenciadorFichas) {
+    // FALLBACK 2: Tentar carregar do gerenciador de fichas
+    if (fichasCarregadas.length === 0 && window.gerenciadorFichas) {
         try {
             const fichasGerenciador = window.gerenciadorFichas.obterFichasPorTipo('bacen') || [];
             if (Array.isArray(fichasGerenciador) && fichasGerenciador.length > 0) {
-                console.log('📦 Fichas encontradas no gerenciadorFichas:', fichasGerenciador.length);
-                fichasGerenciador.forEach(fichaGer => {
-                    if (!fichasCarregadas.find(f => f.id === fichaGer.id)) {
-                        fichasCarregadas.push({ ...fichaGer, tipoDemanda: 'bacen' });
-                    }
-                });
+                fichasCarregadas = fichasGerenciador;
+                console.log('📦 Fichas encontradas no gerenciadorFichas:', fichasCarregadas.length);
             }
         } catch (error) {
             console.error('❌ Erro ao carregar do gerenciadorFichas:', error);
-        }
-    } else if (window.GerenciadorFichasPerfil) {
-        try {
-            window.gerenciadorFichas = new GerenciadorFichasPerfil();
-            const fichasGerenciador = window.gerenciadorFichas.obterFichasPorTipo('bacen') || [];
-            if (Array.isArray(fichasGerenciador) && fichasGerenciador.length > 0) {
-                console.log('📦 Fichas encontradas no GerenciadorFichasPerfil:', fichasGerenciador.length);
-                fichasGerenciador.forEach(fichaGer => {
-                    if (!fichasCarregadas.find(f => f.id === fichaGer.id)) {
-                        fichasCarregadas.push({ ...fichaGer, tipoDemanda: 'bacen' });
-                    }
-                });
-            }
-        } catch (error) {
-            console.error('❌ Erro ao carregar do GerenciadorFichasPerfil:', error);
         }
     }
     
@@ -165,13 +143,10 @@ async function carregarFichasBacen() {
         fichasBacen = [];
     }
     
-    // Sincronizar com localStorage (backup)
-    if (fichasBacen.length > 0) {
-        localStorage.setItem('velotax_demandas_bacen', JSON.stringify(fichasBacen));
-    }
-    
     console.log('📋 Total de fichas BACEN carregadas:', fichasBacen.length);
-    console.log('📋 IDs das fichas:', fichasBacen.map(f => f.id).join(', '));
+    if (fichasBacen.length > 0) {
+        console.log('📋 IDs das fichas:', fichasBacen.map(f => f.id).join(', '));
+    }
 }
 
 // === FORMULÁRIO ===
