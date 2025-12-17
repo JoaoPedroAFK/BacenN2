@@ -181,10 +181,26 @@ class ImportadorDados {
                     
                     this.adicionarLog(`📋 Planilha carregada. Encontradas ${workbook.SheetNames.length} abas: ${workbook.SheetNames.join(', ')}`);
                     
+                    // Filtrar apenas as abas que queremos processar
+                    const abasPermitidas = ['Relatórios Bacen', 'Relatório N2', 'Relatorios Bacen', 'Relatorio N2'];
+                    const abasParaProcessar = workbook.SheetNames.filter(nomeAba => {
+                        const nomeNormalizado = nomeAba.trim();
+                        return abasPermitidas.some(permitida => 
+                            nomeNormalizado.toLowerCase().includes(permitida.toLowerCase()) ||
+                            permitida.toLowerCase().includes(nomeNormalizado.toLowerCase())
+                        );
+                    });
+                    
+                    if (abasParaProcessar.length === 0) {
+                        throw new Error('Nenhuma aba válida encontrada. Procurando por: "Relatórios Bacen" ou "Relatório N2"');
+                    }
+                    
+                    this.adicionarLog(`📌 Processando apenas as abas: ${abasParaProcessar.join(', ')}`);
+                    
                     const todosDados = [];
                     
-                    // Processar cada aba da planilha
-                    workbook.SheetNames.forEach((nomeAba, index) => {
+                    // Processar apenas as abas permitidas
+                    abasParaProcessar.forEach((nomeAba, index) => {
                         this.adicionarLog(`📄 Processando aba: ${nomeAba}...`);
                         
                         const worksheet = workbook.Sheets[nomeAba];
@@ -274,7 +290,8 @@ class ImportadorDados {
                 this.atualizarProgresso(processados, total);
                 this.adicionarLog(`❌ Registro ${i + 1}: ${erro.message}`, 'erro');
                 
-                // Salva registro com erro para análise
+                // Salva registro com erro para análise (se dadoBruto existir)
+                const dadoBruto = dadosBrutos[i] || {};
                 this.dadosImportados.push({
                     ...dadoBruto,
                     _erroImportacao: erro.message,
