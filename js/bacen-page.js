@@ -265,7 +265,21 @@ async function handleSubmitBacen(e) {
         // Salvar
         console.log('💾 Salvando ficha...');
         
-        // SEMPRE adicionar ao array local primeiro
+        // PRIORIDADE 1: Salvar no armazenamentoReclamacoes (sistema novo e confiável)
+        if (window.armazenamentoReclamacoes) {
+            try {
+                const sucesso = window.armazenamentoReclamacoes.salvar('bacen', ficha);
+                if (sucesso) {
+                    console.log('✅ Salvo no armazenamentoReclamacoes');
+                } else {
+                    console.error('❌ Erro ao salvar no armazenamentoReclamacoes');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao salvar no armazenamentoReclamacoes:', error);
+            }
+        }
+        
+        // SEMPRE adicionar ao array local também
         const indexExistente = fichasBacen.findIndex(f => f.id === ficha.id);
         if (indexExistente >= 0) {
             fichasBacen[indexExistente] = ficha;
@@ -275,9 +289,13 @@ async function handleSubmitBacen(e) {
             console.log('✅ Ficha adicionada ao array local');
         }
         
-        // Salvar no localStorage (sempre, como backup)
-        localStorage.setItem('velotax_demandas_bacen', JSON.stringify(fichasBacen));
-        console.log('💾 Salvo no localStorage:', fichasBacen.length, 'fichas');
+        // Salvar no localStorage como backup (chave nova)
+        try {
+            localStorage.setItem('velotax_reclamacoes_bacen', JSON.stringify(fichasBacen));
+            console.log('💾 Salvo no localStorage (chave nova):', fichasBacen.length, 'fichas');
+        } catch (error) {
+            console.error('❌ Erro ao salvar no localStorage:', error);
+        }
         
         // Tentar salvar no Supabase (se disponível)
         if (window.supabaseDB && !window.supabaseDB.usarLocalStorage) {
@@ -298,6 +316,15 @@ async function handleSubmitBacen(e) {
             } catch (error) {
                 console.error('❌ Erro ao salvar no gerenciadorFichas:', error);
             }
+        }
+        
+        // Disparar evento para atualizar home
+        if (typeof window !== 'undefined') {
+            const evento = new CustomEvent('reclamacaoSalva', {
+                detail: { tipo: 'bacen', reclamacao: ficha, total: fichasBacen.length }
+            });
+            window.dispatchEvent(evento);
+            console.log('📢 Evento reclamacaoSalva disparado do bacen-page');
         }
         
         // Limpar e atualizar
