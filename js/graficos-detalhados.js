@@ -185,34 +185,36 @@ class GraficosDetalhados {
     renderizarGraficos() {
         const dadosFiltrados = this.obterDadosFiltrados();
         
-        // Gráfico de Status (Pizza)
-        this.renderizarGraficoStatusPizza(dadosFiltrados);
-        
-        // Gráfico de Status (Barras)
-        this.renderizarGraficoStatus(dadosFiltrados);
-        
-        // Gráfico por Mês (Linhas)
-        this.renderizarGraficoMensal(dadosFiltrados);
-        
-        // Gráfico por Dia (Linhas)
-        this.renderizarGraficoDiario(dadosFiltrados);
-        
-        // Gráfico Enviado para Cobrança (Pizza)
-        this.renderizarGraficoCobrancaPizza(dadosFiltrados);
-        
-        // Gráfico Enviado para Cobrança (Barras)
-        this.renderizarGraficoCobranca(dadosFiltrados);
-        
-        // Gráfico Blacklist
-        this.renderizarGraficoBlacklist(dadosFiltrados);
-        
-        // Gráfico por Origem (se aplicável)
-        if (this.tipoDemanda === 'bacen' || this.tipoDemanda === 'n2') {
+        if (this.tipoDemanda === 'bacen') {
+            // BACEN: 7 gráficos conforme proposta
+            this.renderizarGraficoStatusPizza(dadosFiltrados);
+            this.renderizarGraficoMensal(dadosFiltrados);
             this.renderizarGraficoOrigem(dadosFiltrados);
+            this.renderizarGraficoPrazoBacen(dadosFiltrados);
+            this.renderizarGraficoCobrancaPizza(dadosFiltrados);
+            this.renderizarGraficoCasosCriticos(dadosFiltrados);
+            this.renderizarGraficoResponsavel(dadosFiltrados);
+        } else if (this.tipoDemanda === 'n2') {
+            // N2: 8 gráficos conforme proposta
+            this.renderizarGraficoStatusPizza(dadosFiltrados);
+            this.renderizarGraficoStatusPortabilidade(dadosFiltrados);
+            this.renderizarGraficoMensal(dadosFiltrados);
+            this.renderizarGraficoOrigem(dadosFiltrados);
+            this.renderizarGraficoBancoDestino(dadosFiltrados);
+            this.renderizarGraficoCobrancaPizza(dadosFiltrados);
+            this.renderizarGraficoCasosCriticos(dadosFiltrados);
+            this.renderizarGraficoResponsavel(dadosFiltrados);
+        } else if (this.tipoDemanda === 'chatbot') {
+            // Chatbot: 8 gráficos conforme proposta
+            this.renderizarGraficoStatusPizza(dadosFiltrados);
+            this.renderizarGraficoResolucaoAuto(dadosFiltrados);
+            this.renderizarGraficoCanal(dadosFiltrados);
+            this.renderizarGraficoSatisfacao(dadosFiltrados);
+            this.renderizarGraficoMensal(dadosFiltrados);
+            this.renderizarGraficoProduto(dadosFiltrados);
+            this.renderizarGraficoCobrancaPizza(dadosFiltrados);
+            this.renderizarGraficoCasosCriticos(dadosFiltrados);
         }
-        
-        // Gráfico por Responsável (Pizza)
-        this.renderizarGraficoResponsavelPizza(dadosFiltrados);
     }
 
     renderizarGraficoStatusPizza(dados) {
@@ -224,7 +226,7 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Status das Reclamações (Pizza)</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = `<h3>Status das Reclamações</h3><div id="${containerId}"></div>`;
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
@@ -344,7 +346,7 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Enviado para Cobrança (Pizza)</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = `<h3>Enviado para Cobrança</h3><div id="${containerId}"></div>`;
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
@@ -451,14 +453,17 @@ class GraficosDetalhados {
     }
 
     renderizarGraficoOrigem(dados) {
-        const container = document.getElementById(`grafico-origem-${this.tipoDemanda}`);
+        const containerId = `grafico-origem-${this.tipoDemanda}`;
+        let container = document.getElementById(containerId);
+        
         if (!container) {
             const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Por Origem</h3><div id="grafico-origem-${this.tipoDemanda}"></div>`;
+                novoContainer.innerHTML = `<h3>Por Origem</h3><div id="${containerId}"></div>`;
                 graficosContainer.appendChild(novoContainer);
+                container = document.getElementById(containerId);
             } else {
                 return;
             }
@@ -473,7 +478,7 @@ class GraficosDetalhados {
         const labels = Object.keys(origemCount);
         const values = Object.values(origemCount);
 
-        container.innerHTML = this.criarGraficoPizza(labels, values, 'Origem');
+        container.innerHTML = this.criarGraficoBarras(labels, values, null, 'Origem');
     }
 
     criarGraficoBarras(labels, values, cores, titulo) {
@@ -574,6 +579,327 @@ class GraficosDetalhados {
                 </div>
             </div>
         `;
+    }
+
+    // === GRÁFICOS ESPECÍFICOS BACEN ===
+    renderizarGraficoPrazoBacen(dados) {
+        const containerId = `grafico-prazo-bacen-${this.tipoDemanda}`;
+        let container = document.getElementById(containerId);
+        
+        if (!container) {
+            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (graficosContainer) {
+                const novoContainer = document.createElement('div');
+                novoContainer.className = 'grafico-card';
+                novoContainer.innerHTML = `<h3>Prazo Vencendo/Vencido</h3><div id="${containerId}"></div>`;
+                graficosContainer.appendChild(novoContainer);
+                container = document.getElementById(containerId);
+            } else {
+                return;
+            }
+        }
+
+        const hoje = new Date();
+        const prazoCount = {
+            'Vencido': 0,
+            'Vence em 7 dias': 0,
+            'No prazo': 0
+        };
+
+        dados.forEach(f => {
+            if (!f.prazoBacen) {
+                prazoCount['No prazo']++;
+                return;
+            }
+            const prazo = new Date(f.prazoBacen);
+            const diff = (prazo - hoje) / (1000 * 60 * 60 * 24);
+            if (diff < 0) {
+                prazoCount['Vencido']++;
+            } else if (diff <= 7) {
+                prazoCount['Vence em 7 dias']++;
+            } else {
+                prazoCount['No prazo']++;
+            }
+        });
+
+        const labels = Object.keys(prazoCount);
+        const values = Object.values(prazoCount);
+        const cores = {
+            'Vencido': '#FF0000',
+            'Vence em 7 dias': '#FF8400',
+            'No prazo': '#1DFDB9'
+        };
+
+        container.innerHTML = this.criarGraficoBarras(labels, values, cores, 'Prazo');
+    }
+
+    renderizarGraficoCasosCriticos(dados) {
+        const containerId = `grafico-casos-criticos-${this.tipoDemanda}`;
+        let container = document.getElementById(containerId);
+        
+        if (!container) {
+            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (graficosContainer) {
+                const novoContainer = document.createElement('div');
+                novoContainer.className = 'grafico-card';
+                novoContainer.innerHTML = `<h3>Casos Críticos</h3><div id="${containerId}"></div>`;
+                graficosContainer.appendChild(novoContainer);
+                container = document.getElementById(containerId);
+            } else {
+                return;
+            }
+        }
+
+        const criticosCount = {
+            'Críticos': dados.filter(f => f.casosCriticos === true || f.casosCriticos === 'Sim').length,
+            'Não Críticos': dados.filter(f => !f.casosCriticos || f.casosCriticos === false || f.casosCriticos === 'Não').length
+        };
+
+        const labels = Object.keys(criticosCount);
+        const values = Object.values(criticosCount);
+        const cores = {
+            'Críticos': '#FF00D7',
+            'Não Críticos': '#1634FF'
+        };
+
+        container.innerHTML = this.criarGraficoBarras(labels, values, cores, 'Casos Críticos');
+    }
+
+    renderizarGraficoResponsavel(dados) {
+        const containerId = `grafico-responsavel-${this.tipoDemanda}`;
+        let container = document.getElementById(containerId);
+        
+        if (!container) {
+            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (graficosContainer) {
+                const novoContainer = document.createElement('div');
+                novoContainer.className = 'grafico-card';
+                novoContainer.innerHTML = `<h3>Top 10 Responsáveis</h3><div id="${containerId}"></div>`;
+                graficosContainer.appendChild(novoContainer);
+                container = document.getElementById(containerId);
+            } else {
+                return;
+            }
+        }
+
+        const responsavelCount = {};
+        dados.forEach(f => {
+            const responsavel = f.responsavel || 'Não atribuído';
+            responsavelCount[responsavel] = (responsavelCount[responsavel] || 0) + 1;
+        });
+
+        // Ordenar e pegar top 10
+        const sorted = Object.entries(responsavelCount)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10);
+
+        const labels = sorted.map(([nome]) => nome.length > 20 ? nome.substring(0, 20) + '...' : nome);
+        const values = sorted.map(([, count]) => count);
+
+        container.innerHTML = this.criarGraficoBarras(labels, values, null, 'Responsável');
+    }
+
+    // === GRÁFICOS ESPECÍFICOS N2 ===
+    renderizarGraficoStatusPortabilidade(dados) {
+        const containerId = `grafico-portabilidade-${this.tipoDemanda}`;
+        let container = document.getElementById(containerId);
+        
+        if (!container) {
+            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (graficosContainer) {
+                const novoContainer = document.createElement('div');
+                novoContainer.className = 'grafico-card';
+                novoContainer.innerHTML = `<h3>Status de Portabilidade</h3><div id="${containerId}"></div>`;
+                graficosContainer.appendChild(novoContainer);
+                container = document.getElementById(containerId);
+            } else {
+                return;
+            }
+        }
+
+        const portabilidadeCount = {};
+        dados.forEach(f => {
+            const status = f.statusPortabilidade || 'Não informado';
+            portabilidadeCount[status] = (portabilidadeCount[status] || 0) + 1;
+        });
+
+        const labels = Object.keys(portabilidadeCount);
+        const values = Object.values(portabilidadeCount);
+        const cores = {
+            'solicitada': '#1634FF',
+            'em-andamento': '#FF8400',
+            'concluida': '#1DFDB9',
+            'concluída': '#1DFDB9',
+            'cancelada': '#FF0000',
+            'pendente': '#791DD0',
+            'Não informado': '#666'
+        };
+
+        container.innerHTML = this.criarGraficoBarras(labels, values, cores, 'Portabilidade');
+    }
+
+    renderizarGraficoBancoDestino(dados) {
+        const containerId = `grafico-banco-destino-${this.tipoDemanda}`;
+        let container = document.getElementById(containerId);
+        
+        if (!container) {
+            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (graficosContainer) {
+                const novoContainer = document.createElement('div');
+                novoContainer.className = 'grafico-card';
+                novoContainer.innerHTML = `<h3>Top 10 Bancos Destino</h3><div id="${containerId}"></div>`;
+                graficosContainer.appendChild(novoContainer);
+                container = document.getElementById(containerId);
+            } else {
+                return;
+            }
+        }
+
+        const bancoCount = {};
+        dados.forEach(f => {
+            const banco = f.bancoDestino || 'Não informado';
+            bancoCount[banco] = (bancoCount[banco] || 0) + 1;
+        });
+
+        // Ordenar e pegar top 10
+        const sorted = Object.entries(bancoCount)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10);
+
+        const labels = sorted.map(([banco]) => banco);
+        const values = sorted.map(([, count]) => count);
+
+        container.innerHTML = this.criarGraficoBarras(labels, values, null, 'Banco Destino');
+    }
+
+    // === GRÁFICOS ESPECÍFICOS CHATBOT ===
+    renderizarGraficoResolucaoAuto(dados) {
+        const containerId = `grafico-resolucao-auto-${this.tipoDemanda}`;
+        let container = document.getElementById(containerId);
+        
+        if (!container) {
+            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (graficosContainer) {
+                const novoContainer = document.createElement('div');
+                novoContainer.className = 'grafico-card';
+                novoContainer.innerHTML = `<h3>Resolução Automática vs Humana</h3><div id="${containerId}"></div>`;
+                graficosContainer.appendChild(novoContainer);
+                container = document.getElementById(containerId);
+            } else {
+                return;
+            }
+        }
+
+        const resolucaoCount = {
+            'Resolvido Automaticamente': dados.filter(f => f.resolvidoAutomaticamente === true || f.resolvidoAutomaticamente === 'Sim').length,
+            'Encaminhado para Humano': dados.filter(f => f.encaminhadoHumano === true || f.encaminhadoHumano === 'Sim').length
+        };
+
+        const labels = Object.keys(resolucaoCount);
+        const values = Object.values(resolucaoCount);
+
+        container.innerHTML = this.criarGraficoPizza(labels, values, 'Resolução');
+    }
+
+    renderizarGraficoCanal(dados) {
+        const containerId = `grafico-canal-${this.tipoDemanda}`;
+        let container = document.getElementById(containerId);
+        
+        if (!container) {
+            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (graficosContainer) {
+                const novoContainer = document.createElement('div');
+                novoContainer.className = 'grafico-card';
+                novoContainer.innerHTML = `<h3>Distribuição por Canal</h3><div id="${containerId}"></div>`;
+                graficosContainer.appendChild(novoContainer);
+                container = document.getElementById(containerId);
+            } else {
+                return;
+            }
+        }
+
+        const canalCount = {};
+        dados.forEach(f => {
+            const canal = f.canalChatbot || 'Não informado';
+            canalCount[canal] = (canalCount[canal] || 0) + 1;
+        });
+
+        const labels = Object.keys(canalCount);
+        const values = Object.values(canalCount);
+
+        container.innerHTML = this.criarGraficoBarras(labels, values, null, 'Canal');
+    }
+
+    renderizarGraficoSatisfacao(dados) {
+        const containerId = `grafico-satisfacao-${this.tipoDemanda}`;
+        let container = document.getElementById(containerId);
+        
+        if (!container) {
+            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (graficosContainer) {
+                const novoContainer = document.createElement('div');
+                novoContainer.className = 'grafico-card';
+                novoContainer.innerHTML = `<h3>Distribuição de Satisfação (Nota)</h3><div id="${containerId}"></div>`;
+                graficosContainer.appendChild(novoContainer);
+                container = document.getElementById(containerId);
+            } else {
+                return;
+            }
+        }
+
+        const satisfacaoCount = { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 };
+        dados.forEach(f => {
+            const nota = parseInt(f.notaAvaliacao || f.satisfacao || 0);
+            if (nota >= 1 && nota <= 5) {
+                satisfacaoCount[nota.toString()]++;
+            }
+        });
+
+        const labels = ['5 ⭐', '4 ⭐', '3 ⭐', '2 ⭐', '1 ⭐'];
+        const values = [satisfacaoCount['5'], satisfacaoCount['4'], satisfacaoCount['3'], satisfacaoCount['2'], satisfacaoCount['1']];
+        const cores = {
+            '5 ⭐': '#1DFDB9',
+            '4 ⭐': '#1634FF',
+            '3 ⭐': '#FF8400',
+            '2 ⭐': '#FF00D7',
+            '1 ⭐': '#FF0000'
+        };
+
+        container.innerHTML = this.criarGraficoBarras(labels, values, cores, 'Satisfação');
+    }
+
+    renderizarGraficoProduto(dados) {
+        const containerId = `grafico-produto-${this.tipoDemanda}`;
+        let container = document.getElementById(containerId);
+        
+        if (!container) {
+            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (graficosContainer) {
+                const novoContainer = document.createElement('div');
+                novoContainer.className = 'grafico-card';
+                novoContainer.innerHTML = `<h3>Top 10 Produtos</h3><div id="${containerId}"></div>`;
+                graficosContainer.appendChild(novoContainer);
+                container = document.getElementById(containerId);
+            } else {
+                return;
+            }
+        }
+
+        const produtoCount = {};
+        dados.forEach(f => {
+            const produto = f.produto || 'Não informado';
+            produtoCount[produto] = (produtoCount[produto] || 0) + 1;
+        });
+
+        // Ordenar e pegar top 10
+        const sorted = Object.entries(produtoCount)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10);
+
+        const labels = sorted.map(([produto]) => produto.length > 20 ? produto.substring(0, 20) + '...' : produto);
+        const values = sorted.map(([, count]) => count);
+
+        container.innerHTML = this.criarGraficoBarras(labels, values, null, 'Produto');
     }
 
     formatarLabel(label) {
