@@ -280,7 +280,21 @@ async function handleSubmitN2(e) {
         // Salvar
         console.log('💾 Salvando ficha...');
         
-        // SEMPRE adicionar ao array local primeiro
+        // PRIORIDADE 1: Salvar no armazenamentoReclamacoes (sistema novo e confiável)
+        if (window.armazenamentoReclamacoes) {
+            try {
+                const sucesso = window.armazenamentoReclamacoes.salvar('n2', ficha);
+                if (sucesso) {
+                    console.log('✅ Salvo no armazenamentoReclamacoes');
+                } else {
+                    console.error('❌ Erro ao salvar no armazenamentoReclamacoes');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao salvar no armazenamentoReclamacoes:', error);
+            }
+        }
+        
+        // SEMPRE adicionar ao array local também
         const indexExistente = fichasN2.findIndex(f => f.id === ficha.id);
         if (indexExistente >= 0) {
             fichasN2[indexExistente] = ficha;
@@ -290,9 +304,13 @@ async function handleSubmitN2(e) {
             console.log('✅ Ficha adicionada ao array local');
         }
         
-        // Salvar no localStorage (sempre, como backup)
-        localStorage.setItem('velotax_demandas_n2', JSON.stringify(fichasN2));
-        console.log('💾 Salvo no localStorage:', fichasN2.length, 'fichas');
+        // Salvar no localStorage como backup (chave nova)
+        try {
+            localStorage.setItem('velotax_reclamacoes_n2', JSON.stringify(fichasN2));
+            console.log('💾 Salvo no localStorage (chave nova):', fichasN2.length, 'fichas');
+        } catch (error) {
+            console.error('❌ Erro ao salvar no localStorage:', error);
+        }
         
         // Tentar salvar no Supabase (se disponível)
         if (window.supabaseDB && !window.supabaseDB.usarLocalStorage) {
@@ -313,6 +331,15 @@ async function handleSubmitN2(e) {
             } catch (error) {
                 console.error('❌ Erro ao salvar no gerenciadorFichas:', error);
             }
+        }
+        
+        // Disparar evento para atualizar home
+        if (typeof window !== 'undefined') {
+            const evento = new CustomEvent('reclamacaoSalva', {
+                detail: { tipo: 'n2', reclamacao: ficha, total: fichasN2.length }
+            });
+            window.dispatchEvent(evento);
+            console.log('📢 Evento reclamacaoSalva disparado do n2-page');
         }
         
         // Limpar e atualizar
@@ -594,7 +621,15 @@ async function renderizarListaN2() {
     const container = document.getElementById('lista-fichas-n2');
     if (!container) {
         console.error('❌ Container lista-fichas-n2 não encontrado!');
-        return;
+        console.error('❌ Tentando encontrar container alternativo...');
+        // Tentar encontrar container alternativo
+        const containerAlt = document.querySelector('#lista-n2 .fichas-container, #lista-n2 .complaints-list, #lista-n2');
+        if (containerAlt) {
+            console.log('✅ Container alternativo encontrado:', containerAlt.id || containerAlt.className);
+        } else {
+            console.error('❌ Nenhum container encontrado!');
+            return;
+        }
     }
     
     // SEMPRE recarregar as fichas antes de renderizar para garantir que temos os dados mais recentes
@@ -609,6 +644,13 @@ async function renderizarListaN2() {
     
     console.log('📋 Renderizando lista N2 geral com', fichasN2.length, 'fichas');
     console.log('📋 Primeiras 3 fichas:', fichasN2.slice(0, 3).map(f => ({ id: f.id, nome: f.nomeCompleto })));
+    
+    // Verificar se criarCardN2 existe
+    if (typeof criarCardN2 !== 'function' && typeof window.criarCardN2 !== 'function') {
+        console.error('❌ Função criarCardN2 não encontrada!');
+        container.innerHTML = '<div class="no-results">Erro: Função de renderização não encontrada</div>';
+        return;
+    }
     
     const busca = document.getElementById('busca-n2')?.value.toLowerCase() || '';
     const filtroStatus = document.getElementById('filtro-status-n2')?.value || '';
@@ -645,16 +687,17 @@ async function renderizarListaN2() {
         });
     }
     
-    if (filtroStatus) {
+    if (filtroStatus && filtroStatus !== 'todos') {
         filtradas = filtradas.filter(f => f.status === filtroStatus);
     }
     
-    if (filtroPortabilidade) {
+    if (filtroPortabilidade && filtroPortabilidade !== 'todos') {
         filtradas = filtradas.filter(f => f.statusPortabilidade === filtroPortabilidade);
     }
     
     if (filtradas.length === 0) {
         container.innerHTML = '<div class="no-results">Nenhuma ficha N2 encontrada</div>';
+        console.log('⚠️ Nenhuma ficha filtrada encontrada');
         return;
     }
     
@@ -665,8 +708,19 @@ async function renderizarListaN2() {
         return dataB - dataA;
     });
     
-    container.innerHTML = filtradas.map(f => criarCardN2(f)).join('');
-    console.log('✅ Lista N2 renderizada com sucesso!');
+    // Usar criarCardN2 do window se disponível, senão usar função local
+    const criarCard = window.criarCardN2 || criarCardN2;
+    const html = filtradas.map(f => {
+        try {
+            return criarCard(f);
+        } catch (error) {
+            console.error('❌ Erro ao criar card para ficha', f.id, ':', error);
+            return `<div class="ficha-card">Erro ao renderizar ficha ${f.id}</div>`;
+        }
+    }).join('');
+    
+    container.innerHTML = html;
+    console.log('✅ Lista N2 renderizada com sucesso!', filtradas.length, 'fichas exibidas');
 }
 
 // Renderizar "Minhas Reclamações"
