@@ -1031,19 +1031,27 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Reinicializar gráficos quando mudar de seção (sem sobrescrever mostrarSecao)
-document.addEventListener('DOMContentLoaded', () => {
-    // Aguardar um pouco para garantir que as funções das páginas foram carregadas
-    setTimeout(() => {
-        // Interceptar chamadas de mostrarSecao sem sobrescrever a função
-        if (window.mostrarSecao && typeof window.mostrarSecao === 'function') {
+// Usar uma abordagem que não interfere com a função original
+(function() {
+    let wrapperCriado = false;
+    
+    function criarWrapper() {
+        // Só criar wrapper uma vez e se a função mostrarSecao existir
+        if (wrapperCriado || !window.mostrarSecao || typeof window.mostrarSecao !== 'function') {
+            return;
+        }
+        
+        // Verificar se a função já tem a lógica de dashboard (é a função específica da página)
+        const funcaoStr = window.mostrarSecao.toString();
+        if (funcaoStr.includes('dashboard-chatbot') || 
+            funcaoStr.includes('dashboard-bacen') || 
+            funcaoStr.includes('dashboard-n2')) {
+            // É a função específica da página, criar wrapper que preserva a lógica
             const mostrarSecaoOriginal = window.mostrarSecao;
             
-            // Criar wrapper que chama a função original e depois reinicializa gráficos
             window.mostrarSecao = function(secaoId) {
                 // Chamar função original primeiro
-                if (typeof mostrarSecaoOriginal === 'function') {
-                    mostrarSecaoOriginal(secaoId);
-                }
+                mostrarSecaoOriginal(secaoId);
                 
                 // Reinicializar gráficos se for dashboard (após um pequeno delay)
                 if (secaoId && secaoId.includes('dashboard')) {
@@ -1062,7 +1070,33 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 300);
                 }
             };
+            
+            wrapperCriado = true;
+        }
+    }
+    
+    // Tentar criar wrapper quando DOM estiver pronto
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            // Aguardar um pouco mais para garantir que todos os scripts carregaram
+            setTimeout(criarWrapper, 500);
+        });
+    } else {
+        // DOM já está pronto, aguardar um pouco mais
+        setTimeout(criarWrapper, 500);
+    }
+    
+    // Também tentar criar quando window.mostrarSecao for definido (MutationObserver ou polling)
+    let tentativas = 0;
+    const intervalo = setInterval(() => {
+        tentativas++;
+        if (window.mostrarSecao && typeof window.mostrarSecao === 'function') {
+            criarWrapper();
+            clearInterval(intervalo);
+        } else if (tentativas > 20) {
+            // Parar após 2 segundos (20 * 100ms)
+            clearInterval(intervalo);
         }
     }, 100);
-});
+})();
 
