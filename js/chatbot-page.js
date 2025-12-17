@@ -28,33 +28,6 @@ function mostrarSecao(secaoId) {
         }
     });
     
-    // Esconder todas as seções
-    document.querySelectorAll('.section').forEach(section => {
-        section.classList.remove('active');
-    });
-    
-    // Remover active de todos os botões
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // Mostrar seção selecionada
-    const section = document.getElementById(secaoId);
-    if (section) {
-        section.classList.add('active');
-        console.log('✅ Seção ativada:', secaoId);
-    } else {
-        console.error('❌ Seção não encontrada:', secaoId);
-    }
-    
-    // Ativar botão correspondente
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${secaoId}'`)) {
-            btn.classList.add('active');
-            console.log('✅ Botão ativado para:', secaoId);
-        }
-    });
-    
     if (secaoId === 'lista-chatbot') {
         carregarFichasChatbot().then(() => {
             console.log('📋 Fichas Chatbot carregadas para lista geral:', fichasChatbot.length);
