@@ -39,11 +39,6 @@ function inicializarChatbot() {
 function mostrarSecao(secaoId) {
     console.log('🔍 mostrarSecao chamado com:', secaoId);
     
-    // Garantir que está no escopo global
-    if (window.mostrarSecao !== mostrarSecao) {
-        window.mostrarSecao = mostrarSecao;
-    }
-    
     // Esconder todas as seções
     document.querySelectorAll('.section').forEach(section => {
         section.classList.remove('active');
@@ -104,6 +99,9 @@ function mostrarSecao(secaoId) {
         }, 500);
     }
 }
+
+// Atribuir mostrarSecao ao window IMEDIATAMENTE após definir a função
+window.mostrarSecao = mostrarSecao;
 
 // === CARREGAR FICHAS ===
 async function carregarFichasChatbot() {
@@ -215,7 +213,7 @@ function obterCheckboxChatbot(id) {
     return campo ? campo.checked : false;
 }
 
-function handleSubmitChatbot(e) {
+async function handleSubmitChatbot(e) {
     e.preventDefault();
     console.log('🚀 handleSubmitChatbot chamado');
     
