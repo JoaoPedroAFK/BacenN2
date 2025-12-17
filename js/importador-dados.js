@@ -823,23 +823,19 @@ class ImportadorDados {
                 chatbot: dadosValidos.filter(d => d.tipoDemanda === 'chatbot')
             };
             
-            // Usar o sistema de armazenamento se disponível
-            if (window.armazenamentoReclamacoes) {
-                // Salva usando o sistema de armazenamento
-                dadosSeparados.bacen.forEach(ficha => {
-                    window.armazenamentoReclamacoes.salvar('bacen', ficha);
-                });
-                dadosSeparados.n2.forEach(ficha => {
-                    window.armazenamentoReclamacoes.salvar('n2', ficha);
-                });
-                dadosSeparados.chatbot.forEach(ficha => {
-                    window.armazenamentoReclamacoes.salvar('chatbot', ficha);
-                });
-                
-                this.adicionarLog(`✅ Dados salvos usando sistema de armazenamento`, 'sucesso');
+            // Garantir que o sistema de armazenamento está disponível
+            if (!window.armazenamentoReclamacoes) {
+                console.error('❌ Sistema de armazenamento não encontrado! Tentando inicializar...');
+                // Tentar carregar o script se não estiver disponível
+                if (typeof ArmazenamentoReclamacoes !== 'undefined') {
+                    window.armazenamentoReclamacoes = new ArmazenamentoReclamacoes();
+                    this.adicionarLog(`✅ Sistema de armazenamento inicializado`, 'sucesso');
+                } else {
+                    this.adicionarLog(`⚠️ Sistema de armazenamento não disponível, usando apenas localStorage`, 'aviso');
+                }
             }
             
-            // Salva no localStorage separadamente por tipo (backup)
+            // Salva no localStorage primeiro (garantir que está salvo)
             const bacenExistentes = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || '[]');
             const n2Existentes = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || '[]');
             const chatbotExistentes = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || '[]');
@@ -856,9 +852,36 @@ class ImportadorDados {
             const n2Final = mesclarDados(n2Existentes, dadosSeparados.n2);
             const chatbotFinal = mesclarDados(chatbotExistentes, dadosSeparados.chatbot);
             
+            // Salvar no localStorage (garantir persistência)
             localStorage.setItem('velotax_reclamacoes_bacen', JSON.stringify(bacenFinal));
             localStorage.setItem('velotax_reclamacoes_n2', JSON.stringify(n2Final));
             localStorage.setItem('velotax_reclamacoes_chatbot', JSON.stringify(chatbotFinal));
+            
+            this.adicionarLog(`💾 Dados salvos no localStorage: BACEN=${bacenFinal.length}, N2=${n2Final.length}, Chatbot=${chatbotFinal.length}`, 'sucesso');
+            
+            // Usar o sistema de armazenamento se disponível (para sincronização)
+            if (window.armazenamentoReclamacoes) {
+                let salvosBacen = 0, salvosN2 = 0, salvosChatbot = 0;
+                
+                // Salva usando o sistema de armazenamento
+                dadosSeparados.bacen.forEach(ficha => {
+                    if (window.armazenamentoReclamacoes.salvar('bacen', ficha)) {
+                        salvosBacen++;
+                    }
+                });
+                dadosSeparados.n2.forEach(ficha => {
+                    if (window.armazenamentoReclamacoes.salvar('n2', ficha)) {
+                        salvosN2++;
+                    }
+                });
+                dadosSeparados.chatbot.forEach(ficha => {
+                    if (window.armazenamentoReclamacoes.salvar('chatbot', ficha)) {
+                        salvosChatbot++;
+                    }
+                });
+                
+                this.adicionarLog(`✅ Dados salvos via sistema: BACEN=${salvosBacen}, N2=${salvosN2}, Chatbot=${salvosChatbot}`, 'sucesso');
+            }
             
             // Salva todos os dados juntos para compatibilidade
             localStorage.setItem('velotax_demandas', JSON.stringify(dadosValidos));
