@@ -29,15 +29,9 @@ function mostrarSecao(secaoId) {
     });
     
     if (secaoId === 'lista-chatbot') {
-        carregarFichasChatbot().then(() => {
-            console.log('📋 Fichas Chatbot carregadas para lista geral:', fichasChatbot.length);
-            renderizarListaChatbot();
-        });
+        renderizarListaChatbot();
     } else if (secaoId === 'minhas-reclamacoes-chatbot') {
-        carregarFichasChatbot().then(() => {
-            console.log('📋 Fichas Chatbot carregadas para minhas reclamações:', fichasChatbot.length);
-            renderizarMinhasReclamacoesChatbot();
-        });
+        renderizarMinhasReclamacoesChatbot();
     } else if (secaoId === 'nova-reclamacao-chatbot' || secaoId === 'nova-ficha-chatbot') {
         // Compatibilidade com ambos os nomes
         if (secaoId === 'nova-ficha-chatbot') {
