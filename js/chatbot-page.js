@@ -3,8 +3,12 @@
 // Variáveis globais
 let fichasChatbot = [];
 
+// Declarar mostrarSecao no escopo global ANTES de definir a função
+// Isso garante que esteja disponível quando os botões HTML forem clicados
+window.mostrarSecao = null;
+
 // Inicialização
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     if (window.loadingVelotax) {
         window.loadingVelotax.mostrar();
         window.loadingVelotax.esconderForcado(); // Segurança
