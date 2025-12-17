@@ -296,53 +296,64 @@ class ImportadorDados {
         // Identifica o tipo de demanda com base na aba ou campos específicos
         const tipoDemanda = this.identificarTipoDemanda(dadoBruto);
         
-        // Mapeamento dos campos da planilha para o sistema
+        // Normalizar chaves (remover espaços extras, normalizar maiúsculas/minúsculas)
+        const normalizarChave = (chave) => {
+            return Object.keys(dadoBruto).find(k => 
+                k.trim().toLowerCase() === chave.toLowerCase()
+            ) || chave;
+        };
+        
+        const obterValor = (chave) => {
+            const chaveNormalizada = normalizarChave(chave);
+            return dadoBruto[chaveNormalizada] || dadoBruto[chave] || '';
+        };
+        
+        // Mapeamento flexível dos campos da planilha para o sistema
         const ficha = {
-            id: Date.now() + Math.random(),
-            nomeCliente: dadoBruto["Nome completo"] || '',
-            cpf: dadoBruto["CPF"] || '',
-            cpfTratado: dadoBruto["CPF Tratado"] || '',
-            telefone: dadoBruto["Telefone"] || '',
-            origem: this.normalizarOrigem(dadoBruto["Origem"] || ''),
-            status: this.inferirStatus(dadoBruto),
-            dataCriacao: this.formatarData(dadoBruto["Data entrada"] || ''),
-            dataRecebimento: this.formatarData(dadoBruto["Data entrada"] || ''),
-            finalizadoEm: this.formatarData(dadoBruto["Finalizado em"] || ''),
-            responsavel: dadoBruto["Responsável"] || '',
-            motivoReduzido: dadoBruto["Motivo reduzido"] || '',
-            motivoDetalhado: dadoBruto["Motivo Reclamação"] || '',
-            // valorNegociado removido
-            enviarCobranca: dadoBruto["Enviar para cobrança?"] === "Sim",
-            observacoes: dadoBruto["Observações"] || '',
-            mes: dadoBruto["Mês"] || '',
+            id: this.gerarId(),
+            nomeCliente: obterValor("Nome completo") || obterValor("Nome") || obterValor("Cliente") || '',
+            cpf: this.limparCPF(obterValor("CPF") || obterValor("CPF Tratado") || ''),
+            cpfTratado: this.limparCPF(obterValor("CPF Tratado") || obterValor("CPF") || ''),
+            telefone: obterValor("Telefone") || obterValor("Celular") || obterValor("Contato") || '',
+            origem: this.normalizarOrigem(obterValor("Origem") || obterValor("Canal") || ''),
+            status: this.inferirStatus(dadoBruto, obterValor),
+            dataCriacao: this.formatarData(obterValor("Data entrada") || obterValor("Data Entrada") || obterValor("Data de Entrada") || obterValor("Data") || obterValor("Data Criação") || new Date().toISOString()),
+            dataRecebimento: this.formatarData(obterValor("Data entrada") || obterValor("Data Recebimento") || obterValor("Data") || obterValor("Data Criação") || new Date().toISOString()),
+            finalizadoEm: this.formatarData(obterValor("Finalizado em") || obterValor("Finalizado Em") || obterValor("Data Finalização") || obterValor("Data Fim") || ''),
+            responsavel: obterValor("Responsável") || obterValor("Responsavel") || obterValor("Atendente") || '',
+            motivoReduzido: obterValor("Motivo reduzido") || obterValor("Motivo Reduzido") || obterValor("Tipo") || obterValor("Categoria") || '',
+            motivoDetalhado: obterValor("Motivo Reclamação") || obterValor("Motivo Reclamacao") || obterValor("Descrição") || obterValor("Descricao") || obterValor("Observações") || '',
+            enviarCobranca: this.converterBooleano(obterValor("Enviar para cobrança?") || obterValor("Enviar Cobrança") || obterValor("Cobrança") || ''),
+            observacoes: obterValor("Observações") || obterValor("Observacoes") || obterValor("Observação") || obterValor("Notas") || '',
+            mes: obterValor("Mês") || obterValor("Mes") || this.extrairMes(obterValor("Data entrada") || obterValor("Data") || ''),
             
             // Campo para identificar o tipo
             tipoDemanda: tipoDemanda,
             
             // Módulos de contato
             modulosContato: {
-                atendimento: dadoBruto["Acionou a central?"] === "TRUE",
-                n2: dadoBruto["N2 Portabilidade?"] === "TRUE",
-                reclameAqui: dadoBruto["Reclame Aqui"] === "TRUE",
-                bacen: dadoBruto["Bacen"] === "TRUE",
-                procon: dadoBruto["Procon"] === "TRUE"
+                atendimento: this.converterBooleano(obterValor("Acionou a central?") || obterValor("Central") || ''),
+                n2: this.converterBooleano(obterValor("N2 Portabilidade?") || obterValor("N2") || ''),
+                reclameAqui: this.converterBooleano(obterValor("Reclame Aqui") || obterValor("ReclameAqui") || ''),
+                bacen: this.converterBooleano(obterValor("Bacen") || obterValor("BACEN") || ''),
+                procon: this.converterBooleano(obterValor("Procon") || obterValor("PROCON") || '')
             },
             
             // Indicadores
-            pixLiberado: dadoBruto["PIX liberado ou excluído?"] === "TRUE",
-            aceitouLiquidacao: dadoBruto["Aceitou liquidação Antecipada?"] === "TRUE",
+            pixLiberado: this.converterBooleano(obterValor("PIX liberado ou excluído?") || obterValor("PIX Liberado") || obterValor("PIX") || ''),
+            aceitouLiquidacao: this.converterBooleano(obterValor("Aceitou liquidação Antecipada?") || obterValor("Liquidação Antecipada") || obterValor("Liquidacao") || ''),
             
             // Tentativas de contato
             tentativas: this.processarTentativas(dadoBruto),
             
             // Protocolos
-            protocolos: this.processarProtocolos(dadoBruto["Protocolos Central"] || ''),
+            protocolos: this.processarProtocolos(obterValor("Protocolos Central") || obterValor("Protocolo") || obterValor("Protocolos") || ''),
             
             // Campos específicos por tipo
             camposEspecificos: this.processarCamposEspecificos(dadoBruto, tipoDemanda),
             
             // Status interno
-            concluido: !!dadoBruto["Finalizado em"],
+            concluido: !!obterValor("Finalizado em"),
             dataAtualizacao: new Date().toISOString()
         };
 
