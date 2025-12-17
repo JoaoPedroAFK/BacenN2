@@ -828,12 +828,72 @@ class ImportadorDados {
             // Filtra apenas registros sem erro
             const dadosValidos = this.dadosImportados.filter(d => !d._erroImportacao);
             
+            this.adicionarLog(`📊 Total de registros válidos para salvar: ${dadosValidos.length}`, 'info');
+            
+            // Verificar tipos antes de separar
+            const tiposEncontrados = {};
+            dadosValidos.forEach(d => {
+                const tipo = d.tipoDemanda || 'nao-identificado';
+                tiposEncontrados[tipo] = (tiposEncontrados[tipo] || 0) + 1;
+            });
+            
+            this.adicionarLog(`🔍 Tipos encontrados: ${Object.keys(tiposEncontrados).map(t => `${t}=${tiposEncontrados[t]}`).join(', ')}`, 'info');
+            
+            // Verificar abas dos registros
+            const abasEncontradas = {};
+            dadosValidos.forEach(d => {
+                const aba = d._aba || 'sem-aba';
+                abasEncontradas[aba] = (abasEncontradas[aba] || 0) + 1;
+            });
+            
+            this.adicionarLog(`📋 Abas encontradas: ${Object.keys(abasEncontradas).map(a => `${a}=${abasEncontradas[a]}`).join(', ')}`, 'info');
+            
             // Separa os dados por tipo de demanda
             const dadosSeparados = {
                 bacen: dadosValidos.filter(d => d.tipoDemanda === 'bacen'),
                 n2: dadosValidos.filter(d => d.tipoDemanda === 'n2'),
                 chatbot: dadosValidos.filter(d => d.tipoDemanda === 'chatbot')
             };
+            
+            // Log detalhado da separação
+            this.adicionarLog(`🔍 Análise de tipos:`, 'info');
+            this.adicionarLog(`   🏦 BACEN: ${dadosSeparados.bacen.length}`, 'info');
+            this.adicionarLog(`   🔄 N2: ${dadosSeparados.n2.length}`, 'info');
+            this.adicionarLog(`   🤖 Chatbot: ${dadosSeparados.chatbot.length}`, 'info');
+            
+            // Verificar tipos não identificados
+            const naoIdentificados = dadosValidos.filter(d => !d.tipoDemanda || (d.tipoDemanda !== 'bacen' && d.tipoDemanda !== 'n2' && d.tipoDemanda !== 'chatbot'));
+            if (naoIdentificados.length > 0) {
+                this.adicionarLog(`⚠️ ${naoIdentificados.length} registros não identificados!`, 'aviso');
+                // Tentar re-identificar baseado na aba
+                naoIdentificados.forEach((d, i) => {
+                    if (i < 10) { // Mostrar apenas os 10 primeiros
+                        const aba = d._aba || 'N/A';
+                        let tipoCorrigido = null;
+                        
+                        if (aba.toLowerCase().includes('ouvidoria')) {
+                            tipoCorrigido = 'n2';
+                        } else if (aba.toLowerCase().includes('bacen')) {
+                            tipoCorrigido = 'bacen';
+                        }
+                        
+                        if (tipoCorrigido) {
+                            d.tipoDemanda = tipoCorrigido;
+                            this.adicionarLog(`   ✅ ${i + 1}. Corrigido: Aba "${aba}" → ${tipoCorrigido}`, 'sucesso');
+                        } else {
+                            this.adicionarLog(`   ⚠️ ${i + 1}. Aba: "${aba}", Tipo: "${d.tipoDemanda || 'N/A'}", Nome: "${d.nomeCliente || d.nomeCompleto || 'N/A'}"`, 'aviso');
+                        }
+                    }
+                });
+                
+                // Re-separar após correções
+                if (naoIdentificados.some(d => d.tipoDemanda === 'bacen' || d.tipoDemanda === 'n2' || d.tipoDemanda === 'chatbot')) {
+                    dadosSeparados.bacen = dadosValidos.filter(d => d.tipoDemanda === 'bacen');
+                    dadosSeparados.n2 = dadosValidos.filter(d => d.tipoDemanda === 'n2');
+                    dadosSeparados.chatbot = dadosValidos.filter(d => d.tipoDemanda === 'chatbot');
+                    this.adicionarLog(`🔄 Re-separação após correções: BACEN=${dadosSeparados.bacen.length}, N2=${dadosSeparados.n2.length}, Chatbot=${dadosSeparados.chatbot.length}`, 'info');
+                }
+            }
             
             // Garantir que o sistema de armazenamento está disponível
             if (!window.armazenamentoReclamacoes) {
