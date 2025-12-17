@@ -289,11 +289,24 @@ class ImportadorDados {
                 }
                 
                 // Verificar se o nome é apenas zeros ou está vazio (priorizar coluna "Nome completo")
-                const nomeBruto = dadoBruto["Nome completo"] || '';
+                const nomeBruto = dadoBruto["Nome completo"] || dadoBruto["Nome"] || dadoBruto["Cliente"] || '';
                 const nomeStr = nomeBruto.toString().trim();
                 
                 if (!nomeStr || nomeStr === '' || /^0+$/.test(nomeStr)) {
                     this.adicionarLog(`⏭️ Registro ${i + 1}: Ignorado (nome vazio ou contém apenas zeros)`, 'aviso');
+                    processados++;
+                    continue;
+                }
+                
+                // Identificar tipo antes de validar CPF (chatbot requer CPF)
+                const tipoIdentificado = this.identificarTipoDemanda(dadoBruto);
+                
+                // Verificar CPF em branco (para chatbot, não considerar registros sem CPF)
+                const cpfBruto = dadoBruto["CPF"] || dadoBruto["CPF Tratado"] || '';
+                const cpfStr = (cpfBruto || '').toString().trim().replace(/\D/g, '');
+                
+                if (tipoIdentificado === 'chatbot' && (!cpfStr || cpfStr === '' || /^0+$/.test(cpfStr))) {
+                    this.adicionarLog(`⏭️ Registro ${i + 1}: Ignorado (CPF em branco - obrigatório para Chatbot)`, 'aviso');
                     processados++;
                     continue;
                 }

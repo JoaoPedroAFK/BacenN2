@@ -1078,7 +1078,9 @@
 .grafico-barras {
     padding: 20px;
     overflow: visible;
-    min-height: 380px;
+    min-height: 360px;
+    max-height: 360px;
+    position: relative;
 }
 
 .grafico-barras-container {
@@ -1097,10 +1099,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    flex: 1;
-    gap: 8px;
-    min-width: 0;
+    flex: 1 1 auto;
+    gap: 4px;
+    min-width: 40px;
+    max-width: 120px;
     position: relative;
+    justify-content: flex-end;
 }
 
 .barra-valor {
@@ -1123,22 +1127,23 @@
 }
 
 .barra-label {
-    font-size: 10px;
+    font-size: 9px;
     color: #666;
     text-align: center;
     white-space: nowrap;
     max-width: 100px;
     overflow: visible;
-    padding-top: 8px;
     transform: rotate(-45deg);
-    transform-origin: top center;
-    margin-left: 0;
-    height: 80px;
-    width: 80px;
+    transform-origin: center center;
+    height: 70px;
+    width: 70px;
     position: absolute;
-    bottom: -60px;
+    bottom: -50px;
     left: 50%;
-    margin-left: -40px;
+    margin-left: -35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .grafico-linha {
