@@ -502,20 +502,78 @@ class ImportadorDados {
     formatarData(dataString) {
         if (!dataString) return '';
         
-        // Tenta diferentes formatos de data
-        const formatos = [
-            /^\d{4}-\d{2}-\d{2}$/, // YYYY-MM-DD
-            /^\d{2}\/\d{2}\/\d{4}$/, // DD/MM/YYYY
-            /^\d{2}-\d{2}-\d{4}$/  // DD-MM-YYYY
-        ];
+        const str = dataString.toString().trim();
+        if (!str) return '';
         
-        for (const formato of formatos) {
-            if (formato.test(dataString)) {
-                return new Date(dataString).toISOString();
+        // Se já está em formato ISO, retorna
+        if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+            try {
+                const data = new Date(str);
+                if (!isNaN(data.getTime())) {
+                    return data.toISOString();
+                }
+            } catch (e) {
+                // Continua tentando outros formatos
             }
         }
         
-        return dataString;
+        // Tenta formato DD/MM/YYYY ou DD/MM/AAAA
+        const matchBR = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+        if (matchBR) {
+            const [, dia, mes, ano] = matchBR;
+            try {
+                const data = new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+                if (!isNaN(data.getTime())) {
+                    return data.toISOString();
+                }
+            } catch (e) {
+                // Continua
+            }
+        }
+        
+        // Tenta formato DD-MM-YYYY
+        const matchBR2 = str.match(/^(\d{1,2})-(\d{1,2})-(\d{4})/);
+        if (matchBR2) {
+            const [, dia, mes, ano] = matchBR2;
+            try {
+                const data = new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+                if (!isNaN(data.getTime())) {
+                    return data.toISOString();
+                }
+            } catch (e) {
+                // Continua
+            }
+        }
+        
+        // Tenta parsear como data do Excel (número serial)
+        if (/^\d+\.?\d*$/.test(str)) {
+            try {
+                // Excel usa 1 de janeiro de 1900 como base (mas na verdade é 30/12/1899)
+                const excelDate = parseFloat(str);
+                if (excelDate > 0 && excelDate < 100000) {
+                    // Converter número serial do Excel para data JavaScript
+                    const data = new Date((excelDate - 25569) * 86400 * 1000);
+                    if (!isNaN(data.getTime())) {
+                        return data.toISOString();
+                    }
+                }
+            } catch (e) {
+                // Continua
+            }
+        }
+        
+        // Última tentativa: usar Date nativo
+        try {
+            const data = new Date(str);
+            if (!isNaN(data.getTime())) {
+                return data.toISOString();
+            }
+        } catch (e) {
+            // Ignora
+        }
+        
+        // Se não conseguir, retorna string original
+        return str;
     }
 
     formatarValor(valorString) {
@@ -577,22 +635,19 @@ class ImportadorDados {
     }
 
     validarFicha(ficha) {
-        // Validações obrigatórias
-        if (!ficha.nomeCliente) {
+        // Validações obrigatórias (mais flexível)
+        if (!ficha.nomeCliente || ficha.nomeCliente.trim() === '') {
             throw new Error('Nome do cliente é obrigatório');
         }
         
-        if (!ficha.cpf) {
-            throw new Error('CPF é obrigatório');
+        // CPF não é obrigatório, mas se existir deve ser válido
+        if (ficha.cpf && ficha.cpf.replace(/\D/g, '').length !== 11 && ficha.cpf.replace(/\D/g, '').length !== 0) {
+            throw new Error('CPF inválido (deve ter 11 dígitos)');
         }
         
-        if (!ficha.dataCriacao) {
-            throw new Error('Data de criação é obrigatória');
-        }
-        
-        // Validação de CPF (simplificada)
-        if (ficha.cpf.replace(/\D/g, '').length !== 11) {
-            throw new Error('CPF inválido');
+        // Se não tem data de criação, usa data atual
+        if (!ficha.dataCriacao || ficha.dataCriacao === '') {
+            ficha.dataCriacao = new Date().toISOString();
         }
         
         return true;
