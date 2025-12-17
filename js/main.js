@@ -69,14 +69,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Listener para atualizar home quando uma nova reclamação for salva
     window.addEventListener('reclamacaoSalva', function(event) {
         console.log('📢 Evento reclamacaoSalva recebido:', event.detail);
-        // Recarregar dados e atualizar dashboard e home stats
+        // Recarregar dados e atualizar dashboard e home stats IMEDIATAMENTE
+        atualizarHomeStats();
+        console.log('✅ Home atualizada após nova reclamação');
+        
+        // Também atualizar dashboard se necessário
         setTimeout(() => {
-            carregarFichas();
-            updateDashboard();
-            atualizarHomeStats();
-            console.log('✅ Home e dashboard atualizados após nova reclamação');
+            if (typeof carregarFichas === 'function') {
+                carregarFichas();
+            }
+            if (typeof updateDashboard === 'function') {
+                updateDashboard();
+            }
         }, 100);
     });
+    
+    // Atualizar home periodicamente (a cada 5 segundos) para garantir sincronização
+    setInterval(() => {
+        if (document.getElementById('home') && document.getElementById('home').classList.contains('active')) {
+            atualizarHomeStats();
+        }
+    }, 5000);
 });
 
 // === INICIALIZAR APLICAÇÃO ===

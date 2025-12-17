@@ -604,12 +604,19 @@ async function renderizarListaBacen() {
         });
     }
     
-    // Aplicar filtro de status
-    if (filtroStatus) {
+    // Aplicar filtro de status (ignorar "todos")
+    if (filtroStatus && filtroStatus !== 'todos') {
         filtradas = filtradas.filter(f => f.status === filtroStatus);
     }
     
     console.log('📋 Fichas após filtros:', filtradas.length);
+    
+    // Verificar se criarCardBacen existe
+    if (typeof criarCardBacen !== 'function' && typeof window.criarCardBacen !== 'function') {
+        console.error('❌ Função criarCardBacen não encontrada!');
+        container.innerHTML = '<div class="no-results">Erro: Função de renderização não encontrada</div>';
+        return;
+    }
     
     if (filtradas.length === 0) {
         if (fichasBacen.length === 0) {
@@ -617,6 +624,7 @@ async function renderizarListaBacen() {
         } else {
             container.innerHTML = '<div class="no-results">Nenhuma reclamação BACEN encontrada com os filtros aplicados</div>';
         }
+        console.log('⚠️ Nenhuma ficha filtrada encontrada');
         return;
     }
     
@@ -627,8 +635,19 @@ async function renderizarListaBacen() {
         return dataB - dataA;
     });
     
-    container.innerHTML = filtradas.map(f => criarCardBacen(f)).join('');
-    console.log('✅ Lista renderizada com sucesso! Total de cards:', filtradas.length);
+    // Usar criarCardBacen do window se disponível, senão usar função local
+    const criarCard = window.criarCardBacen || criarCardBacen;
+    const html = filtradas.map(f => {
+        try {
+            return criarCard(f);
+        } catch (error) {
+            console.error('❌ Erro ao criar card para ficha', f.id, ':', error);
+            return `<div class="ficha-card">Erro ao renderizar ficha ${f.id}</div>`;
+        }
+    }).join('');
+    
+    container.innerHTML = html;
+    console.log('✅ Lista BACEN renderizada com sucesso!', filtradas.length, 'fichas exibidas');
 }
 
 // Renderizar "Minhas Reclamações"
