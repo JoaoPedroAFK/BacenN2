@@ -15,14 +15,23 @@ class ArmazenamentoReclamacoes {
     }
     
     inicializarSupabase() {
-        // Verificar se Supabase está disponível
-        if (window.supabaseDB && !window.supabaseDB.usarLocalStorage) {
-            this.usarSupabase = true;
-            this.supabase = window.supabaseDB.supabase;
-            console.log('✅ Usando Supabase para armazenamento compartilhado');
-        } else {
-            console.warn('⚠️ Supabase não disponível. Usando localStorage (dados locais apenas).');
-        }
+        // Aguardar um pouco para garantir que supabaseDB foi inicializado
+        setTimeout(() => {
+            // Verificar se Supabase está disponível
+            if (window.supabaseDB && window.supabaseDB.supabase && !window.supabaseDB.usarLocalStorage) {
+                this.usarSupabase = true;
+                this.supabase = window.supabaseDB.supabase;
+                console.log('✅ Usando Supabase para armazenamento compartilhado');
+                console.log('🔍 Supabase client:', this.supabase ? 'disponível' : 'indisponível');
+            } else {
+                console.warn('⚠️ Supabase não disponível. Usando localStorage (dados locais apenas).');
+                console.warn('🔍 window.supabaseDB:', window.supabaseDB ? 'existe' : 'não existe');
+                if (window.supabaseDB) {
+                    console.warn('🔍 window.supabaseDB.supabase:', window.supabaseDB.supabase ? 'existe' : 'não existe');
+                    console.warn('🔍 window.supabaseDB.usarLocalStorage:', window.supabaseDB.usarLocalStorage);
+                }
+            }
+        }, 200); // Aguardar mais que o supabaseDB (100ms) para garantir
     }
 
     // === SALVAR RECLAMAÇÃO ===
@@ -164,6 +173,13 @@ class ArmazenamentoReclamacoes {
         }
         
         // PRIORIDADE 1: Tentar carregar do Supabase (armazenamento compartilhado)
+        // Re-verificar Supabase antes de carregar (pode ter sido inicializado depois)
+        if (!this.usarSupabase && window.supabaseDB && window.supabaseDB.supabase && !window.supabaseDB.usarLocalStorage) {
+            this.usarSupabase = true;
+            this.supabase = window.supabaseDB.supabase;
+            console.log('✅ Supabase detectado durante carregamento, ativando...');
+        }
+        
         if (this.usarSupabase && window.supabaseDB && window.supabaseDB.supabase) {
             try {
                 const nomeTabela = `fichas_${tipo}`;
