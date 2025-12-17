@@ -1,5 +1,5 @@
-/* === SISTEMA SIMPLES DE ARMAZENAMENTO DE RECLAMAÇÕES === */
-/* Sistema direto e confiável usando apenas localStorage */
+/* === SISTEMA DE ARMAZENAMENTO DE RECLAMAÇÕES === */
+/* Usa Supabase quando disponível, fallback para localStorage */
 
 class ArmazenamentoReclamacoes {
     constructor() {
@@ -8,11 +8,25 @@ class ArmazenamentoReclamacoes {
             n2: 'velotax_reclamacoes_n2',
             chatbot: 'velotax_reclamacoes_chatbot'
         };
+        this.usarSupabase = false;
+        this.supabase = null;
+        this.inicializarSupabase();
         console.log('✅ Sistema de armazenamento inicializado');
+    }
+    
+    inicializarSupabase() {
+        // Verificar se Supabase está disponível
+        if (window.supabaseDB && !window.supabaseDB.usarLocalStorage) {
+            this.usarSupabase = true;
+            this.supabase = window.supabaseDB.supabase;
+            console.log('✅ Usando Supabase para armazenamento compartilhado');
+        } else {
+            console.warn('⚠️ Supabase não disponível. Usando localStorage (dados locais apenas).');
+        }
     }
 
     // === SALVAR RECLAMAÇÃO ===
-    salvar(tipo, reclamacao) {
+    async salvar(tipo, reclamacao) {
         console.log(`💾 Salvando reclamação ${tipo} - ID: ${reclamacao.id}`);
         
         // Garantir que tem ID
@@ -36,9 +50,64 @@ class ArmazenamentoReclamacoes {
             return false;
         }
         
-        // Carregar reclamações existentes DIRETAMENTE do localStorage (evitar problemas de cache)
-        let reclamacoes = [];
+        // PRIORIDADE 1: Tentar salvar no Supabase (armazenamento compartilhado)
+        if (this.usarSupabase && window.supabaseDB) {
+            try {
+                const nomeTabela = `fichas_${tipo}`;
+                console.log(`☁️ Tentando salvar no Supabase (tabela: ${nomeTabela})...`);
+                
+                // Verificar se já existe
+                const { data: existente } = await window.supabaseDB.supabase
+                    .from(nomeTabela)
+                    .select('id')
+                    .eq('id', reclamacao.id)
+                    .single();
+                
+                let resultado;
+                if (existente) {
+                    // Atualizar
+                    const { data, error } = await window.supabaseDB.supabase
+                        .from(nomeTabela)
+                        .update(reclamacao)
+                        .eq('id', reclamacao.id)
+                        .select()
+                        .single();
+                    
+                    if (error) throw error;
+                    resultado = data;
+                    console.log(`✅ Reclamação atualizada no Supabase: ${reclamacao.id}`);
+                } else {
+                    // Inserir
+                    const { data, error } = await window.supabaseDB.supabase
+                        .from(nomeTabela)
+                        .insert(reclamacao)
+                        .select()
+                        .single();
+                    
+                    if (error) throw error;
+                    resultado = data;
+                    console.log(`✅ Reclamação salva no Supabase: ${reclamacao.id}`);
+                }
+                
+                // Também salvar no localStorage como backup
+                this.salvarLocalStorage(tipo, reclamacao, chave);
+                return true;
+            } catch (error) {
+                console.error(`❌ Erro ao salvar no Supabase:`, error);
+                console.warn(`⚠️ Fallback para localStorage...`);
+                // Continuar para salvar no localStorage
+            }
+        }
+        
+        // FALLBACK: Salvar no localStorage
+        return this.salvarLocalStorage(tipo, reclamacao, chave);
+    }
+    
+    // Método auxiliar para salvar no localStorage
+    salvarLocalStorage(tipo, reclamacao, chave) {
         try {
+            // Carregar reclamações existentes
+            let reclamacoes = [];
             const dados = localStorage.getItem(chave);
             if (dados) {
                 reclamacoes = JSON.parse(dados);
@@ -47,52 +116,41 @@ class ArmazenamentoReclamacoes {
                     reclamacoes = [];
                 }
             }
-        } catch (error) {
-            console.error(`❌ Erro ao carregar antes de salvar:`, error);
-            reclamacoes = [];
-        }
-        
-        console.log(`📦 Reclamações existentes antes de salvar: ${reclamacoes.length}`);
-        
-        // Verificar se já existe (atualizar) ou adicionar nova
-        const index = reclamacoes.findIndex(r => r.id === reclamacao.id);
-        if (index >= 0) {
-            reclamacoes[index] = reclamacao;
-            console.log(`🔄 Reclamação atualizada: ${reclamacao.id}`);
-        } else {
-            reclamacoes.push(reclamacao);
-            console.log(`➕ Nova reclamação adicionada: ${reclamacao.id}`);
-        }
-        
-        // Salvar no localStorage
-        try {
+            
+            // Verificar se já existe (atualizar) ou adicionar nova
+            const index = reclamacoes.findIndex(r => r.id === reclamacao.id);
+            if (index >= 0) {
+                reclamacoes[index] = reclamacao;
+                console.log(`🔄 Reclamação atualizada no localStorage: ${reclamacao.id}`);
+            } else {
+                reclamacoes.push(reclamacao);
+                console.log(`➕ Nova reclamação adicionada no localStorage: ${reclamacao.id}`);
+            }
+            
+            // Salvar no localStorage
             const dadosParaSalvar = JSON.stringify(reclamacoes);
             localStorage.setItem(chave, dadosParaSalvar);
             
-            // VERIFICAR IMEDIATAMENTE se foi salvo corretamente
+            // Verificar se foi salvo corretamente
             const verificado = localStorage.getItem(chave);
             if (verificado) {
                 const dadosVerificados = JSON.parse(verificado);
                 console.log(`✅ Salvo no localStorage: ${dadosVerificados.length} reclamações ${tipo}`);
-                console.log(`📋 IDs salvos:`, dadosVerificados.map(r => r.id).join(', '));
                 
-                // Verificar se a reclamação salva está lá
                 const encontrada = dadosVerificados.find(r => r.id === reclamacao.id);
                 if (encontrada) {
                     console.log(`✅ Reclamação ${reclamacao.id} confirmada no localStorage`);
+                    return true;
                 } else {
-                    console.error(`❌ ERRO CRÍTICO: Reclamação ${reclamacao.id} NÃO foi salva corretamente!`);
+                    console.error(`❌ ERRO: Reclamação ${reclamacao.id} NÃO foi salva corretamente!`);
                     return false;
                 }
             } else {
-                console.error(`❌ ERRO CRÍTICO: localStorage não retornou dados após salvar!`);
+                console.error(`❌ ERRO: localStorage não retornou dados após salvar!`);
                 return false;
             }
-            
-            return true;
         } catch (error) {
             console.error(`❌ Erro ao salvar no localStorage:`, error);
-            console.error(`❌ Detalhes do erro:`, error.message, error.stack);
             return false;
         }
     }
