@@ -538,10 +538,10 @@ class GraficosDetalhados {
 
     criarGraficoBarras(labels, values, cores, titulo) {
         const maxValue = Math.max(...values, 1);
-        const alturaMax = 250; // Altura fixa para todos os gráficos
+        const alturaMax = 220; // Altura fixa para todos os gráficos
 
         return `
-            <div class="grafico-barras" style="min-height: 350px;">
+            <div class="grafico-barras" style="min-height: 380px;">
                 <div class="grafico-barras-container">
                     ${labels.map((label, i) => {
                         const altura = (values[i] / maxValue) * alturaMax;
@@ -550,7 +550,7 @@ class GraficosDetalhados {
                             <div class="barra-item">
                                 <div class="barra-valor">${values[i]}</div>
                                 <div class="barra" style="height: ${altura}px; background: ${cor};" title="${label}: ${values[i]}"></div>
-                                <div class="barra-label" style="transform: rotate(-45deg); transform-origin: top left; white-space: nowrap; margin-top: 5px; margin-left: 10px;">${this.formatarLabel(label)}</div>
+                                <div class="barra-label">${this.formatarLabel(label)}</div>
                             </div>
                         `;
                     }).join('')}
