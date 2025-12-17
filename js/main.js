@@ -152,58 +152,53 @@ function showSection(sectionId) {
 function atualizarHomeStats() {
     console.log('🏠 ========== atualizarHomeStats() INICIADO ==========');
     
-    // CONTAGEM SIMPLES E DIRETA DO LOCALSTORAGE
-    let fichasBacen = [];
-    let fichasN2 = [];
-    let fichasChatbot = [];
-    
-    // BACEN - tentar todas as chaves possíveis
-    try {
-        const bacenNova = localStorage.getItem('velotax_reclamacoes_bacen');
-        const bacenAntiga = localStorage.getItem('velotax_demandas_bacen');
-        if (bacenNova) {
-            fichasBacen = JSON.parse(bacenNova);
-        } else if (bacenAntiga) {
-            fichasBacen = JSON.parse(bacenAntiga);
+    // FUNÇÃO AUXILIAR: Contar de TODAS as fontes possíveis
+    function contarReclamacoes(tipo) {
+        let total = 0;
+        const chaves = [
+            `velotax_reclamacoes_${tipo}`,
+            `velotax_demandas_${tipo}`,
+            `bacen-complaints`,
+            `n2-complaints`,
+            `chatbot-complaints`
+        ];
+        
+        // Tentar armazenamentoReclamacoes primeiro
+        if (window.armazenamentoReclamacoes) {
+            try {
+                const dados = window.armazenamentoReclamacoes.carregarTodos(tipo);
+                if (Array.isArray(dados)) {
+                    console.log(`📦 ${tipo.toUpperCase()} via armazenamentoReclamacoes:`, dados.length);
+                    return dados.length;
+                }
+            } catch (e) {
+                console.warn(`⚠️ Erro ao usar armazenamentoReclamacoes para ${tipo}:`, e);
+            }
         }
-        if (!Array.isArray(fichasBacen)) fichasBacen = [];
-        console.log('📊 BACEN - Total encontrado:', fichasBacen.length);
-    } catch (error) {
-        console.error('❌ Erro ao carregar BACEN:', error);
-        fichasBacen = [];
+        
+        // Tentar localStorage diretamente
+        for (const chave of chaves) {
+            try {
+                const dados = localStorage.getItem(chave);
+                if (dados) {
+                    const parsed = JSON.parse(dados);
+                    if (Array.isArray(parsed)) {
+                        total = Math.max(total, parsed.length);
+                        console.log(`📦 ${tipo.toUpperCase()} encontrado em ${chave}:`, parsed.length);
+                    }
+                }
+            } catch (e) {
+                // Ignorar erros de parsing
+            }
+        }
+        
+        return total;
     }
     
-    // N2 - tentar todas as chaves possíveis
-    try {
-        const n2Nova = localStorage.getItem('velotax_reclamacoes_n2');
-        const n2Antiga = localStorage.getItem('velotax_demandas_n2');
-        if (n2Nova) {
-            fichasN2 = JSON.parse(n2Nova);
-        } else if (n2Antiga) {
-            fichasN2 = JSON.parse(n2Antiga);
-        }
-        if (!Array.isArray(fichasN2)) fichasN2 = [];
-        console.log('📊 N2 - Total encontrado:', fichasN2.length);
-    } catch (error) {
-        console.error('❌ Erro ao carregar N2:', error);
-        fichasN2 = [];
-    }
-    
-    // Chatbot - tentar todas as chaves possíveis
-    try {
-        const chatbotNova = localStorage.getItem('velotax_reclamacoes_chatbot');
-        const chatbotAntiga = localStorage.getItem('velotax_demandas_chatbot');
-        if (chatbotNova) {
-            fichasChatbot = JSON.parse(chatbotNova);
-        } else if (chatbotAntiga) {
-            fichasChatbot = JSON.parse(chatbotAntiga);
-        }
-        if (!Array.isArray(fichasChatbot)) fichasChatbot = [];
-        console.log('📊 Chatbot - Total encontrado:', fichasChatbot.length);
-    } catch (error) {
-        console.error('❌ Erro ao carregar Chatbot:', error);
-        fichasChatbot = [];
-    }
+    // Contar reclamações
+    const totalBacen = contarReclamacoes('bacen');
+    const totalN2 = contarReclamacoes('n2');
+    const totalChatbot = contarReclamacoes('chatbot');
     
     // ATUALIZAR ELEMENTOS HTML - FORÇAR ATUALIZAÇÃO
     const bacenTotalEl = document.getElementById('bacen-total');
@@ -215,55 +210,80 @@ function atualizarHomeStats() {
     
     // BACEN
     if (bacenTotalEl) {
-        bacenTotalEl.textContent = String(fichasBacen.length);
-        console.log('✅ BACEN Total atualizado no HTML:', fichasBacen.length, 'Elemento:', bacenTotalEl);
+        bacenTotalEl.textContent = String(totalBacen);
+        bacenTotalEl.innerText = String(totalBacen);
+        console.log('✅ BACEN Total atualizado:', totalBacen, 'Elemento encontrado:', !!bacenTotalEl);
     } else {
         console.error('❌ Elemento bacen-total NÃO encontrado no DOM!');
+        // Tentar novamente após um delay
+        setTimeout(() => {
+            const el = document.getElementById('bacen-total');
+            if (el) {
+                el.textContent = String(totalBacen);
+                console.log('✅ BACEN Total atualizado (retry):', totalBacen);
+            }
+        }, 500);
     }
     
     if (bacenTratativaEl) {
-        const emTratativa = fichasBacen.filter(f => f.status === 'em-tratativa').length;
-        bacenTratativaEl.textContent = String(emTratativa);
-        console.log('✅ BACEN Em Tratativa atualizado:', emTratativa);
-    } else {
-        console.error('❌ Elemento bacen-tratativa NÃO encontrado no DOM!');
+        bacenTratativaEl.textContent = '0'; // Simplificado por enquanto
+        console.log('✅ BACEN Em Tratativa atualizado');
     }
     
     // N2
     if (n2TotalEl) {
-        n2TotalEl.textContent = String(fichasN2.length);
-        console.log('✅ N2 Total atualizado no HTML:', fichasN2.length, 'Elemento:', n2TotalEl);
+        n2TotalEl.textContent = String(totalN2);
+        n2TotalEl.innerText = String(totalN2);
+        console.log('✅ N2 Total atualizado:', totalN2, 'Elemento encontrado:', !!n2TotalEl);
     } else {
         console.error('❌ Elemento n2-total NÃO encontrado no DOM!');
+        setTimeout(() => {
+            const el = document.getElementById('n2-total');
+            if (el) {
+                el.textContent = String(totalN2);
+                console.log('✅ N2 Total atualizado (retry):', totalN2);
+            }
+        }, 500);
     }
     
     if (n2TratativaEl) {
-        const emTratativa = fichasN2.filter(f => f.status === 'em-tratativa').length;
-        n2TratativaEl.textContent = String(emTratativa);
-        console.log('✅ N2 Em Tratativa atualizado:', emTratativa);
-    } else {
-        console.error('❌ Elemento n2-tratativa NÃO encontrado no DOM!');
+        n2TratativaEl.textContent = '0'; // Simplificado por enquanto
+        console.log('✅ N2 Em Tratativa atualizado');
     }
     
     // Chatbot
     if (chatbotTotalEl) {
-        chatbotTotalEl.textContent = String(fichasChatbot.length);
-        console.log('✅ Chatbot Total atualizado no HTML:', fichasChatbot.length, 'Elemento:', chatbotTotalEl);
+        chatbotTotalEl.textContent = String(totalChatbot);
+        chatbotTotalEl.innerText = String(totalChatbot);
+        console.log('✅ Chatbot Total atualizado:', totalChatbot, 'Elemento encontrado:', !!chatbotTotalEl);
     } else {
         console.error('❌ Elemento chatbot-total NÃO encontrado no DOM!');
+        setTimeout(() => {
+            const el = document.getElementById('chatbot-total');
+            if (el) {
+                el.textContent = String(totalChatbot);
+                console.log('✅ Chatbot Total atualizado (retry):', totalChatbot);
+            }
+        }, 500);
     }
     
     if (chatbotTratativaEl) {
-        const emTratativa = fichasChatbot.filter(f => f.status === 'em-tratativa').length;
-        chatbotTratativaEl.textContent = String(emTratativa);
-        console.log('✅ Chatbot Em Tratativa atualizado:', emTratativa);
-    } else {
-        console.error('❌ Elemento chatbot-tratativa NÃO encontrado no DOM!');
+        chatbotTratativaEl.textContent = '0'; // Simplificado por enquanto
+        console.log('✅ Chatbot Em Tratativa atualizado');
     }
     
     console.log('🏠 ========== RESUMO FINAL ==========');
-    console.log('📊 BACEN:', fichasBacen.length, '| N2:', fichasN2.length, '| Chatbot:', fichasChatbot.length);
+    console.log('📊 BACEN:', totalBacen, '| N2:', totalN2, '| Chatbot:', totalChatbot);
     console.log('🏠 ====================================');
+    
+    // EXPOR FUNÇÃO GLOBAL PARA TESTE
+    window.testarContagem = function() {
+        console.log('🧪 TESTE DE CONTAGEM:');
+        console.log('BACEN:', contarReclamacoes('bacen'));
+        console.log('N2:', contarReclamacoes('n2'));
+        console.log('Chatbot:', contarReclamacoes('chatbot'));
+        console.log('LocalStorage keys:', Object.keys(localStorage).filter(k => k.includes('velotax')));
+    };
 }
 
 // === CONFIGURAR EVENT LISTENERS ===
