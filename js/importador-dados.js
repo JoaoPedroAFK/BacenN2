@@ -362,6 +362,7 @@ class ImportadorDados {
         const ficha = {
             id: this.gerarId(),
             nomeCliente: obterValor("Nome completo") || '', // Priorizar apenas "Nome completo"
+            nomeCompleto: obterValor("Nome completo") || '', // Compatibilidade com outros sistemas
             cpf: this.limparCPF(obterValor("CPF") || obterValor("CPF Tratado") || ''),
             cpfTratado: this.limparCPF(obterValor("CPF Tratado") || obterValor("CPF") || ''),
             telefone: obterValor("Telefone") || obterValor("Celular") || obterValor("Contato") || '',
