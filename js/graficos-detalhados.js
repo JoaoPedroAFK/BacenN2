@@ -215,13 +215,9 @@ class GraficosDetalhados {
     }
 
     renderizarGraficoStatusPizza(dados) {
-        // Tentar primeiro o ID padrão do HTML, depois criar se não existir
-        let container = document.getElementById(`grafico-status-${this.tipoDemanda}`);
-        const containerId = container ? `grafico-status-${this.tipoDemanda}` : `grafico-status-pizza-${this.tipoDemanda}`;
-        
-        if (!container) {
-            container = document.getElementById(containerId);
-        }
+        // Usar o ID padrão do HTML: grafico-status-{tipo}
+        const containerId = `grafico-status-${this.tipoDemanda}`;
+        let container = document.getElementById(containerId);
         
         if (!container) {
             // Tentar encontrar container de gráficos de várias formas
@@ -250,6 +246,8 @@ class GraficosDetalhados {
                 return;
             }
         }
+        
+        console.log(`✅ Renderizando gráfico Status em: ${containerId}`);
 
         const statusCount = {};
         dados.forEach(f => {
@@ -260,8 +258,14 @@ class GraficosDetalhados {
 
         const labels = Object.keys(statusCount);
         const values = Object.values(statusCount);
+        
+        if (values.reduce((a, b) => a + b, 0) === 0) {
+            container.innerHTML = '<p>Nenhum dado disponível</p>';
+            return;
+        }
 
         container.innerHTML = this.criarGraficoPizza(labels, values, 'Status');
+        console.log(`✅ Gráfico de Status renderizado:`, { labels, values });
     }
 
     renderizarGraficoStatus(dados) {
@@ -355,13 +359,9 @@ class GraficosDetalhados {
     }
 
     renderizarGraficoCobrancaPizza(dados) {
-        // Tentar primeiro o ID padrão do HTML, depois criar se não existir
-        let container = document.getElementById(`grafico-cobranca-${this.tipoDemanda}`);
-        const containerId = container ? `grafico-cobranca-${this.tipoDemanda}` : `grafico-cobranca-pizza-${this.tipoDemanda}`;
-        
-        if (!container) {
-            container = document.getElementById(containerId);
-        }
+        // Usar o ID padrão: grafico-cobranca-{tipo}
+        const containerId = `grafico-cobranca-${this.tipoDemanda}`;
+        let container = document.getElementById(containerId);
         
         if (!container) {
             // Tentar encontrar container de gráficos de várias formas
@@ -390,6 +390,8 @@ class GraficosDetalhados {
                 return;
             }
         }
+        
+        console.log(`✅ Renderizando gráfico Cobrança em: ${containerId}`);
 
         const cobrancaCount = {
             'Sim': dados.filter(f => f.enviarCobranca === true || f.enviarCobranca === 'Sim').length,
@@ -839,11 +841,30 @@ class GraficosDetalhados {
     }
 
     renderizarGraficoCanal(dados) {
-        const containerId = `grafico-canal-${this.tipoDemanda}`;
-        let container = document.getElementById(containerId);
+        // Tentar primeiro o ID do HTML: grafico-canais-chatbot
+        let container = document.getElementById(`grafico-canais-${this.tipoDemanda}`);
+        const containerId = container ? `grafico-canais-${this.tipoDemanda}` : `grafico-canal-${this.tipoDemanda}`;
         
         if (!container) {
-            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            container = document.getElementById(containerId);
+        }
+        
+        if (!container) {
+            // Tentar encontrar container de gráficos de várias formas
+            let graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-chatbot`);
+            }
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-bacen`);
+            }
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-n2`);
+            }
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda}`);
+            }
+            
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
@@ -851,9 +872,12 @@ class GraficosDetalhados {
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
+                console.error(`❌ Container de gráficos não encontrado para ${this.tipoDemanda}`);
                 return;
             }
         }
+        
+        console.log(`✅ Renderizando gráfico Canal em: ${containerId}`);
 
         const canalCount = {};
         dados.forEach(f => {
