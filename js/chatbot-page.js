@@ -548,9 +548,12 @@ function renderizarListaChatbot() {
     
     console.log('✅ Container encontrado:', container);
     
-    // SEMPRE recarregar as fichas antes de renderizar para garantir que temos os dados mais recentes
+    // Mostrar loading
+    container.innerHTML = '<div class="loading-message">Carregando reclamações...</div>';
+    
+    // SEMPRE recarregar as fichas antes de renderizar para garantir que temos os dados mais recentes (AGUARDAR)
     console.log('🔄 Recarregando fichas antes de renderizar lista...');
-    carregarFichasChatbot();
+    await carregarFichasChatbot();
     
     // Verificar novamente após carregar
     if (!fichasChatbot || !Array.isArray(fichasChatbot)) {
