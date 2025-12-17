@@ -350,7 +350,7 @@ class ImportadorDados {
             protocolos: this.processarProtocolos(obterValor("Protocolos Central") || obterValor("Protocolo") || obterValor("Protocolos") || ''),
             
             // Campos específicos por tipo
-            camposEspecificos: this.processarCamposEspecificos(dadoBruto, tipoDemanda),
+            camposEspecificos: this.processarCamposEspecificos(dadoBruto, tipoDemanda, obterValor),
             
             // Status interno
             concluido: !!obterValor("Finalizado em"),
@@ -442,16 +442,18 @@ class ImportadorDados {
         return "bacen";
     }
 
-    processarCamposEspecificos(dadoBruto, tipoDemanda) {
+    processarCamposEspecificos(dadoBruto, tipoDemanda, obterValor = null) {
         const campos = {};
         
-        // Normalizar chaves
-        const obterValor = (chave) => {
-            const chaveNormalizada = Object.keys(dadoBruto).find(k => 
-                k.trim().toLowerCase() === chave.toLowerCase()
-            ) || chave;
-            return dadoBruto[chaveNormalizada] || dadoBruto[chave] || '';
-        };
+        // Normalizar chaves (criar obterValor se não foi passado)
+        if (!obterValor) {
+            obterValor = (chave) => {
+                const chaveNormalizada = Object.keys(dadoBruto).find(k => 
+                    k.trim().toLowerCase() === chave.toLowerCase()
+                ) || chave;
+                return dadoBruto[chaveNormalizada] || dadoBruto[chave] || '';
+            };
+        }
         
         switch (tipoDemanda) {
             case "bacen":
@@ -500,10 +502,23 @@ class ImportadorDados {
         return mapa[origem] || origem.toLowerCase().replace(/\s+/g, '-');
     }
 
-    inferirStatus(dadoBruto) {
-        if (dadoBruto["Finalizado em"]) {
-            return dadoBruto["Enviar para cobrança?"] === "Sim" ? 'respondido' : 'concluido';
-        } else if (dadoBruto["1ª tentativa"]) {
+    inferirStatus(dadoBruto, obterValor = null) {
+        // Se obterValor não foi passado, criar função auxiliar
+        if (!obterValor) {
+            const normalizarChave = (chave) => {
+                return Object.keys(dadoBruto).find(k => 
+                    k.trim().toLowerCase() === chave.toLowerCase()
+                ) || chave;
+            };
+            obterValor = (chave) => {
+                const chaveNormalizada = normalizarChave(chave);
+                return dadoBruto[chaveNormalizada] || dadoBruto[chave] || '';
+            };
+        }
+        
+        if (obterValor("Finalizado em") || obterValor("Finalizado Em") || obterValor("Data Finalização")) {
+            return this.converterBooleano(obterValor("Enviar para cobrança?") || obterValor("Enviar Cobrança")) ? 'respondido' : 'concluido';
+        } else if (obterValor("1ª tentativa") || obterValor("1a tentativa") || obterValor("Primeira tentativa")) {
             return 'em-tratativa';
         } else {
             return 'nao-iniciado';
@@ -593,6 +608,33 @@ class ImportadorDados {
         // Remove formatação e converte para número
         const valor = valorString.replace(/[R$\s.]/g, '').replace(',', '.');
         return parseFloat(valor) || 0;
+    }
+    
+    gerarId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+    
+    limparCPF(cpf) {
+        if (!cpf) return '';
+        return cpf.toString().replace(/\D/g, '');
+    }
+    
+    converterBooleano(valor) {
+        if (!valor) return false;
+        const str = valor.toString().toLowerCase().trim();
+        return str === 'true' || str === 'sim' || str === 's' || str === '1' || str === 'yes' || str === 'y';
+    }
+    
+    extrairMes(dataString) {
+        if (!dataString) return '';
+        try {
+            const data = new Date(dataString);
+            const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
+                          'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            return meses[data.getMonth()] || '';
+        } catch {
+            return '';
+        }
     }
 
     processarTentativas(dadoBruto) {
