@@ -422,25 +422,36 @@ class ImportadorDados {
         
         // PRIORIDADE 1: Verifica campo _aba (identificador da aba da planilha)
         if (dadoBruto["_aba"]) {
-            const aba = dadoBruto["_aba"].toLowerCase();
-            // Base Ouvidoria = N2
-            if (aba.includes("ouvidoria") || (aba.includes("base") && aba.includes("ouvidoria"))) {
+            const aba = dadoBruto["_aba"].toString().toLowerCase().trim();
+            console.log(`🔍 Identificando tipo pela aba: "${aba}"`);
+            
+            // Base Ouvidoria = N2 (prioridade máxima)
+            if (aba.includes("ouvidoria")) {
+                console.log(`✅ Identificado como N2 pela aba: "${aba}"`);
                 return "n2";
             }
-            // Base Bacen = BACEN
+            
+            // Base Bacen = BACEN (prioridade máxima)
             if (aba.includes("base bacen") || (aba.includes("base") && aba.includes("bacen"))) {
+                console.log(`✅ Identificado como BACEN pela aba: "${aba}"`);
                 return "bacen";
             }
-            // Outras verificações
+            
+            // Verificações adicionais
             if (aba.includes("n2") || aba.includes("portabilidade")) {
+                console.log(`✅ Identificado como N2 pela aba: "${aba}"`);
                 return "n2";
             }
             if (aba.includes("chat") || aba.includes("chatbot") || aba.includes("bot")) {
+                console.log(`✅ Identificado como Chatbot pela aba: "${aba}"`);
                 return "chatbot";
             }
-            if (aba.includes("bacen") || aba.includes("banco central")) {
+            if (aba.includes("bacen")) {
+                console.log(`✅ Identificado como BACEN pela aba: "${aba}"`);
                 return "bacen";
             }
+            
+            console.log(`⚠️ Não foi possível identificar tipo pela aba: "${aba}"`);
         }
         
         // PRIORIDADE 2: Verifica campos específicos de N2
