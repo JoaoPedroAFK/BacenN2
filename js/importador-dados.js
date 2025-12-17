@@ -388,8 +388,8 @@ class ImportadorDados {
         // Mapeamento flexível dos campos da planilha para o sistema
         const ficha = {
             id: this.gerarId(),
-            nomeCliente: obterValor("Nome completo") || '', // Priorizar apenas "Nome completo"
-            nomeCompleto: obterValor("Nome completo") || '', // Compatibilidade com outros sistemas
+            nomeCliente: obterValor("Nome completo") || obterValor("Nome") || obterValor("Cliente") || obterValor("Nome do Cliente") || '',
+            nomeCompleto: obterValor("Nome completo") || obterValor("Nome") || obterValor("Cliente") || obterValor("Nome do Cliente") || '',
             cpf: this.limparCPF(obterValor("CPF") || obterValor("CPF Tratado") || ''),
             cpfTratado: this.limparCPF(obterValor("CPF Tratado") || obterValor("CPF") || ''),
             telefone: obterValor("Telefone") || obterValor("Celular") || obterValor("Contato") || '',
