@@ -59,15 +59,9 @@ function mostrarSecao(secaoId) {
     
     // Ações específicas
     if (secaoId === 'lista-bacen') {
-        carregarFichasBacen().then(() => {
-            console.log('📋 Fichas carregadas para lista geral:', fichasBacen.length);
-            renderizarListaBacen();
-        });
+        renderizarListaBacen();
     } else if (secaoId === 'minhas-reclamacoes-bacen') {
-        carregarFichasBacen().then(() => {
-            console.log('📋 Fichas carregadas para minhas reclamações:', fichasBacen.length);
-            renderizarMinhasReclamacoesBacen();
-        });
+        renderizarMinhasReclamacoesBacen();
     } else if (secaoId === 'nova-reclamacao-bacen' || secaoId === 'nova-ficha-bacen') {
         // Compatibilidade com ambos os nomes
         if (secaoId === 'nova-ficha-bacen') {
@@ -556,6 +550,9 @@ async function renderizarListaBacen() {
         return;
     }
     
+    // Mostrar loading
+    container.innerHTML = '<div class="loading-message">Carregando reclamações...</div>';
+    
     // SEMPRE recarregar as fichas antes de renderizar para garantir que temos os dados mais recentes
     console.log('🔄 Recarregando fichas antes de renderizar lista...');
     await carregarFichasBacen();
@@ -651,20 +648,24 @@ async function renderizarListaBacen() {
 }
 
 // Renderizar "Minhas Reclamações"
-function renderizarMinhasReclamacoesBacen() {
+async function renderizarMinhasReclamacoesBacen() {
     const container = document.getElementById('minhas-fichas-bacen');
     if (!container) {
         console.error('❌ Container minhas-fichas-bacen não encontrado!');
         return;
     }
     
-    // Garantir que fichasBacen está carregado
-    if (!fichasBacen || fichasBacen.length === 0) {
-        console.warn('⚠️ Nenhuma ficha carregada, tentando carregar...');
-        carregarFichasBacen().then(() => {
-            renderizarMinhasReclamacoesBacen();
-        });
-        return;
+    // Mostrar loading
+    container.innerHTML = '<div class="loading-message">Carregando suas reclamações...</div>';
+    
+    // SEMPRE recarregar as fichas antes de renderizar (AGUARDAR)
+    console.log('🔄 Recarregando fichas antes de renderizar minhas reclamações...');
+    await carregarFichasBacen();
+    
+    // Verificar novamente após carregar
+    if (!fichasBacen || !Array.isArray(fichasBacen)) {
+        console.warn('⚠️ fichasBacen não é um array válido, inicializando...');
+        fichasBacen = [];
     }
     
     const usuarioAtual = window.sistemaPerfis?.usuarioAtual;

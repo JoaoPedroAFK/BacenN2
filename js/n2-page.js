@@ -67,15 +67,9 @@ function mostrarSecao(secaoId) {
     });
     
     if (secaoId === 'lista-n2') {
-        carregarFichasN2().then(() => {
-            console.log('📋 Fichas N2 carregadas para lista geral:', fichasN2.length);
-            renderizarListaN2();
-        });
+        renderizarListaN2();
     } else if (secaoId === 'minhas-reclamacoes-n2') {
-        carregarFichasN2().then(() => {
-            console.log('📋 Fichas N2 carregadas para minhas reclamações:', fichasN2.length);
-            renderizarMinhasReclamacoesN2();
-        });
+        renderizarMinhasReclamacoesN2();
     } else if (secaoId === 'nova-reclamacao-n2' || secaoId === 'nova-ficha-n2') {
         // Compatibilidade com ambos os nomes
         if (secaoId === 'nova-ficha-n2') {
@@ -632,6 +626,9 @@ async function renderizarListaN2() {
         }
     }
     
+    // Mostrar loading
+    container.innerHTML = '<div class="loading-message">Carregando reclamações...</div>';
+    
     // SEMPRE recarregar as fichas antes de renderizar para garantir que temos os dados mais recentes
     console.log('🔄 Recarregando fichas antes de renderizar lista...');
     await carregarFichasN2();
@@ -724,20 +721,24 @@ async function renderizarListaN2() {
 }
 
 // Renderizar "Minhas Reclamações"
-function renderizarMinhasReclamacoesN2() {
+async function renderizarMinhasReclamacoesN2() {
     const container = document.getElementById('minhas-fichas-n2');
     if (!container) {
         console.error('❌ Container minhas-fichas-n2 não encontrado!');
         return;
     }
     
-    // Garantir que fichasN2 está carregado
-    if (!fichasN2 || fichasN2.length === 0) {
-        console.warn('⚠️ Nenhuma ficha N2 carregada, tentando carregar...');
-        carregarFichasN2().then(() => {
-            renderizarMinhasReclamacoesN2();
-        });
-        return;
+    // Mostrar loading
+    container.innerHTML = '<div class="loading-message">Carregando suas reclamações...</div>';
+    
+    // SEMPRE recarregar as fichas antes de renderizar (AGUARDAR)
+    console.log('🔄 Recarregando fichas antes de renderizar minhas reclamações...');
+    await carregarFichasN2();
+    
+    // Verificar novamente após carregar
+    if (!fichasN2 || !Array.isArray(fichasN2)) {
+        console.warn('⚠️ fichasN2 não é um array válido, inicializando...');
+        fichasN2 = [];
     }
     
     const usuarioAtual = window.sistemaPerfis?.usuarioAtual;
