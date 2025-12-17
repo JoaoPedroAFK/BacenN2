@@ -274,8 +274,8 @@ class ImportadorDados {
             try {
                 const dadoBruto = dadosBrutos[i];
                 
-                // Verificar se o nome é apenas zeros e ignorar
-                const nomeBruto = dadoBruto["Nome completo"] || dadoBruto["Nome"] || dadoBruto["Cliente"] || '';
+                // Verificar se o nome é apenas zeros e ignorar (priorizar coluna "Nome completo")
+                const nomeBruto = dadoBruto["Nome completo"] || '';
                 if (nomeBruto && /^0+$/.test(nomeBruto.toString().trim())) {
                     this.adicionarLog(`⏭️ Registro ${i + 1}: Ignorado (nome contém apenas zeros)`, 'aviso');
                     processados++;
@@ -346,7 +346,7 @@ class ImportadorDados {
         // Mapeamento flexível dos campos da planilha para o sistema
         const ficha = {
             id: this.gerarId(),
-            nomeCliente: obterValor("Nome completo") || obterValor("Nome") || obterValor("Cliente") || '',
+            nomeCliente: obterValor("Nome completo") || '', // Priorizar apenas "Nome completo"
             cpf: this.limparCPF(obterValor("CPF") || obterValor("CPF Tratado") || ''),
             cpfTratado: this.limparCPF(obterValor("CPF Tratado") || obterValor("CPF") || ''),
             telefone: obterValor("Telefone") || obterValor("Celular") || obterValor("Contato") || '',
