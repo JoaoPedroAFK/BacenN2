@@ -1030,20 +1030,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
 });
 
-// Reinicializar quando mudar de seção (apenas se não houver função mostrarSecao específica da página)
+// Reinicializar gráficos quando mudar de seção (sem sobrescrever mostrarSecao)
 document.addEventListener('DOMContentLoaded', () => {
     // Aguardar um pouco para garantir que as funções das páginas foram carregadas
     setTimeout(() => {
-        // Verificar se já existe uma função mostrarSecao específica (não sobrescrever)
+        // Interceptar chamadas de mostrarSecao sem sobrescrever a função
         if (window.mostrarSecao && typeof window.mostrarSecao === 'function') {
             const mostrarSecaoOriginal = window.mostrarSecao;
-            const mostrarSecaoWrapper = function(secaoId) {
+            
+            // Criar wrapper que chama a função original e depois reinicializa gráficos
+            window.mostrarSecao = function(secaoId) {
                 // Chamar função original primeiro
                 if (typeof mostrarSecaoOriginal === 'function') {
                     mostrarSecaoOriginal(secaoId);
                 }
                 
-                // Reinicializar gráficos se for dashboard
+                // Reinicializar gráficos se for dashboard (após um pequeno delay)
                 if (secaoId && secaoId.includes('dashboard')) {
                     setTimeout(() => {
                         const tipo = secaoId.replace('dashboard-', '');
@@ -1060,15 +1062,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 300);
                 }
             };
-            
-            // Só substituir se não for a função específica da página
-            const funcaoOriginalStr = mostrarSecaoOriginal.toString();
-            if (!funcaoOriginalStr.includes('dashboard-chatbot') && 
-                !funcaoOriginalStr.includes('dashboard-bacen') && 
-                !funcaoOriginalStr.includes('dashboard-n2')) {
-                window.mostrarSecao = mostrarSecaoWrapper;
-            }
         }
-    }, 500);
+    }, 100);
 });
 
