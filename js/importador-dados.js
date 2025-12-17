@@ -391,7 +391,16 @@ class ImportadorDados {
         // PRIORIDADE 1: Verifica campo _aba (identificador da aba da planilha)
         if (dadoBruto["_aba"]) {
             const aba = dadoBruto["_aba"].toLowerCase();
-            if (aba.includes("n2") || aba.includes("ouvidoria") || aba.includes("portabilidade")) {
+            // Base Ouvidoria = N2
+            if (aba.includes("ouvidoria") || (aba.includes("base") && aba.includes("ouvidoria"))) {
+                return "n2";
+            }
+            // Base Bacen = BACEN
+            if (aba.includes("base bacen") || (aba.includes("base") && aba.includes("bacen"))) {
+                return "bacen";
+            }
+            // Outras verificações
+            if (aba.includes("n2") || aba.includes("portabilidade")) {
                 return "n2";
             }
             if (aba.includes("chat") || aba.includes("chatbot") || aba.includes("bot")) {
