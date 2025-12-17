@@ -16,7 +16,10 @@ class ImportadorDados {
             <div class="importacao-container">
                 <div class="importacao-header">
                     <h2>📥 Importação de Dados - Planilha Velotax</h2>
-                    <p>Importe os dados da planilha "Itens das tabelas - Bacen, N2 e Chatbot.xlsx"</p>
+                    <p>Importe os dados da planilha "Cópia de Ação Bacen e Ouvidoria.xlsx"</p>
+                    <p style="font-size: 0.9rem; color: var(--texto-secundario); margin-top: 8px;">
+                        O sistema processará todas as abas e separará automaticamente por tipo (BACEN, N2, Chatbot)
+                    </p>
                 </div>
 
                 <!-- Área de Upload -->
@@ -159,6 +162,89 @@ class ImportadorDados {
     }
 
     async processarExcel(arquivo) {
+        // Carregar biblioteca SheetJS se não estiver disponível
+        if (!window.XLSX) {
+            await this.carregarBibliotecaXLSX();
+        }
+        
+        if (!window.XLSX) {
+            throw new Error('Biblioteca XLSX não disponível. Por favor, recarregue a página.');
+        }
+        
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = window.XLSX.read(data, { type: 'array' });
+                    
+                    this.adicionarLog(`📋 Planilha carregada. Encontradas ${workbook.SheetNames.length} abas: ${workbook.SheetNames.join(', ')}`);
+                    
+                    const todosDados = [];
+                    
+                    // Processar cada aba da planilha
+                    workbook.SheetNames.forEach((nomeAba, index) => {
+                        this.adicionarLog(`📄 Processando aba: ${nomeAba}...`);
+                        
+                        const worksheet = workbook.Sheets[nomeAba];
+                        const dadosAba = window.XLSX.utils.sheet_to_json(worksheet, { 
+                            defval: '', // Valor padrão para células vazias
+                            raw: false  // Converter tudo para string
+                        });
+                        
+                        this.adicionarLog(`   ✅ ${dadosAba.length} registros encontrados na aba "${nomeAba}"`);
+                        
+                        // Adicionar identificador da aba em cada registro
+                        dadosAba.forEach(registro => {
+                            registro._aba = nomeAba;
+                            registro._indiceAba = index;
+                        });
+                        
+                        todosDados.push(...dadosAba);
+                    });
+                    
+                    this.adicionarLog(`📊 Total de registros processados: ${todosDados.length}`);
+                    resolve(todosDados);
+                    
+                } catch (erro) {
+                    reject(new Error(`Erro ao processar Excel: ${erro.message}`));
+                }
+            };
+            
+            reader.onerror = () => {
+                reject(new Error('Erro ao ler o arquivo'));
+            };
+            
+            reader.readAsArrayBuffer(arquivo);
+        });
+    }
+    
+    async carregarBibliotecaXLSX() {
+        return new Promise((resolve, reject) => {
+            if (window.XLSX) {
+                resolve();
+                return;
+            }
+            
+            this.adicionarLog('📦 Carregando biblioteca XLSX...');
+            
+            const script = document.createElement('script');
+            script.src = 'https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js';
+            script.onload = () => {
+                this.adicionarLog('✅ Biblioteca XLSX carregada com sucesso');
+                resolve();
+            };
+            script.onerror = () => {
+                this.adicionarLog('❌ Erro ao carregar biblioteca XLSX', 'erro');
+                reject(new Error('Não foi possível carregar a biblioteca XLSX'));
+            };
+            document.head.appendChild(script);
+        });
+    }
+    
+    // Método antigo (mantido para referência)
+    async processarExcelAntigo(arquivo) {
         // Simulação de processamento Excel com separação por abas
         return new Promise((resolve) => {
             setTimeout(() => {
@@ -447,75 +533,123 @@ class ImportadorDados {
     }
 
     identificarTipoDemanda(dadoBruto) {
-        // Verifica campo _aba (se existir na importação)
+        // Normalizar chaves
+        const obterValor = (chave) => {
+            const chaveNormalizada = Object.keys(dadoBruto).find(k => 
+                k.trim().toLowerCase() === chave.toLowerCase()
+            ) || chave;
+            return dadoBruto[chaveNormalizada] || dadoBruto[chave] || '';
+        };
+        
+        // PRIORIDADE 1: Verifica campo _aba (identificador da aba da planilha)
         if (dadoBruto["_aba"]) {
             const aba = dadoBruto["_aba"].toLowerCase();
-            if (aba.includes("n2")) return "n2";
-            if (aba.includes("chat")) return "chatbot";
-            if (aba.includes("bacen")) return "bacen";
+            if (aba.includes("n2") || aba.includes("ouvidoria") || aba.includes("portabilidade")) {
+                return "n2";
+            }
+            if (aba.includes("chat") || aba.includes("chatbot") || aba.includes("bot")) {
+                return "chatbot";
+            }
+            if (aba.includes("bacen") || aba.includes("banco central")) {
+                return "bacen";
+            }
         }
         
-        // Verifica campos específicos de cada tipo
-        if (dadoBruto["N2 Portabilidade?"] === "TRUE" || 
-            dadoBruto["Prazo N2"] || 
-            dadoBruto["Banco Origem"] || 
-            dadoBruto["Banco Destino"] ||
-            dadoBruto["Status Portabilidade"] ||
-            dadoBruto["Motivo reduzido"]?.toLowerCase().includes('portabilidade') && 
-            (dadoBruto["Origem"]?.toLowerCase().includes('n2') || dadoBruto["Motivo Reclamação"]?.toLowerCase().includes('n2'))) {
+        // PRIORIDADE 2: Verifica campos específicos de N2
+        if (obterValor("N2 Portabilidade?") || 
+            obterValor("Prazo N2") || 
+            obterValor("Banco Origem") || 
+            obterValor("Banco Destino") ||
+            obterValor("Status Portabilidade") ||
+            obterValor("Banco de Origem") ||
+            obterValor("Banco de Destino")) {
             return "n2";
         }
         
-        if (dadoBruto["Canal Chatbot"] || 
-            dadoBruto["Resolvido Automaticamente?"] || 
-            dadoBruto["Encaminhado para Humano?"] ||
-            dadoBruto["Satisfação"] ||
-            dadoBruto["Prazo Resposta"] ||
-            dadoBruto["Origem"]?.toLowerCase().includes('chat') ||
-            dadoBruto["Motivo reduzido"]?.toLowerCase().includes('chat')) {
+        // Verifica se o motivo ou origem menciona portabilidade/N2
+        const motivo = (obterValor("Motivo reduzido") + ' ' + obterValor("Motivo Reclamação") + ' ' + obterValor("Origem")).toLowerCase();
+        if (motivo.includes('portabilidade') && (motivo.includes('n2') || motivo.includes('ouvidoria'))) {
+            return "n2";
+        }
+        
+        // PRIORIDADE 3: Verifica campos específicos de Chatbot
+        if (obterValor("Canal Chatbot") || 
+            obterValor("Resolvido Automaticamente?") || 
+            obterValor("Encaminhado para Humano?") ||
+            obterValor("Satisfação") ||
+            obterValor("Nota Avaliação") ||
+            obterValor("Prazo Resposta") ||
+            obterValor("Canal")?.toLowerCase().includes('chat') ||
+            obterValor("Canal")?.toLowerCase().includes('whatsapp') ||
+            obterValor("Canal")?.toLowerCase().includes('site')) {
             return "chatbot";
         }
         
-        // Verifica se é BACEN
-        if (dadoBruto["Bacen"] === "TRUE" || 
-            dadoBruto["Prazo Bacen"] ||
-            dadoBruto["Origem"]?.toLowerCase().includes('bacen') ||
-            dadoBruto["Motivo reduzido"]?.toLowerCase().includes('bacen')) {
+        // Verifica se o motivo ou origem menciona chatbot
+        if (motivo.includes('chatbot') || motivo.includes('chat') || motivo.includes('bot')) {
+            return "chatbot";
+        }
+        
+        // PRIORIDADE 4: Verifica se é BACEN
+        if (obterValor("Bacen") || 
+            obterValor("Prazo Bacen") ||
+            obterValor("Prazo BACEN") ||
+            obterValor("Reclame Aqui") ||
+            obterValor("Procon")) {
             return "bacen";
         }
         
-        // Padrão: inferir com base em outros campos
-        if (dadoBruto["Reclame Aqui"] === "TRUE" || dadoBruto["Procon"] === "TRUE") {
-            return "bacen"; // Reclame Aqui e PROCON geralmente são relacionados a BACEN
+        // Verifica se o motivo ou origem menciona BACEN
+        if (motivo.includes('bacen') || motivo.includes('banco central') || motivo.includes('reclame aqui') || motivo.includes('procon')) {
+            return "bacen";
         }
         
-        return "bacen"; // Padrão
+        // PADRÃO: Se não conseguir identificar, tenta inferir pela origem
+        const origem = obterValor("Origem")?.toLowerCase() || '';
+        if (origem.includes('n2') || origem.includes('ouvidoria')) return "n2";
+        if (origem.includes('chat') || origem.includes('bot')) return "chatbot";
+        if (origem.includes('bacen')) return "bacen";
+        
+        // Último recurso: padrão BACEN
+        return "bacen";
     }
 
     processarCamposEspecificos(dadoBruto, tipoDemanda) {
         const campos = {};
         
+        // Normalizar chaves
+        const obterValor = (chave) => {
+            const chaveNormalizada = Object.keys(dadoBruto).find(k => 
+                k.trim().toLowerCase() === chave.toLowerCase()
+            ) || chave;
+            return dadoBruto[chaveNormalizada] || dadoBruto[chave] || '';
+        };
+        
         switch (tipoDemanda) {
             case "bacen":
-                campos.prazoBacen = this.formatarData(dadoBruto["Prazo Bacen"] || '');
-                campos.reclameAqui = dadoBruto["Reclame Aqui"] === "TRUE";
-                campos.procon = dadoBruto["Procon"] === "TRUE";
+                campos.prazoBacen = this.formatarData(obterValor("Prazo Bacen") || obterValor("Prazo BACEN") || obterValor("Prazo") || '');
+                campos.reclameAqui = this.converterBooleano(obterValor("Reclame Aqui") || obterValor("ReclameAqui") || '');
+                campos.procon = this.converterBooleano(obterValor("Procon") || obterValor("PROCON") || '');
+                campos.casosCriticos = this.converterBooleano(obterValor("Casos Críticos") || obterValor("Casos Criticos") || obterValor("Crítico") || '');
                 break;
                 
             case "n2":
-                campos.prazoN2 = this.formatarData(dadoBruto["Prazo N2"] || '');
-                campos.bancoOrigem = dadoBruto["Banco Origem"] || '';
-                campos.bancoDestino = dadoBruto["Banco Destino"] || '';
-                campos.statusPortabilidade = dadoBruto["Status Portabilidade"] || '';
-                campos.n2Portabilidade = dadoBruto["N2 Portabilidade?"] === "TRUE";
+                campos.prazoN2 = this.formatarData(obterValor("Prazo N2") || obterValor("Prazo") || '');
+                campos.bancoOrigem = obterValor("Banco Origem") || obterValor("Banco de Origem") || obterValor("Origem Banco") || '';
+                campos.bancoDestino = obterValor("Banco Destino") || obterValor("Banco de Destino") || obterValor("Destino Banco") || '';
+                campos.statusPortabilidade = obterValor("Status Portabilidade") || obterValor("Status") || '';
+                campos.n2Portabilidade = this.converterBooleano(obterValor("N2 Portabilidade?") || obterValor("N2") || '');
                 break;
                 
             case "chatbot":
-                campos.canalChatbot = dadoBruto["Canal Chatbot"] || '';
-                campos.satisfacao = dadoBruto["Satisfação"] || '';
-                campos.resolvidoAutomaticamente = dadoBruto["Resolvido Automaticamente?"] === "TRUE";
-                campos.encaminhadoParaHumano = dadoBruto["Encaminhado para Humano?"] === "TRUE";
-                campos.prazoResposta = this.formatarData(dadoBruto["Prazo Resposta"] || '');
+                campos.canalChatbot = obterValor("Canal Chatbot") || obterValor("Canal") || obterValor("Origem") || '';
+                campos.satisfacao = obterValor("Satisfação") || obterValor("Satisfacao") || obterValor("Nota") || obterValor("Nota Avaliação") || '';
+                campos.notaAvaliacao = obterValor("Nota Avaliação") || obterValor("Nota Avaliacao") || obterValor("Satisfação") || obterValor("Satisfacao") || '';
+                campos.resolvidoAutomaticamente = this.converterBooleano(obterValor("Resolvido Automaticamente?") || obterValor("Resolvido Automaticamente") || obterValor("Auto Resolvido") || '');
+                campos.encaminhadoParaHumano = this.converterBooleano(obterValor("Encaminhado para Humano?") || obterValor("Encaminhado para Humano") || obterValor("Encaminhado Humano") || '');
+                campos.encaminhadoHumano = this.converterBooleano(obterValor("Encaminhado para Humano?") || obterValor("Encaminhado para Humano") || obterValor("Encaminhado Humano") || '');
+                campos.prazoResposta = this.formatarData(obterValor("Prazo Resposta") || obterValor("Prazo") || '');
+                campos.produto = obterValor("Produto") || obterValor("Tipo Produto") || '';
                 break;
         }
         
@@ -578,15 +712,33 @@ class ImportadorDados {
     processarTentativas(dadoBruto) {
         const tentativas = [];
         
-        for (let i = 1; i <= 3; i++) {
-            const campo = `${i}ª tentativa`;
-            const data = dadoBruto[campo];
+        // Normalizar chaves
+        const obterValor = (chave) => {
+            const chaveNormalizada = Object.keys(dadoBruto).find(k => 
+                k.trim().toLowerCase() === chave.toLowerCase()
+            ) || chave;
+            return dadoBruto[chaveNormalizada] || dadoBruto[chave] || '';
+        };
+        
+        // Tentar diferentes formatos de nome de campo
+        const variacoes = [
+            ['1ª tentativa', '1a tentativa', 'Primeira tentativa', 'Tentativa 1', '1ª Tentativa'],
+            ['2ª tentativa', '2a tentativa', 'Segunda tentativa', 'Tentativa 2', '2ª Tentativa'],
+            ['3ª tentativa', '3a tentativa', 'Terceira tentativa', 'Tentativa 3', '3ª Tentativa']
+        ];
+        
+        for (let i = 0; i < variacoes.length; i++) {
+            let data = '';
+            for (const variacao of variacoes[i]) {
+                data = obterValor(variacao);
+                if (data) break;
+            }
             
             if (data) {
                 tentativas.push({
                     dataHora: this.formatarData(data),
-                    resultado: 'contatado', // Simplificado
-                    observacoes: `Tentativa ${i}`
+                    resultado: 'contatado',
+                    observacoes: `Tentativa ${i + 1}`
                 });
             }
         }
@@ -677,14 +829,46 @@ class ImportadorDados {
                 chatbot: dadosValidos.filter(d => d.tipoDemanda === 'chatbot')
             };
             
-            // Salva no localStorage separadamente por tipo
-            localStorage.setItem('velotax_demandas_bacen', JSON.stringify(dadosSeparados.bacen));
-            localStorage.setItem('velotax_demandas_n2', JSON.stringify(dadosSeparados.n2));
-            localStorage.setItem('velotax_demandas_chatbot', JSON.stringify(dadosSeparados.chatbot));
+            // Usar o sistema de armazenamento se disponível
+            if (window.armazenamentoReclamacoes) {
+                // Salva usando o sistema de armazenamento
+                dadosSeparados.bacen.forEach(ficha => {
+                    window.armazenamentoReclamacoes.salvar('bacen', ficha);
+                });
+                dadosSeparados.n2.forEach(ficha => {
+                    window.armazenamentoReclamacoes.salvar('n2', ficha);
+                });
+                dadosSeparados.chatbot.forEach(ficha => {
+                    window.armazenamentoReclamacoes.salvar('chatbot', ficha);
+                });
+                
+                this.adicionarLog(`✅ Dados salvos usando sistema de armazenamento`, 'sucesso');
+            }
+            
+            // Salva no localStorage separadamente por tipo (backup)
+            const bacenExistentes = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || '[]');
+            const n2Existentes = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || '[]');
+            const chatbotExistentes = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || '[]');
+            
+            // Mescla com dados existentes (evita duplicatas por ID)
+            const mesclarDados = (existentes, novos) => {
+                const mapa = new Map();
+                existentes.forEach(item => mapa.set(item.id, item));
+                novos.forEach(item => mapa.set(item.id, item));
+                return Array.from(mapa.values());
+            };
+            
+            const bacenFinal = mesclarDados(bacenExistentes, dadosSeparados.bacen);
+            const n2Final = mesclarDados(n2Existentes, dadosSeparados.n2);
+            const chatbotFinal = mesclarDados(chatbotExistentes, dadosSeparados.chatbot);
+            
+            localStorage.setItem('velotax_reclamacoes_bacen', JSON.stringify(bacenFinal));
+            localStorage.setItem('velotax_reclamacoes_n2', JSON.stringify(n2Final));
+            localStorage.setItem('velotax_reclamacoes_chatbot', JSON.stringify(chatbotFinal));
             
             // Salva todos os dados juntos para compatibilidade
             localStorage.setItem('velotax_demandas', JSON.stringify(dadosValidos));
-            localStorage.setItem('velotax_fichas', JSON.stringify(dadosValidos)); // Para compatibilidade
+            localStorage.setItem('velotax_fichas', JSON.stringify(dadosValidos));
             
             // Salva estatísticas da importação
             const estatisticas = {
@@ -694,21 +878,29 @@ class ImportadorDados {
                     bacen: dadosSeparados.bacen.length,
                     n2: dadosSeparados.n2.length,
                     chatbot: dadosSeparados.chatbot.length
+                },
+                totalSalvos: {
+                    bacen: bacenFinal.length,
+                    n2: n2Final.length,
+                    chatbot: chatbotFinal.length
                 }
             };
             localStorage.setItem('velotax_importacao_estatisticas', JSON.stringify(estatisticas));
             
             this.mostrarNotificacao(`✅ Importação concluída com sucesso!`, 'sucesso');
             this.adicionarLog(`📊 Dados separados por tipo:`, 'info');
-            this.adicionarLog(`   🏦 BACEN: ${dadosSeparados.bacen.length} registros`, 'info');
-            this.adicionarLog(`   🔄 N2: ${dadosSeparados.n2.length} registros`, 'info');
-            this.adicionarLog(`   🤖 Chatbot: ${dadosSeparados.chatbot.length} registros`, 'info');
+            this.adicionarLog(`   🏦 BACEN: ${dadosSeparados.bacen.length} novos, ${bacenFinal.length} total`, 'info');
+            this.adicionarLog(`   🔄 N2: ${dadosSeparados.n2.length} novos, ${n2Final.length} total`, 'info');
+            this.adicionarLog(`   🤖 Chatbot: ${dadosSeparados.chatbot.length} novos, ${chatbotFinal.length} total`, 'info');
+            
+            // Dispara evento para atualizar outras páginas
+            window.dispatchEvent(new CustomEvent('reclamacaoSalva', { 
+                detail: { tipo: 'importacao', total: dadosValidos.length } 
+            }));
             
             // Recarrega a página para mostrar novos dados
             setTimeout(() => {
-                if (confirm('Deseja acessar a página de classificação para visualizar as demandas separadas?')) {
-                    window.location.href = 'classificacao.html';
-                } else {
+                if (confirm('Importação concluída! Deseja recarregar a página para ver os dados?')) {
                     location.reload();
                 }
             }, 2000);
