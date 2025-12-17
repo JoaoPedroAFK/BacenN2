@@ -182,19 +182,21 @@ class ImportadorDados {
                     this.adicionarLog(`📋 Planilha carregada. Encontradas ${workbook.SheetNames.length} abas: ${workbook.SheetNames.join(', ')}`);
                     
                     // Filtrar apenas as abas que queremos processar
-                    const abasPermitidas = ['Base Bacen', 'Base Ouvidoria'];
+                    const abasPermitidas = ['Base Bacen', 'Base Ouvidoria', 'Planilha Chatbot', 'Chatbot'];
                     const abasParaProcessar = workbook.SheetNames.filter(nomeAba => {
                         const nomeNormalizado = nomeAba.trim().toLowerCase();
                         return abasPermitidas.some(permitida => {
                             const permitidaLower = permitida.toLowerCase();
                             return nomeNormalizado.includes(permitidaLower) || 
                                    permitidaLower.includes(nomeNormalizado) ||
-                                   nomeNormalizado === permitidaLower;
+                                   nomeNormalizado === permitidaLower ||
+                                   (permitidaLower.includes('chatbot') && nomeNormalizado.includes('chatbot')) ||
+                                   (permitidaLower.includes('planilha') && nomeNormalizado.includes('planilha') && nomeNormalizado.includes('chatbot'));
                         });
                     });
                     
                     if (abasParaProcessar.length === 0) {
-                        throw new Error('Nenhuma aba válida encontrada. Procurando por: "Base Bacen" ou "Base Ouvidoria"');
+                        throw new Error('Nenhuma aba válida encontrada. Procurando por: "Base Bacen", "Base Ouvidoria" ou "Planilha Chatbot"');
                     }
                     
                     this.adicionarLog(`📌 Processando apenas as abas: ${abasParaProcessar.join(', ')}`);

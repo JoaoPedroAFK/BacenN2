@@ -1030,33 +1030,45 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
 });
 
-// Reinicializar quando mudar de seção
-if (typeof mostrarSecao === 'function') {
-    const mostrarSecaoOriginal = window.mostrarSecao;
-    window.mostrarSecao = function(secaoId) {
-        if (typeof mostrarSecaoOriginal === 'function') {
-            mostrarSecaoOriginal(secaoId);
-        }
-        
-        // Reinicializar gráficos se for dashboard
-        if (secaoId.includes('dashboard')) {
-            setTimeout(() => {
-                const tipo = secaoId.replace('dashboard-', '');
-                if (tipo === 'bacen' && !window.graficosDetalhadosBacen) {
-                    window.graficosDetalhadosBacen = new GraficosDetalhados('bacen');
-                } else if (tipo === 'n2' && !window.graficosDetalhadosN2) {
-                    window.graficosDetalhadosN2 = new GraficosDetalhados('n2');
-                } else if (tipo === 'chatbot' && !window.graficosDetalhadosChatbot) {
-                    window.graficosDetalhadosChatbot = new GraficosDetalhados('chatbot');
-                } else if (tipo === 'bacen' && window.graficosDetalhadosBacen) {
-                    window.graficosDetalhadosBacen.renderizarGraficos();
-                } else if (tipo === 'n2' && window.graficosDetalhadosN2) {
-                    window.graficosDetalhadosN2.renderizarGraficos();
-                } else if (tipo === 'chatbot' && window.graficosDetalhadosChatbot) {
-                    window.graficosDetalhadosChatbot.renderizarGraficos();
+// Reinicializar quando mudar de seção (apenas se não houver função mostrarSecao específica da página)
+document.addEventListener('DOMContentLoaded', () => {
+    // Aguardar um pouco para garantir que as funções das páginas foram carregadas
+    setTimeout(() => {
+        // Verificar se já existe uma função mostrarSecao específica (não sobrescrever)
+        if (window.mostrarSecao && typeof window.mostrarSecao === 'function') {
+            const mostrarSecaoOriginal = window.mostrarSecao;
+            const mostrarSecaoWrapper = function(secaoId) {
+                // Chamar função original primeiro
+                if (typeof mostrarSecaoOriginal === 'function') {
+                    mostrarSecaoOriginal(secaoId);
                 }
-            }, 300);
+                
+                // Reinicializar gráficos se for dashboard
+                if (secaoId && secaoId.includes('dashboard')) {
+                    setTimeout(() => {
+                        const tipo = secaoId.replace('dashboard-', '');
+                        if (tipo === 'bacen' && window.graficosDetalhadosBacen) {
+                            window.graficosDetalhadosBacen.carregarDados();
+                            window.graficosDetalhadosBacen.renderizarGraficos();
+                        } else if (tipo === 'n2' && window.graficosDetalhadosN2) {
+                            window.graficosDetalhadosN2.carregarDados();
+                            window.graficosDetalhadosN2.renderizarGraficos();
+                        } else if (tipo === 'chatbot' && window.graficosDetalhadosChatbot) {
+                            window.graficosDetalhadosChatbot.carregarDados();
+                            window.graficosDetalhadosChatbot.renderizarGraficos();
+                        }
+                    }, 300);
+                }
+            };
+            
+            // Só substituir se não for a função específica da página
+            const funcaoOriginalStr = mostrarSecaoOriginal.toString();
+            if (!funcaoOriginalStr.includes('dashboard-chatbot') && 
+                !funcaoOriginalStr.includes('dashboard-bacen') && 
+                !funcaoOriginalStr.includes('dashboard-n2')) {
+                window.mostrarSecao = mostrarSecaoWrapper;
+            }
         }
-    };
-}
+    }, 500);
+});
 
