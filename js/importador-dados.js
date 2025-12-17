@@ -929,6 +929,24 @@ class ImportadorDados {
                 detail: { tipo: 'importacao', total: dadosValidos.length } 
             }));
             
+            // Log final de verificação
+            this.adicionarLog(`🔍 VERIFICAÇÃO FINAL:`, 'info');
+            this.adicionarLog(`   📦 localStorage.getItem('velotax_reclamacoes_bacen'): ${localStorage.getItem('velotax_reclamacoes_bacen') ? 'EXISTE' : 'NÃO EXISTE'}`, 'info');
+            this.adicionarLog(`   📦 localStorage.getItem('velotax_reclamacoes_n2'): ${localStorage.getItem('velotax_reclamacoes_n2') ? 'EXISTE' : 'NÃO EXISTE'}`, 'info');
+            this.adicionarLog(`   📦 localStorage.getItem('velotax_reclamacoes_chatbot'): ${localStorage.getItem('velotax_reclamacoes_chatbot') ? 'EXISTE' : 'NÃO EXISTE'}`, 'info');
+            
+            // Verificar estrutura de uma ficha de exemplo
+            if (bacenFinal.length > 0) {
+                const exemplo = bacenFinal[0];
+                this.adicionarLog(`   📋 Exemplo BACEN - Campos: ${Object.keys(exemplo).join(', ')}`, 'info');
+                this.adicionarLog(`   📋 Exemplo BACEN - nomeCliente: ${exemplo.nomeCliente || 'AUSENTE'}, nomeCompleto: ${exemplo.nomeCompleto || 'AUSENTE'}`, 'info');
+            }
+            if (n2Final.length > 0) {
+                const exemplo = n2Final[0];
+                this.adicionarLog(`   📋 Exemplo N2 - Campos: ${Object.keys(exemplo).join(', ')}`, 'info');
+                this.adicionarLog(`   📋 Exemplo N2 - nomeCliente: ${exemplo.nomeCliente || 'AUSENTE'}, nomeCompleto: ${exemplo.nomeCompleto || 'AUSENTE'}`, 'info');
+            }
+            
             // Recarrega a página para mostrar novos dados
             setTimeout(() => {
                 if (confirm('Importação concluída! Deseja recarregar a página para ver os dados?')) {
