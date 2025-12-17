@@ -60,7 +60,14 @@ class ArmazenamentoReclamacoes {
         }
         
         // PRIORIDADE 1: Tentar salvar no Supabase (armazenamento compartilhado)
-        if (this.usarSupabase && window.supabaseDB) {
+        // Re-verificar Supabase antes de salvar (pode ter sido inicializado depois)
+        if (!this.usarSupabase && window.supabaseDB && window.supabaseDB.supabase && !window.supabaseDB.usarLocalStorage) {
+            this.usarSupabase = true;
+            this.supabase = window.supabaseDB.supabase;
+            console.log('✅ Supabase detectado durante salvamento, ativando...');
+        }
+        
+        if (this.usarSupabase && window.supabaseDB && window.supabaseDB.supabase) {
             try {
                 const nomeTabela = `fichas_${tipo}`;
                 console.log(`☁️ Tentando salvar no Supabase (tabela: ${nomeTabela})...`);
