@@ -59,6 +59,19 @@ class ArmazenamentoReclamacoes {
             return false;
         }
         
+        // DEBUG: Verificar estado do Supabase (apenas para primeira ficha para não poluir logs)
+        if (!reclamacao._debugLogado) {
+            reclamacao._debugLogado = true;
+            console.log(`🔍 DEBUG Supabase - usarSupabase: ${this.usarSupabase}`);
+            console.log(`🔍 DEBUG Supabase - window.supabaseDB:`, window.supabaseDB ? 'existe' : 'não existe');
+            if (window.supabaseDB) {
+                console.log(`🔍 DEBUG Supabase - window.supabaseDB.supabase:`, window.supabaseDB.supabase ? 'existe' : 'não existe');
+                console.log(`🔍 DEBUG Supabase - window.supabaseDB.usarLocalStorage:`, window.supabaseDB.usarLocalStorage);
+                console.log(`🔍 DEBUG Supabase - window.SUPABASE_CONFIG:`, window.SUPABASE_CONFIG ? 'existe' : 'não existe');
+                console.log(`🔍 DEBUG Supabase - window.supabase:`, typeof window.supabase);
+            }
+        }
+        
         // PRIORIDADE 1: Tentar salvar no Supabase (armazenamento compartilhado)
         // Re-verificar Supabase antes de salvar (pode ter sido inicializado depois)
         if (!this.usarSupabase && window.supabaseDB && window.supabaseDB.supabase && !window.supabaseDB.usarLocalStorage) {
