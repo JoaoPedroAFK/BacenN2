@@ -145,25 +145,56 @@ function atualizarHomeStats() {
     // PRIORIDADE: Usar armazenamentoReclamacoes primeiro (mais confiável)
     if (window.armazenamentoReclamacoes) {
         console.log('📦 Carregando do armazenamentoReclamacoes...');
-        fichasBacen = window.armazenamentoReclamacoes.carregarTodos('bacen');
-        fichasN2 = window.armazenamentoReclamacoes.carregarTodos('n2');
-        fichasChatbot = window.armazenamentoReclamacoes.carregarTodos('chatbot');
-        console.log('✅ Carregado - BACEN:', fichasBacen.length, 'N2:', fichasN2.length, 'Chatbot:', fichasChatbot.length);
+        try {
+            fichasBacen = window.armazenamentoReclamacoes.carregarTodos('bacen') || [];
+            fichasN2 = window.armazenamentoReclamacoes.carregarTodos('n2') || [];
+            fichasChatbot = window.armazenamentoReclamacoes.carregarTodos('chatbot') || [];
+            console.log('✅ Carregado - BACEN:', fichasBacen.length, 'N2:', fichasN2.length, 'Chatbot:', fichasChatbot.length);
+            console.log('📋 IDs BACEN:', fichasBacen.map(f => f.id).join(', '));
+            console.log('📋 IDs N2:', fichasN2.map(f => f.id).join(', '));
+            console.log('📋 IDs Chatbot:', fichasChatbot.map(f => f.id).join(', '));
+        } catch (error) {
+            console.error('❌ Erro ao carregar do armazenamentoReclamacoes:', error);
+            // Fallback para localStorage
+            fichasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
+            fichasN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || localStorage.getItem('velotax_demandas_n2') || '[]');
+            fichasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
+        }
     } else if (window.gerenciadorFichas) {
         console.log('📦 Carregando do gerenciadorFichas...');
-        // Usar gerenciador de fichas se disponível
-        fichasBacen = window.gerenciadorFichas.obterFichasPorTipo('bacen');
-        fichasN2 = window.gerenciadorFichas.obterFichasPorTipo('n2');
-        fichasChatbot = window.gerenciadorFichas.obterFichasPorTipo('chatbot');
-        console.log('✅ Carregado - BACEN:', fichasBacen.length, 'N2:', fichasN2.length, 'Chatbot:', fichasChatbot.length);
+        try {
+            // Usar gerenciador de fichas se disponível
+            fichasBacen = window.gerenciadorFichas.obterFichasPorTipo('bacen') || [];
+            fichasN2 = window.gerenciadorFichas.obterFichasPorTipo('n2') || [];
+            fichasChatbot = window.gerenciadorFichas.obterFichasPorTipo('chatbot') || [];
+            console.log('✅ Carregado - BACEN:', fichasBacen.length, 'N2:', fichasN2.length, 'Chatbot:', fichasChatbot.length);
+        } catch (error) {
+            console.error('❌ Erro ao carregar do gerenciadorFichas:', error);
+            // Fallback para localStorage
+            fichasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
+            fichasN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || localStorage.getItem('velotax_demandas_n2') || '[]');
+            fichasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
+        }
     } else {
         console.log('📦 Carregando do localStorage (fallback)...');
         // Fallback: tentar chaves novas e antigas
-        fichasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
-        fichasN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || localStorage.getItem('velotax_demandas_n2') || '[]');
-        fichasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
-        console.log('✅ Carregado (fallback) - BACEN:', fichasBacen.length, 'N2:', fichasN2.length, 'Chatbot:', fichasChatbot.length);
+        try {
+            fichasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
+            fichasN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || localStorage.getItem('velotax_demandas_n2') || '[]');
+            fichasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
+            console.log('✅ Carregado (fallback) - BACEN:', fichasBacen.length, 'N2:', fichasN2.length, 'Chatbot:', fichasChatbot.length);
+        } catch (error) {
+            console.error('❌ Erro ao carregar do localStorage:', error);
+            fichasBacen = [];
+            fichasN2 = [];
+            fichasChatbot = [];
+        }
     }
+    
+    // Garantir que são arrays
+    if (!Array.isArray(fichasBacen)) fichasBacen = [];
+    if (!Array.isArray(fichasN2)) fichasN2 = [];
+    if (!Array.isArray(fichasChatbot)) fichasChatbot = [];
     
     // Atualiza stats BACEN
     const bacenTotalEl = document.getElementById('bacen-total');
@@ -172,7 +203,11 @@ function atualizarHomeStats() {
         bacenTotalEl.textContent = fichasBacen.length || 0;
         console.log('📊 BACEN total atualizado:', fichasBacen.length);
     }
-    if (bacenTratativaEl) bacenTratativaEl.textContent = fichasBacen.filter(f => f.status === 'em-tratativa').length;
+    if (bacenTratativaEl) {
+        const emTratativa = fichasBacen.filter(f => f.status === 'em-tratativa').length;
+        bacenTratativaEl.textContent = emTratativa || 0;
+        console.log('📊 BACEN em tratativa:', emTratativa);
+    }
     
     // Atualiza stats N2
     const n2TotalEl = document.getElementById('n2-total');
@@ -181,7 +216,11 @@ function atualizarHomeStats() {
         n2TotalEl.textContent = fichasN2.length || 0;
         console.log('📊 N2 total atualizado:', fichasN2.length);
     }
-    if (n2TratativaEl) n2TratativaEl.textContent = fichasN2.filter(f => f.status === 'em-tratativa').length;
+    if (n2TratativaEl) {
+        const emTratativa = fichasN2.filter(f => f.status === 'em-tratativa').length;
+        n2TratativaEl.textContent = emTratativa || 0;
+        console.log('📊 N2 em tratativa:', emTratativa);
+    }
     
     // Atualiza stats Chatbot
     const chatbotTotalEl = document.getElementById('chatbot-total');
@@ -191,7 +230,11 @@ function atualizarHomeStats() {
         console.log('📊 Chatbot total atualizado:', fichasChatbot.length);
         console.log('📋 IDs chatbot:', fichasChatbot.map(f => f.id).join(', '));
     }
-    if (chatbotTratativaEl) chatbotTratativaEl.textContent = fichasChatbot.filter(f => f.status === 'em-tratativa').length;
+    if (chatbotTratativaEl) {
+        const emTratativa = fichasChatbot.filter(f => f.status === 'em-tratativa').length;
+        chatbotTratativaEl.textContent = emTratativa || 0;
+        console.log('📊 Chatbot em tratativa:', emTratativa);
+    }
     
     console.log('📊 Home stats atualizadas - BACEN:', fichasBacen.length, 'N2:', fichasN2.length, 'Chatbot:', fichasChatbot.length);
 }

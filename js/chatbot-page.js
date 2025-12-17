@@ -361,16 +361,29 @@ function atualizarDashboardChatbot() {
     const resolvidasAuto = fichasChatbot.filter(f => f.resolvidoAutomaticamente).length;
     const encaminhadas = fichasChatbot.filter(f => f.encaminhadoHumano).length;
     
-    // Calcular média de satisfação
-    const satisfacoes = fichasChatbot
-        .filter(f => f.satisfacao)
-        .map(f => parseInt(f.satisfacao));
+    // Calcular média de satisfação - usar notaAvaliacao (campo correto)
+    const fichasComNota = fichasChatbot.filter(f => {
+        const nota = parseInt(f.notaAvaliacao || f.satisfacao || 0);
+        return nota > 0 && nota <= 5;
+    });
+    
+    console.log('📊 Fichas com nota de avaliação:', fichasComNota.length);
+    console.log('📊 Notas:', fichasComNota.map(f => ({
+        id: f.id,
+        notaAvaliacao: f.notaAvaliacao,
+        satisfacao: f.satisfacao
+    })));
+    
+    const satisfacoes = fichasComNota.map(f => parseInt(f.notaAvaliacao || f.satisfacao || 0));
     const mediaSatisfacao = satisfacoes.length > 0 
         ? (satisfacoes.reduce((a, b) => a + b, 0) / satisfacoes.length).toFixed(1)
-        : 0;
+        : '0.0';
     const taxaSatisfacao = satisfacoes.length > 0 
         ? ((satisfacoes.filter(s => s >= 4).length / satisfacoes.length) * 100).toFixed(1)
-        : 0;
+        : '0.0';
+    
+    console.log('📊 Média de satisfação calculada:', mediaSatisfacao);
+    console.log('📊 Taxa de satisfação calculada:', taxaSatisfacao + '%');
     
     atualizarElemento('chatbot-total-dash', total);
     atualizarElemento('chatbot-auto-resolvidas', resolvidasAuto);
