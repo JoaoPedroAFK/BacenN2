@@ -706,13 +706,23 @@ class ImportadorDados {
 
     validarFicha(ficha) {
         // Validações obrigatórias (mais flexível)
-        if (!ficha.nomeCliente || ficha.nomeCliente.trim() === '') {
-            throw new Error('Nome do cliente é obrigatório');
+        // Se não tem nome, tenta usar outros campos ou gera um nome padrão
+        if (!ficha.nomeCliente || (typeof ficha.nomeCliente === 'string' && ficha.nomeCliente.trim() === '')) {
+            // Tenta usar CPF ou ID como nome temporário
+            if (ficha.cpf && ficha.cpf.trim() !== '') {
+                ficha.nomeCliente = `Cliente ${ficha.cpf}`;
+            } else if (ficha.id) {
+                ficha.nomeCliente = `Cliente ${ficha.id}`;
+            } else {
+                ficha.nomeCliente = `Cliente Importado ${Date.now()}`;
+            }
         }
         
         // CPF não é obrigatório, mas se existir deve ser válido
         if (ficha.cpf && ficha.cpf.replace(/\D/g, '').length !== 11 && ficha.cpf.replace(/\D/g, '').length !== 0) {
-            throw new Error('CPF inválido (deve ter 11 dígitos)');
+            // Não lança erro, apenas limpa CPF inválido
+            ficha.cpf = '';
+            ficha.cpfTratado = '';
         }
         
         // Se não tem data de criação, usa data atual
