@@ -274,10 +274,24 @@ class ImportadorDados {
             try {
                 const dadoBruto = dadosBrutos[i];
                 
-                // Verificar se o nome é apenas zeros e ignorar (priorizar coluna "Nome completo")
+                // Verificar se o registro está completamente vazio
+                const temDados = Object.values(dadoBruto).some(valor => {
+                    const str = (valor || '').toString().trim();
+                    return str !== '' && str !== '0' && !/^0+$/.test(str);
+                });
+                
+                if (!temDados) {
+                    this.adicionarLog(`⏭️ Registro ${i + 1}: Ignorado (todos os campos estão vazios)`, 'aviso');
+                    processados++;
+                    continue;
+                }
+                
+                // Verificar se o nome é apenas zeros ou está vazio (priorizar coluna "Nome completo")
                 const nomeBruto = dadoBruto["Nome completo"] || '';
-                if (nomeBruto && /^0+$/.test(nomeBruto.toString().trim())) {
-                    this.adicionarLog(`⏭️ Registro ${i + 1}: Ignorado (nome contém apenas zeros)`, 'aviso');
+                const nomeStr = nomeBruto.toString().trim();
+                
+                if (!nomeStr || nomeStr === '' || /^0+$/.test(nomeStr)) {
+                    this.adicionarLog(`⏭️ Registro ${i + 1}: Ignorado (nome vazio ou contém apenas zeros)`, 'aviso');
                     processados++;
                     continue;
                 }
@@ -288,8 +302,9 @@ class ImportadorDados {
                 this.validarFicha(ficha);
                 
                 // Verificar novamente após mapeamento (caso tenha sido gerado automaticamente)
-                if (ficha.nomeCliente && /^0+$/.test(ficha.nomeCliente.toString().trim())) {
-                    this.adicionarLog(`⏭️ Registro ${i + 1}: Ignorado (nome contém apenas zeros)`, 'aviso');
+                const nomeFinal = (ficha.nomeCliente || '').toString().trim();
+                if (!nomeFinal || nomeFinal === '' || /^0+$/.test(nomeFinal) || nomeFinal.startsWith('Cliente Importado')) {
+                    this.adicionarLog(`⏭️ Registro ${i + 1}: Ignorado (nome inválido ou gerado automaticamente)`, 'aviso');
                     processados++;
                     continue;
                 }
