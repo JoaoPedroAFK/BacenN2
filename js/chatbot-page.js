@@ -1351,14 +1351,12 @@ if (typeof mostrarModalPeriodo === 'undefined') {
                     <div class="form-group">
                         <label for="data-inicio">Data Inicial:</label>
                         <input type="date" id="data-inicio" class="form-control">
-                        <small>Ou digite no formato DD/MM/AAAA</small>
                         <input type="text" id="data-inicio-texto" class="form-control" placeholder="DD/MM/AAAA" 
                                pattern="\\d{2}/\\d{2}/\\d{4}" maxlength="10">
                     </div>
                     <div class="form-group">
                         <label for="data-fim">Data Final:</label>
                         <input type="date" id="data-fim" class="form-control">
-                        <small>Ou digite no formato DD/MM/AAAA</small>
                         <input type="text" id="data-fim-texto" class="form-control" placeholder="DD/MM/AAAA" 
                                pattern="\\d{2}/\\d{2}/\\d{4}" maxlength="10">
                     </div>

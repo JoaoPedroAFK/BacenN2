@@ -1436,8 +1436,13 @@
     background: var(--cor-card);
     border-radius: 12px;
     width: 90%;
-    max-width: 500px;
+    max-width: 400px;
     padding: 0;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
 }
 
 .modal-periodo .form-group {
@@ -1451,12 +1456,6 @@
     color: var(--texto-principal);
 }
 
-.modal-periodo .form-group small {
-    display: block;
-    margin-top: 4px;
-    color: var(--texto-secundario);
-    font-size: 0.85rem;
-}
 
 .modal-periodo .form-control {
     width: 100%;
