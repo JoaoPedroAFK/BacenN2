@@ -249,8 +249,9 @@ class ArmazenamentoReclamacoes {
     }
 
     // === CONTAR RECLAMAÇÕES ===
-    contar(tipo) {
-        return this.carregarTodos(tipo).length;
+    async contar(tipo) {
+        const reclamacoes = await this.carregarTodos(tipo);
+        return reclamacoes.length;
     }
 }
 

@@ -101,7 +101,7 @@ function carregarFichasChatbot() {
     
     // Usar o novo sistema de armazenamento
     if (window.armazenamentoReclamacoes) {
-        fichasChatbot = window.armazenamentoReclamacoes.carregarTodos('chatbot');
+        fichasChatbot = await window.armazenamentoReclamacoes.carregarTodos('chatbot');
         console.log('✅ Fichas carregadas via sistema:', fichasChatbot.length);
         if (fichasChatbot.length > 0) {
             console.log('📋 IDs:', fichasChatbot.map(f => f.id).join(', '));
