@@ -36,9 +36,14 @@
         // Inicializa a interface de importação
         document.addEventListener('DOMContentLoaded', () => {
             const container = document.getElementById('importacao-container');
-            const importador = new ImportadorDados();
+            // Criar instância global para manter os dados
+            window.importadorDadosGlobal = new ImportadorDados();
+            const importador = window.importadorDadosGlobal;
             container.innerHTML = importador.criarInterfaceImportacao();
             importador.configurarUpload();
+            
+            // Também criar variável local para compatibilidade
+            window.importadorDados = importador;
         });
     </script>
 </body>

@@ -66,7 +66,7 @@ class ImportadorDados {
                     </div>
                     
                     <div class="resultados-acoes">
-                        <button class="velohub-btn btn-primary" onclick="importadorDados.salvarDados()">
+                        <button class="velohub-btn btn-primary" onclick="(window.importadorDadosGlobal || window.importadorDados).salvarDados()">
                             💾 Salvar no Sistema
                         </button>
                         <button class="velohub-btn btn-secondary" onclick="importadorDados.exportarErros()">
