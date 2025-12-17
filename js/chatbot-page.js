@@ -894,21 +894,30 @@ function gerarRelatorioPeriodoChatbot() {
     // Atualizar variável global
     fichasChatbot = fichasParaRelatorio;
     
-    const inicio = prompt('Data inicial (DD/MM/AAAA):');
-    const fim = prompt('Data final (DD/MM/AAAA):');
-    
-    if (!inicio || !fim) return;
-    
-    const inicioDate = parseDate(inicio);
-    const fimDate = parseDate(fim);
-    
-    const filtradas = fichasParaRelatorio.filter(f => {
-        const data = new Date(f.dataCriacao || f.dataClienteChatbot || f.dataEntrada);
-        return data >= inicioDate && data <= fimDate;
+    mostrarModalPeriodo((inicio, fim) => {
+        if (!inicio || !fim) return;
+        
+        const inicioDate = parseDate(inicio);
+        const fimDate = parseDate(fim);
+        
+        if (!inicioDate || !fimDate || isNaN(inicioDate.getTime()) || isNaN(fimDate.getTime())) {
+            mostrarAlerta('Datas inválidas. Use o formato DD/MM/AAAA', 'erro');
+            return;
+        }
+        
+        if (inicioDate > fimDate) {
+            mostrarAlerta('A data inicial não pode ser maior que a data final', 'erro');
+            return;
+        }
+        
+        const filtradas = fichasParaRelatorio.filter(f => {
+            const data = new Date(f.dataCriacao || f.dataClienteChatbot || f.dataEntrada);
+            return data >= inicioDate && data <= fimDate;
+        });
+        
+        console.log('📋 Fichas no período:', filtradas.length);
+        mostrarRelatorioChatbot('Relatório por Período - Chatbot', filtradas, `Período: ${inicio} a ${fim}`);
     });
-    
-    console.log('📋 Fichas no período:', filtradas.length);
-    mostrarRelatorioChatbot('Relatório por Período - Chatbot', filtradas, `Período: ${inicio} a ${fim}`);
 }
 
 function gerarRelatorioAutoChatbot() {
@@ -1308,8 +1317,174 @@ function formatarData(dataString) {
 }
 
 function parseDate(dateString) {
-    const [dia, mes, ano] = dateString.split('/');
-    return new Date(ano, mes - 1, dia);
+    if (!dateString) return null;
+    // Aceitar formato DD/MM/AAAA ou AAAA-MM-DD
+    if (dateString.includes('/')) {
+        const [dia, mes, ano] = dateString.split('/');
+        return new Date(ano, mes - 1, dia);
+    } else if (dateString.includes('-')) {
+        return new Date(dateString);
+    }
+    return null;
+}
+
+// Função global para mostrar modal de seleção de período (reutilizada)
+if (typeof mostrarModalPeriodo === 'undefined') {
+    window.mostrarModalPeriodo = function(callback) {
+        // Remover modal existente se houver
+        const modalExistente = document.getElementById('modal-periodo');
+        if (modalExistente) {
+            modalExistente.remove();
+        }
+        
+        // Criar modal
+        const modal = document.createElement('div');
+        modal.id = 'modal-periodo';
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content modal-periodo">
+                <div class="modal-header">
+                    <h3>📅 Selecionar Período</h3>
+                    <button class="modal-close" onclick="fecharModalPeriodo()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="data-inicio">Data Inicial:</label>
+                        <input type="date" id="data-inicio" class="form-control">
+                        <small>Ou digite no formato DD/MM/AAAA</small>
+                        <input type="text" id="data-inicio-texto" class="form-control" placeholder="DD/MM/AAAA" 
+                               pattern="\\d{2}/\\d{2}/\\d{4}" maxlength="10">
+                    </div>
+                    <div class="form-group">
+                        <label for="data-fim">Data Final:</label>
+                        <input type="date" id="data-fim" class="form-control">
+                        <small>Ou digite no formato DD/MM/AAAA</small>
+                        <input type="text" id="data-fim-texto" class="form-control" placeholder="DD/MM/AAAA" 
+                               pattern="\\d{2}/\\d{2}/\\d{4}" maxlength="10">
+                    </div>
+                    <div class="modal-actions">
+                        <button class="velohub-btn btn-secondary" onclick="fecharModalPeriodo()">Cancelar</button>
+                        <button class="velohub-btn btn-primary" onclick="confirmarPeriodo()">Gerar Relatório</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Sincronizar inputs de data e texto
+        const dataInicio = document.getElementById('data-inicio');
+        const dataInicioTexto = document.getElementById('data-inicio-texto');
+        const dataFim = document.getElementById('data-fim');
+        const dataFimTexto = document.getElementById('data-fim-texto');
+        
+        // Converter data para formato brasileiro
+        function formatarDataBR(dataISO) {
+            if (!dataISO) return '';
+            const [ano, mes, dia] = dataISO.split('-');
+            return `${dia}/${mes}/${ano}`;
+        }
+        
+        // Converter formato brasileiro para ISO
+        function formatarDataISO(dataBR) {
+            if (!dataBR) return '';
+            const [dia, mes, ano] = dataBR.split('/');
+            if (dia && mes && ano) {
+                return `${ano}-${mes}-${dia}`;
+            }
+            return '';
+        }
+        
+        // Validar formato DD/MM/AAAA
+        function validarDataBR(data) {
+            const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+            if (!regex.test(data)) return false;
+            const [dia, mes, ano] = data.split('/').map(Number);
+            if (mes < 1 || mes > 12) return false;
+            if (dia < 1 || dia > 31) return false;
+            if (ano < 1900 || ano > 2100) return false;
+            return true;
+        }
+        
+        // Sincronizar data picker -> texto
+        dataInicio.addEventListener('change', function() {
+            dataInicioTexto.value = formatarDataBR(this.value);
+        });
+        
+        dataFim.addEventListener('change', function() {
+            dataFimTexto.value = formatarDataBR(this.value);
+        });
+        
+        // Sincronizar texto -> data picker (com validação)
+        dataInicioTexto.addEventListener('input', function() {
+            let valor = this.value.replace(/\D/g, '');
+            if (valor.length >= 2) valor = valor.substring(0, 2) + '/' + valor.substring(2);
+            if (valor.length >= 5) valor = valor.substring(0, 5) + '/' + valor.substring(5, 9);
+            this.value = valor;
+            
+            if (validarDataBR(this.value)) {
+                dataInicio.value = formatarDataISO(this.value);
+            }
+        });
+        
+        dataFimTexto.addEventListener('input', function() {
+            let valor = this.value.replace(/\D/g, '');
+            if (valor.length >= 2) valor = valor.substring(0, 2) + '/' + valor.substring(2);
+            if (valor.length >= 5) valor = valor.substring(0, 5) + '/' + valor.substring(5, 9);
+            this.value = valor;
+            
+            if (validarDataBR(this.value)) {
+                dataFim.value = formatarDataISO(this.value);
+            }
+        });
+        
+        // Fechar ao clicar fora
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                fecharModalPeriodo();
+            }
+        });
+        
+        // Fechar com ESC
+        document.addEventListener('keydown', function fecharESC(e) {
+            if (e.key === 'Escape') {
+                fecharModalPeriodo();
+                document.removeEventListener('keydown', fecharESC);
+            }
+        });
+        
+        // Focar no primeiro campo
+        setTimeout(() => dataInicio.focus(), 100);
+        
+        // Função global para confirmar
+        window.confirmarPeriodo = function() {
+            const inicio = dataInicioTexto.value || formatarDataBR(dataInicio.value);
+            const fim = dataFimTexto.value || formatarDataBR(dataFim.value);
+            
+            if (!inicio || !fim) {
+                mostrarAlerta('Por favor, preencha ambas as datas', 'erro');
+                return;
+            }
+            
+            if (!validarDataBR(inicio) || !validarDataBR(fim)) {
+                mostrarAlerta('Por favor, use o formato DD/MM/AAAA para as datas', 'erro');
+                return;
+            }
+            
+            fecharModalPeriodo();
+            if (callback) callback(inicio, fim);
+        };
+        
+        // Função global para fechar
+        window.fecharModalPeriodo = function() {
+            const modal = document.getElementById('modal-periodo');
+            if (modal) {
+                modal.remove();
+            }
+            delete window.confirmarPeriodo;
+            delete window.fecharModalPeriodo;
+        };
+    };
 }
 
 function gerarId() {

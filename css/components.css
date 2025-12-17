@@ -1432,6 +1432,56 @@
     justify-content: center;
 }
 
+.modal-periodo {
+    background: var(--cor-card);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    padding: 0;
+}
+
+.modal-periodo .form-group {
+    margin-bottom: 20px;
+}
+
+.modal-periodo .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--texto-principal);
+}
+
+.modal-periodo .form-group small {
+    display: block;
+    margin-top: 4px;
+    color: var(--texto-secundario);
+    font-size: 0.85rem;
+}
+
+.modal-periodo .form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 8px;
+}
+
+.modal-periodo .form-control:focus {
+    outline: none;
+    border-color: var(--azul-principal);
+    box-shadow: 0 0 0 3px rgba(22, 52, 255, 0.1);
+}
+
+.modal-periodo .modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
 .modal-content-filtros {
     background: var(--cor-card);
     border-radius: 12px;

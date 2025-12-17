@@ -876,20 +876,29 @@ function abrirFichaN2(id) {
 
 // === RELATÓRIOS ===
 function gerarRelatorioPeriodoN2() {
-    const inicio = prompt('Data inicial (DD/MM/AAAA):');
-    const fim = prompt('Data final (DD/MM/AAAA):');
-    
-    if (!inicio || !fim) return;
-    
-    const inicioDate = parseDate(inicio);
-    const fimDate = parseDate(fim);
-    
-    const filtradas = fichasN2.filter(f => {
-        const data = new Date(f.dataEntrada);
-        return data >= inicioDate && data <= fimDate;
+    mostrarModalPeriodo((inicio, fim) => {
+        if (!inicio || !fim) return;
+        
+        const inicioDate = parseDate(inicio);
+        const fimDate = parseDate(fim);
+        
+        if (!inicioDate || !fimDate || isNaN(inicioDate.getTime()) || isNaN(fimDate.getTime())) {
+            mostrarAlerta('Datas inválidas. Use o formato DD/MM/AAAA', 'erro');
+            return;
+        }
+        
+        if (inicioDate > fimDate) {
+            mostrarAlerta('A data inicial não pode ser maior que a data final', 'erro');
+            return;
+        }
+        
+        const filtradas = fichasN2.filter(f => {
+            const data = new Date(f.dataEntrada);
+            return data >= inicioDate && data <= fimDate;
+        });
+        
+        mostrarRelatorioN2('Relatório por Período - N2', filtradas, `Período: ${inicio} a ${fim}`);
     });
-    
-    mostrarRelatorioN2('Relatório por Período - N2', filtradas, `Período: ${inicio} a ${fim}`);
 }
 
 function gerarRelatorioBancosN2() {
