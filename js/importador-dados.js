@@ -273,10 +273,26 @@ class ImportadorDados {
         for (let i = 0; i < dadosBrutos.length; i++) {
             try {
                 const dadoBruto = dadosBrutos[i];
+                
+                // Verificar se o nome é apenas zeros e ignorar
+                const nomeBruto = dadoBruto["Nome completo"] || dadoBruto["Nome"] || dadoBruto["Cliente"] || '';
+                if (nomeBruto && /^0+$/.test(nomeBruto.toString().trim())) {
+                    this.adicionarLog(`⏭️ Registro ${i + 1}: Ignorado (nome contém apenas zeros)`, 'aviso');
+                    processados++;
+                    continue;
+                }
+                
                 const ficha = this.mapearParaFicha(dadoBruto);
                 
                 // Validação
                 this.validarFicha(ficha);
+                
+                // Verificar novamente após mapeamento (caso tenha sido gerado automaticamente)
+                if (ficha.nomeCliente && /^0+$/.test(ficha.nomeCliente.toString().trim())) {
+                    this.adicionarLog(`⏭️ Registro ${i + 1}: Ignorado (nome contém apenas zeros)`, 'aviso');
+                    processados++;
+                    continue;
+                }
                 
                 this.dadosImportados.push(ficha);
                 sucesso++;
