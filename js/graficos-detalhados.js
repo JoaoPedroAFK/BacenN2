@@ -510,12 +510,28 @@ class GraficosDetalhados {
 
         const origemCount = {};
         dados.forEach(f => {
-            const origem = f.origem || 'Não informado';
+            let origem = (f.origem || 'Não informado').toString().trim();
+            
+            // Normalizar variações de origem
+            if (origem.toLowerCase().includes('bacen') && origem.toLowerCase().includes('celcoin')) {
+                origem = 'Bacen Celcoin';
+            } else if (origem.toLowerCase().includes('bacen') && origem.toLowerCase().includes('via') && origem.toLowerCase().includes('capital')) {
+                origem = 'Bacen Via Capital';
+            } else if (origem.toLowerCase().includes('consumidor')) {
+                origem = 'Consumidor.gov';
+            } else if (origem.toLowerCase().includes('reclame')) {
+                origem = 'Reclame Aqui';
+            }
+            
             origemCount[origem] = (origemCount[origem] || 0) + 1;
         });
 
-        const labels = Object.keys(origemCount);
-        const values = Object.values(origemCount);
+        // Ordenar por quantidade (maior para menor)
+        const sorted = Object.entries(origemCount)
+            .sort((a, b) => b[1] - a[1]);
+
+        const labels = sorted.map(([nome]) => nome);
+        const values = sorted.map(([, count]) => count);
 
         container.innerHTML = this.criarGraficoBarras(labels, values, null, 'Origem');
     }
