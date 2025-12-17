@@ -432,6 +432,12 @@ class ImportadorDados {
             const aba = dadoBruto["_aba"].toString().toLowerCase().trim();
             console.log(`🔍 Identificando tipo pela aba: "${aba}"`);
             
+            // Planilha Chatbot = Chatbot (prioridade máxima)
+            if (aba.includes("planilha chatbot") || aba.includes("chatbot")) {
+                console.log(`✅ Identificado como Chatbot pela aba: "${aba}"`);
+                return "chatbot";
+            }
+            
             // Base Ouvidoria = N2 (prioridade máxima)
             if (aba.includes("ouvidoria")) {
                 console.log(`✅ Identificado como N2 pela aba: "${aba}"`);
@@ -449,7 +455,7 @@ class ImportadorDados {
                 console.log(`✅ Identificado como N2 pela aba: "${aba}"`);
                 return "n2";
             }
-            if (aba.includes("chat") || aba.includes("chatbot") || aba.includes("bot")) {
+            if (aba.includes("chat") || aba.includes("bot")) {
                 console.log(`✅ Identificado como Chatbot pela aba: "${aba}"`);
                 return "chatbot";
             }

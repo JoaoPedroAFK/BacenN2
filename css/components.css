@@ -1077,16 +1077,20 @@
 
 .grafico-barras {
     padding: 20px;
+    overflow: visible;
+    min-height: 380px;
 }
 
 .grafico-barras-container {
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    min-height: 300px;
-    height: 300px;
-    gap: 12px;
-    padding: 0 20px 80px 20px;
+    min-height: 280px;
+    height: 280px;
+    gap: 8px;
+    padding: 0 20px 100px 20px;
+    overflow: visible;
+    position: relative;
 }
 
 .barra-item {
@@ -1095,6 +1099,8 @@
     align-items: center;
     flex: 1;
     gap: 8px;
+    min-width: 0;
+    position: relative;
 }
 
 .barra-valor {
@@ -1117,19 +1123,22 @@
 }
 
 .barra-label {
-    font-size: 11px;
+    font-size: 10px;
     color: #666;
-    text-align: left;
+    text-align: center;
     white-space: nowrap;
-    max-width: 120px;
+    max-width: 100px;
     overflow: visible;
-    padding-top: 5px;
+    padding-top: 8px;
     transform: rotate(-45deg);
-    transform-origin: top left;
-    margin-left: 10px;
-    height: 60px;
-    display: flex;
-    align-items: flex-start;
+    transform-origin: top center;
+    margin-left: 0;
+    height: 80px;
+    width: 80px;
+    position: absolute;
+    bottom: -60px;
+    left: 50%;
+    margin-left: -40px;
 }
 
 .grafico-linha {
