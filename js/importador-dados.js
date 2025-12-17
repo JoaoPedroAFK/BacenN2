@@ -994,21 +994,48 @@ class ImportadorDados {
             if (window.armazenamentoReclamacoes) {
                 let salvosBacen = 0, salvosN2 = 0, salvosChatbot = 0;
                 
+                this.adicionarLog(`💾 Salvando dados via sistema de armazenamento...`, 'info');
+                
                 // Salva usando o sistema de armazenamento (assíncrono)
+                this.adicionarLog(`   🏦 Salvando ${dadosSeparados.bacen.length} fichas BACEN...`, 'info');
                 for (const ficha of dadosSeparados.bacen) {
-                    const resultado = await window.armazenamentoReclamacoes.salvar('bacen', ficha);
-                    if (resultado) salvosBacen++;
+                    try {
+                        const resultado = await window.armazenamentoReclamacoes.salvar('bacen', ficha);
+                        if (resultado) salvosBacen++;
+                    } catch (error) {
+                        console.error(`❌ Erro ao salvar ficha BACEN ${ficha.id}:`, error);
+                    }
                 }
+                
+                this.adicionarLog(`   🔄 Salvando ${dadosSeparados.n2.length} fichas N2...`, 'info');
                 for (const ficha of dadosSeparados.n2) {
-                    const resultado = await window.armazenamentoReclamacoes.salvar('n2', ficha);
-                    if (resultado) salvosN2++;
+                    try {
+                        const resultado = await window.armazenamentoReclamacoes.salvar('n2', ficha);
+                        if (resultado) salvosN2++;
+                    } catch (error) {
+                        console.error(`❌ Erro ao salvar ficha N2 ${ficha.id}:`, error);
+                    }
                 }
+                
+                this.adicionarLog(`   🤖 Salvando ${dadosSeparados.chatbot.length} fichas Chatbot...`, 'info');
                 for (const ficha of dadosSeparados.chatbot) {
-                    const resultado = await window.armazenamentoReclamacoes.salvar('chatbot', ficha);
-                    if (resultado) salvosChatbot++;
+                    try {
+                        const resultado = await window.armazenamentoReclamacoes.salvar('chatbot', ficha);
+                        if (resultado) salvosChatbot++;
+                        if (salvosChatbot % 100 === 0) {
+                            this.adicionarLog(`   📊 Progresso Chatbot: ${salvosChatbot}/${dadosSeparados.chatbot.length}`, 'info');
+                        }
+                    } catch (error) {
+                        console.error(`❌ Erro ao salvar ficha Chatbot ${ficha.id}:`, error);
+                        this.adicionarLog(`   ❌ Erro ao salvar ficha Chatbot ${ficha.id}: ${error.message}`, 'erro');
+                    }
                 }
                 
                 this.adicionarLog(`✅ Dados salvos via sistema: BACEN=${salvosBacen}, N2=${salvosN2}, Chatbot=${salvosChatbot}`, 'sucesso');
+                
+                // Verificar se os dados foram salvos corretamente
+                const verificarChatbot = await window.armazenamentoReclamacoes.carregarTodos('chatbot');
+                this.adicionarLog(`🔍 Verificação pós-salvamento: ${verificarChatbot.length} fichas Chatbot no sistema`, 'info');
             }
             
             // Salva todos os dados juntos para compatibilidade

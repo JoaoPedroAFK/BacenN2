@@ -684,7 +684,7 @@ function renderizarListaChatbot() {
 }
 
 // Renderizar "Minhas Reclamações"
-function renderizarMinhasReclamacoesChatbot() {
+async function renderizarMinhasReclamacoesChatbot() {
     console.log('🎨 renderizarMinhasReclamacoesChatbot() chamado');
     const container = document.getElementById('minhas-fichas-chatbot');
     if (!container) {
@@ -695,9 +695,12 @@ function renderizarMinhasReclamacoesChatbot() {
     
     console.log('✅ Container encontrado:', container);
     
-    // SEMPRE recarregar as fichas antes de renderizar
+    // Mostrar loading
+    container.innerHTML = '<div class="loading-message">Carregando suas reclamações...</div>';
+    
+    // SEMPRE recarregar as fichas antes de renderizar (AGUARDAR)
     console.log('🔄 Recarregando fichas antes de renderizar minhas reclamações...');
-    carregarFichasChatbot();
+    await carregarFichasChatbot();
     
     // Verificar novamente após carregar
     if (!fichasChatbot || !Array.isArray(fichasChatbot)) {
