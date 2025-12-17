@@ -15,10 +15,31 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     
     try {
+        // Garantir que mostrarSecao está no escopo global ANTES de qualquer coisa
+        window.mostrarSecao = mostrarSecao;
+        
         inicializarChatbot();
-        carregarFichasChatbot();
+        await carregarFichasChatbot();
         atualizarDashboardChatbot();
         configurarEventosChatbot();
+        
+        // Garantir que buscarClientePorCPF está disponível
+        if (!window.buscarClientePorCPF) {
+            window.buscarClientePorCPF = function() {
+                const input = document.getElementById('busca-cliente-cpf');
+                const cpf = input ? input.value.trim() : '';
+                if (cpf) {
+                    if (window.historicoCliente && window.historicoCliente.mostrarHistorico) {
+                        window.historicoCliente.mostrarHistorico(cpf);
+                    } else {
+                        mostrarAlerta('Sistema de histórico não disponível', 'error');
+                    }
+                    if (input) input.value = '';
+                } else {
+                    mostrarAlerta('Digite um CPF para buscar', 'info');
+                }
+            };
+        }
     } catch (error) {
         console.error('Erro na inicialização Chatbot:', error);
     } finally {
@@ -291,8 +312,8 @@ async function handleSubmitChatbot(e) {
         
         console.log('✅ Reclamação salva com sucesso!');
         
-        // RECARREGAR IMEDIATAMENTE (síncrono)
-        carregarFichasChatbot();
+        // RECARREGAR IMEDIATAMENTE (assíncrono)
+        await carregarFichasChatbot();
         console.log('📋 Fichas recarregadas:', fichasChatbot.length);
         console.log('📋 Última ficha salva:', fichasChatbot[fichasChatbot.length - 1]);
         console.log('📋 Ficha salva está no array?', fichasChatbot.find(f => f.id === ficha.id) ? 'Sim' : 'Não');
