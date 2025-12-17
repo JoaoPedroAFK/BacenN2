@@ -12,21 +12,28 @@ class SupabaseDB {
         // Aguardar um pouco para garantir que os scripts foram carregados
         setTimeout(() => {
             // Verificar se Supabase está disponível
+            console.log('🔍 Inicializando SupabaseDB...');
+            console.log('🔍 window.supabase:', typeof window.supabase);
+            console.log('🔍 window.SUPABASE_CONFIG:', window.SUPABASE_CONFIG ? 'existe' : 'não existe');
+            
             if (window.supabase && window.SUPABASE_CONFIG) {
                 try {
                     this.supabase = window.supabase.createClient(
                         window.SUPABASE_CONFIG.url,
                         window.SUPABASE_CONFIG.anonKey
                     );
-                    console.log('✅ Supabase DB inicializado');
+                    console.log('✅ Supabase DB inicializado com sucesso');
+                    console.log('✅ this.supabase:', this.supabase ? 'criado' : 'não criado');
+                    console.log('✅ this.usarLocalStorage:', this.usarLocalStorage);
                 } catch (error) {
                     console.error('❌ Erro ao inicializar Supabase:', error);
                     this.usarLocalStorage = true;
+                    console.warn('⚠️ Usando localStorage como fallback');
                 }
             } else {
                 console.warn('⚠️ Supabase não configurado. Usando localStorage.');
-                console.warn('window.supabase:', typeof window.supabase);
-                console.warn('window.SUPABASE_CONFIG:', window.SUPABASE_CONFIG);
+                console.warn('🔍 window.supabase:', typeof window.supabase);
+                console.warn('🔍 window.SUPABASE_CONFIG:', window.SUPABASE_CONFIG);
                 this.usarLocalStorage = true;
             }
         }, 100);
