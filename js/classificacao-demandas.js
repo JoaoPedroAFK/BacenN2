@@ -1031,9 +1031,10 @@ class SistemaClassificacaoDemandas {
 // Inicializa o sistema
 let sistemaClassificacao;
 document.addEventListener('DOMContentLoaded', () => {
-    sistemaClassificacao = new SistemaClassificacao();
+    sistemaClassificacao = new SistemaClassificacaoDemandas();
 });
 
 // Exporta para uso global
-window.SistemaClassificacao = SistemaClassificacao;
+window.SistemaClassificacao = SistemaClassificacaoDemandas;
+window.SistemaClassificacaoDemandas = SistemaClassificacaoDemandas;
 window.sistemaClassificacao = sistemaClassificacao;

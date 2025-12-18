@@ -15,10 +15,18 @@ class ArmazenamentoReclamacoes {
     }
     
     inicializarFirebase() {
-        // Aguardar um pouco para garantir que firebaseDB foi inicializado
+        // Aguardar Firebase inicializar (pode levar até 2 segundos)
         setTimeout(() => {
             this.verificarEAtivarFirebase();
-        }, 1000);
+        }, 2000);
+        
+        // Verificar novamente após mais tempo (caso o primeiro não tenha funcionado)
+        setTimeout(() => {
+            if (!this.usarFirebase) {
+                console.log('🔄 Verificando Firebase novamente...');
+                this.verificarEAtivarFirebase();
+            }
+        }, 3000);
     }
     
     verificarEAtivarFirebase() {
@@ -610,4 +618,5 @@ if (!window.armazenamentoReclamacoes) {
     window.armazenamentoReclamacoes = new ArmazenamentoReclamacoes();
     console.log('✅ Sistema de armazenamento global criado');
 }
+
 
