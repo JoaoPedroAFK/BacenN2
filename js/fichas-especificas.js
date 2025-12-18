@@ -835,7 +835,7 @@ class FichasEspecificas {
         <div class="campo"><span class="label">Nome Completo:</span> <span class="valor"><strong>${dados.nomeCompleto || dados.nomeCliente || 'Não informado'}</strong></span></div>
         <div class="campo"><span class="label">CPF:</span> <span class="valor"><strong>${dados.cpf || 'Não informado'}</strong></span></div>
         <div class="campo"><span class="label">Telefone:</span> <span class="valor">${dados.telefone || 'Não informado'}</span></div>
-        <div class="campo"><span class="label">Origem:</span> <span class="valor">${dados.origem || 'Não informado'}</span></div>
+        <!-- Removido: Origem (não existe mais em chatbot) -->
     </div>
     
     <div class="secao">
