@@ -568,7 +568,7 @@ class ImportadorDados {
                 break;
                 
             case "n2":
-                campos.prazoN2 = this.formatarData(obterValor("Prazo N2") || obterValor("Prazo") || '');
+                // Removido: prazoN2 (prazo Bacen não existe mais em N2)
                 campos.bancoOrigem = obterValor("Banco Origem") || obterValor("Banco de Origem") || obterValor("Origem Banco") || '';
                 campos.bancoDestino = obterValor("Banco Destino") || obterValor("Banco de Destino") || obterValor("Destino Banco") || '';
                 campos.statusPortabilidade = obterValor("Status Portabilidade") || obterValor("Status") || '';

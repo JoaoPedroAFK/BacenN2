@@ -245,8 +245,7 @@ async function handleSubmitN2(e) {
         cpf: obterValorCampoN2('n2-cpf'),
         telefone: obterValorCampoN2('n2-telefone'),
         motivoReduzido: obterValorCampoN2('n2-motivo-reduzido'),
-        motivoDetalhado: obterValorCampoN2('n2-motivo-detalhado'),
-        prazoN2: obterValorCampoN2('n2-prazo-n2'),
+        // Removido: motivoDetalhado e prazoN2 (prazo Bacen)
         tentativasContato: obterTentativasN2(), // Coletar todas as tentativas
         acionouCentral: obterCheckboxN2('n2-acionou-central'),
         protocoloCentral: obterProtocolosDoContainer('n2-protocolos-central-container') || [],
