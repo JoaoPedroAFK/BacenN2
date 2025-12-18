@@ -489,49 +489,25 @@ class ArmazenamentoReclamacoes {
                 console.log(`🔥 Carregando do Firebase (tipo: ${tipo})...`);
                 
                 const data = await window.firebaseDB.carregar(tipo);
-                    .from(nomeTabela)
-                    .select('*');
                 
-                if (error) {
-                    console.error(`❌ ERRO do Supabase ao carregar ${tipo}:`, error);
-                    console.error(`   Código: ${error.code}`);
-                    console.error(`   Mensagem: ${error.message}`);
-                    console.error(`   Detalhes: ${JSON.stringify(error)}`);
-                    
-                    // Se for erro de RLS ou permissão, mostrar mensagem clara
-                    if (error.code === 'PGRST116' || error.message.includes('permission') || error.message.includes('policy')) {
-                        console.error(`🚨 ERRO DE PERMISSÃO/RLS! Configure as políticas no Supabase!`);
-                        console.error(`   Acesse: https://supabase.com/dashboard/project/qiglypxoicicxvyocrzk/auth/policies`);
-                        console.error(`   Tabela: ${nomeTabela}`);
-                        console.error(`   Você precisa criar políticas que permitam SELECT para anon role`);
-                    }
-                    
-                    throw error;
-                }
-                
-                // Sempre retornar os dados do Supabase, mesmo se vazio
-                if (data && Array.isArray(data)) {
-                    if (data.length > 0) {
-                        console.log(`✅ ${data.length} reclamações ${tipo} carregadas do Supabase`);
-                        // NÃO salvar no localStorage - apenas Supabase!
-                    } else {
-                        console.log(`⚠️ Nenhuma reclamação ${tipo} encontrada no Supabase (tabela vazia)`);
-                        // Retornar array vazio do Supabase, não do localStorage
-                        return [];
-                    }
-                    
+                // Ordenar por dataCriacao (se existir) ou data de recebimento
+                if (data && data.length > 0) {
+                    data.sort((a, b) => {
+                        const dataA = a.dataCriacao || a.dataRecebimento || a.dataEntrada || 0;
+                        const dataB = b.dataCriacao || b.dataRecebimento || b.dataEntrada || 0;
+                        return new Date(dataB) - new Date(dataA);
+                    });
+                    console.log(`✅ ${data.length} reclamações ${tipo} carregadas do Firebase`);
                     return data;
                 } else {
-                    console.warn(`⚠️ Resposta do Supabase inválida:`, data);
-                    // Não cair no fallback, retornar vazio
+                    console.log(`⚠️ Nenhuma reclamação ${tipo} encontrada no Firebase`);
                     return [];
                 }
             } catch (error) {
-                console.error(`❌ Erro ao carregar do Supabase:`, error);
+                console.error(`❌ Erro ao carregar do Firebase:`, error);
                 console.error(`   Stack: ${error.stack}`);
-                // NÃO fazer fallback para localStorage se Supabase está ativo
-                // Retornar vazio para forçar o usuário a ver o erro
-                console.error(`⚠️ Supabase está ativo mas falhou. Verifique as políticas RLS!`);
+                // NÃO fazer fallback para localStorage se Firebase está ativo
+                console.error(`⚠️ Firebase está ativo mas falhou. Verifique a configuração!`);
                 return [];
             }
         }
