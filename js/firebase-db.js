@@ -10,36 +10,59 @@ class FirebaseDB {
 
     async inicializar() {
         try {
+            console.log('🔍 Tentando inicializar Firebase...');
+            
             // Verificar se Firebase está disponível
             if (typeof firebase === 'undefined') {
-                console.warn('⚠️ Firebase não está carregado. Usando localStorage como fallback.');
+                console.error('❌ Firebase SDK não está carregado!');
+                console.error('   Verifique se os scripts do Firebase estão incluídos no HTML antes de firebase-db.js');
                 this.usarLocalStorage = true;
                 return false;
             }
+            console.log('✅ Firebase SDK carregado');
 
             // Verificar configuração
             if (!window.FIREBASE_CONFIG) {
-                console.warn('⚠️ FIREBASE_CONFIG não encontrado. Usando localStorage como fallback.');
+                console.error('❌ FIREBASE_CONFIG não encontrado!');
+                console.error('   Verifique se js/config-firebase.js está carregado antes de firebase-db.js');
                 this.usarLocalStorage = true;
                 return false;
             }
+            console.log('✅ FIREBASE_CONFIG encontrado:', window.FIREBASE_CONFIG);
 
             this.config = window.FIREBASE_CONFIG;
 
+            // Verificar se databaseURL está presente
+            if (!this.config.databaseURL) {
+                console.error('❌ databaseURL não encontrado na configuração!');
+                console.error('   Certifique-se de que o Realtime Database foi criado no Firebase Console');
+                this.usarLocalStorage = true;
+                return false;
+            }
+            console.log('✅ databaseURL:', this.config.databaseURL);
+
             // Inicializar Firebase
             if (!firebase.apps || firebase.apps.length === 0) {
+                console.log('🔧 Inicializando Firebase App...');
                 firebase.initializeApp(this.config);
+                console.log('✅ Firebase App inicializado');
+            } else {
+                console.log('✅ Firebase App já estava inicializado');
             }
 
             // Obter referência do database
+            console.log('🔧 Obtendo referência do Realtime Database...');
             this.database = firebase.database();
             this.inicializado = true;
             this.usarLocalStorage = false;
 
             console.log('✅ Firebase Realtime Database inicializado com sucesso!');
+            console.log('   Database URL:', this.config.databaseURL);
             return true;
         } catch (error) {
             console.error('❌ Erro ao inicializar Firebase:', error);
+            console.error('   Detalhes:', error.message);
+            console.error('   Stack:', error.stack);
             this.usarLocalStorage = true;
             return false;
         }
@@ -154,9 +177,16 @@ window.firebaseDB = new FirebaseDB();
 
 // Aguardar Firebase carregar e inicializar
 document.addEventListener('DOMContentLoaded', async () => {
-    // Aguardar um pouco para garantir que Firebase está carregado
+    console.log('📄 DOM carregado, aguardando Firebase SDK...');
+    // Aguardar mais tempo para garantir que Firebase SDK está carregado
     setTimeout(async () => {
-        await window.firebaseDB.inicializar();
-    }, 500);
+        console.log('⏰ Iniciando inicialização do Firebase...');
+        const sucesso = await window.firebaseDB.inicializar();
+        if (sucesso) {
+            console.log('🎉 Firebase pronto para uso!');
+        } else {
+            console.error('❌ Falha na inicialização do Firebase. Usando localStorage.');
+        }
+    }, 1000);
 });
 
