@@ -787,9 +787,8 @@ class FichasEspecificas {
     <div class="secao">
         <h3><strong>🎯 DETALHES DA RECLAMAÇÃO</strong></h3>
         <div class="destaque">
-            <div class="campo"><span class="label">Motivo Reduzido:</span> <span class="valor"><strong>${dados.motivoReduzido || 'Não informado'}</strong></span></div>
-            <div class="campo"><span class="label">Motivo da Reclamação:</span> <span class="valor">${dados.motivoDetalhado || dados.motivoReclamacao || 'Não informado'}</span></div>
-            <div class="campo"><span class="label">Prazo N2:</span> <span class="valor"><strong>${this.formatarData(dados.prazoN2 || dados.prazoRetorno)}</strong></span></div>
+            <div class="campo"><span class="label">Motivo:</span> <span class="valor"><strong>${dados.motivoReduzido || 'Não informado'}</strong></span></div>
+            <!-- Removido: Motivo da Reclamação e Prazo N2 (não existem mais em N2) -->
         </div>
     </div>
     
