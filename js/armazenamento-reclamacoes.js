@@ -230,160 +230,38 @@ class ArmazenamentoReclamacoes {
                     console.log(`🔥 Tentando salvar no Firebase (tipo: ${tipo}, ID: ${reclamacao.id})...`);
                 }
                 
-                // Verificar se já existe (com tratamento de erro melhor)
-                let existente = null;
-                try {
-                    const { data, error: erroVerificacao } = await window.supabaseDB.supabase
-                        .from(nomeTabela)
-                        .select('id')
-                        .eq('id', reclamacao.id)
-                        .maybeSingle();
-                    
-                    if (erroVerificacao) {
-                        if (erroVerificacao.code === 'PGRST116') {
-                            // Tabela não existe ou sem permissão - continuar tentando inserir
-                            if (!reclamacao._debugLogado) {
-                                console.warn(`   ⚠️ Tabela pode não existir ou sem permissão, tentando inserir mesmo assim...`);
-                            }
-                        } else {
-                            console.error(`❌ ERRO ao verificar existência no Supabase:`, erroVerificacao);
-                            throw erroVerificacao;
-                        }
-                    } else {
-                        existente = data;
-                    }
-                } catch (err) {
-                    // Ignorar erro de verificação e tentar inserir
-                    if (!reclamacao._debugLogado) {
-                        console.warn(`   ⚠️ Erro ao verificar existência, tentando inserir:`, err.message);
-                    }
-                }
+                // Firebase salva diretamente (não precisa verificar existência - set() substitui automaticamente)
+                const sucesso = await window.firebaseDB.salvar(tipo, reclamacao);
                 
-                let resultado;
-                if (existente && existente.id) {
-                    // Atualizar
+                if (sucesso) {
                     if (!reclamacao._debugLogado) {
-                        console.log(`   🔄 Atualizando registro existente...`);
+                        console.log(`✅ Reclamação ${reclamacao.id} salva no Firebase`);
                     }
-                    
-                    const resultadoUpdate = await this.tentarSalvarComRetry(
-                        window.supabaseDB.supabase,
-                        nomeTabela,
-                        reclamacao,
-                        'update',
-                        reclamacao.id
-                    );
-                    
-                    if (!resultadoUpdate.sucesso) {
-                        const error = resultadoUpdate.error;
-                        console.error(`❌ ERRO ao atualizar no Supabase:`, error);
-                        console.error(`   Código: ${error.code}`);
-                        console.error(`   Mensagem: ${error.message}`);
-                        console.error(`   Detalhes:`, JSON.stringify(error));
-                        console.error(`   Tabela: ${nomeTabela}`);
-                        console.error(`   ID: ${reclamacao.id}`);
-                        if (error.code === 'PGRST116' || error.message.includes('permission') || error.message.includes('policy') || error.message.includes('RLS')) {
-                            console.error(`🚨 ERRO DE PERMISSÃO/RLS! Configure as políticas no Supabase!`);
-                            console.error(`   Execute o script: SUPABASE_FIX_RLS_DUPLICADAS.sql`);
-                        }
-                        if (error.code === 'PGRST204') {
-                            console.error(`🚨 COLUNA NÃO EXISTE! Execute o script: SUPABASE_ADICIONAR_COLUNAS_FALTANTES.sql`);
-                        }
-                        throw error;
-                    }
-                    resultado = resultadoUpdate.data;
-                    if (!reclamacao._debugLogado) {
-                        console.log(`✅ Reclamação atualizada no Supabase: ${reclamacao.id}`);
-                    }
+                    return true;
                 } else {
-                    // Inserir
-                    if (!reclamacao._debugLogado) {
-                        console.log(`   ➕ Inserindo novo registro...`);
-                    }
-                    
-                    const resultadoInsert = await this.tentarSalvarComRetry(
-                        window.supabaseDB.supabase,
-                        nomeTabela,
-                        reclamacao,
-                        'insert'
-                    );
-                    
-                    if (!resultadoInsert.sucesso) {
-                        const error = resultadoInsert.error;
-                        console.error(`❌ ERRO ao inserir no Supabase:`, error);
-                        console.error(`   Código: ${error.code}`);
-                        console.error(`   Mensagem: ${error.message}`);
-                        console.error(`   Detalhes:`, JSON.stringify(error));
-                        console.error(`   Tabela: ${nomeTabela}`);
-                        console.error(`   ID: ${reclamacao.id}`);
-                        if (error.code === 'PGRST116' || error.message.includes('permission') || error.message.includes('policy') || error.message.includes('RLS')) {
-                            console.error(`🚨 ERRO DE PERMISSÃO/RLS! Configure as políticas no Supabase!`);
-                            console.error(`   Execute o script: SUPABASE_FIX_RLS_DUPLICADAS.sql`);
-                        }
-                        if (error.code === 'PGRST204') {
-                            console.error(`🚨 COLUNA NÃO EXISTE! Execute o script: SUPABASE_ADICIONAR_COLUNAS_FALTANTES.sql`);
-                        }
-                        throw error;
-                    }
-                    resultado = resultadoInsert.data;
-                    if (!reclamacao._debugLogado) {
-                        console.log(`✅ Reclamação salva no Supabase: ${reclamacao.id}`);
-                    }
+                    throw new Error('Falha ao salvar no Firebase');
                 }
-                
-                // Verificar se realmente foi salvo
-                if (!resultado || !resultado.id) {
-                    console.error(`❌ ERRO: Supabase retornou resultado vazio!`);
-                    console.error(`   Tabela: ${nomeTabela}`);
-                    console.error(`   ID esperado: ${reclamacao.id}`);
-                    throw new Error('Resultado vazio do Supabase');
-                }
-                
-                // Verificação adicional: buscar o registro salvo
-                if (!reclamacao._debugLogado) {
-                    const { data: verificado, error: erroVerificacao } = await window.supabaseDB.supabase
-                        .from(nomeTabela)
-                        .select('id')
-                        .eq('id', reclamacao.id)
-                        .single();
-                    
-                    if (erroVerificacao || !verificado) {
-                        console.warn(`⚠️ AVISO: Registro salvo mas não encontrado na verificação!`);
-                        console.warn(`   Erro:`, erroVerificacao);
-                    } else {
-                        console.log(`✅ Verificação: Registro confirmado no Supabase`);
-                    }
-                }
-                
-                // NÃO salvar no localStorage se Supabase funcionou (evita quota excedida)
-                // localStorage só como fallback quando Supabase não está disponível
-                if (!reclamacao._debugLogado) {
-                    console.log(`✅ Reclamação ${reclamacao.id} salva no Supabase`);
-                }
-                return true;
             } catch (error) {
-                console.error(`❌ Erro ao salvar no Supabase:`, error);
+                console.error(`❌ Erro ao salvar no Firebase:`, error);
                 console.error(`   Tipo: ${tipo}, ID: ${reclamacao.id}`);
-                console.error(`   Stack: ${error.stack}`);
                 
-                // NUNCA usar localStorage quando Supabase está ativo - apenas Supabase!
-                if (this.usarSupabase) {
-                    console.error(`⚠️ Supabase está ativo mas falhou. NÃO usando localStorage!`);
-                    console.error(`   Execute o script SQL para corrigir a estrutura das tabelas!`);
+                // NUNCA usar localStorage quando Firebase está ativo - apenas Firebase!
+                if (this.usarFirebase) {
+                    console.error(`⚠️ Firebase está ativo mas falhou. NÃO usando localStorage!`);
                     throw error; // Propaga o erro - NÃO tenta localStorage
                 } else {
-                    console.warn(`⚠️ Supabase não disponível. Fallback para localStorage...`);
-                    // Continuar para salvar no localStorage apenas se Supabase não estiver disponível
+                    console.warn(`⚠️ Firebase não disponível. Fallback para localStorage...`);
+                    // Continuar para salvar no localStorage apenas se Firebase não estiver disponível
                 }
             }
         } else {
             if (!reclamacao._debugLogado) {
-                console.warn(`⚠️ Supabase não disponível para salvar. Condições:`);
-                console.warn(`   usarSupabase: ${this.usarSupabase}`);
-                console.warn(`   window.supabaseDB: ${window.supabaseDB ? 'existe' : 'não existe'}`);
-                if (window.supabaseDB) {
-                    console.warn(`   window.supabaseDB.supabase: ${window.supabaseDB.supabase ? 'existe' : 'não existe'}`);
-                    console.warn(`   window.supabaseDB.usarLocalStorage: ${window.supabaseDB.usarLocalStorage}`);
+                console.warn(`⚠️ Firebase não disponível para salvar. Condições:`);
+                console.warn(`   usarFirebase: ${this.usarFirebase}`);
+                console.warn(`   window.firebaseDB: ${window.firebaseDB ? 'existe' : 'não existe'}`);
+                if (window.firebaseDB) {
+                    console.warn(`   window.firebaseDB.inicializado: ${window.firebaseDB.inicializado}`);
+                    console.warn(`   window.firebaseDB.usarLocalStorage: ${window.firebaseDB.usarLocalStorage}`);
                 }
             }
         }
