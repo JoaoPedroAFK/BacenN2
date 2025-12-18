@@ -167,6 +167,9 @@ class ControleGraficosDashboard {
                 } else {
                     container.style.display = 'none';
                 }
+            } else {
+                // Gráfico ainda não foi renderizado, será aplicado quando renderizar
+                console.debug(`⏳ Gráfico ${grafico.id} ainda não renderizado, visibilidade será aplicada depois`);
             }
         });
     }
@@ -186,11 +189,21 @@ class ControleGraficosDashboard {
         };
 
         const id = mapeamento[graficoId];
-        if (!id) return null;
+        if (!id) {
+            console.warn(`⚠️ ID de gráfico não encontrado para: ${graficoId}`);
+            return null;
+        }
+
+        // Procurar pelo elemento do gráfico
+        const elemento = document.getElementById(id);
+        if (!elemento) {
+            // Gráfico ainda não foi renderizado
+            return null;
+        }
 
         // Procurar pelo card do gráfico
-        const card = document.querySelector(`#${id}`).closest('.grafico-card');
-        return card || document.getElementById(id);
+        const card = elemento.closest('.grafico-card');
+        return card || elemento;
     }
 
     adicionarListenersRedimensionamento() {
