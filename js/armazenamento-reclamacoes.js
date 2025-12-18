@@ -1,5 +1,5 @@
 /* === SISTEMA DE ARMAZENAMENTO DE RECLAMAÇÕES === */
-/* Usa Firebase quando disponível, fallback para localStorage */
+/* Usa Firebase Realtime Database quando disponível, fallback para localStorage */
 
 class ArmazenamentoReclamacoes {
     constructor() {
