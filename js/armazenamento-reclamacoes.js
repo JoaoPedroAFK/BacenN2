@@ -256,18 +256,26 @@ class ArmazenamentoReclamacoes {
                     }
                 }
                 
-                // Também salvar no localStorage como backup
-                this.salvarLocalStorage(tipo, reclamacao, chave);
+                // NÃO salvar no localStorage se Supabase funcionou (evita quota excedida)
+                // localStorage só como fallback quando Supabase não está disponível
                 if (!reclamacao._debugLogado) {
-                    console.log(`✅ Reclamação ${reclamacao.id} salva no Supabase e localStorage`);
+                    console.log(`✅ Reclamação ${reclamacao.id} salva no Supabase`);
                 }
                 return true;
             } catch (error) {
                 console.error(`❌ Erro ao salvar no Supabase:`, error);
                 console.error(`   Tipo: ${tipo}, ID: ${reclamacao.id}`);
                 console.error(`   Stack: ${error.stack}`);
-                console.warn(`⚠️ Fallback para localStorage...`);
-                // Continuar para salvar no localStorage
+                
+                // Se Supabase está ativo mas falhou, NÃO usar localStorage (evita quota)
+                if (this.usarSupabase) {
+                    console.error(`⚠️ Supabase está ativo mas falhou. NÃO usando localStorage para evitar quota excedida.`);
+                    console.error(`   Execute o script SQL para corrigir a estrutura das tabelas!`);
+                    throw error; // Propaga o erro para que o usuário veja
+                } else {
+                    console.warn(`⚠️ Supabase não disponível. Fallback para localStorage...`);
+                    // Continuar para salvar no localStorage apenas se Supabase não estiver disponível
+                }
             }
         } else {
             if (!reclamacao._debugLogado) {
@@ -285,16 +293,22 @@ class ArmazenamentoReclamacoes {
         return this.salvarLocalStorage(tipo, reclamacao, chave);
     }
     
-    // Método auxiliar para salvar no localStorage
+    // Método auxiliar para salvar no localStorage (apenas quando Supabase não está disponível)
     salvarLocalStorage(tipo, reclamacao, chave) {
         try {
-            // Carregar reclamações existentes
+            // Verificar tamanho antes de salvar (evitar quota excedida)
+            const dadosAtuais = localStorage.getItem(chave);
             let reclamacoes = [];
-            const dados = localStorage.getItem(chave);
-            if (dados) {
-                reclamacoes = JSON.parse(dados);
-                if (!Array.isArray(reclamacoes)) {
-                    console.warn(`⚠️ Dados inválidos para ${tipo}, resetando...`);
+            
+            if (dadosAtuais) {
+                try {
+                    reclamacoes = JSON.parse(dadosAtuais);
+                    if (!Array.isArray(reclamacoes)) {
+                        console.warn(`⚠️ Dados inválidos para ${tipo}, resetando...`);
+                        reclamacoes = [];
+                    }
+                } catch (e) {
+                    console.warn(`⚠️ Erro ao parsear dados existentes, resetando...`);
                     reclamacoes = [];
                 }
             }
@@ -309,30 +323,47 @@ class ArmazenamentoReclamacoes {
                 console.log(`➕ Nova reclamação adicionada no localStorage: ${reclamacao.id}`);
             }
             
-            // Salvar no localStorage
+            // Tentar salvar no localStorage
             const dadosParaSalvar = JSON.stringify(reclamacoes);
-            localStorage.setItem(chave, dadosParaSalvar);
+            const tamanhoMB = (new Blob([dadosParaSalvar]).size / 1024 / 1024).toFixed(2);
             
-            // Verificar se foi salvo corretamente
-            const verificado = localStorage.getItem(chave);
-            if (verificado) {
-                const dadosVerificados = JSON.parse(verificado);
-                console.log(`✅ Salvo no localStorage: ${dadosVerificados.length} reclamações ${tipo}`);
-                
-                const encontrada = dadosVerificados.find(r => r.id === reclamacao.id);
-                if (encontrada) {
-                    console.log(`✅ Reclamação ${reclamacao.id} confirmada no localStorage`);
-                    return true;
-                } else {
-                    console.error(`❌ ERRO: Reclamação ${reclamacao.id} NÃO foi salva corretamente!`);
-                    return false;
+            // Verificar se excede limite (localStorage geralmente tem ~5-10MB)
+            if (tamanhoMB > 4) {
+                console.warn(`⚠️ Dados muito grandes (${tamanhoMB}MB). Limpando localStorage antigo...`);
+                // Limpar dados antigos, manter apenas os últimos 100 registros
+                reclamacoes = reclamacoes.slice(-100);
+                console.warn(`⚠️ Mantendo apenas os últimos 100 registros no localStorage`);
+            }
+            
+            try {
+                localStorage.setItem(chave, JSON.stringify(reclamacoes));
+                console.log(`✅ Salvo no localStorage: ${reclamacoes.length} reclamações ${tipo} (${tamanhoMB}MB)`);
+                return true;
+            } catch (quotaError) {
+                if (quotaError.name === 'QuotaExceededError') {
+                    console.error(`❌ QUOTA EXCEDIDA no localStorage!`);
+                    console.error(`   Tamanho tentado: ${tamanhoMB}MB`);
+                    console.error(`   ⚠️ Limpando localStorage e mantendo apenas últimos 50 registros...`);
+                    
+                    // Limpar e manter apenas últimos 50
+                    reclamacoes = reclamacoes.slice(-50);
+                    try {
+                        localStorage.setItem(chave, JSON.stringify(reclamacoes));
+                        console.warn(`⚠️ localStorage limpo. Mantidos apenas últimos 50 registros.`);
+                        return true;
+                    } catch (e) {
+                        console.error(`❌ ERRO: Não foi possível salvar mesmo após limpar!`);
+                        console.error(`   Use o Supabase para salvar todos os dados!`);
+                        return false;
+                    }
                 }
-            } else {
-                console.error(`❌ ERRO: localStorage não retornou dados após salvar!`);
-                return false;
+                throw quotaError;
             }
         } catch (error) {
             console.error(`❌ Erro ao salvar no localStorage:`, error);
+            if (error.name === 'QuotaExceededError') {
+                console.error(`🚨 QUOTA EXCEDIDA! Execute o script SQL para usar Supabase!`);
+            }
             return false;
         }
     }
