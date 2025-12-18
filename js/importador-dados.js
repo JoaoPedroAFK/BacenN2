@@ -1031,15 +1031,15 @@ class ImportadorDados {
             
             // Usar o sistema de armazenamento se disponível (para sincronização)
             if (window.armazenamentoReclamacoes) {
-                // Forçar verificação do Supabase antes de salvar
-                this.adicionarLog(`🔍 Verificando Supabase antes de salvar...`, 'info');
-                if (window.armazenamentoReclamacoes.verificarEAtivarSupabase) {
-                    const supabaseAtivo = window.armazenamentoReclamacoes.verificarEAtivarSupabase();
-                    this.adicionarLog(`   ${supabaseAtivo ? '✅' : '⚠️'} Supabase: ${supabaseAtivo ? 'ATIVO' : 'INATIVO (usando localStorage)'}`, supabaseAtivo ? 'sucesso' : 'aviso');
+                // Forçar verificação do Firebase antes de salvar
+                this.adicionarLog(`🔍 Verificando Firebase antes de salvar...`, 'info');
+                if (window.armazenamentoReclamacoes.verificarEAtivarFirebase) {
+                    const firebaseAtivo = window.armazenamentoReclamacoes.verificarEAtivarFirebase();
+                    this.adicionarLog(`   ${firebaseAtivo ? '✅' : '⚠️'} Firebase: ${firebaseAtivo ? 'ATIVO' : 'INATIVO (usando localStorage)'}`, firebaseAtivo ? 'sucesso' : 'aviso');
                 }
                 
-                // Aguardar um pouco para garantir que Supabase está pronto
-                await new Promise(resolve => setTimeout(resolve, 500));
+                // Aguardar um pouco para garantir que Firebase está pronto
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 
                 let salvosBacen = 0, salvosN2 = 0, salvosChatbot = 0;
                 let errosBacen = 0, errosN2 = 0, errosChatbot = 0;
@@ -1097,16 +1097,16 @@ class ImportadorDados {
                 
                 this.adicionarLog(`✅ Dados salvos via sistema: BACEN=${salvosBacen} (${errosBacen} erros), N2=${salvosN2} (${errosN2} erros), Chatbot=${salvosChatbot} (${errosChatbot} erros)`, 'sucesso');
                 
-                // Verificar se os dados foram salvos corretamente no Supabase
-                if (window.armazenamentoReclamacoes.usarSupabase) {
-                    this.adicionarLog(`☁️ Verificando dados no Supabase...`, 'info');
+                // Verificar se os dados foram salvos corretamente no Firebase
+                if (window.armazenamentoReclamacoes.usarFirebase) {
+                    this.adicionarLog(`🔥 Verificando dados no Firebase...`, 'info');
                     try {
                         const verificarBacen = await window.armazenamentoReclamacoes.carregarTodos('bacen');
                         const verificarN2 = await window.armazenamentoReclamacoes.carregarTodos('n2');
                         const verificarChatbot = await window.armazenamentoReclamacoes.carregarTodos('chatbot');
-                        this.adicionarLog(`   ☁️ Supabase: BACEN=${verificarBacen.length}, N2=${verificarN2.length}, Chatbot=${verificarChatbot.length}`, 'info');
+                        this.adicionarLog(`   🔥 Firebase: BACEN=${verificarBacen.length}, N2=${verificarN2.length}, Chatbot=${verificarChatbot.length}`, 'info');
                     } catch (error) {
-                        this.adicionarLog(`   ❌ Erro ao verificar Supabase: ${error.message}`, 'erro');
+                        this.adicionarLog(`   ❌ Erro ao verificar Firebase: ${error.message}`, 'erro');
                     }
                 } else {
                     this.adicionarLog(`⚠️ Supabase não está ativo. Dados salvos apenas localmente.`, 'aviso');

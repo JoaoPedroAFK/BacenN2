@@ -226,10 +226,8 @@ class ArmazenamentoReclamacoes {
         
         if (this.usarFirebase && window.firebaseDB && window.firebaseDB.inicializado) {
             try {
-                const nomeTabela = `fichas_${tipo}`;
                 if (!reclamacao._debugLogado) {
-                    console.log(`☁️ Tentando salvar no Supabase (tabela: ${nomeTabela}, ID: ${reclamacao.id})...`);
-                    console.log(`   Dados a salvar:`, JSON.stringify(reclamacao).substring(0, 200));
+                    console.log(`🔥 Tentando salvar no Firebase (tipo: ${tipo}, ID: ${reclamacao.id})...`);
                 }
                 
                 // Verificar se já existe (com tratamento de erro melhor)
