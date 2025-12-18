@@ -514,10 +514,7 @@ class ArmazenamentoReclamacoes {
                 if (data && Array.isArray(data)) {
                     if (data.length > 0) {
                         console.log(`✅ ${data.length} reclamações ${tipo} carregadas do Supabase`);
-                        
-                        // Sincronizar com localStorage como backup
-                        localStorage.setItem(chave, JSON.stringify(data));
-                        console.log(`💾 Dados sincronizados com localStorage`);
+                        // NÃO salvar no localStorage - apenas Supabase!
                     } else {
                         console.log(`⚠️ Nenhuma reclamação ${tipo} encontrada no Supabase (tabela vazia)`);
                         // Retornar array vazio do Supabase, não do localStorage
