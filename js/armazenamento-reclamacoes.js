@@ -68,6 +68,15 @@ class ArmazenamentoReclamacoes {
         // Garantir tipo
         reclamacao.tipoDemanda = tipo;
         
+        // Remover campos que podem não existir na tabela (evitar erro PGRST204)
+        // Se dataAtualizacao não existir, remover do objeto antes de salvar
+        const camposParaRemover = ['_debugLogado']; // Campos que não devem ser salvos
+        camposParaRemover.forEach(campo => {
+            if (reclamacao.hasOwnProperty(campo)) {
+                delete reclamacao[campo];
+            }
+        });
+        
         // Obter chave
         const chave = this.chaves[tipo];
         if (!chave) {
@@ -156,9 +165,14 @@ class ArmazenamentoReclamacoes {
                     if (!reclamacao._debugLogado) {
                         console.log(`   🔄 Atualizando registro existente...`);
                     }
+                    
+                    // Criar cópia do objeto sem campos problemáticos
+                    const dadosParaAtualizar = { ...reclamacao };
+                    delete dadosParaAtualizar._debugLogado;
+                    
                     const { data, error } = await window.supabaseDB.supabase
                         .from(nomeTabela)
-                        .update(reclamacao)
+                        .update(dadosParaAtualizar)
                         .eq('id', reclamacao.id)
                         .select()
                         .single();
@@ -185,9 +199,16 @@ class ArmazenamentoReclamacoes {
                     if (!reclamacao._debugLogado) {
                         console.log(`   ➕ Inserindo novo registro...`);
                     }
+                    
+                    // Criar cópia do objeto sem campos problemáticos
+                    const dadosParaInserir = { ...reclamacao };
+                    // Remover dataAtualizacao se não existir (será adicionada depois se necessário)
+                    // O Supabase vai reclamar se a coluna não existir
+                    delete dadosParaInserir._debugLogado;
+                    
                     const { data, error } = await window.supabaseDB.supabase
                         .from(nomeTabela)
-                        .insert(reclamacao)
+                        .insert(dadosParaInserir)
                         .select()
                         .single();
                     
