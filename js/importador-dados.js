@@ -970,18 +970,57 @@ class ImportadorDados {
             const n2Final = mesclarDados(n2Existentes, dadosSeparados.n2);
             const chatbotFinal = mesclarDados(chatbotExistentes, dadosSeparados.chatbot);
             
-            // Salvar no localStorage (garantir persistência)
-            localStorage.setItem('velotax_reclamacoes_bacen', JSON.stringify(bacenFinal));
-            localStorage.setItem('velotax_reclamacoes_n2', JSON.stringify(n2Final));
-            localStorage.setItem('velotax_reclamacoes_chatbot', JSON.stringify(chatbotFinal));
+            // NÃO salvar tudo no localStorage de uma vez (evita quota excedida)
+            // localStorage será usado apenas como fallback pelo sistema de armazenamento
+            // Se Supabase estiver ativo, os dados serão salvos lá
+            try {
+                // Tentar salvar apenas se não exceder quota (limite de ~2MB por tipo)
+                const tamanhoBacen = new Blob([JSON.stringify(bacenFinal)]).size / 1024 / 1024;
+                const tamanhoN2 = new Blob([JSON.stringify(n2Final)]).size / 1024 / 1024;
+                const tamanhoChatbot = new Blob([JSON.stringify(chatbotFinal)]).size / 1024 / 1024;
+                
+                if (tamanhoBacen < 2) {
+                    localStorage.setItem('velotax_reclamacoes_bacen', JSON.stringify(bacenFinal));
+                    this.adicionarLog(`💾 Dados BACEN salvos no localStorage (${tamanhoBacen.toFixed(2)}MB)`, 'sucesso');
+                } else {
+                    this.adicionarLog(`⚠️ Dados BACEN muito grandes (${tamanhoBacen.toFixed(2)}MB), não salvando no localStorage`, 'aviso');
+                }
+                
+                if (tamanhoN2 < 2) {
+                    localStorage.setItem('velotax_reclamacoes_n2', JSON.stringify(n2Final));
+                    this.adicionarLog(`💾 Dados N2 salvos no localStorage (${tamanhoN2.toFixed(2)}MB)`, 'sucesso');
+                } else {
+                    this.adicionarLog(`⚠️ Dados N2 muito grandes (${tamanhoN2.toFixed(2)}MB), não salvando no localStorage`, 'aviso');
+                }
+                
+                if (tamanhoChatbot < 2) {
+                    localStorage.setItem('velotax_reclamacoes_chatbot', JSON.stringify(chatbotFinal));
+                    this.adicionarLog(`💾 Dados Chatbot salvos no localStorage (${tamanhoChatbot.toFixed(2)}MB)`, 'sucesso');
+                } else {
+                    this.adicionarLog(`⚠️ Dados Chatbot muito grandes (${tamanhoChatbot.toFixed(2)}MB), não salvando no localStorage`, 'aviso');
+                }
+            } catch (error) {
+                if (error.name === 'QuotaExceededError') {
+                    this.adicionarLog(`❌ QUOTA EXCEDIDA no localStorage!`, 'erro');
+                    this.adicionarLog(`   ⚠️ Use o Supabase para salvar todos os dados!`, 'aviso');
+                    this.adicionarLog(`   Execute o script SQL para corrigir as tabelas!`, 'aviso');
+                } else {
+                    this.adicionarLog(`❌ Erro ao salvar no localStorage: ${error.message}`, 'erro');
+                }
+            }
             
-            // Verificar se foi salvo corretamente
-            const verificarBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || '[]');
-            const verificarN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || '[]');
-            const verificarChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || '[]');
+            // Verificar se foi salvo corretamente (apenas se tentou salvar)
+            let verificarBacen = [], verificarN2 = [], verificarChatbot = [];
+            try {
+                verificarBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || '[]');
+                verificarN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || '[]');
+                verificarChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || '[]');
+            } catch (e) {
+                // Ignorar erro de parse
+            }
             
-            this.adicionarLog(`💾 Dados salvos no localStorage: BACEN=${verificarBacen.length}, N2=${verificarN2.length}, Chatbot=${verificarChatbot.length}`, 'sucesso');
-            this.adicionarLog(`🔍 Verificação: BACEN=${verificarBacen.length === bacenFinal.length ? 'OK' : 'ERRO'}, N2=${verificarN2.length === n2Final.length ? 'OK' : 'ERRO'}, Chatbot=${verificarChatbot.length === chatbotFinal.length ? 'OK' : 'ERRO'}`, 'info');
+            this.adicionarLog(`💾 Dados no localStorage: BACEN=${verificarBacen.length}, N2=${verificarN2.length}, Chatbot=${verificarChatbot.length}`, 'info');
+            this.adicionarLog(`📊 Dados importados: BACEN=${bacenFinal.length}, N2=${n2Final.length}, Chatbot=${chatbotFinal.length}`, 'info');
             
             if (verificarBacen.length > 0) {
                 this.adicionarLog(`📋 Exemplo BACEN: ${verificarBacen[0].nomeCliente || verificarBacen[0].nomeCompleto || 'Sem nome'} (ID: ${verificarBacen[0].id})`, 'info');
