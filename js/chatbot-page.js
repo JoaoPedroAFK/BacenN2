@@ -47,6 +47,12 @@ function mostrarSecao(secaoId) {
                 window.graficosDetalhadosChatbot.renderizarGraficos();
             } else {
                 window.graficosDetalhadosChatbot = new GraficosDetalhados('chatbot');
+                // Inicializar controle de gráficos após renderização
+                setTimeout(() => {
+                    if (typeof ControleGraficosDashboard !== 'undefined') {
+                        window.controleGraficosChatbot = new ControleGraficosDashboard('chatbot');
+                    }
+                }, 2000);
             }
         }, 300);
         // Configurar cards após um pequeno delay

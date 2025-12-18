@@ -77,6 +77,12 @@ function mostrarSecao(secaoId) {
                 window.graficosDetalhadosBacen.renderizarGraficos();
             } else {
                 window.graficosDetalhadosBacen = new GraficosDetalhados('bacen');
+                // Inicializar controle de gráficos após renderização
+                setTimeout(() => {
+                    if (typeof ControleGraficosDashboard !== 'undefined') {
+                        window.controleGraficosBacen = new ControleGraficosDashboard('bacen');
+                    }
+                }, 2000);
             }
         }, 300);
     }

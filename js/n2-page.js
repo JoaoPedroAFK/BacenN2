@@ -85,6 +85,12 @@ function mostrarSecao(secaoId) {
                 window.graficosDetalhadosN2.renderizarGraficos();
             } else {
                 window.graficosDetalhadosN2 = new GraficosDetalhados('n2');
+                // Inicializar controle de gráficos após renderização
+                setTimeout(() => {
+                    if (typeof ControleGraficosDashboard !== 'undefined') {
+                        window.controleGraficosN2 = new ControleGraficosDashboard('n2');
+                    }
+                }, 2000);
             }
         }, 300);
         // Configurar cards após um pequeno delay
