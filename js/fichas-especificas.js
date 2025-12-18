@@ -216,14 +216,7 @@ class FichasEspecificas {
                                 <label>Motivo Reduzido:</label>
                                 <span class="ficha-valor editavel" data-campo="motivoReduzido">${dados.motivoReduzido || 'Não informado'}</span>
                             </div>
-                            <div class="ficha-item">
-                                <label>Motivo da Reclamação:</label>
-                                <span class="ficha-valor editavel" data-campo="motivoDetalhado">${dados.motivoDetalhado || dados.motivoReclamacao || 'Não informado'}</span>
-                            </div>
-                            <div class="ficha-item">
-                                <label>Prazo N2:</label>
-                                <span class="ficha-valor editavel" data-campo="prazoN2">${this.formatarData(dados.prazoN2 || dados.prazoRetorno)}</span>
-                            </div>
+                            <!-- Removido: Motivo da Reclamação e Prazo N2 (não existem mais em N2) -->
                         </div>
                         ${dados.anexos && dados.anexos.length > 0 ? `
                             <div class="ficha-item full-width">
