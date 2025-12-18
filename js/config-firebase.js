@@ -1,23 +1,15 @@
 /* === CONFIGURAÇÃO DO FIREBASE === */
-/* 
- * INSTRUÇÕES:
- * 1. Acesse: https://console.firebase.google.com/
- * 2. Crie um projeto
- * 3. Vá em Realtime Database → Criar banco de dados
- * 4. Escolha "Modo de teste"
- * 5. No menu ⚙️ → Configurações do projeto → Seus aplicativos → Web
- * 6. Copie a configuração e cole abaixo
- */
+/* Configuração do projeto: bacen-n2 */
 
 window.FIREBASE_CONFIG = {
-    apiKey: "SUA_API_KEY_AQUI",
-    authDomain: "seu-projeto.firebaseapp.com",
-    databaseURL: "https://seu-projeto-default-rtdb.firebaseio.com",
-    projectId: "seu-projeto-id",
-    storageBucket: "seu-projeto.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:abcdef"
+    apiKey: "AIzaSyAVoOWyvMjk29hm9OZ7g7EcOnIkHklFGSQ",
+    authDomain: "bacen-n2.firebaseapp.com",
+    databaseURL: "https://bacen-n2-default-rtdb.firebaseio.com",
+    projectId: "bacen-n2",
+    storageBucket: "bacen-n2.firebasestorage.app",
+    messagingSenderId: "165884440954",
+    appId: "1:165884440954:web:df1d0482e9cf7fc54da6c3"
 };
 
-// ⚠️ SUBSTITUA OS VALORES ACIMA PELOS VALORES REAIS DO SEU PROJETO FIREBASE
+// ✅ Configuração aplicada!
 
