@@ -50,10 +50,65 @@ class ArmazenamentoReclamacoes {
         }
     }
 
+    // === FUNÇÃO HELPER: Remover colunas que podem não existir na tabela ===
+    limparColunasInexistentes(dados) {
+        const dadosLimpos = { ...dados };
+        
+        // Lista de colunas que podem não existir em algumas tabelas
+        // Remover apenas se o campo existir no objeto
+        const colunasOpcionais = [
+            '_debugLogado',
+            'dataAtualizacao',
+            'dataCriacao', // Pode não existir em fichas_chatbot
+            'enviarCobranca',
+            'pixLiberado',
+            'tipoDemanda',
+            'aceitouLiquidacao',
+            'modulosContato',
+            'tentativas',
+            'protocolos',
+            'camposEspecificos',
+            'concluido',
+            'mes',
+            'finalizadoEm',
+            'dataRecebimento',
+            'cpfTratado',
+            'nomeCompleto',
+            'motivoReduzido',
+            'motivoDetalhado',
+            'observacoes',
+            'responsavel'
+        ];
+        
+        // Remover campos opcionais que podem não existir
+        colunasOpcionais.forEach(campo => {
+            if (dadosLimpos.hasOwnProperty(campo)) {
+                delete dadosLimpos[campo];
+            }
+        });
+        
+        return dadosLimpos;
+    }
+
     // === FUNÇÃO HELPER: Tentar salvar removendo colunas inexistentes automaticamente ===
-    async tentarSalvarComRetry(supabase, nomeTabela, dados, operacao = 'insert', id = null, maxTentativas = 5) {
-        let dadosLimpos = { ...dados };
-        delete dadosLimpos._debugLogado; // Sempre remover este campo
+    async tentarSalvarComRetry(supabase, nomeTabela, dados, operacao = 'insert', id = null, maxTentativas = 20) {
+        // Primeiro, remover colunas conhecidas que podem não existir
+        let dadosLimpos = this.limparColunasInexistentes(dados);
+        
+        // Campos obrigatórios que SEMPRE devem existir
+        const camposObrigatorios = ['id', 'nomeCliente', 'cpf', 'origem', 'status'];
+        
+        // Garantir que campos obrigatórios existem
+        camposObrigatorios.forEach(campo => {
+            if (dados[campo] !== undefined && dados[campo] !== null) {
+                dadosLimpos[campo] = dados[campo];
+            }
+        });
+        
+        // Adicionar outros campos básicos que provavelmente existem
+        if (dados.telefone !== undefined) dadosLimpos.telefone = dados.telefone;
+        if (dados.dataCriacao !== undefined) dadosLimpos.dataCriacao = dados.dataCriacao;
+        if (dados.tipoDemanda !== undefined) dadosLimpos.tipoDemanda = dados.tipoDemanda;
         
         for (let tentativa = 0; tentativa < maxTentativas; tentativa++) {
             try {
