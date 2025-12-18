@@ -42,77 +42,78 @@ CREATE TABLE IF NOT EXISTS fichas_bacen (
 -- Adicionar colunas faltantes em fichas_bacen
 DO $$ 
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='nomeCliente') THEN
-        ALTER TABLE fichas_bacen ADD COLUMN nomeCliente TEXT;
+    -- Verificar e adicionar colunas (usando LOWER para case-insensitive)
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('nomeCliente')) THEN
+        ALTER TABLE fichas_bacen ADD COLUMN "nomeCliente" TEXT;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='nomeCompleto') THEN
-        ALTER TABLE fichas_bacen ADD COLUMN nomeCompleto TEXT;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('nomeCompleto')) THEN
+        ALTER TABLE fichas_bacen ADD COLUMN "nomeCompleto" TEXT;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='cpf') THEN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('cpf')) THEN
         ALTER TABLE fichas_bacen ADD COLUMN cpf TEXT;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='cpfTratado') THEN
-        ALTER TABLE fichas_bacen ADD COLUMN cpfTratado TEXT;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('cpfTratado')) THEN
+        ALTER TABLE fichas_bacen ADD COLUMN "cpfTratado" TEXT;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='telefone') THEN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('telefone')) THEN
         ALTER TABLE fichas_bacen ADD COLUMN telefone TEXT;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='origem') THEN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('origem')) THEN
         ALTER TABLE fichas_bacen ADD COLUMN origem TEXT;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='status') THEN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('status')) THEN
         ALTER TABLE fichas_bacen ADD COLUMN status TEXT;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='dataCriacao') THEN
-        ALTER TABLE fichas_bacen ADD COLUMN dataCriacao TIMESTAMPTZ;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('dataCriacao')) THEN
+        ALTER TABLE fichas_bacen ADD COLUMN "dataCriacao" TIMESTAMPTZ;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='dataRecebimento') THEN
-        ALTER TABLE fichas_bacen ADD COLUMN dataRecebimento TIMESTAMPTZ;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('dataRecebimento')) THEN
+        ALTER TABLE fichas_bacen ADD COLUMN "dataRecebimento" TIMESTAMPTZ;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='finalizadoEm') THEN
-        ALTER TABLE fichas_bacen ADD COLUMN finalizadoEm TIMESTAMPTZ;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('finalizadoEm')) THEN
+        ALTER TABLE fichas_bacen ADD COLUMN "finalizadoEm" TIMESTAMPTZ;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='motivoReduzido') THEN
-        ALTER TABLE fichas_bacen ADD COLUMN motivoReduzido TEXT;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('motivoReduzido')) THEN
+        ALTER TABLE fichas_bacen ADD COLUMN "motivoReduzido" TEXT;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='motivoDetalhado') THEN
-        ALTER TABLE fichas_bacen ADD COLUMN motivoDetalhado TEXT;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('motivoDetalhado')) THEN
+        ALTER TABLE fichas_bacen ADD COLUMN "motivoDetalhado" TEXT;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='enviarCobranca') THEN
-        ALTER TABLE fichas_bacen ADD COLUMN enviarCobranca BOOLEAN;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('enviarCobranca')) THEN
+        ALTER TABLE fichas_bacen ADD COLUMN "enviarCobranca" BOOLEAN;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='observacoes') THEN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('observacoes')) THEN
         ALTER TABLE fichas_bacen ADD COLUMN observacoes TEXT;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='tipoDemanda') THEN
-        ALTER TABLE fichas_bacen ADD COLUMN tipoDemanda TEXT;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('tipoDemanda')) THEN
+        ALTER TABLE fichas_bacen ADD COLUMN "tipoDemanda" TEXT;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='modulosContato') THEN
-        ALTER TABLE fichas_bacen ADD COLUMN modulosContato JSONB;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('modulosContato')) THEN
+        ALTER TABLE fichas_bacen ADD COLUMN "modulosContato" JSONB;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='pixLiberado') THEN
-        ALTER TABLE fichas_bacen ADD COLUMN pixLiberado BOOLEAN;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('pixLiberado')) THEN
+        ALTER TABLE fichas_bacen ADD COLUMN "pixLiberado" BOOLEAN;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='aceitouLiquidacao') THEN
-        ALTER TABLE fichas_bacen ADD COLUMN aceitouLiquidacao BOOLEAN;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('aceitouLiquidacao')) THEN
+        ALTER TABLE fichas_bacen ADD COLUMN "aceitouLiquidacao" BOOLEAN;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='tentativas') THEN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('tentativas')) THEN
         ALTER TABLE fichas_bacen ADD COLUMN tentativas JSONB;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='protocolos') THEN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('protocolos')) THEN
         ALTER TABLE fichas_bacen ADD COLUMN protocolos JSONB;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='camposEspecificos') THEN
-        ALTER TABLE fichas_bacen ADD COLUMN camposEspecificos JSONB;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('camposEspecificos')) THEN
+        ALTER TABLE fichas_bacen ADD COLUMN "camposEspecificos" JSONB;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='concluido') THEN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('concluido')) THEN
         ALTER TABLE fichas_bacen ADD COLUMN concluido BOOLEAN;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='dataAtualizacao') THEN
-        ALTER TABLE fichas_bacen ADD COLUMN dataAtualizacao TIMESTAMPTZ;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('dataAtualizacao')) THEN
+        ALTER TABLE fichas_bacen ADD COLUMN "dataAtualizacao" TIMESTAMPTZ;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='_debugLogado') THEN
-        ALTER TABLE fichas_bacen ADD COLUMN _debugLogado BOOLEAN;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND LOWER(column_name)=LOWER('_debugLogado')) THEN
+        ALTER TABLE fichas_bacen ADD COLUMN "_debugLogado" BOOLEAN;
     END IF;
 END $$;
 
