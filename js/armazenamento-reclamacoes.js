@@ -118,18 +118,36 @@ class ArmazenamentoReclamacoes {
                 const nomeTabela = `fichas_${tipo}`;
                 if (!reclamacao._debugLogado) {
                     console.log(`☁️ Tentando salvar no Supabase (tabela: ${nomeTabela}, ID: ${reclamacao.id})...`);
+                    console.log(`   Dados a salvar:`, JSON.stringify(reclamacao).substring(0, 200));
                 }
                 
-                // Verificar se já existe
-                const { data: existente, error: erroVerificacao } = await window.supabaseDB.supabase
-                    .from(nomeTabela)
-                    .select('id')
-                    .eq('id', reclamacao.id)
-                    .maybeSingle();
-                
-                if (erroVerificacao && erroVerificacao.code !== 'PGRST116') {
-                    console.error(`❌ ERRO ao verificar existência no Supabase:`, erroVerificacao);
-                    throw erroVerificacao;
+                // Verificar se já existe (com tratamento de erro melhor)
+                let existente = null;
+                try {
+                    const { data, error: erroVerificacao } = await window.supabaseDB.supabase
+                        .from(nomeTabela)
+                        .select('id')
+                        .eq('id', reclamacao.id)
+                        .maybeSingle();
+                    
+                    if (erroVerificacao) {
+                        if (erroVerificacao.code === 'PGRST116') {
+                            // Tabela não existe ou sem permissão - continuar tentando inserir
+                            if (!reclamacao._debugLogado) {
+                                console.warn(`   ⚠️ Tabela pode não existir ou sem permissão, tentando inserir mesmo assim...`);
+                            }
+                        } else {
+                            console.error(`❌ ERRO ao verificar existência no Supabase:`, erroVerificacao);
+                            throw erroVerificacao;
+                        }
+                    } else {
+                        existente = data;
+                    }
+                } catch (err) {
+                    // Ignorar erro de verificação e tentar inserir
+                    if (!reclamacao._debugLogado) {
+                        console.warn(`   ⚠️ Erro ao verificar existência, tentando inserir:`, err.message);
+                    }
                 }
                 
                 let resultado;
@@ -150,8 +168,11 @@ class ArmazenamentoReclamacoes {
                         console.error(`   Código: ${error.code}`);
                         console.error(`   Mensagem: ${error.message}`);
                         console.error(`   Detalhes:`, JSON.stringify(error));
-                        if (error.code === 'PGRST116' || error.message.includes('permission') || error.message.includes('policy')) {
+                        console.error(`   Tabela: ${nomeTabela}`);
+                        console.error(`   ID: ${reclamacao.id}`);
+                        if (error.code === 'PGRST116' || error.message.includes('permission') || error.message.includes('policy') || error.message.includes('RLS')) {
                             console.error(`🚨 ERRO DE PERMISSÃO/RLS! Configure as políticas no Supabase!`);
+                            console.error(`   Execute o script: SUPABASE_FIX_RLS_DUPLICADAS.sql`);
                         }
                         throw error;
                     }
@@ -175,9 +196,12 @@ class ArmazenamentoReclamacoes {
                         console.error(`   Código: ${error.code}`);
                         console.error(`   Mensagem: ${error.message}`);
                         console.error(`   Detalhes:`, JSON.stringify(error));
-                        console.error(`   Dados tentados:`, JSON.stringify(reclamacao).substring(0, 200));
-                        if (error.code === 'PGRST116' || error.message.includes('permission') || error.message.includes('policy')) {
+                        console.error(`   Tabela: ${nomeTabela}`);
+                        console.error(`   ID: ${reclamacao.id}`);
+                        console.error(`   Dados tentados:`, JSON.stringify(reclamacao).substring(0, 300));
+                        if (error.code === 'PGRST116' || error.message.includes('permission') || error.message.includes('policy') || error.message.includes('RLS')) {
                             console.error(`🚨 ERRO DE PERMISSÃO/RLS! Configure as políticas no Supabase!`);
+                            console.error(`   Execute o script: SUPABASE_FIX_RLS_DUPLICADAS.sql`);
                         }
                         throw error;
                     }
@@ -190,7 +214,25 @@ class ArmazenamentoReclamacoes {
                 // Verificar se realmente foi salvo
                 if (!resultado || !resultado.id) {
                     console.error(`❌ ERRO: Supabase retornou resultado vazio!`);
+                    console.error(`   Tabela: ${nomeTabela}`);
+                    console.error(`   ID esperado: ${reclamacao.id}`);
                     throw new Error('Resultado vazio do Supabase');
+                }
+                
+                // Verificação adicional: buscar o registro salvo
+                if (!reclamacao._debugLogado) {
+                    const { data: verificado, error: erroVerificacao } = await window.supabaseDB.supabase
+                        .from(nomeTabela)
+                        .select('id')
+                        .eq('id', reclamacao.id)
+                        .single();
+                    
+                    if (erroVerificacao || !verificado) {
+                        console.warn(`⚠️ AVISO: Registro salvo mas não encontrado na verificação!`);
+                        console.warn(`   Erro:`, erroVerificacao);
+                    } else {
+                        console.log(`✅ Verificação: Registro confirmado no Supabase`);
+                    }
                 }
                 
                 // Também salvar no localStorage como backup
