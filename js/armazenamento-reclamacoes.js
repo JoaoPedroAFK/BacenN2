@@ -15,6 +15,9 @@ class ArmazenamentoReclamacoes {
     }
     
     inicializarFirebase() {
+        // Verificar imediatamente
+        this.verificarEAtivarFirebase();
+        
         // Aguardar Firebase inicializar (pode levar até 2 segundos)
         setTimeout(() => {
             this.verificarEAtivarFirebase();
@@ -27,6 +30,20 @@ class ArmazenamentoReclamacoes {
                 this.verificarEAtivarFirebase();
             }
         }, 3000);
+        
+        // Verificação final após 5 segundos
+        setTimeout(() => {
+            if (!this.usarFirebase) {
+                console.log('🔄 Verificação final do Firebase...');
+                this.verificarEAtivarFirebase();
+                if (this.usarFirebase) {
+                    console.log('✅ Firebase finalmente ativado!');
+                } else {
+                    console.error('❌ Firebase não foi inicializado após 5 segundos!');
+                    console.error('   Verifique se o Realtime Database foi criado no Firebase Console');
+                }
+            }
+        }, 5000);
     }
     
     verificarEAtivarFirebase() {
@@ -364,8 +381,11 @@ class ArmazenamentoReclamacoes {
         
         // Forçar verificação novamente antes de usar
         if (window.firebaseDB && window.firebaseDB.inicializado && !window.firebaseDB.usarLocalStorage) {
-            this.usarFirebase = true;
-            this.firebaseDB = window.firebaseDB;
+            if (!this.usarFirebase) {
+                console.log('🔄 Firebase disponível mas não estava ativo, ativando agora...');
+                this.usarFirebase = true;
+                this.firebaseDB = window.firebaseDB;
+            }
         }
         
         if (this.usarFirebase && window.firebaseDB && window.firebaseDB.inicializado) {
