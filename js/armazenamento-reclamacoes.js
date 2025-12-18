@@ -1,5 +1,5 @@
 /* === SISTEMA DE ARMAZENAMENTO DE RECLAMAÇÕES === */
-/* Usa Supabase quando disponível, fallback para localStorage */
+/* Usa Firebase quando disponível, fallback para localStorage */
 
 class ArmazenamentoReclamacoes {
     constructor() {
@@ -8,43 +8,38 @@ class ArmazenamentoReclamacoes {
             n2: 'velotax_reclamacoes_n2',
             chatbot: 'velotax_reclamacoes_chatbot'
         };
-        this.usarSupabase = false;
-        this.supabase = null;
-        this.inicializarSupabase();
+        this.usarFirebase = false;
+        this.firebaseDB = null;
+        this.inicializarFirebase();
         console.log('✅ Sistema de armazenamento inicializado');
     }
     
-    inicializarSupabase() {
-        // Aguardar um pouco para garantir que supabaseDB foi inicializado
+    inicializarFirebase() {
+        // Aguardar um pouco para garantir que firebaseDB foi inicializado
         setTimeout(() => {
-            this.verificarEAtivarSupabase();
-        }, 500); // Aumentar tempo de espera para garantir inicialização
+            this.verificarEAtivarFirebase();
+        }, 1000);
     }
     
-    verificarEAtivarSupabase() {
-        // Verificar se Supabase está disponível
-        if (window.supabaseDB && window.supabaseDB.supabase && !window.supabaseDB.usarLocalStorage) {
-            this.usarSupabase = true;
-            this.supabase = window.supabaseDB.supabase;
-            console.log('✅ Usando Supabase para armazenamento compartilhado');
-            console.log('🔍 Supabase client:', this.supabase ? 'disponível' : 'indisponível');
+    verificarEAtivarFirebase() {
+        // Verificar se Firebase está disponível
+        if (window.firebaseDB && window.firebaseDB.inicializado && !window.firebaseDB.usarLocalStorage) {
+            this.usarFirebase = true;
+            this.firebaseDB = window.firebaseDB;
+            console.log('✅ Usando Firebase Realtime Database para armazenamento compartilhado');
+            console.log('🔍 Firebase DB:', this.firebaseDB ? 'disponível' : 'indisponível');
             return true;
         } else {
-            console.warn('⚠️ Supabase não disponível. Usando localStorage (dados locais apenas).');
-            console.warn('🔍 window.supabaseDB:', window.supabaseDB ? 'existe' : 'não existe');
-            if (window.supabaseDB) {
-                console.warn('🔍 window.supabaseDB.supabase:', window.supabaseDB.supabase ? 'existe' : 'não existe');
-                console.warn('🔍 window.supabaseDB.usarLocalStorage:', window.supabaseDB.usarLocalStorage);
+            console.warn('⚠️ Firebase não disponível. Usando localStorage (dados locais apenas).');
+            console.warn('🔍 window.firebaseDB:', window.firebaseDB ? 'existe' : 'não existe');
+            if (window.firebaseDB) {
+                console.warn('🔍 window.firebaseDB.inicializado:', window.firebaseDB.inicializado);
+                console.warn('🔍 window.firebaseDB.usarLocalStorage:', window.firebaseDB.usarLocalStorage);
             }
-            if (window.SUPABASE_CONFIG) {
-                console.warn('🔍 window.SUPABASE_CONFIG existe:', window.SUPABASE_CONFIG);
+            if (window.FIREBASE_CONFIG) {
+                console.warn('🔍 window.FIREBASE_CONFIG existe');
             } else {
-                console.warn('🔍 window.SUPABASE_CONFIG não existe');
-            }
-            if (window.supabase) {
-                console.warn('🔍 window.supabase existe:', typeof window.supabase);
-            } else {
-                console.warn('🔍 window.supabase não existe');
+                console.warn('🔍 window.FIREBASE_CONFIG não existe - configure em js/config-firebase.js');
             }
             return false;
         }
@@ -184,45 +179,44 @@ class ArmazenamentoReclamacoes {
             return false;
         }
         
-        // DEBUG: Verificar estado do Supabase (apenas para primeira ficha para não poluir logs)
+        // DEBUG: Verificar estado do Firebase (apenas para primeira ficha para não poluir logs)
         if (!reclamacao._debugLogado) {
             reclamacao._debugLogado = true;
-            console.log(`🔍 DEBUG Supabase - usarSupabase: ${this.usarSupabase}`);
-            console.log(`🔍 DEBUG Supabase - window.supabaseDB:`, window.supabaseDB ? 'existe' : 'não existe');
-            if (window.supabaseDB) {
-                console.log(`🔍 DEBUG Supabase - window.supabaseDB.supabase:`, window.supabaseDB.supabase ? 'existe' : 'não existe');
-                console.log(`🔍 DEBUG Supabase - window.supabaseDB.usarLocalStorage:`, window.supabaseDB.usarLocalStorage);
-                console.log(`🔍 DEBUG Supabase - window.SUPABASE_CONFIG:`, window.SUPABASE_CONFIG ? 'existe' : 'não existe');
-                console.log(`🔍 DEBUG Supabase - window.supabase:`, typeof window.supabase);
+            console.log(`🔍 DEBUG Firebase - usarFirebase: ${this.usarFirebase}`);
+            console.log(`🔍 DEBUG Firebase - window.firebaseDB:`, window.firebaseDB ? 'existe' : 'não existe');
+            if (window.firebaseDB) {
+                console.log(`🔍 DEBUG Firebase - window.firebaseDB.inicializado:`, window.firebaseDB.inicializado);
+                console.log(`🔍 DEBUG Firebase - window.firebaseDB.usarLocalStorage:`, window.firebaseDB.usarLocalStorage);
+                console.log(`🔍 DEBUG Firebase - window.FIREBASE_CONFIG:`, window.FIREBASE_CONFIG ? 'existe' : 'não existe');
             }
         }
         
-        // PRIORIDADE 1: Tentar salvar no Supabase (armazenamento compartilhado)
-        // Re-verificar Supabase antes de salvar (pode ter sido inicializado depois)
-        if (!this.usarSupabase) {
-            const ativado = this.verificarEAtivarSupabase();
+        // PRIORIDADE 1: Tentar salvar no Firebase (armazenamento compartilhado)
+        // Re-verificar Firebase antes de salvar (pode ter sido inicializado depois)
+        if (!this.usarFirebase) {
+            const ativado = this.verificarEAtivarFirebase();
             if (ativado) {
-                console.log('✅ Supabase detectado durante salvamento, ativando...');
+                console.log('✅ Firebase detectado durante salvamento, ativando...');
             }
         }
         
         // Forçar verificação novamente antes de usar
-        if (window.supabaseDB && window.supabaseDB.supabase && !window.supabaseDB.usarLocalStorage) {
-            this.usarSupabase = true;
-            this.supabase = window.supabaseDB.supabase;
+        if (window.firebaseDB && window.firebaseDB.inicializado && !window.firebaseDB.usarLocalStorage) {
+            this.usarFirebase = true;
+            this.firebaseDB = window.firebaseDB;
         }
         
         // Log detalhado para debug
         if (!reclamacao._debugLogado) {
-            console.log(`🔍 DEBUG SALVAMENTO - usarSupabase: ${this.usarSupabase}`);
-            console.log(`🔍 DEBUG SALVAMENTO - window.supabaseDB:`, window.supabaseDB ? 'existe' : 'não existe');
-            if (window.supabaseDB) {
-                console.log(`🔍 DEBUG SALVAMENTO - window.supabaseDB.supabase:`, window.supabaseDB.supabase ? 'existe' : 'não existe');
-                console.log(`🔍 DEBUG SALVAMENTO - window.supabaseDB.usarLocalStorage:`, window.supabaseDB.usarLocalStorage);
+            console.log(`🔍 DEBUG SALVAMENTO - usarFirebase: ${this.usarFirebase}`);
+            console.log(`🔍 DEBUG SALVAMENTO - window.firebaseDB:`, window.firebaseDB ? 'existe' : 'não existe');
+            if (window.firebaseDB) {
+                console.log(`🔍 DEBUG SALVAMENTO - window.firebaseDB.inicializado:`, window.firebaseDB.inicializado);
+                console.log(`🔍 DEBUG SALVAMENTO - window.firebaseDB.usarLocalStorage:`, window.firebaseDB.usarLocalStorage);
             }
         }
         
-        if (this.usarSupabase && window.supabaseDB && window.supabaseDB.supabase) {
+        if (this.usarFirebase && window.firebaseDB && window.firebaseDB.inicializado) {
             try {
                 const nomeTabela = `fichas_${tipo}`;
                 if (!reclamacao._debugLogado) {
@@ -475,28 +469,26 @@ class ArmazenamentoReclamacoes {
             return [];
         }
         
-        // PRIORIDADE 1: Tentar carregar do Supabase (armazenamento compartilhado)
-        // Re-verificar Supabase antes de carregar (pode ter sido inicializado depois)
-        if (!this.usarSupabase) {
-            const ativado = this.verificarEAtivarSupabase();
+        // PRIORIDADE 1: Tentar carregar do Firebase (armazenamento compartilhado)
+        // Re-verificar Firebase antes de carregar (pode ter sido inicializado depois)
+        if (!this.usarFirebase) {
+            const ativado = this.verificarEAtivarFirebase();
             if (ativado) {
-                console.log('✅ Supabase detectado durante carregamento, ativando...');
+                console.log('✅ Firebase detectado durante carregamento, ativando...');
             }
         }
         
         // Forçar verificação novamente antes de usar
-        if (window.supabaseDB && window.supabaseDB.supabase && !window.supabaseDB.usarLocalStorage) {
-            this.usarSupabase = true;
-            this.supabase = window.supabaseDB.supabase;
+        if (window.firebaseDB && window.firebaseDB.inicializado && !window.firebaseDB.usarLocalStorage) {
+            this.usarFirebase = true;
+            this.firebaseDB = window.firebaseDB;
         }
         
-        if (this.usarSupabase && window.supabaseDB && window.supabaseDB.supabase) {
+        if (this.usarFirebase && window.firebaseDB && window.firebaseDB.inicializado) {
             try {
-                const nomeTabela = `fichas_${tipo}`;
-                console.log(`☁️ Carregando do Supabase (tabela: ${nomeTabela})...`);
+                console.log(`🔥 Carregando do Firebase (tipo: ${tipo})...`);
                 
-                // Não usar ORDER BY com dataCriacao (pode não existir ou ter nome diferente)
-                const { data, error } = await window.supabaseDB.supabase
+                const data = await window.firebaseDB.carregar(tipo);
                     .from(nomeTabela)
                     .select('*');
                 
