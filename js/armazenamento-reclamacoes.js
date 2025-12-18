@@ -124,6 +124,13 @@ class ArmazenamentoReclamacoes {
                 
                 return { sucesso: true, data: resultado };
             } catch (error) {
+                // Se for erro de rede (Failed to fetch), tentar novamente após um delay
+                if (error.message && error.message.includes('Failed to fetch')) {
+                    console.warn(`   ⚠️ Erro de rede (tentativa ${tentativa + 1}/${maxTentativas}), aguardando 500ms e tentando novamente...`);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    continue; // Tentar novamente
+                }
+                
                 // Se for erro de coluna não encontrada (PGRST204), extrair nome da coluna e remover
                 if (error.code === 'PGRST204' && error.message) {
                     // Extrair nome da coluna da mensagem: "Could not find the 'nomeColuna' column..."
