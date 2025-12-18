@@ -62,10 +62,11 @@ class ArmazenamentoReclamacoes {
         };
         
         // Adicionar campos que provavelmente existem (mas não são obrigatórios)
+        // NÃO adicionar dataCriacao, enviarCobranca, pixLiberado, tipoDemanda - podem não existir
         if (dados.telefone) objetoMinimo.telefone = dados.telefone;
         if (dados.nomeCompleto) objetoMinimo.nomeCompleto = dados.nomeCompleto;
         if (dados.cpfTratado) objetoMinimo.cpfTratado = dados.cpfTratado;
-        if (dados.dataCriacao) objetoMinimo.dataCriacao = dados.dataCriacao;
+        // NÃO adicionar dataCriacao - pode não existir ou ter nome diferente
         if (dados.dataRecebimento) objetoMinimo.dataRecebimento = dados.dataRecebimento;
         if (dados.finalizadoEm) objetoMinimo.finalizadoEm = dados.finalizadoEm;
         if (dados.responsavel) objetoMinimo.responsavel = dados.responsavel;
@@ -74,20 +75,20 @@ class ArmazenamentoReclamacoes {
         if (dados.observacoes) objetoMinimo.observacoes = dados.observacoes;
         if (dados.mes) objetoMinimo.mes = dados.mes;
         
-        // Campos booleanos (só adicionar se existirem e forem booleanos)
-        if (typeof dados.enviarCobranca === 'boolean') objetoMinimo.enviarCobranca = dados.enviarCobranca;
-        if (typeof dados.pixLiberado === 'boolean') objetoMinimo.pixLiberado = dados.pixLiberado;
-        if (typeof dados.aceitouLiquidacao === 'boolean') objetoMinimo.aceitouLiquidacao = dados.aceitouLiquidacao;
-        if (typeof dados.concluido === 'boolean') objetoMinimo.concluido = dados.concluido;
+        // NÃO adicionar campos booleanos que podem não existir
+        // if (typeof dados.enviarCobranca === 'boolean') objetoMinimo.enviarCobranca = dados.enviarCobranca;
+        // if (typeof dados.pixLiberado === 'boolean') objetoMinimo.pixLiberado = dados.pixLiberado;
+        // if (typeof dados.aceitouLiquidacao === 'boolean') objetoMinimo.aceitouLiquidacao = dados.aceitouLiquidacao;
+        // if (typeof dados.concluido === 'boolean') objetoMinimo.concluido = dados.concluido;
         
-        // Campos JSON (só adicionar se existirem e forem objetos)
-        if (dados.modulosContato && typeof dados.modulosContato === 'object') objetoMinimo.modulosContato = dados.modulosContato;
-        if (dados.tentativas && typeof dados.tentativas === 'object') objetoMinimo.tentativas = dados.tentativas;
-        if (dados.protocolos && typeof dados.protocolos === 'object') objetoMinimo.protocolos = dados.protocolos;
-        if (dados.camposEspecificos && typeof dados.camposEspecificos === 'object') objetoMinimo.camposEspecificos = dados.camposEspecificos;
+        // NÃO adicionar campos JSON que podem não existir
+        // if (dados.modulosContato && typeof dados.modulosContato === 'object') objetoMinimo.modulosContato = dados.modulosContato;
+        // if (dados.tentativas && typeof dados.tentativas === 'object') objetoMinimo.tentativas = dados.tentativas;
+        // if (dados.protocolos && typeof dados.protocolos === 'object') objetoMinimo.protocolos = dados.protocolos;
+        // if (dados.camposEspecificos && typeof dados.camposEspecificos === 'object') objetoMinimo.camposEspecificos = dados.camposEspecificos;
         
-        // Tipo de demanda (importante)
-        if (dados.tipoDemanda) objetoMinimo.tipoDemanda = dados.tipoDemanda;
+        // NÃO adicionar tipoDemanda - pode não existir
+        // if (dados.tipoDemanda) objetoMinimo.tipoDemanda = dados.tipoDemanda;
         
         return objetoMinimo;
     }
@@ -358,25 +359,11 @@ class ArmazenamentoReclamacoes {
                 console.error(`   Tipo: ${tipo}, ID: ${reclamacao.id}`);
                 console.error(`   Stack: ${error.stack}`);
                 
-                // Se for erro de rede, tentar usar localStorage como fallback temporário
-                if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('NetworkError') || error.message.includes('Network request failed'))) {
-                    console.warn(`⚠️ Erro de rede ao salvar no Supabase. Usando localStorage como fallback temporário...`);
-                    try {
-                        const sucesso = this.salvarLocalStorage(tipo, reclamacao, chave);
-                        if (sucesso) {
-                            console.log(`✅ Dados salvos no localStorage (fallback temporário devido a erro de rede)`);
-                            return true;
-                        }
-                    } catch (localError) {
-                        console.error(`❌ Erro ao salvar no localStorage também:`, localError);
-                    }
-                }
-                
-                // Se Supabase está ativo mas falhou, NÃO usar localStorage (evita quota)
+                // NUNCA usar localStorage quando Supabase está ativo - apenas Supabase!
                 if (this.usarSupabase) {
-                    console.error(`⚠️ Supabase está ativo mas falhou. NÃO usando localStorage para evitar quota excedida.`);
+                    console.error(`⚠️ Supabase está ativo mas falhou. NÃO usando localStorage!`);
                     console.error(`   Execute o script SQL para corrigir a estrutura das tabelas!`);
-                    throw error; // Propaga o erro para que o usuário veja
+                    throw error; // Propaga o erro - NÃO tenta localStorage
                 } else {
                     console.warn(`⚠️ Supabase não disponível. Fallback para localStorage...`);
                     // Continuar para salvar no localStorage apenas se Supabase não estiver disponível
@@ -501,10 +488,10 @@ class ArmazenamentoReclamacoes {
                 const nomeTabela = `fichas_${tipo}`;
                 console.log(`☁️ Carregando do Supabase (tabela: ${nomeTabela})...`);
                 
+                // Não usar ORDER BY com dataCriacao (pode não existir ou ter nome diferente)
                 const { data, error } = await window.supabaseDB.supabase
                     .from(nomeTabela)
-                    .select('*')
-                    .order('dataCriacao', { ascending: false });
+                    .select('*');
                 
                 if (error) {
                     console.error(`❌ ERRO do Supabase ao carregar ${tipo}:`, error);
