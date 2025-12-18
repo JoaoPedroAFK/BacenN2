@@ -992,50 +992,86 @@ class ImportadorDados {
             
             // Usar o sistema de armazenamento se disponível (para sincronização)
             if (window.armazenamentoReclamacoes) {
+                // Forçar verificação do Supabase antes de salvar
+                this.adicionarLog(`🔍 Verificando Supabase antes de salvar...`, 'info');
+                if (window.armazenamentoReclamacoes.verificarEAtivarSupabase) {
+                    const supabaseAtivo = window.armazenamentoReclamacoes.verificarEAtivarSupabase();
+                    this.adicionarLog(`   ${supabaseAtivo ? '✅' : '⚠️'} Supabase: ${supabaseAtivo ? 'ATIVO' : 'INATIVO (usando localStorage)'}`, supabaseAtivo ? 'sucesso' : 'aviso');
+                }
+                
+                // Aguardar um pouco para garantir que Supabase está pronto
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
                 let salvosBacen = 0, salvosN2 = 0, salvosChatbot = 0;
+                let errosBacen = 0, errosN2 = 0, errosChatbot = 0;
                 
                 this.adicionarLog(`💾 Salvando dados via sistema de armazenamento...`, 'info');
                 
                 // Salva usando o sistema de armazenamento (assíncrono)
                 this.adicionarLog(`   🏦 Salvando ${dadosSeparados.bacen.length} fichas BACEN...`, 'info');
-                for (const ficha of dadosSeparados.bacen) {
+                for (let i = 0; i < dadosSeparados.bacen.length; i++) {
+                    const ficha = dadosSeparados.bacen[i];
                     try {
                         const resultado = await window.armazenamentoReclamacoes.salvar('bacen', ficha);
                         if (resultado) salvosBacen++;
+                        if ((i + 1) % 100 === 0) {
+                            this.adicionarLog(`   📊 Progresso BACEN: ${i + 1}/${dadosSeparados.bacen.length}`, 'info');
+                        }
                     } catch (error) {
+                        errosBacen++;
                         console.error(`❌ Erro ao salvar ficha BACEN ${ficha.id}:`, error);
+                        this.adicionarLog(`   ❌ Erro ao salvar ficha BACEN ${ficha.id}: ${error.message}`, 'erro');
                     }
                 }
                 
                 this.adicionarLog(`   🔄 Salvando ${dadosSeparados.n2.length} fichas N2...`, 'info');
-                for (const ficha of dadosSeparados.n2) {
+                for (let i = 0; i < dadosSeparados.n2.length; i++) {
+                    const ficha = dadosSeparados.n2[i];
                     try {
                         const resultado = await window.armazenamentoReclamacoes.salvar('n2', ficha);
                         if (resultado) salvosN2++;
+                        if ((i + 1) % 100 === 0) {
+                            this.adicionarLog(`   📊 Progresso N2: ${i + 1}/${dadosSeparados.n2.length}`, 'info');
+                        }
                     } catch (error) {
+                        errosN2++;
                         console.error(`❌ Erro ao salvar ficha N2 ${ficha.id}:`, error);
+                        this.adicionarLog(`   ❌ Erro ao salvar ficha N2 ${ficha.id}: ${error.message}`, 'erro');
                     }
                 }
                 
                 this.adicionarLog(`   🤖 Salvando ${dadosSeparados.chatbot.length} fichas Chatbot...`, 'info');
-                for (const ficha of dadosSeparados.chatbot) {
+                for (let i = 0; i < dadosSeparados.chatbot.length; i++) {
+                    const ficha = dadosSeparados.chatbot[i];
                     try {
                         const resultado = await window.armazenamentoReclamacoes.salvar('chatbot', ficha);
                         if (resultado) salvosChatbot++;
-                        if (salvosChatbot % 100 === 0) {
-                            this.adicionarLog(`   📊 Progresso Chatbot: ${salvosChatbot}/${dadosSeparados.chatbot.length}`, 'info');
+                        if ((i + 1) % 100 === 0) {
+                            this.adicionarLog(`   📊 Progresso Chatbot: ${i + 1}/${dadosSeparados.chatbot.length}`, 'info');
                         }
                     } catch (error) {
+                        errosChatbot++;
                         console.error(`❌ Erro ao salvar ficha Chatbot ${ficha.id}:`, error);
                         this.adicionarLog(`   ❌ Erro ao salvar ficha Chatbot ${ficha.id}: ${error.message}`, 'erro');
                     }
                 }
                 
-                this.adicionarLog(`✅ Dados salvos via sistema: BACEN=${salvosBacen}, N2=${salvosN2}, Chatbot=${salvosChatbot}`, 'sucesso');
+                this.adicionarLog(`✅ Dados salvos via sistema: BACEN=${salvosBacen} (${errosBacen} erros), N2=${salvosN2} (${errosN2} erros), Chatbot=${salvosChatbot} (${errosChatbot} erros)`, 'sucesso');
                 
-                // Verificar se os dados foram salvos corretamente
-                const verificarChatbot = await window.armazenamentoReclamacoes.carregarTodos('chatbot');
-                this.adicionarLog(`🔍 Verificação pós-salvamento: ${verificarChatbot.length} fichas Chatbot no sistema`, 'info');
+                // Verificar se os dados foram salvos corretamente no Supabase
+                if (window.armazenamentoReclamacoes.usarSupabase) {
+                    this.adicionarLog(`☁️ Verificando dados no Supabase...`, 'info');
+                    try {
+                        const verificarBacen = await window.armazenamentoReclamacoes.carregarTodos('bacen');
+                        const verificarN2 = await window.armazenamentoReclamacoes.carregarTodos('n2');
+                        const verificarChatbot = await window.armazenamentoReclamacoes.carregarTodos('chatbot');
+                        this.adicionarLog(`   ☁️ Supabase: BACEN=${verificarBacen.length}, N2=${verificarN2.length}, Chatbot=${verificarChatbot.length}`, 'info');
+                    } catch (error) {
+                        this.adicionarLog(`   ❌ Erro ao verificar Supabase: ${error.message}`, 'erro');
+                    }
+                } else {
+                    this.adicionarLog(`⚠️ Supabase não está ativo. Dados salvos apenas localmente.`, 'aviso');
+                }
             }
             
             // Salva todos os dados juntos para compatibilidade

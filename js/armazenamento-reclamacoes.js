@@ -17,21 +17,37 @@ class ArmazenamentoReclamacoes {
     inicializarSupabase() {
         // Aguardar um pouco para garantir que supabaseDB foi inicializado
         setTimeout(() => {
-            // Verificar se Supabase está disponível
-            if (window.supabaseDB && window.supabaseDB.supabase && !window.supabaseDB.usarLocalStorage) {
-                this.usarSupabase = true;
-                this.supabase = window.supabaseDB.supabase;
-                console.log('✅ Usando Supabase para armazenamento compartilhado');
-                console.log('🔍 Supabase client:', this.supabase ? 'disponível' : 'indisponível');
-            } else {
-                console.warn('⚠️ Supabase não disponível. Usando localStorage (dados locais apenas).');
-                console.warn('🔍 window.supabaseDB:', window.supabaseDB ? 'existe' : 'não existe');
-                if (window.supabaseDB) {
-                    console.warn('🔍 window.supabaseDB.supabase:', window.supabaseDB.supabase ? 'existe' : 'não existe');
-                    console.warn('🔍 window.supabaseDB.usarLocalStorage:', window.supabaseDB.usarLocalStorage);
-                }
+            this.verificarEAtivarSupabase();
+        }, 500); // Aumentar tempo de espera para garantir inicialização
+    }
+    
+    verificarEAtivarSupabase() {
+        // Verificar se Supabase está disponível
+        if (window.supabaseDB && window.supabaseDB.supabase && !window.supabaseDB.usarLocalStorage) {
+            this.usarSupabase = true;
+            this.supabase = window.supabaseDB.supabase;
+            console.log('✅ Usando Supabase para armazenamento compartilhado');
+            console.log('🔍 Supabase client:', this.supabase ? 'disponível' : 'indisponível');
+            return true;
+        } else {
+            console.warn('⚠️ Supabase não disponível. Usando localStorage (dados locais apenas).');
+            console.warn('🔍 window.supabaseDB:', window.supabaseDB ? 'existe' : 'não existe');
+            if (window.supabaseDB) {
+                console.warn('🔍 window.supabaseDB.supabase:', window.supabaseDB.supabase ? 'existe' : 'não existe');
+                console.warn('🔍 window.supabaseDB.usarLocalStorage:', window.supabaseDB.usarLocalStorage);
             }
-        }, 200); // Aguardar mais que o supabaseDB (100ms) para garantir
+            if (window.SUPABASE_CONFIG) {
+                console.warn('🔍 window.SUPABASE_CONFIG existe:', window.SUPABASE_CONFIG);
+            } else {
+                console.warn('🔍 window.SUPABASE_CONFIG não existe');
+            }
+            if (window.supabase) {
+                console.warn('🔍 window.supabase existe:', typeof window.supabase);
+            } else {
+                console.warn('🔍 window.supabase não existe');
+            }
+            return false;
+        }
     }
 
     // === SALVAR RECLAMAÇÃO ===
@@ -74,10 +90,17 @@ class ArmazenamentoReclamacoes {
         
         // PRIORIDADE 1: Tentar salvar no Supabase (armazenamento compartilhado)
         // Re-verificar Supabase antes de salvar (pode ter sido inicializado depois)
-        if (!this.usarSupabase && window.supabaseDB && window.supabaseDB.supabase && !window.supabaseDB.usarLocalStorage) {
+        if (!this.usarSupabase) {
+            const ativado = this.verificarEAtivarSupabase();
+            if (ativado) {
+                console.log('✅ Supabase detectado durante salvamento, ativando...');
+            }
+        }
+        
+        // Forçar verificação novamente antes de usar
+        if (window.supabaseDB && window.supabaseDB.supabase && !window.supabaseDB.usarLocalStorage) {
             this.usarSupabase = true;
             this.supabase = window.supabaseDB.supabase;
-            console.log('✅ Supabase detectado durante salvamento, ativando...');
         }
         
         if (this.usarSupabase && window.supabaseDB && window.supabaseDB.supabase) {
@@ -194,10 +217,17 @@ class ArmazenamentoReclamacoes {
         
         // PRIORIDADE 1: Tentar carregar do Supabase (armazenamento compartilhado)
         // Re-verificar Supabase antes de carregar (pode ter sido inicializado depois)
-        if (!this.usarSupabase && window.supabaseDB && window.supabaseDB.supabase && !window.supabaseDB.usarLocalStorage) {
+        if (!this.usarSupabase) {
+            const ativado = this.verificarEAtivarSupabase();
+            if (ativado) {
+                console.log('✅ Supabase detectado durante carregamento, ativando...');
+            }
+        }
+        
+        // Forçar verificação novamente antes de usar
+        if (window.supabaseDB && window.supabaseDB.supabase && !window.supabaseDB.usarLocalStorage) {
             this.usarSupabase = true;
             this.supabase = window.supabaseDB.supabase;
-            console.log('✅ Supabase detectado durante carregamento, ativando...');
         }
         
         if (this.usarSupabase && window.supabaseDB && window.supabaseDB.supabase) {

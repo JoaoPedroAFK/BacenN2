@@ -16,6 +16,11 @@ class SupabaseDB {
             console.log('🔍 window.supabase:', typeof window.supabase);
             console.log('🔍 window.SUPABASE_CONFIG:', window.SUPABASE_CONFIG ? 'existe' : 'não existe');
             
+            if (window.SUPABASE_CONFIG) {
+                console.log('🔍 SUPABASE_CONFIG.url:', window.SUPABASE_CONFIG.url);
+                console.log('🔍 SUPABASE_CONFIG.anonKey:', window.SUPABASE_CONFIG.anonKey ? 'existe' : 'não existe');
+            }
+            
             if (window.supabase && window.SUPABASE_CONFIG) {
                 try {
                     this.supabase = window.supabase.createClient(
@@ -25,6 +30,9 @@ class SupabaseDB {
                     console.log('✅ Supabase DB inicializado com sucesso');
                     console.log('✅ this.supabase:', this.supabase ? 'criado' : 'não criado');
                     console.log('✅ this.usarLocalStorage:', this.usarLocalStorage);
+                    
+                    // Testar conexão com uma query simples
+                    this.testarConexao();
                 } catch (error) {
                     console.error('❌ Erro ao inicializar Supabase:', error);
                     this.usarLocalStorage = true;
@@ -36,7 +44,30 @@ class SupabaseDB {
                 console.warn('🔍 window.SUPABASE_CONFIG:', window.SUPABASE_CONFIG);
                 this.usarLocalStorage = true;
             }
-        }, 100);
+        }, 300); // Aumentar tempo de espera
+    }
+    
+    async testarConexao() {
+        if (this.usarLocalStorage || !this.supabase) return;
+        
+        try {
+            // Tentar uma query simples para verificar conexão
+            const { data, error } = await this.supabase
+                .from('fichas_bacen')
+                .select('id')
+                .limit(1);
+            
+            if (error) {
+                console.warn('⚠️ Erro ao testar conexão Supabase:', error.message);
+                if (error.message.includes('relation') || error.message.includes('does not exist')) {
+                    console.warn('⚠️ Tabela pode não existir ainda. Isso é normal na primeira execução.');
+                }
+            } else {
+                console.log('✅ Conexão com Supabase testada com sucesso');
+            }
+        } catch (error) {
+            console.warn('⚠️ Erro ao testar conexão:', error);
+        }
     }
 
     // === FICHAS BACEN ===
