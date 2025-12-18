@@ -125,7 +125,13 @@ class ArmazenamentoReclamacoes {
                         .select()
                         .single();
                     
-                    if (error) throw error;
+                    if (error) {
+                        console.error(`❌ ERRO ao atualizar no Supabase:`, error);
+                        if (error.code === 'PGRST116' || error.message.includes('permission') || error.message.includes('policy')) {
+                            console.error(`🚨 ERRO DE PERMISSÃO/RLS! Configure as políticas no Supabase!`);
+                        }
+                        throw error;
+                    }
                     resultado = data;
                     console.log(`✅ Reclamação atualizada no Supabase: ${reclamacao.id}`);
                 } else {
@@ -136,13 +142,20 @@ class ArmazenamentoReclamacoes {
                         .select()
                         .single();
                     
-                    if (error) throw error;
+                    if (error) {
+                        console.error(`❌ ERRO ao inserir no Supabase:`, error);
+                        if (error.code === 'PGRST116' || error.message.includes('permission') || error.message.includes('policy')) {
+                            console.error(`🚨 ERRO DE PERMISSÃO/RLS! Configure as políticas no Supabase!`);
+                        }
+                        throw error;
+                    }
                     resultado = data;
                     console.log(`✅ Reclamação salva no Supabase: ${reclamacao.id}`);
                 }
                 
                 // Também salvar no localStorage como backup
                 this.salvarLocalStorage(tipo, reclamacao, chave);
+                console.log(`✅ Reclamação ${reclamacao.id} salva no Supabase e localStorage`);
                 return true;
             } catch (error) {
                 console.error(`❌ Erro ao salvar no Supabase:`, error);
@@ -240,23 +253,50 @@ class ArmazenamentoReclamacoes {
                     .select('*')
                     .order('dataCriacao', { ascending: false });
                 
-                if (error) throw error;
-                
-                if (data && Array.isArray(data) && data.length > 0) {
-                    console.log(`✅ ${data.length} reclamações ${tipo} carregadas do Supabase`);
+                if (error) {
+                    console.error(`❌ ERRO do Supabase ao carregar ${tipo}:`, error);
+                    console.error(`   Código: ${error.code}`);
+                    console.error(`   Mensagem: ${error.message}`);
+                    console.error(`   Detalhes: ${JSON.stringify(error)}`);
                     
-                    // Sincronizar com localStorage como backup
-                    localStorage.setItem(chave, JSON.stringify(data));
-                    console.log(`💾 Dados sincronizados com localStorage`);
+                    // Se for erro de RLS ou permissão, mostrar mensagem clara
+                    if (error.code === 'PGRST116' || error.message.includes('permission') || error.message.includes('policy')) {
+                        console.error(`🚨 ERRO DE PERMISSÃO/RLS! Configure as políticas no Supabase!`);
+                        console.error(`   Acesse: https://supabase.com/dashboard/project/qiglypxoicicxvyocrzk/auth/policies`);
+                        console.error(`   Tabela: ${nomeTabela}`);
+                        console.error(`   Você precisa criar políticas que permitam SELECT para anon role`);
+                    }
+                    
+                    throw error;
+                }
+                
+                // Sempre retornar os dados do Supabase, mesmo se vazio
+                if (data && Array.isArray(data)) {
+                    if (data.length > 0) {
+                        console.log(`✅ ${data.length} reclamações ${tipo} carregadas do Supabase`);
+                        
+                        // Sincronizar com localStorage como backup
+                        localStorage.setItem(chave, JSON.stringify(data));
+                        console.log(`💾 Dados sincronizados com localStorage`);
+                    } else {
+                        console.log(`⚠️ Nenhuma reclamação ${tipo} encontrada no Supabase (tabela vazia)`);
+                        // Retornar array vazio do Supabase, não do localStorage
+                        return [];
+                    }
                     
                     return data;
                 } else {
-                    console.log(`⚠️ Nenhuma reclamação ${tipo} encontrada no Supabase`);
+                    console.warn(`⚠️ Resposta do Supabase inválida:`, data);
+                    // Não cair no fallback, retornar vazio
+                    return [];
                 }
             } catch (error) {
                 console.error(`❌ Erro ao carregar do Supabase:`, error);
-                console.warn(`⚠️ Fallback para localStorage...`);
-                // Continuar para carregar do localStorage
+                console.error(`   Stack: ${error.stack}`);
+                // NÃO fazer fallback para localStorage se Supabase está ativo
+                // Retornar vazio para forçar o usuário a ver o erro
+                console.error(`⚠️ Supabase está ativo mas falhou. Verifique as políticas RLS!`);
+                return [];
             }
         }
         
