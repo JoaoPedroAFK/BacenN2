@@ -241,6 +241,13 @@ class ArmazenamentoReclamacoes {
             }
         }
         
+        // Verificar Firebase uma última vez antes de salvar
+        if (!this.usarFirebase && window.firebaseDB && window.firebaseDB.inicializado && !window.firebaseDB.usarLocalStorage) {
+            console.log('🔄 Firebase disponível mas não estava marcado como ativo, ativando agora...');
+            this.usarFirebase = true;
+            this.firebaseDB = window.firebaseDB;
+        }
+        
         if (this.usarFirebase && window.firebaseDB && window.firebaseDB.inicializado) {
             try {
                 if (!reclamacao._debugLogado) {
@@ -254,17 +261,21 @@ class ArmazenamentoReclamacoes {
                     if (!reclamacao._debugLogado) {
                         console.log(`✅ Reclamação ${reclamacao.id} salva no Firebase`);
                     }
+                    // NÃO salvar no localStorage quando Firebase funcionou
                     return true;
                 } else {
+                    console.error(`❌ Falha ao salvar no Firebase - retornou false`);
                     throw new Error('Falha ao salvar no Firebase');
                 }
             } catch (error) {
                 console.error(`❌ Erro ao salvar no Firebase:`, error);
                 console.error(`   Tipo: ${tipo}, ID: ${reclamacao.id}`);
+                console.error(`   Erro completo:`, error);
                 
                 // NUNCA usar localStorage quando Firebase está ativo - apenas Firebase!
                 if (this.usarFirebase) {
                     console.error(`⚠️ Firebase está ativo mas falhou. NÃO usando localStorage!`);
+                    console.error(`   Verifique as regras de segurança no Firebase Console!`);
                     throw error; // Propaga o erro - NÃO tenta localStorage
                 } else {
                     console.warn(`⚠️ Firebase não disponível. Fallback para localStorage...`);
@@ -272,19 +283,29 @@ class ArmazenamentoReclamacoes {
                 }
             }
         } else {
+            // Firebase não está disponível
+            const motivo = [];
+            if (!this.usarFirebase) motivo.push('usarFirebase=false');
+            if (!window.firebaseDB) motivo.push('firebaseDB não existe');
+            else {
+                if (!window.firebaseDB.inicializado) motivo.push('firebaseDB.inicializado=false');
+                if (window.firebaseDB.usarLocalStorage) motivo.push('firebaseDB.usarLocalStorage=true');
+            }
+            
             if (!reclamacao._debugLogado) {
-                console.warn(`⚠️ Firebase não disponível para salvar. Condições:`);
-                console.warn(`   usarFirebase: ${this.usarFirebase}`);
-                console.warn(`   window.firebaseDB: ${window.firebaseDB ? 'existe' : 'não existe'}`);
-                if (window.firebaseDB) {
-                    console.warn(`   window.firebaseDB.inicializado: ${window.firebaseDB.inicializado}`);
-                    console.warn(`   window.firebaseDB.usarLocalStorage: ${window.firebaseDB.usarLocalStorage}`);
-                }
+                console.warn(`⚠️ Firebase não disponível para salvar. Motivos: ${motivo.join(', ')}`);
             }
         }
         
-        // FALLBACK: Salvar no localStorage
-        return this.salvarLocalStorage(tipo, reclamacao, chave);
+        // FALLBACK: Salvar no localStorage APENAS se Firebase não estiver disponível
+        // Se Firebase está ativo mas falhou, NÃO usar localStorage
+        if (!this.usarFirebase) {
+            return this.salvarLocalStorage(tipo, reclamacao, chave);
+        } else {
+            // Firebase está ativo mas falhou - não usar localStorage
+            console.error(`❌ Não foi possível salvar: Firebase está ativo mas falhou, e localStorage não será usado.`);
+            return false;
+        }
     }
     
     // Método auxiliar para salvar no localStorage (apenas quando Supabase não está disponível)
