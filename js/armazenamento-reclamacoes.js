@@ -51,15 +51,19 @@ class ArmazenamentoReclamacoes {
     }
 
     // === FUNÇÃO HELPER: Criar objeto apenas com campos básicos que provavelmente existem ===
-    criarObjetoMinimo(dados) {
+    criarObjetoMinimo(dados, tipo = null) {
         // Campos MÍNIMOS que provavelmente existem em TODAS as tabelas
         const objetoMinimo = {
             id: dados.id,
             nomeCliente: dados.nomeCliente || dados.nomeCompleto || '',
             cpf: dados.cpf || '',
-            origem: dados.origem || '',
             status: dados.status || 'nao-iniciado'
         };
+        
+        // Adicionar origem apenas se NÃO for chatbot
+        if (tipo !== 'chatbot' && dados.origem) {
+            objetoMinimo.origem = dados.origem;
+        }
         
         // Adicionar campos que provavelmente existem (mas não são obrigatórios)
         // NÃO adicionar dataCriacao, enviarCobranca, pixLiberado, tipoDemanda - podem não existir
@@ -95,8 +99,11 @@ class ArmazenamentoReclamacoes {
 
     // === FUNÇÃO HELPER: Tentar salvar removendo colunas inexistentes automaticamente ===
     async tentarSalvarComRetry(supabase, nomeTabela, dados, operacao = 'insert', id = null, maxTentativas = 20) {
+        // Extrair tipo da tabela (fichas_bacen -> bacen, fichas_n2 -> n2, fichas_chatbot -> chatbot)
+        const tipo = nomeTabela.replace('fichas_', '');
+        
         // Começar com objeto mínimo (apenas campos básicos)
-        let dadosLimpos = this.criarObjetoMinimo(dados);
+        let dadosLimpos = this.criarObjetoMinimo(dados, tipo);
         
         for (let tentativa = 0; tentativa < maxTentativas; tentativa++) {
             try {
