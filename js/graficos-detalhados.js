@@ -1024,10 +1024,28 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         if (window.location.pathname.includes('bacen.html') || window.location.href.includes('bacen.html')) {
             window.graficosDetalhadosBacen = new GraficosDetalhados('bacen');
+            // Inicializar controle de gráficos após renderização
+            setTimeout(() => {
+                if (typeof ControleGraficosDashboard !== 'undefined') {
+                    window.controleGraficosBacen = new ControleGraficosDashboard('bacen');
+                }
+            }, 2000);
         } else if (window.location.pathname.includes('n2.html') || window.location.href.includes('n2.html')) {
             window.graficosDetalhadosN2 = new GraficosDetalhados('n2');
+            // Inicializar controle de gráficos após renderização
+            setTimeout(() => {
+                if (typeof ControleGraficosDashboard !== 'undefined') {
+                    window.controleGraficosN2 = new ControleGraficosDashboard('n2');
+                }
+            }, 2000);
         } else if (window.location.pathname.includes('chatbot.html') || window.location.href.includes('chatbot.html')) {
             window.graficosDetalhadosChatbot = new GraficosDetalhados('chatbot');
+            // Inicializar controle de gráficos após renderização
+            setTimeout(() => {
+                if (typeof ControleGraficosDashboard !== 'undefined') {
+                    window.controleGraficosChatbot = new ControleGraficosDashboard('chatbot');
+                }
+            }, 2000);
         }
     }, 500);
 });
