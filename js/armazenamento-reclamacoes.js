@@ -358,6 +358,20 @@ class ArmazenamentoReclamacoes {
                 console.error(`   Tipo: ${tipo}, ID: ${reclamacao.id}`);
                 console.error(`   Stack: ${error.stack}`);
                 
+                // Se for erro de rede, tentar usar localStorage como fallback temporário
+                if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('NetworkError') || error.message.includes('Network request failed'))) {
+                    console.warn(`⚠️ Erro de rede ao salvar no Supabase. Usando localStorage como fallback temporário...`);
+                    try {
+                        const sucesso = this.salvarLocalStorage(tipo, reclamacao, chave);
+                        if (sucesso) {
+                            console.log(`✅ Dados salvos no localStorage (fallback temporário devido a erro de rede)`);
+                            return true;
+                        }
+                    } catch (localError) {
+                        console.error(`❌ Erro ao salvar no localStorage também:`, localError);
+                    }
+                }
+                
                 // Se Supabase está ativo mas falhou, NÃO usar localStorage (evita quota)
                 if (this.usarSupabase) {
                     console.error(`⚠️ Supabase está ativo mas falhou. NÃO usando localStorage para evitar quota excedida.`);
