@@ -50,65 +50,52 @@ class ArmazenamentoReclamacoes {
         }
     }
 
-    // === FUNÇÃO HELPER: Remover colunas que podem não existir na tabela ===
-    limparColunasInexistentes(dados) {
-        const dadosLimpos = { ...dados };
+    // === FUNÇÃO HELPER: Criar objeto apenas com campos básicos que provavelmente existem ===
+    criarObjetoMinimo(dados) {
+        // Campos MÍNIMOS que provavelmente existem em TODAS as tabelas
+        const objetoMinimo = {
+            id: dados.id,
+            nomeCliente: dados.nomeCliente || dados.nomeCompleto || '',
+            cpf: dados.cpf || '',
+            origem: dados.origem || '',
+            status: dados.status || 'nao-iniciado'
+        };
         
-        // Lista de colunas que podem não existir em algumas tabelas
-        // Remover apenas se o campo existir no objeto
-        const colunasOpcionais = [
-            '_debugLogado',
-            'dataAtualizacao',
-            'dataCriacao', // Pode não existir em fichas_chatbot
-            'enviarCobranca',
-            'pixLiberado',
-            'tipoDemanda',
-            'aceitouLiquidacao',
-            'modulosContato',
-            'tentativas',
-            'protocolos',
-            'camposEspecificos',
-            'concluido',
-            'mes',
-            'finalizadoEm',
-            'dataRecebimento',
-            'cpfTratado',
-            'nomeCompleto',
-            'motivoReduzido',
-            'motivoDetalhado',
-            'observacoes',
-            'responsavel'
-        ];
+        // Adicionar campos que provavelmente existem (mas não são obrigatórios)
+        if (dados.telefone) objetoMinimo.telefone = dados.telefone;
+        if (dados.nomeCompleto) objetoMinimo.nomeCompleto = dados.nomeCompleto;
+        if (dados.cpfTratado) objetoMinimo.cpfTratado = dados.cpfTratado;
+        if (dados.dataCriacao) objetoMinimo.dataCriacao = dados.dataCriacao;
+        if (dados.dataRecebimento) objetoMinimo.dataRecebimento = dados.dataRecebimento;
+        if (dados.finalizadoEm) objetoMinimo.finalizadoEm = dados.finalizadoEm;
+        if (dados.responsavel) objetoMinimo.responsavel = dados.responsavel;
+        if (dados.motivoReduzido) objetoMinimo.motivoReduzido = dados.motivoReduzido;
+        if (dados.motivoDetalhado) objetoMinimo.motivoDetalhado = dados.motivoDetalhado;
+        if (dados.observacoes) objetoMinimo.observacoes = dados.observacoes;
+        if (dados.mes) objetoMinimo.mes = dados.mes;
         
-        // Remover campos opcionais que podem não existir
-        colunasOpcionais.forEach(campo => {
-            if (dadosLimpos.hasOwnProperty(campo)) {
-                delete dadosLimpos[campo];
-            }
-        });
+        // Campos booleanos (só adicionar se existirem e forem booleanos)
+        if (typeof dados.enviarCobranca === 'boolean') objetoMinimo.enviarCobranca = dados.enviarCobranca;
+        if (typeof dados.pixLiberado === 'boolean') objetoMinimo.pixLiberado = dados.pixLiberado;
+        if (typeof dados.aceitouLiquidacao === 'boolean') objetoMinimo.aceitouLiquidacao = dados.aceitouLiquidacao;
+        if (typeof dados.concluido === 'boolean') objetoMinimo.concluido = dados.concluido;
         
-        return dadosLimpos;
+        // Campos JSON (só adicionar se existirem e forem objetos)
+        if (dados.modulosContato && typeof dados.modulosContato === 'object') objetoMinimo.modulosContato = dados.modulosContato;
+        if (dados.tentativas && typeof dados.tentativas === 'object') objetoMinimo.tentativas = dados.tentativas;
+        if (dados.protocolos && typeof dados.protocolos === 'object') objetoMinimo.protocolos = dados.protocolos;
+        if (dados.camposEspecificos && typeof dados.camposEspecificos === 'object') objetoMinimo.camposEspecificos = dados.camposEspecificos;
+        
+        // Tipo de demanda (importante)
+        if (dados.tipoDemanda) objetoMinimo.tipoDemanda = dados.tipoDemanda;
+        
+        return objetoMinimo;
     }
 
     // === FUNÇÃO HELPER: Tentar salvar removendo colunas inexistentes automaticamente ===
     async tentarSalvarComRetry(supabase, nomeTabela, dados, operacao = 'insert', id = null, maxTentativas = 20) {
-        // Primeiro, remover colunas conhecidas que podem não existir
-        let dadosLimpos = this.limparColunasInexistentes(dados);
-        
-        // Campos obrigatórios que SEMPRE devem existir
-        const camposObrigatorios = ['id', 'nomeCliente', 'cpf', 'origem', 'status'];
-        
-        // Garantir que campos obrigatórios existem
-        camposObrigatorios.forEach(campo => {
-            if (dados[campo] !== undefined && dados[campo] !== null) {
-                dadosLimpos[campo] = dados[campo];
-            }
-        });
-        
-        // Adicionar outros campos básicos que provavelmente existem
-        if (dados.telefone !== undefined) dadosLimpos.telefone = dados.telefone;
-        if (dados.dataCriacao !== undefined) dadosLimpos.dataCriacao = dados.dataCriacao;
-        if (dados.tipoDemanda !== undefined) dadosLimpos.tipoDemanda = dados.tipoDemanda;
+        // Começar com objeto mínimo (apenas campos básicos)
+        let dadosLimpos = this.criarObjetoMinimo(dados);
         
         for (let tentativa = 0; tentativa < maxTentativas; tentativa++) {
             try {
