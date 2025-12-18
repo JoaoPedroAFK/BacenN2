@@ -1110,7 +1110,6 @@ function exportarRelatorioChatbotDados(dados) {
         'Status',
         'Responsável',
         'Telefone',
-        'Origem',
         'PIX Status',
         'Enviar Cobrança',
         'Casos Críticos',
