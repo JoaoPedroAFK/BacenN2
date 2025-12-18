@@ -59,10 +59,7 @@ class FichasEspecificas {
                                 <label>Telefone:</label>
                                 <span class="ficha-valor editavel" data-campo="telefone">${dados.telefone || 'Não informado'}</span>
                             </div>
-                            <div class="ficha-item">
-                                <label>Origem:</label>
-                                <span class="ficha-valor editavel" data-campo="origem">${dados.origem || 'Não informado'}</span>
-                            </div>
+                            <!-- Removido: Origem (não existe mais em chatbot) -->
                         </div>
                     </div>
 
@@ -202,10 +199,7 @@ class FichasEspecificas {
                                 <label>Telefone:</label>
                                 <span class="ficha-valor editavel" data-campo="telefone">${dados.telefone || 'Não informado'}</span>
                             </div>
-                            <div class="ficha-item">
-                                <label>Origem:</label>
-                                <span class="ficha-valor editavel" data-campo="origem">${dados.origem || 'Não informado'}</span>
-                            </div>
+                            <!-- Removido: Origem (não existe mais em chatbot) -->
                         </div>
                     </div>
 
@@ -342,10 +336,7 @@ class FichasEspecificas {
                                 <label>Telefone:</label>
                                 <span class="ficha-valor editavel" data-campo="telefone">${dados.telefone || 'Não informado'}</span>
                             </div>
-                            <div class="ficha-item">
-                                <label>Origem:</label>
-                                <span class="ficha-valor editavel" data-campo="origem">${dados.origem || 'Não informado'}</span>
-                            </div>
+                            <!-- Removido: Origem (não existe mais em chatbot) -->
                         </div>
                     </div>
 

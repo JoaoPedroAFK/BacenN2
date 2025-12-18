@@ -206,7 +206,7 @@ async function handleSubmitChatbot(e) {
             responsavel: window.sistemaPerfis?.usuarioAtual?.nome || window.sistemaPerfis?.usuarioAtual?.email || 'Sistema',
             nomeCompleto: obterValorCampoChatbot('chatbot-nome') || '',
             cpf: obterValorCampoChatbot('chatbot-cpf'),
-            origem: obterValorCampoChatbot('chatbot-origem') || 'Atendimento',
+            // Removido: origem (não existe mais em chatbot)
             telefone: obterValorCampoChatbot('chatbot-telefone') || '',
             notaAvaliacao: obterValorCampoChatbot('chatbot-nota-avaliacao'),
             avaliacaoCliente: obterValorCampoChatbot('chatbot-avaliacao-cliente'),
@@ -1133,7 +1133,7 @@ function exportarRelatorioChatbotDados(dados) {
         f.status || '',
         f.responsavel || '',
         f.telefone || '',
-        f.origem || '',
+        // Removido: origem
         f.pixStatus || '',
         f.enviarCobranca || '',
         f.casosCriticos ? 'Sim' : 'Não',
