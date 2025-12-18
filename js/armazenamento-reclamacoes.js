@@ -50,6 +50,58 @@ class ArmazenamentoReclamacoes {
         }
     }
 
+    // === FUNÇÃO HELPER: Tentar salvar removendo colunas inexistentes automaticamente ===
+    async tentarSalvarComRetry(supabase, nomeTabela, dados, operacao = 'insert', id = null, maxTentativas = 5) {
+        let dadosLimpos = { ...dados };
+        delete dadosLimpos._debugLogado; // Sempre remover este campo
+        
+        for (let tentativa = 0; tentativa < maxTentativas; tentativa++) {
+            try {
+                let resultado;
+                
+                if (operacao === 'update' && id) {
+                    const { data, error } = await supabase
+                        .from(nomeTabela)
+                        .update(dadosLimpos)
+                        .eq('id', id)
+                        .select()
+                        .single();
+                    
+                    if (error) throw error;
+                    resultado = data;
+                } else {
+                    const { data, error } = await supabase
+                        .from(nomeTabela)
+                        .insert(dadosLimpos)
+                        .select()
+                        .single();
+                    
+                    if (error) throw error;
+                    resultado = data;
+                }
+                
+                return { sucesso: true, data: resultado };
+            } catch (error) {
+                // Se for erro de coluna não encontrada (PGRST204), extrair nome da coluna e remover
+                if (error.code === 'PGRST204' && error.message) {
+                    // Extrair nome da coluna da mensagem: "Could not find the 'nomeColuna' column..."
+                    const match = error.message.match(/'([^']+)'/);
+                    if (match && match[1]) {
+                        const colunaProblema = match[1];
+                        console.warn(`   ⚠️ Coluna '${colunaProblema}' não existe na tabela, removendo e tentando novamente...`);
+                        delete dadosLimpos[colunaProblema];
+                        continue; // Tentar novamente sem essa coluna
+                    }
+                }
+                
+                // Se não for erro de coluna ou não conseguir extrair nome, retornar erro
+                return { sucesso: false, error };
+            }
+        }
+        
+        return { sucesso: false, error: new Error('Máximo de tentativas excedido') };
+    }
+
     // === SALVAR RECLAMAÇÃO ===
     async salvar(tipo, reclamacao) {
         console.log(`💾 Salvando reclamação ${tipo} - ID: ${reclamacao.id}`);
@@ -67,15 +119,6 @@ class ArmazenamentoReclamacoes {
         
         // Garantir tipo
         reclamacao.tipoDemanda = tipo;
-        
-        // Remover campos que podem não existir na tabela (evitar erro PGRST204)
-        // Se dataAtualizacao não existir, remover do objeto antes de salvar
-        const camposParaRemover = ['_debugLogado']; // Campos que não devem ser salvos
-        camposParaRemover.forEach(campo => {
-            if (reclamacao.hasOwnProperty(campo)) {
-                delete reclamacao[campo];
-            }
-        });
         
         // Obter chave
         const chave = this.chaves[tipo];
@@ -166,38 +209,16 @@ class ArmazenamentoReclamacoes {
                         console.log(`   🔄 Atualizando registro existente...`);
                     }
                     
-                    // Criar cópia do objeto sem campos problemáticos
-                    const dadosParaAtualizar = { ...reclamacao };
-                    delete dadosParaAtualizar._debugLogado;
-                    // Remover dataAtualizacao se não existir na tabela (evita erro PGRST204)
-                    if (dadosParaAtualizar.dataAtualizacao === undefined || dadosParaAtualizar.dataAtualizacao === null) {
-                        delete dadosParaAtualizar.dataAtualizacao;
-                    }
+                    const resultadoUpdate = await this.tentarSalvarComRetry(
+                        window.supabaseDB.supabase,
+                        nomeTabela,
+                        reclamacao,
+                        'update',
+                        reclamacao.id
+                    );
                     
-                    let data, error;
-                    
-                    // Tentar atualizar primeiro com todos os campos
-                    ({ data, error } = await window.supabaseDB.supabase
-                        .from(nomeTabela)
-                        .update(dadosParaAtualizar)
-                        .eq('id', reclamacao.id)
-                        .select()
-                        .single());
-                    
-                    // Se falhar por causa de coluna não encontrada, tentar sem dataAtualizacao
-                    if (error && error.code === 'PGRST204' && error.message.includes('dataAtualizacao')) {
-                        console.warn(`   ⚠️ Coluna dataAtualizacao não existe, tentando sem ela...`);
-                        delete dadosParaAtualizar.dataAtualizacao;
-                        
-                        ({ data, error } = await window.supabaseDB.supabase
-                            .from(nomeTabela)
-                            .update(dadosParaAtualizar)
-                            .eq('id', reclamacao.id)
-                            .select()
-                            .single());
-                    }
-                    
-                    if (error) {
+                    if (!resultadoUpdate.sucesso) {
+                        const error = resultadoUpdate.error;
                         console.error(`❌ ERRO ao atualizar no Supabase:`, error);
                         console.error(`   Código: ${error.code}`);
                         console.error(`   Mensagem: ${error.message}`);
@@ -213,7 +234,7 @@ class ArmazenamentoReclamacoes {
                         }
                         throw error;
                     }
-                    resultado = data;
+                    resultado = resultadoUpdate.data;
                     if (!reclamacao._debugLogado) {
                         console.log(`✅ Reclamação atualizada no Supabase: ${reclamacao.id}`);
                     }
@@ -223,39 +244,21 @@ class ArmazenamentoReclamacoes {
                         console.log(`   ➕ Inserindo novo registro...`);
                     }
                     
-                    // Criar cópia do objeto sem campos problemáticos
-                    const dadosParaInserir = { ...reclamacao };
-                    delete dadosParaInserir._debugLogado;
+                    const resultadoInsert = await this.tentarSalvarComRetry(
+                        window.supabaseDB.supabase,
+                        nomeTabela,
+                        reclamacao,
+                        'insert'
+                    );
                     
-                    let data, error;
-                    
-                    // Tentar inserir primeiro
-                    ({ data, error } = await window.supabaseDB.supabase
-                        .from(nomeTabela)
-                        .insert(dadosParaInserir)
-                        .select()
-                        .single());
-                    
-                    // Se falhar por causa de coluna não encontrada (dataAtualizacao), tentar sem ela
-                    if (error && error.code === 'PGRST204' && error.message.includes('dataAtualizacao')) {
-                        console.warn(`   ⚠️ Coluna dataAtualizacao não existe, removendo do objeto e tentando novamente...`);
-                        delete dadosParaInserir.dataAtualizacao;
-                        
-                        ({ data, error } = await window.supabaseDB.supabase
-                            .from(nomeTabela)
-                            .insert(dadosParaInserir)
-                            .select()
-                            .single());
-                    }
-                    
-                    if (error) {
+                    if (!resultadoInsert.sucesso) {
+                        const error = resultadoInsert.error;
                         console.error(`❌ ERRO ao inserir no Supabase:`, error);
                         console.error(`   Código: ${error.code}`);
                         console.error(`   Mensagem: ${error.message}`);
                         console.error(`   Detalhes:`, JSON.stringify(error));
                         console.error(`   Tabela: ${nomeTabela}`);
                         console.error(`   ID: ${reclamacao.id}`);
-                        console.error(`   Dados tentados:`, JSON.stringify(dadosParaInserir).substring(0, 300));
                         if (error.code === 'PGRST116' || error.message.includes('permission') || error.message.includes('policy') || error.message.includes('RLS')) {
                             console.error(`🚨 ERRO DE PERMISSÃO/RLS! Configure as políticas no Supabase!`);
                             console.error(`   Execute o script: SUPABASE_FIX_RLS_DUPLICADAS.sql`);
@@ -265,7 +268,7 @@ class ArmazenamentoReclamacoes {
                         }
                         throw error;
                     }
-                    resultado = data;
+                    resultado = resultadoInsert.data;
                     if (!reclamacao._debugLogado) {
                         console.log(`✅ Reclamação salva no Supabase: ${reclamacao.id}`);
                     }
