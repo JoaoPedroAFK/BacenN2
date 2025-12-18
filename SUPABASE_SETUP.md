@@ -77,12 +77,17 @@ CREATE POLICY "Permitir atualização pública" ON fichas_chatbot FOR UPDATE USI
 CREATE POLICY "Permitir exclusão pública" ON fichas_chatbot FOR DELETE USING (true);
 ```
 
-### 5. Verificar se as tabelas existem
+### 5. ⚠️ IMPORTANTE: Verificar estrutura das tabelas
 
-Se as tabelas não existirem, crie-as com este SQL:
+**PROBLEMA:** As tabelas podem ter apenas algumas colunas, mas o código precisa de TODAS as colunas listadas abaixo.
+
+**SOLUÇÃO:** Execute este SQL para criar/atualizar as tabelas com TODAS as colunas necessárias:
 
 ```sql
--- Criar tabela fichas_bacen
+-- ⚠️ IMPORTANTE: Se a tabela já existe, use ALTER TABLE para adicionar colunas faltantes
+-- Se não existe, o CREATE TABLE será executado
+
+-- Criar tabela fichas_bacen (se não existir)
 CREATE TABLE IF NOT EXISTS fichas_bacen (
     id TEXT PRIMARY KEY,
     nomeCliente TEXT,
@@ -113,7 +118,85 @@ CREATE TABLE IF NOT EXISTS fichas_bacen (
     _debugLogado BOOLEAN
 );
 
--- Criar tabela fichas_n2
+-- Adicionar colunas faltantes (se a tabela já existe)
+DO $$ 
+BEGIN
+    -- Adicionar colunas que podem não existir
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='nomeCliente') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN nomeCliente TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='nomeCompleto') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN nomeCompleto TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='cpf') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN cpf TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='cpfTratado') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN cpfTratado TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='telefone') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN telefone TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='origem') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN origem TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='status') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN status TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='dataCriacao') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN dataCriacao TIMESTAMPTZ;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='dataRecebimento') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN dataRecebimento TIMESTAMPTZ;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='finalizadoEm') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN finalizadoEm TIMESTAMPTZ;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='motivoReduzido') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN motivoReduzido TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='motivoDetalhado') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN motivoDetalhado TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='enviarCobranca') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN enviarCobranca BOOLEAN;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='observacoes') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN observacoes TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='tipoDemanda') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN tipoDemanda TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='modulosContato') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN modulosContato JSONB;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='pixLiberado') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN pixLiberado BOOLEAN;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='aceitouLiquidacao') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN aceitouLiquidacao BOOLEAN;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='tentativas') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN tentativas JSONB;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='protocolos') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN protocolos JSONB;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='camposEspecificos') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN camposEspecificos JSONB;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='concluido') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN concluido BOOLEAN;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='dataAtualizacao') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN dataAtualizacao TIMESTAMPTZ;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_bacen' AND column_name='_debugLogado') THEN
+        ALTER TABLE fichas_bacen ADD COLUMN _debugLogado BOOLEAN;
+    END IF;
+END $$;
+
+-- Criar tabela fichas_n2 (se não existir)
 CREATE TABLE IF NOT EXISTS fichas_n2 (
     id TEXT PRIMARY KEY,
     nomeCliente TEXT,
@@ -144,7 +227,16 @@ CREATE TABLE IF NOT EXISTS fichas_n2 (
     _debugLogado BOOLEAN
 );
 
--- Criar tabela fichas_chatbot
+-- Adicionar colunas faltantes para fichas_n2 (mesmo processo)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fichas_n2' AND column_name='nomeCliente') THEN
+        ALTER TABLE fichas_n2 ADD COLUMN nomeCliente TEXT;
+    END IF;
+    -- ... (adicionar todas as outras colunas como acima)
+END $$;
+
+-- Criar tabela fichas_chatbot (se não existir)
 CREATE TABLE IF NOT EXISTS fichas_chatbot (
     id TEXT PRIMARY KEY,
     nomeCliente TEXT,
