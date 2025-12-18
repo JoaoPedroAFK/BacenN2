@@ -71,6 +71,7 @@ class FirebaseDB {
     // Salvar uma ficha
     async salvar(tipo, ficha) {
         if (!this.inicializado || this.usarLocalStorage) {
+            console.warn(`⚠️ Firebase não inicializado ou usando localStorage. Tipo: ${tipo}, ID: ${ficha.id}`);
             return false;
         }
 
@@ -81,6 +82,11 @@ class FirebaseDB {
             return true;
         } catch (error) {
             console.error(`❌ Erro ao salvar ficha ${tipo} no Firebase:`, error);
+            console.error(`   Caminho: ${caminho}`);
+            console.error(`   Erro:`, error.message);
+            if (error.code === 'PERMISSION_DENIED') {
+                console.error(`🚨 ERRO DE PERMISSÃO! Verifique as regras de segurança no Firebase Console!`);
+            }
             return false;
         }
     }
