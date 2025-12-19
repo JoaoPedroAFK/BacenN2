@@ -281,14 +281,17 @@ class ArmazenamentoReclamacoes {
             this.firebaseDB = window.firebaseDB;
         }
         
-        if (this.usarFirebase && window.firebaseDB && window.firebaseDB.inicializado) {
+        // Agora a lógica é mais simples e confiável - depende do estado this.usarFirebase
+        // que é definido quando o evento firebaseReady é recebido
+        if (this.usarFirebase && this.firebaseDB && this.firebaseDB.inicializado && !this.firebaseDB.usarLocalStorage) {
             try {
                 if (!reclamacao._debugLogado) {
                     console.log(`🔥 Tentando salvar no Firebase (tipo: ${tipo}, ID: ${reclamacao.id})...`);
                 }
                 
                 // Firebase salva diretamente (não precisa verificar existência - set() substitui automaticamente)
-                const sucesso = await window.firebaseDB.salvar(tipo, reclamacao);
+                // Usar this.firebaseDB em vez de window.firebaseDB (instância recebida via evento firebaseReady)
+                const sucesso = await this.firebaseDB.salvar(tipo, reclamacao);
                 
                 if (sucesso) {
                     if (!reclamacao._debugLogado) {
