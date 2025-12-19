@@ -8,8 +8,28 @@ class ArmazenamentoReclamacoes {
             n2: 'velotax_reclamacoes_n2',
             chatbot: 'velotax_reclamacoes_chatbot'
         };
-        this.usarFirebase = false;
-        this.firebaseDB = null;
+        this.usarFirebase = false; // Começa como falso
+        this.firebaseDB = null; // A instância será atribuída quando Firebase estiver pronto
+        
+        // Adiciona um ouvinte para o evento 'firebaseReady'
+        window.addEventListener('firebaseReady', (event) => {
+            console.log('✅ [ArmazenamentoReclamacoes] Evento firebaseReady recebido! Firebase está pronto.');
+            if (event.detail && event.detail.firebaseDB) {
+                this.firebaseDB = event.detail.firebaseDB; // Atribui a instância inicializada
+                this.usarFirebase = true; // Agora podemos usar o Firebase!
+                console.log('   [ArmazenamentoReclamacoes] Firebase ativado para uso.');
+                console.log('   [ArmazenamentoReclamacoes] firebaseDB.inicializado:', this.firebaseDB.inicializado);
+            } else {
+                // Se não veio no evento, verificar window.firebaseDB
+                if (window.firebaseDB && window.firebaseDB.inicializado && !window.firebaseDB.usarLocalStorage) {
+                    this.firebaseDB = window.firebaseDB;
+                    this.usarFirebase = true;
+                    console.log('   [ArmazenamentoReclamacoes] Firebase ativado via window.firebaseDB');
+                }
+            }
+        });
+        
+        // Também manter a verificação periódica como fallback
         this.inicializarFirebase();
         console.log('✅ Sistema de armazenamento inicializado');
     }
