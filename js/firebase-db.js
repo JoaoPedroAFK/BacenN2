@@ -198,8 +198,12 @@ class FirebaseDB {
     }
 }
 
-// Inicializar quando a página carregar
-window.firebaseDB = new FirebaseDB();
+// Criar instância global do FirebaseDB
+// IMPORTANTE: Esta instância deve ser criada ANTES de armazenamento-reclamacoes.js ser carregado
+if (!window.firebaseDB) {
+    window.firebaseDB = new FirebaseDB();
+    console.log('✅ Instância global do FirebaseDB criada');
+}
 
 // Aguardar Firebase carregar e inicializar
 document.addEventListener('DOMContentLoaded', async () => {
@@ -207,11 +211,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Aguardar mais tempo para garantir que Firebase SDK está carregado
     setTimeout(async () => {
         console.log('⏰ Iniciando inicialização do Firebase...');
-        const sucesso = await window.firebaseDB.inicializar();
-        if (sucesso) {
-            console.log('🎉 Firebase pronto para uso!');
+        if (window.firebaseDB) {
+            const sucesso = await window.firebaseDB.inicializar();
+            if (sucesso) {
+                console.log('🎉 Firebase pronto para uso!');
+            } else {
+                console.error('❌ Falha na inicialização do Firebase. Usando localStorage.');
+            }
         } else {
-            console.error('❌ Falha na inicialização do Firebase. Usando localStorage.');
+            console.error('❌ window.firebaseDB não está disponível!');
         }
     }, 1000);
 });

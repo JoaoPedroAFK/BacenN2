@@ -399,7 +399,7 @@ class ArmazenamentoReclamacoes {
     // === CARREGAR TODAS AS RECLAMAÇÕES ===
     async carregarTodos(tipo) {
         console.log(`📥 carregarTodos chamado para tipo: ${tipo}`);
-        console.log(`🔍 Estado atual: usarFirebase=${this.usarFirebase}, firebaseDB.inicializado=${window.firebaseDB?.inicializado}`);
+        console.log(`🔍 Estado atual: usarFirebase=${this.usarFirebase}, firebaseDB=${this.firebaseDB ? 'existe' : 'null'}, firebaseDB.inicializado=${this.firebaseDB?.inicializado}`);
         
         const chave = this.chaves[tipo];
         if (!chave) {
@@ -407,44 +407,24 @@ class ArmazenamentoReclamacoes {
             return [];
         }
         
+        // Verificação final: se Firebase está disponível mas não foi ativado, ativar agora
+        if (!this.usarFirebase && window.firebaseDB && window.firebaseDB.inicializado && !window.firebaseDB.usarLocalStorage) {
+            console.log('🔄 Firebase disponível mas não estava ativo, ativando agora...');
+            this.firebaseDB = window.firebaseDB;
+            this.usarFirebase = true;
+            console.log('✅ Firebase ativado imediatamente antes de carregar!');
+        }
+        
         // PRIORIDADE 1: Tentar carregar do Firebase (armazenamento compartilhado)
-        // Re-verificar Firebase antes de carregar (pode ter sido inicializado depois)
-        // IMPORTANTE: Verificar SEMPRE antes de carregar, pois Firebase pode inicializar depois
-        console.log(`🔍 Verificando Firebase antes de carregar ${tipo}...`);
-        console.log(`   usarFirebase: ${this.usarFirebase}`);
-        console.log(`   window.firebaseDB: ${window.firebaseDB ? 'existe' : 'não existe'}`);
-        console.log(`   window.firebaseDB?.inicializado: ${window.firebaseDB?.inicializado}`);
-        console.log(`   window.firebaseDB?.usarLocalStorage: ${window.firebaseDB?.usarLocalStorage}`);
-        
-        if (!this.usarFirebase || !window.firebaseDB || !window.firebaseDB.inicializado) {
-            console.log('🔄 Re-verificando Firebase antes de carregar...');
-            const ativado = this.verificarEAtivarFirebase();
-            if (ativado) {
-                console.log('✅ Firebase detectado durante carregamento, ativando...');
-            } else {
-                console.log('⚠️ Firebase ainda não está disponível após verificação');
-            }
-        }
-        
-        // Forçar verificação novamente antes de usar (garantir que está ativo)
-        // Esta verificação é CRÍTICA - Firebase pode ter inicializado entre a verificação anterior e agora
-        if (window.firebaseDB && window.firebaseDB.inicializado && !window.firebaseDB.usarLocalStorage) {
-            if (!this.usarFirebase) {
-                console.log('🔄 Firebase disponível mas não estava ativo, ativando agora...');
-                this.usarFirebase = true;
-                this.firebaseDB = window.firebaseDB;
-                console.log('✅ Firebase ativado imediatamente antes de carregar!');
-            }
-        }
-        
-        console.log(`🔍 Estado final antes de tentar carregar: usarFirebase=${this.usarFirebase}, firebaseDB.inicializado=${window.firebaseDB?.inicializado}`);
-        
-        if (this.usarFirebase && window.firebaseDB && window.firebaseDB.inicializado) {
+        // Agora a lógica é mais simples e confiável - depende do estado this.usarFirebase
+        // que é definido quando o evento firebaseReady é recebido
+        if (this.usarFirebase && this.firebaseDB && this.firebaseDB.inicializado && !this.firebaseDB.usarLocalStorage) {
             try {
                 console.log(`🔥 Carregando do Firebase (tipo: ${tipo})...`);
-                console.log(`🔍 Estado: usarFirebase=${this.usarFirebase}, firebaseDB.inicializado=${window.firebaseDB.inicializado}`);
+                console.log(`🔍 Estado: usarFirebase=${this.usarFirebase}, firebaseDB.inicializado=${this.firebaseDB.inicializado}`);
                 
-                const data = await window.firebaseDB.carregar(tipo);
+                // Usar this.firebaseDB em vez de window.firebaseDB
+                const data = await this.firebaseDB.carregar(tipo);
                 
                 console.log(`📊 Dados retornados do Firebase para ${tipo}:`, data);
                 console.log(`📊 É array?`, Array.isArray(data));
@@ -477,12 +457,12 @@ class ArmazenamentoReclamacoes {
         } else {
             const motivo = [];
             if (!this.usarFirebase) motivo.push('usarFirebase=false');
-            if (!window.firebaseDB) motivo.push('firebaseDB não existe');
+            if (!this.firebaseDB) motivo.push('firebaseDB não atribuído');
             else {
-                if (!window.firebaseDB.inicializado) motivo.push('firebaseDB.inicializado=false');
-                if (window.firebaseDB.usarLocalStorage) motivo.push('firebaseDB.usarLocalStorage=true');
+                if (!this.firebaseDB.inicializado) motivo.push('firebaseDB.inicializado=false');
+                if (this.firebaseDB.usarLocalStorage) motivo.push('firebaseDB.usarLocalStorage=true');
             }
-            console.warn(`⚠️ Firebase não disponível para carregar ${tipo}. Motivos: ${motivo.join(', ')}`);
+            console.warn(`⚠️ Firebase NÃO está pronto para carregar ${tipo}. Motivos: ${motivo.join(', ')}. Cairá para localStorage (se aplicável).`);
         }
         
         // FALLBACK: Carregar do localStorage APENAS se Firebase não estiver disponível
