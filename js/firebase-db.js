@@ -75,22 +75,35 @@ class FirebaseDB {
 
     // Salvar uma ficha
     async salvar(tipo, ficha) {
+        console.log(`💾 [FirebaseDB.salvar] Chamado - tipo: ${tipo}, ID: ${ficha?.id}`);
+        console.log(`🔍 [FirebaseDB.salvar] Estado: inicializado=${this.inicializado}, usarLocalStorage=${this.usarLocalStorage}`);
+        
         if (!this.inicializado || this.usarLocalStorage) {
             console.warn(`⚠️ Firebase não inicializado ou usando localStorage. Tipo: ${tipo}, ID: ${ficha.id}`);
             return false;
         }
 
+        if (!this.database) {
+            console.error(`❌ this.database não está disponível!`);
+            return false;
+        }
+
         try {
             const caminho = `fichas_${tipo}/${ficha.id}`;
+            console.log(`📤 [FirebaseDB.salvar] Salvando em: ${caminho}`);
+            console.log(`📦 [FirebaseDB.salvar] Dados:`, JSON.stringify(ficha).substring(0, 200) + '...');
+            
             await this.database.ref(caminho).set(ficha);
-            console.log(`✅ Ficha ${tipo} salva no Firebase: ${ficha.id}`);
+            console.log(`✅ [FirebaseDB.salvar] Ficha ${tipo} salva no Firebase: ${ficha.id}`);
             return true;
         } catch (error) {
-            console.error(`❌ Erro ao salvar ficha ${tipo} no Firebase:`, error);
-            console.error(`   Caminho: ${caminho}`);
+            console.error(`❌ [FirebaseDB.salvar] Erro ao salvar ficha ${tipo} no Firebase:`, error);
+            console.error(`   Caminho: fichas_${tipo}/${ficha.id}`);
             console.error(`   Erro:`, error.message);
+            console.error(`   Stack:`, error.stack);
             if (error.code === 'PERMISSION_DENIED') {
                 console.error(`🚨 ERRO DE PERMISSÃO! Verifique as regras de segurança no Firebase Console!`);
+                console.error(`   Caminho tentado: fichas_${tipo}/${ficha.id}`);
             }
             return false;
         }

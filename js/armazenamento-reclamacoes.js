@@ -285,13 +285,23 @@ class ArmazenamentoReclamacoes {
         // que é definido quando o evento firebaseReady é recebido
         if (this.usarFirebase && this.firebaseDB && this.firebaseDB.inicializado && !this.firebaseDB.usarLocalStorage) {
             try {
-                if (!reclamacao._debugLogado) {
-                    console.log(`🔥 Tentando salvar no Firebase (tipo: ${tipo}, ID: ${reclamacao.id})...`);
+                console.log(`🔥 Tentando salvar no Firebase (tipo: ${tipo}, ID: ${reclamacao.id})...`);
+                console.log(`🔍 DEBUG - this.firebaseDB:`, this.firebaseDB);
+                console.log(`🔍 DEBUG - typeof this.firebaseDB.salvar:`, typeof this.firebaseDB.salvar);
+                
+                // Verificar se o método salvar existe
+                if (typeof this.firebaseDB.salvar !== 'function') {
+                    console.error(`❌ this.firebaseDB.salvar não é uma função!`);
+                    console.error(`   this.firebaseDB:`, this.firebaseDB);
+                    console.error(`   Métodos disponíveis:`, Object.keys(this.firebaseDB));
+                    throw new Error('Método salvar não encontrado no firebaseDB');
                 }
                 
                 // Firebase salva diretamente (não precisa verificar existência - set() substitui automaticamente)
                 // Usar this.firebaseDB em vez de window.firebaseDB (instância recebida via evento firebaseReady)
+                console.log(`📤 Chamando this.firebaseDB.salvar(${tipo}, reclamacao)...`);
                 const sucesso = await this.firebaseDB.salvar(tipo, reclamacao);
+                console.log(`📥 Resultado do salvar:`, sucesso);
                 
                 if (sucesso) {
                     if (!reclamacao._debugLogado) {

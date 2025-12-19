@@ -19,35 +19,42 @@
     <script>
         // Função mostrarSecao deve estar disponível GLOBALMENTE antes dos botões
         // Esta função será sobrescrita/reforçada pelo chatbot-page.js quando carregar
-        window.mostrarSecao = function(secaoId) {
-            console.log('🔘 mostrarSecao chamado com:', secaoId);
-            
-            // Esconder todas as seções
-            document.querySelectorAll('.section').forEach(section => {
-                section.classList.remove('active');
-            });
-            
-            // Remover active de todos os botões
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Mostrar seção selecionada
-            const section = document.getElementById(secaoId);
-            if (section) {
-                section.classList.add('active');
-            } else {
-                console.warn('⚠️ Seção não encontrada:', secaoId);
-            }
-            
-            // Ativar botão correspondente
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${secaoId}'`)) {
-                    btn.classList.add('active');
+        (function() {
+            'use strict';
+            window.mostrarSecao = function(secaoId) {
+                console.log('🔘 [HEAD] mostrarSecao chamado com:', secaoId);
+                
+                // Esconder todas as seções
+                const sections = document.querySelectorAll('.section');
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // Remover active de todos os botões
+                const buttons = document.querySelectorAll('.nav-btn');
+                buttons.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Mostrar seção selecionada
+                const section = document.getElementById(secaoId);
+                if (section) {
+                    section.classList.add('active');
+                } else {
+                    console.warn('⚠️ Seção não encontrada:', secaoId);
                 }
-            });
-        };
-        console.log('✅ mostrarSecao definido globalmente no <head>');
+                
+                // Ativar botão correspondente
+                buttons.forEach(btn => {
+                    const onclick = btn.getAttribute('onclick');
+                    if (onclick && onclick.includes(`'${secaoId}'`)) {
+                        btn.classList.add('active');
+                    }
+                });
+            };
+            console.log('✅ [HEAD] mostrarSecao definido globalmente no <head>');
+            console.log('✅ [HEAD] typeof window.mostrarSecao:', typeof window.mostrarSecao);
+        })();
     </script>
     
     <style>
