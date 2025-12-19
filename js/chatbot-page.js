@@ -171,9 +171,15 @@ async function carregarFichasChatbot() {
 
 // === FORMULÁRIO ===
 function configurarEventosChatbot() {
+    console.log('🔧 [chatbot-page] configurarEventosChatbot chamado');
     const form = document.getElementById('form-chatbot');
+    console.log('🔧 [chatbot-page] Form encontrado?', form ? 'Sim' : 'Não');
     if (form) {
+        console.log('🔧 [chatbot-page] Adicionando event listener de submit ao formulário');
         form.addEventListener('submit', handleSubmitChatbot);
+        console.log('✅ [chatbot-page] Event listener adicionado com sucesso');
+    } else {
+        console.error('❌ [chatbot-page] Formulário form-chatbot não encontrado!');
     }
     
     const busca = document.getElementById('busca-chatbot');
@@ -216,7 +222,9 @@ function obterCheckboxChatbot(id) {
 
 async function handleSubmitChatbot(e) {
     e.preventDefault();
-    console.log('🚀 handleSubmitChatbot chamado');
+    console.log('🚀 [chatbot-page] handleSubmitChatbot chamado!');
+    console.log('🚀 [chatbot-page] Event:', e);
+    console.log('🚀 [chatbot-page] Target:', e.target);
     
     try {
         // Obter anexos
@@ -282,15 +290,27 @@ async function handleSubmitChatbot(e) {
         }
         
         // Salvar usando o novo sistema (assíncrono)
-        const sucesso = await window.armazenamentoReclamacoes.salvar('chatbot', ficha);
+        console.log('📤 [chatbot-page] Chamando armazenamentoReclamacoes.salvar...');
+        console.log('📤 [chatbot-page] Tipo: chatbot, ID:', ficha.id);
+        console.log('📤 [chatbot-page] window.armazenamentoReclamacoes:', window.armazenamentoReclamacoes ? 'existe' : 'não existe');
         
-        if (!sucesso) {
-            console.error('❌ Erro ao salvar reclamação');
-            mostrarAlerta('Erro ao salvar reclamação', 'error');
+        try {
+            const sucesso = await window.armazenamentoReclamacoes.salvar('chatbot', ficha);
+            console.log('📥 [chatbot-page] Resultado do salvar:', sucesso);
+            
+            if (!sucesso) {
+                console.error('❌ [chatbot-page] Erro ao salvar reclamação - retornou false');
+                mostrarAlerta('Erro ao salvar reclamação', 'error');
+                return;
+            }
+            
+            console.log('✅ [chatbot-page] Reclamação salva com sucesso!');
+        } catch (error) {
+            console.error('❌ [chatbot-page] Erro ao salvar reclamação:', error);
+            console.error('❌ [chatbot-page] Stack:', error.stack);
+            mostrarAlerta('Erro ao salvar reclamação: ' + error.message, 'error');
             return;
         }
-        
-        console.log('✅ Reclamação salva com sucesso!');
         
         // RECARREGAR IMEDIATAMENTE (assíncrono)
         await carregarFichasChatbot();
@@ -1582,6 +1602,10 @@ if (document.readyState === 'loading') {
         } else {
             console.error('❌ mostrarSecao NÃO está disponível após DOMContentLoaded!');
         }
+        // Configurar eventos do formulário
+        configurarEventosChatbot();
+        // Carregar fichas
+        carregarFichasChatbot();
     });
 } else {
     // DOM já está carregado
@@ -1591,4 +1615,8 @@ if (document.readyState === 'loading') {
     } else {
         console.error('❌ mostrarSecao NÃO está disponível!');
     }
+    // Configurar eventos do formulário
+    configurarEventosChatbot();
+    // Carregar fichas
+    carregarFichasChatbot();
 }
