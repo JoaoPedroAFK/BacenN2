@@ -4,7 +4,8 @@
 let fichasChatbot = [];
 
 // === NAVEGAÇÃO ===
-function mostrarSecao(secaoId) {
+// Definir mostrarSecao imediatamente para garantir disponibilidade global
+window.mostrarSecao = function mostrarSecao(secaoId) {
     // Esconder todas as seções
     document.querySelectorAll('.section').forEach(section => {
         section.classList.remove('active');
@@ -62,8 +63,7 @@ function mostrarSecao(secaoId) {
     }
 }
 
-// Atribuir mostrarSecao ao window IMEDIATAMENTE após definir a função
-window.mostrarSecao = mostrarSecao;
+// mostrarSecao já está atribuído ao window na definição da função acima
 
 // === CARREGAR FICHAS ===
 async function carregarFichasChatbot() {
