@@ -398,6 +398,9 @@ class ArmazenamentoReclamacoes {
 
     // === CARREGAR TODAS AS RECLAMAÇÕES ===
     async carregarTodos(tipo) {
+        console.log(`📥 carregarTodos chamado para tipo: ${tipo}`);
+        console.log(`🔍 Estado atual: usarFirebase=${this.usarFirebase}, firebaseDB.inicializado=${window.firebaseDB?.inicializado}`);
+        
         const chave = this.chaves[tipo];
         if (!chave) {
             console.error(`❌ Tipo inválido: ${tipo}`);
