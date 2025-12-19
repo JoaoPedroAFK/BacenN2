@@ -146,12 +146,14 @@ async function carregarFichasChatbot() {
         fichasChatbot = [];
     }
     
-    // Verificar novamente após carregar
-    const verificacaoFinal = localStorage.getItem(chaveNova);
-    if (verificacaoFinal) {
-        const dadosFinais = JSON.parse(verificacaoFinal);
-        console.log('🔍 Verificação final no localStorage:', dadosFinais.length, 'reclamações');
-        if (dadosFinais.length !== fichasChatbot.length) {
+    // Verificar novamente após carregar (apenas se não usou armazenamentoReclamacoes)
+    if (!window.armazenamentoReclamacoes) {
+        const chaveNova = 'velotax_reclamacoes_chatbot';
+        const verificacaoFinal = localStorage.getItem(chaveNova);
+        if (verificacaoFinal) {
+            const dadosFinais = JSON.parse(verificacaoFinal);
+            console.log('🔍 Verificação final no localStorage:', dadosFinais.length, 'reclamações');
+            if (dadosFinais.length !== fichasChatbot.length) {
             console.warn('⚠️ DISCREPÂNCIA: localStorage tem', dadosFinais.length, 'mas fichasChatbot tem', fichasChatbot.length);
             // Sincronizar
             fichasChatbot = dadosFinais;

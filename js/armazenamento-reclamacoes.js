@@ -528,12 +528,17 @@ class ArmazenamentoReclamacoes {
                 }
             }
             
-            console.log(`📦 Carregadas ${reclamacoes.length} reclamações ${tipo} do localStorage`);
-            return reclamacoes;
-        } catch (error) {
-            console.error(`❌ Erro ao carregar ${tipo}:`, error);
-            return [];
+                console.log(`📦 Carregadas ${reclamacoes.length} reclamações ${tipo} do localStorage`);
+                return reclamacoes;
+            } catch (error) {
+                console.error(`❌ Erro ao carregar ${tipo}:`, error);
+                return [];
+            }
+        } else {
+            console.log(`⚠️ Firebase está ativo, não carregando do localStorage para ${tipo}`);
         }
+        
+        return [];
     }
 
     // === OBTER RECLAMAÇÃO POR ID ===
