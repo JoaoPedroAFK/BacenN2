@@ -34,6 +34,7 @@ function inicializarBacen() {
 
 // === NAVEGAÇÃO ===
 function mostrarSecao(secaoId) {
+    console.log('🔘 mostrarSecao chamado com:', secaoId);
     // Esconder todas as seções
     document.querySelectorAll('.section').forEach(section => {
         section.classList.remove('active');
@@ -48,6 +49,8 @@ function mostrarSecao(secaoId) {
     const section = document.getElementById(secaoId);
     if (section) {
         section.classList.add('active');
+    } else {
+        console.warn('⚠️ Seção não encontrada:', secaoId);
     }
     
     // Ativar botão correspondente
