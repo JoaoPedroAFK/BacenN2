@@ -44,6 +44,19 @@ class ArmazenamentoReclamacoes {
                 }
             }
         }, 5000);
+        
+        // Escutar evento quando Firebase estiver pronto
+        window.addEventListener('firebaseReady', (event) => {
+            console.log('📢 Evento firebaseReady recebido! Ativando Firebase...');
+            if (event.detail && event.detail.firebaseDB) {
+                this.usarFirebase = true;
+                this.firebaseDB = event.detail.firebaseDB;
+                console.log('✅ Firebase ativado via evento firebaseReady!');
+            } else {
+                // Se não veio no evento, verificar novamente
+                this.verificarEAtivarFirebase();
+            }
+        });
     }
     
     verificarEAtivarFirebase() {
@@ -393,7 +406,9 @@ class ArmazenamentoReclamacoes {
         
         // PRIORIDADE 1: Tentar carregar do Firebase (armazenamento compartilhado)
         // Re-verificar Firebase antes de carregar (pode ter sido inicializado depois)
-        if (!this.usarFirebase) {
+        // IMPORTANTE: Verificar SEMPRE antes de carregar, pois Firebase pode inicializar depois
+        if (!this.usarFirebase || !window.firebaseDB || !window.firebaseDB.inicializado) {
+            console.log('🔄 Re-verificando Firebase antes de carregar...');
             const ativado = this.verificarEAtivarFirebase();
             if (ativado) {
                 console.log('✅ Firebase detectado durante carregamento, ativando...');

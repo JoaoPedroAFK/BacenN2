@@ -58,6 +58,11 @@ class FirebaseDB {
 
             console.log('✅ Firebase Realtime Database inicializado com sucesso!');
             console.log('   Database URL:', this.config.databaseURL);
+            
+            // Notificar que Firebase está pronto
+            window.dispatchEvent(new CustomEvent('firebaseReady', { detail: { firebaseDB: this } }));
+            console.log('📢 Evento firebaseReady disparado');
+            
             return true;
         } catch (error) {
             console.error('❌ Erro ao inicializar Firebase:', error);
