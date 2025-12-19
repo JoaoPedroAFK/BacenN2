@@ -410,22 +410,34 @@ class ArmazenamentoReclamacoes {
         // PRIORIDADE 1: Tentar carregar do Firebase (armazenamento compartilhado)
         // Re-verificar Firebase antes de carregar (pode ter sido inicializado depois)
         // IMPORTANTE: Verificar SEMPRE antes de carregar, pois Firebase pode inicializar depois
+        console.log(`🔍 Verificando Firebase antes de carregar ${tipo}...`);
+        console.log(`   usarFirebase: ${this.usarFirebase}`);
+        console.log(`   window.firebaseDB: ${window.firebaseDB ? 'existe' : 'não existe'}`);
+        console.log(`   window.firebaseDB?.inicializado: ${window.firebaseDB?.inicializado}`);
+        console.log(`   window.firebaseDB?.usarLocalStorage: ${window.firebaseDB?.usarLocalStorage}`);
+        
         if (!this.usarFirebase || !window.firebaseDB || !window.firebaseDB.inicializado) {
             console.log('🔄 Re-verificando Firebase antes de carregar...');
             const ativado = this.verificarEAtivarFirebase();
             if (ativado) {
                 console.log('✅ Firebase detectado durante carregamento, ativando...');
+            } else {
+                console.log('⚠️ Firebase ainda não está disponível após verificação');
             }
         }
         
-        // Forçar verificação novamente antes de usar
+        // Forçar verificação novamente antes de usar (garantir que está ativo)
+        // Esta verificação é CRÍTICA - Firebase pode ter inicializado entre a verificação anterior e agora
         if (window.firebaseDB && window.firebaseDB.inicializado && !window.firebaseDB.usarLocalStorage) {
             if (!this.usarFirebase) {
                 console.log('🔄 Firebase disponível mas não estava ativo, ativando agora...');
                 this.usarFirebase = true;
                 this.firebaseDB = window.firebaseDB;
+                console.log('✅ Firebase ativado imediatamente antes de carregar!');
             }
         }
+        
+        console.log(`🔍 Estado final antes de tentar carregar: usarFirebase=${this.usarFirebase}, firebaseDB.inicializado=${window.firebaseDB?.inicializado}`);
         
         if (this.usarFirebase && window.firebaseDB && window.firebaseDB.inicializado) {
             try {
