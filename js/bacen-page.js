@@ -98,11 +98,34 @@ async function carregarFichasBacen() {
     if (window.armazenamentoReclamacoes) {
         try {
             console.log('📦 Carregando do armazenamentoReclamacoes...');
+            console.log('🔍 Estado do Firebase:', {
+                usarFirebase: window.armazenamentoReclamacoes.usarFirebase,
+                firebaseDB: window.firebaseDB ? 'existe' : 'não existe',
+                firebaseInicializado: window.firebaseDB?.inicializado,
+                firebaseUsarLocalStorage: window.firebaseDB?.usarLocalStorage
+            });
+            
+            // Aguardar um pouco para garantir que Firebase está pronto
+            if (window.firebaseDB && !window.firebaseDB.inicializado) {
+                console.log('⏳ Aguardando Firebase inicializar...');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                // Re-verificar Firebase
+                if (window.armazenamentoReclamacoes.verificarEAtivarFirebase) {
+                    window.armazenamentoReclamacoes.verificarEAtivarFirebase();
+                }
+            }
+            
             fichasCarregadas = await window.armazenamentoReclamacoes.carregarTodos('bacen') || [];
             console.log('✅ Fichas carregadas do armazenamentoReclamacoes:', fichasCarregadas.length);
+            if (fichasCarregadas.length > 0) {
+                console.log('📋 Primeiras 3 fichas:', fichasCarregadas.slice(0, 3).map(f => f.id || 'sem ID'));
+            }
         } catch (error) {
             console.error('❌ Erro ao carregar do armazenamentoReclamacoes:', error);
+            console.error('   Stack:', error.stack);
         }
+    } else {
+        console.warn('⚠️ window.armazenamentoReclamacoes não está disponível!');
     }
     
     // FALLBACK: Se não encontrou nada, tentar localStorage (chaves novas e antigas)
