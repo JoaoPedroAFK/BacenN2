@@ -65,8 +65,9 @@ function mostrarSecao(secaoId) {
 }
 
 // Atribuir mostrarSecao ao window IMEDIATAMENTE após definir a função
+// Se já existe (definido no <head>), sobrescrever com versão completa
 window.mostrarSecao = mostrarSecao;
-console.log('✅ mostrarSecao atribuído ao window:', typeof window.mostrarSecao);
+console.log('✅ mostrarSecao atribuído/atualizado no window:', typeof window.mostrarSecao);
 
 // === CARREGAR FICHAS ===
 async function carregarFichasChatbot() {

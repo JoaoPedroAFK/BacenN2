@@ -15,6 +15,41 @@
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/theme-dark.css">
     
+    <!-- Script Inline: Definir mostrarSecao ANTES dos botões serem renderizados -->
+    <script>
+        // Função mostrarSecao deve estar disponível GLOBALMENTE antes dos botões
+        // Esta função será sobrescrita/reforçada pelo chatbot-page.js quando carregar
+        window.mostrarSecao = function(secaoId) {
+            console.log('🔘 mostrarSecao chamado com:', secaoId);
+            
+            // Esconder todas as seções
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remover active de todos os botões
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostrar seção selecionada
+            const section = document.getElementById(secaoId);
+            if (section) {
+                section.classList.add('active');
+            } else {
+                console.warn('⚠️ Seção não encontrada:', secaoId);
+            }
+            
+            // Ativar botão correspondente
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${secaoId}'`)) {
+                    btn.classList.add('active');
+                }
+            });
+        };
+        console.log('✅ mostrarSecao definido globalmente no <head>');
+    </script>
+    
     <style>
         /* Estilos específicos Chatbot */
         .chatbot-header {
