@@ -1,4 +1,7 @@
 /* === SISTEMA DE GESTÃO CHATBOT - PÁGINA ESPECÍFICA === */
+/* VERSÃO: v2.1.0 | DATA: 2025-01-31 */
+
+console.log('📦 [chatbot-page.js] Script carregado!');
 
 // Variáveis globais
 let fichasChatbot = [];
