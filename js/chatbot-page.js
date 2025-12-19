@@ -68,31 +68,64 @@ window.mostrarSecao = mostrarSecao;
 // === CARREGAR FICHAS ===
 async function carregarFichasChatbot() {
     console.log('🔄 Carregando fichas Chatbot...');
-    console.log('🔍 window.armazenamentoReclamacoes:', typeof window.armazenamentoReclamacoes);
+    console.log('🔍 window.armazenamentoReclamacoes:', window.armazenamentoReclamacoes ? 'existe' : 'não existe');
     
-    // Verificar diretamente no localStorage primeiro (para debug)
-    const chaveNova = 'velotax_reclamacoes_chatbot';
-    const chaveAntiga = 'velotax_demandas_chatbot';
-    const dadosNovos = localStorage.getItem(chaveNova);
-    const dadosAntigos = localStorage.getItem(chaveAntiga);
-    
-    console.log('🔍 localStorage verificação:');
-    console.log(`  - ${chaveNova}:`, dadosNovos ? `${JSON.parse(dadosNovos).length} reclamações` : 'vazio');
-    console.log(`  - ${chaveAntiga}:`, dadosAntigos ? `${JSON.parse(dadosAntigos).length} reclamações` : 'vazio');
+    // Aguardar armazenamentoReclamacoes estar disponível
+    if (!window.armazenamentoReclamacoes) {
+        console.log('⏳ Aguardando armazenamentoReclamacoes estar disponível...');
+        let tentativas = 0;
+        while (!window.armazenamentoReclamacoes && tentativas < 10) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            tentativas++;
+        }
+        if (!window.armazenamentoReclamacoes) {
+            console.error('❌ armazenamentoReclamacoes não está disponível após 1 segundo!');
+        } else {
+            console.log('✅ armazenamentoReclamacoes encontrado após espera!');
+        }
+    }
     
     // Usar o novo sistema de armazenamento
     if (window.armazenamentoReclamacoes) {
-        fichasChatbot = await window.armazenamentoReclamacoes.carregarTodos('chatbot');
-        console.log('✅ Fichas carregadas via sistema:', fichasChatbot.length);
-        if (fichasChatbot.length > 0) {
-            console.log('📋 IDs:', fichasChatbot.map(f => f.id).join(', '));
-            console.log('📋 Primeira ficha:', fichasChatbot[0]);
+        try {
+            console.log('📦 Carregando do armazenamentoReclamacoes...');
+            console.log('🔍 Estado do Firebase:', {
+                usarFirebase: window.armazenamentoReclamacoes.usarFirebase,
+                firebaseDB: window.firebaseDB ? 'existe' : 'não existe',
+                firebaseInicializado: window.firebaseDB?.inicializado,
+                firebaseUsarLocalStorage: window.firebaseDB?.usarLocalStorage
+            });
+            
+            // Aguardar um pouco para garantir que Firebase está pronto
+            if (window.firebaseDB && !window.firebaseDB.inicializado) {
+                console.log('⏳ Aguardando Firebase inicializar...');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                // Re-verificar Firebase
+                if (window.armazenamentoReclamacoes.verificarEAtivarFirebase) {
+                    window.armazenamentoReclamacoes.verificarEAtivarFirebase();
+                }
+            }
+            
+            fichasChatbot = await window.armazenamentoReclamacoes.carregarTodos('chatbot') || [];
+            console.log('✅ Fichas carregadas via sistema:', fichasChatbot.length);
+            if (fichasChatbot.length > 0) {
+                console.log('📋 IDs:', fichasChatbot.slice(0, 5).map(f => f.id).join(', '));
+                console.log('📋 Primeira ficha:', fichasChatbot[0]);
+            }
+        } catch (error) {
+            console.error('❌ Erro ao carregar do armazenamentoReclamacoes:', error);
+            console.error('   Stack:', error.stack);
+            fichasChatbot = [];
         }
     } else {
         console.error('❌ Sistema de armazenamento não encontrado!');
-        console.error('🔍 Tentando carregar diretamente do localStorage...');
+        console.log('🔍 Tentando carregar diretamente do localStorage...');
         // Fallback: tentar carregar diretamente
         try {
+            const chaveNova = 'velotax_reclamacoes_chatbot';
+            const chaveAntiga = 'velotax_demandas_chatbot';
+            const dadosNovos = localStorage.getItem(chaveNova);
+            const dadosAntigos = localStorage.getItem(chaveAntiga);
             const dados = dadosNovos || dadosAntigos;
             if (dados) {
                 fichasChatbot = JSON.parse(dados);
