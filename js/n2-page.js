@@ -47,6 +47,7 @@ function inicializarN2() {
 
 // === NAVEGAÇÃO ===
 function mostrarSecao(secaoId) {
+    console.log('🔘 mostrarSecao chamado com:', secaoId);
     document.querySelectorAll('.section').forEach(section => {
         section.classList.remove('active');
     });
@@ -58,6 +59,8 @@ function mostrarSecao(secaoId) {
     const section = document.getElementById(secaoId);
     if (section) {
         section.classList.add('active');
+    } else {
+        console.warn('⚠️ Seção não encontrada:', secaoId);
     }
     
     document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -99,6 +102,11 @@ function mostrarSecao(secaoId) {
         }, 500);
     }
 }
+
+// Atribuir mostrarSecao ao window IMEDIATAMENTE após definir a função
+// Se já existe (definido no <head>), sobrescrever com versão completa
+window.mostrarSecao = mostrarSecao;
+console.log('✅ mostrarSecao atribuído/atualizado no window (n2-page.js):', typeof window.mostrarSecao);
 
 // === CARREGAR FICHAS ===
 async function carregarFichasN2() {
