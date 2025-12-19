@@ -63,7 +63,9 @@ window.mostrarSecao = function mostrarSecao(secaoId) {
     }
 }
 
-// mostrarSecao já está atribuído ao window na definição da função acima
+// Atribuir mostrarSecao ao window IMEDIATAMENTE após definir a função
+window.mostrarSecao = mostrarSecao;
+console.log('✅ mostrarSecao atribuído ao window:', typeof window.mostrarSecao);
 
 // === CARREGAR FICHAS ===
 async function carregarFichasChatbot() {
@@ -1560,7 +1562,31 @@ function validarCPF(cpf) {
     return remainder === parseInt(cpf.charAt(10));
 }
 
-// Garantir que mostrarSecao está disponível globalmente
-if (typeof window.mostrarSecao === 'undefined') {
-    window.mostrarSecao = mostrarSecao;
+// Garantir que mostrarSecao está disponível globalmente (já está definido acima)
+// Adicionar verificação adicional para garantir disponibilidade
+if (typeof window.mostrarSecao === 'undefined' || !window.mostrarSecao) {
+    console.error('❌ mostrarSecao não está definido!');
+} else {
+    console.log('✅ mostrarSecao está disponível globalmente');
+}
+
+// Inicializar quando o DOM estiver pronto
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('📄 DOM carregado - chatbot-page.js');
+        // Garantir que mostrarSecao está disponível
+        if (typeof window.mostrarSecao === 'function') {
+            console.log('✅ mostrarSecao confirmado após DOMContentLoaded');
+        } else {
+            console.error('❌ mostrarSecao NÃO está disponível após DOMContentLoaded!');
+        }
+    });
+} else {
+    // DOM já está carregado
+    console.log('📄 DOM já estava carregado - chatbot-page.js');
+    if (typeof window.mostrarSecao === 'function') {
+        console.log('✅ mostrarSecao confirmado (DOM já carregado)');
+    } else {
+        console.error('❌ mostrarSecao NÃO está disponível!');
+    }
 }
