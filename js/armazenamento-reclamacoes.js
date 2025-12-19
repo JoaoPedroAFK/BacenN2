@@ -549,6 +549,14 @@ class ArmazenamentoReclamacoes {
 if (!window.armazenamentoReclamacoes) {
     window.armazenamentoReclamacoes = new ArmazenamentoReclamacoes();
     console.log('✅ Sistema de armazenamento global criado');
+    
+    // Escutar evento quando Firebase estiver pronto (caso o evento seja disparado antes)
+    window.addEventListener('firebaseReady', () => {
+        if (window.armazenamentoReclamacoes) {
+            console.log('📢 Evento firebaseReady recebido globalmente! Re-verificando Firebase...');
+            window.armazenamentoReclamacoes.verificarEAtivarFirebase();
+        }
+    });
 }
 
 
