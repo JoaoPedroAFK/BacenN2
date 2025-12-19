@@ -1560,3 +1560,7 @@ function validarCPF(cpf) {
     return remainder === parseInt(cpf.charAt(10));
 }
 
+// Garantir que mostrarSecao está disponível globalmente
+if (typeof window.mostrarSecao === 'undefined') {
+    window.mostrarSecao = mostrarSecao;
+}
