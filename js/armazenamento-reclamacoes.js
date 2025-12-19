@@ -427,45 +427,64 @@ class ArmazenamentoReclamacoes {
         if (this.usarFirebase && window.firebaseDB && window.firebaseDB.inicializado) {
             try {
                 console.log(`🔥 Carregando do Firebase (tipo: ${tipo})...`);
+                console.log(`🔍 Estado: usarFirebase=${this.usarFirebase}, firebaseDB.inicializado=${window.firebaseDB.inicializado}`);
                 
                 const data = await window.firebaseDB.carregar(tipo);
                 
+                console.log(`📊 Dados retornados do Firebase para ${tipo}:`, data);
+                console.log(`📊 É array?`, Array.isArray(data));
+                console.log(`📊 Tamanho:`, data ? data.length : 'null/undefined');
+                
                 // Ordenar por dataCriacao (se existir) ou data de recebimento
-                if (data && data.length > 0) {
+                if (data && Array.isArray(data) && data.length > 0) {
                     data.sort((a, b) => {
                         const dataA = a.dataCriacao || a.dataRecebimento || a.dataEntrada || 0;
                         const dataB = b.dataCriacao || b.dataRecebimento || b.dataEntrada || 0;
                         return new Date(dataB) - new Date(dataA);
                     });
-                    console.log(`✅ ${data.length} reclamações ${tipo} carregadas do Firebase`);
+                    console.log(`✅ ${data.length} reclamações ${tipo} carregadas do Firebase e ordenadas`);
+                    // NÃO salvar no localStorage quando dados vêm do Firebase
                     return data;
                 } else {
-                    console.log(`⚠️ Nenhuma reclamação ${tipo} encontrada no Firebase`);
+                    console.log(`⚠️ Nenhuma reclamação ${tipo} encontrada no Firebase (retornou: ${data ? 'array vazio' : 'null/undefined'})`);
                     return [];
                 }
             } catch (error) {
                 console.error(`❌ Erro ao carregar do Firebase:`, error);
+                console.error(`   Tipo: ${tipo}`);
                 console.error(`   Stack: ${error.stack}`);
                 // NÃO fazer fallback para localStorage se Firebase está ativo
-                console.error(`⚠️ Firebase está ativo mas falhou. Verifique a configuração!`);
-                return [];
-            }
-        }
-        
-        // FALLBACK: Carregar do localStorage
-        try {
-            // Tentar carregar da chave nova primeiro
-            let dados = localStorage.getItem(chave);
-            let reclamacoes = [];
-            
-            if (dados) {
-                reclamacoes = JSON.parse(dados);
-                if (!Array.isArray(reclamacoes)) {
-                    console.warn(`⚠️ Dados inválidos para ${tipo}, resetando...`);
-                    localStorage.removeItem(chave);
-                    reclamacoes = [];
+                if (this.usarFirebase) {
+                    console.error(`⚠️ Firebase está ativo mas falhou ao carregar. NÃO usando localStorage!`);
+                    return [];
                 }
             }
+        } else {
+            const motivo = [];
+            if (!this.usarFirebase) motivo.push('usarFirebase=false');
+            if (!window.firebaseDB) motivo.push('firebaseDB não existe');
+            else {
+                if (!window.firebaseDB.inicializado) motivo.push('firebaseDB.inicializado=false');
+                if (window.firebaseDB.usarLocalStorage) motivo.push('firebaseDB.usarLocalStorage=true');
+            }
+            console.warn(`⚠️ Firebase não disponível para carregar ${tipo}. Motivos: ${motivo.join(', ')}`);
+        }
+        
+        // FALLBACK: Carregar do localStorage APENAS se Firebase não estiver disponível
+        if (!this.usarFirebase) {
+            try {
+                // Tentar carregar da chave nova primeiro
+                let dados = localStorage.getItem(chave);
+                let reclamacoes = [];
+                
+                if (dados) {
+                    reclamacoes = JSON.parse(dados);
+                    if (!Array.isArray(reclamacoes)) {
+                        console.warn(`⚠️ Dados inválidos para ${tipo}, resetando...`);
+                        localStorage.removeItem(chave);
+                        reclamacoes = [];
+                    }
+                }
             
             // MIGRAÇÃO: Se não encontrou na chave nova, tentar chave antiga e migrar
             if (reclamacoes.length === 0) {

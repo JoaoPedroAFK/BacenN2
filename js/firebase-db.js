@@ -99,24 +99,39 @@ class FirebaseDB {
     // Carregar todas as fichas de um tipo
     async carregar(tipo) {
         if (!this.inicializado || this.usarLocalStorage) {
+            console.warn(`⚠️ Firebase não inicializado ou usando localStorage. Tipo: ${tipo}`);
             return [];
         }
 
         try {
             const caminho = `fichas_${tipo}`;
+            console.log(`📥 Carregando fichas ${tipo} do Firebase (caminho: ${caminho})...`);
             const snapshot = await this.database.ref(caminho).once('value');
             const dados = snapshot.val();
             
+            console.log(`📊 Dados brutos do Firebase para ${tipo}:`, dados);
+            console.log(`📊 Tipo dos dados:`, typeof dados);
+            console.log(`📊 É objeto?`, dados && typeof dados === 'object' && !Array.isArray(dados));
+            
             if (!dados) {
+                console.log(`⚠️ Nenhuma ficha ${tipo} encontrada no Firebase (dados é null/undefined)`);
                 return [];
             }
 
             // Converter objeto em array
             const fichas = Object.keys(dados).map(id => dados[id]);
             console.log(`✅ ${fichas.length} fichas ${tipo} carregadas do Firebase`);
+            if (fichas.length > 0) {
+                console.log(`📋 Primeira ficha ${tipo}:`, fichas[0].id || 'sem ID', fichas[0].nomeCliente || 'sem nome');
+            }
             return fichas;
         } catch (error) {
             console.error(`❌ Erro ao carregar fichas ${tipo} do Firebase:`, error);
+            console.error(`   Caminho: fichas_${tipo}`);
+            console.error(`   Erro:`, error.message);
+            if (error.code === 'PERMISSION_DENIED') {
+                console.error(`🚨 ERRO DE PERMISSÃO! Verifique as regras de segurança no Firebase Console!`);
+            }
             return [];
         }
     }
