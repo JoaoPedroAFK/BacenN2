@@ -221,10 +221,12 @@ function obterCheckboxChatbot(id) {
 }
 
 async function handleSubmitChatbot(e) {
+    console.log('🚀🚀🚀 [chatbot-page] handleSubmitChatbot chamado! 🚀🚀🚀');
     e.preventDefault();
-    console.log('🚀 [chatbot-page] handleSubmitChatbot chamado!');
+    console.log('🚀 [chatbot-page] Event preventDefault executado');
     console.log('🚀 [chatbot-page] Event:', e);
     console.log('🚀 [chatbot-page] Target:', e.target);
+    console.log('🚀 [chatbot-page] Form:', e.target.form || e.target.closest('form'));
     
     try {
         // Obter anexos
@@ -1592,31 +1594,50 @@ if (typeof window.mostrarSecao === 'undefined' || !window.mostrarSecao) {
     console.log('✅ mostrarSecao está disponível globalmente');
 }
 
+// Função de inicialização
+function inicializarChatbotPage() {
+    console.log('🚀 [chatbot-page] inicializarChatbotPage chamado');
+    console.log('🚀 [chatbot-page] document.readyState:', document.readyState);
+    
+    // Garantir que mostrarSecao está disponível
+    if (typeof window.mostrarSecao === 'function') {
+        console.log('✅ [chatbot-page] mostrarSecao confirmado');
+    } else {
+        console.error('❌ [chatbot-page] mostrarSecao NÃO está disponível!');
+    }
+    
+    // Configurar eventos do formulário (CRÍTICO!)
+    console.log('🔧 [chatbot-page] Chamando configurarEventosChatbot...');
+    try {
+        configurarEventosChatbot();
+    } catch (error) {
+        console.error('❌ [chatbot-page] Erro ao configurar eventos:', error);
+    }
+    
+    // Carregar fichas
+    console.log('📥 [chatbot-page] Chamando carregarFichasChatbot...');
+    try {
+        carregarFichasChatbot();
+    } catch (error) {
+        console.error('❌ [chatbot-page] Erro ao carregar fichas:', error);
+    }
+}
+
 // Inicializar quando o DOM estiver pronto
 if (document.readyState === 'loading') {
+    console.log('⏳ [chatbot-page] DOM ainda carregando, aguardando DOMContentLoaded...');
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('📄 DOM carregado - chatbot-page.js');
-        // Garantir que mostrarSecao está disponível
-        if (typeof window.mostrarSecao === 'function') {
-            console.log('✅ mostrarSecao confirmado após DOMContentLoaded');
-        } else {
-            console.error('❌ mostrarSecao NÃO está disponível após DOMContentLoaded!');
-        }
-        // Configurar eventos do formulário
-        configurarEventosChatbot();
-        // Carregar fichas
-        carregarFichasChatbot();
+        console.log('📄 [chatbot-page] DOM carregado via DOMContentLoaded');
+        inicializarChatbotPage();
     });
 } else {
     // DOM já está carregado
-    console.log('📄 DOM já estava carregado - chatbot-page.js');
-    if (typeof window.mostrarSecao === 'function') {
-        console.log('✅ mostrarSecao confirmado (DOM já carregado)');
-    } else {
-        console.error('❌ mostrarSecao NÃO está disponível!');
-    }
-    // Configurar eventos do formulário
-    configurarEventosChatbot();
-    // Carregar fichas
-    carregarFichasChatbot();
+    console.log('📄 [chatbot-page] DOM já estava carregado');
+    // Chamar imediatamente
+    inicializarChatbotPage();
+    // E também com um pequeno delay para garantir que tudo está pronto
+    setTimeout(() => {
+        console.log('⏰ [chatbot-page] Re-inicializando após delay (fallback)...');
+        inicializarChatbotPage();
+    }, 500);
 }
