@@ -300,19 +300,58 @@ async function handleSubmitChatbot(e) {
         console.log('📤 [chatbot-page] window.armazenamentoReclamacoes:', window.armazenamentoReclamacoes ? 'existe' : 'não existe');
         
         try {
+            // Log persistente para debug (sobrevive ao redirecionamento)
+            const logKey = 'velotax_debug_salvamento_' + Date.now();
+            localStorage.setItem(logKey, JSON.stringify({
+                timestamp: new Date().toISOString(),
+                acao: 'iniciando_salvamento',
+                tipo: 'chatbot',
+                id: ficha.id
+            }));
+            
+            console.log('📤 [chatbot-page] Chamando armazenamentoReclamacoes.salvar...');
             const sucesso = await window.armazenamentoReclamacoes.salvar('chatbot', ficha);
             console.log('📥 [chatbot-page] Resultado do salvar:', sucesso);
             
+            // Log persistente do resultado
+            localStorage.setItem(logKey + '_resultado', JSON.stringify({
+                timestamp: new Date().toISOString(),
+                sucesso: sucesso,
+                tipo: 'chatbot',
+                id: ficha.id
+            }));
+            
             if (!sucesso) {
                 console.error('❌ [chatbot-page] Erro ao salvar reclamação - retornou false');
+                localStorage.setItem(logKey + '_erro', JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    erro: 'salvar retornou false',
+                    tipo: 'chatbot',
+                    id: ficha.id
+                }));
                 mostrarAlerta('Erro ao salvar reclamação', 'error');
                 return;
             }
             
             console.log('✅ [chatbot-page] Reclamação salva com sucesso!');
+            
+            // Aguardar um pouco para garantir que o Firebase salvou
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
         } catch (error) {
             console.error('❌ [chatbot-page] Erro ao salvar reclamação:', error);
             console.error('❌ [chatbot-page] Stack:', error.stack);
+            
+            // Log persistente do erro
+            const logKey = 'velotax_debug_salvamento_' + Date.now();
+            localStorage.setItem(logKey + '_erro', JSON.stringify({
+                timestamp: new Date().toISOString(),
+                erro: error.message,
+                stack: error.stack,
+                tipo: 'chatbot',
+                id: ficha.id
+            }));
+            
             mostrarAlerta('Erro ao salvar reclamação: ' + error.message, 'error');
             return;
         }

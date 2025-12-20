@@ -285,23 +285,48 @@ class ArmazenamentoReclamacoes {
         // que é definido quando o evento firebaseReady é recebido
         if (this.usarFirebase && this.firebaseDB && this.firebaseDB.inicializado && !this.firebaseDB.usarLocalStorage) {
             try {
-                console.log(`🔥 Tentando salvar no Firebase (tipo: ${tipo}, ID: ${reclamacao.id})...`);
-                console.log(`🔍 DEBUG - this.firebaseDB:`, this.firebaseDB);
-                console.log(`🔍 DEBUG - typeof this.firebaseDB.salvar:`, typeof this.firebaseDB.salvar);
+                console.log(`🔥 [armazenamento] Tentando salvar no Firebase (tipo: ${tipo}, ID: ${reclamacao.id})...`);
+                console.log(`🔍 [armazenamento] DEBUG - this.firebaseDB:`, this.firebaseDB);
+                console.log(`🔍 [armazenamento] DEBUG - typeof this.firebaseDB.salvar:`, typeof this.firebaseDB.salvar);
+                
+                // Log persistente
+                const logKey = 'velotax_debug_firebase_salvar_' + Date.now();
+                localStorage.setItem(logKey, JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    acao: 'chamando_firebase_salvar',
+                    tipo: tipo,
+                    id: reclamacao.id,
+                    firebaseDB_existe: !!this.firebaseDB,
+                    firebaseDB_inicializado: this.firebaseDB?.inicializado,
+                    tem_metodo_salvar: typeof this.firebaseDB.salvar === 'function'
+                }));
                 
                 // Verificar se o método salvar existe
                 if (typeof this.firebaseDB.salvar !== 'function') {
-                    console.error(`❌ this.firebaseDB.salvar não é uma função!`);
+                    console.error(`❌ [armazenamento] this.firebaseDB.salvar não é uma função!`);
                     console.error(`   this.firebaseDB:`, this.firebaseDB);
                     console.error(`   Métodos disponíveis:`, Object.keys(this.firebaseDB));
+                    localStorage.setItem(logKey + '_erro', JSON.stringify({
+                        timestamp: new Date().toISOString(),
+                        erro: 'metodo_salvar_nao_encontrado',
+                        metodos_disponiveis: Object.keys(this.firebaseDB)
+                    }));
                     throw new Error('Método salvar não encontrado no firebaseDB');
                 }
                 
                 // Firebase salva diretamente (não precisa verificar existência - set() substitui automaticamente)
                 // Usar this.firebaseDB em vez de window.firebaseDB (instância recebida via evento firebaseReady)
-                console.log(`📤 Chamando this.firebaseDB.salvar(${tipo}, reclamacao)...`);
+                console.log(`📤 [armazenamento] Chamando this.firebaseDB.salvar(${tipo}, reclamacao)...`);
                 const sucesso = await this.firebaseDB.salvar(tipo, reclamacao);
-                console.log(`📥 Resultado do salvar:`, sucesso);
+                console.log(`📥 [armazenamento] Resultado do salvar:`, sucesso);
+                
+                // Log persistente do resultado
+                localStorage.setItem(logKey + '_resultado', JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    sucesso: sucesso,
+                    tipo: tipo,
+                    id: reclamacao.id
+                }));
                 
                 if (sucesso) {
                     if (!reclamacao._debugLogado) {
