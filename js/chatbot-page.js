@@ -648,15 +648,15 @@ if (!window.fecharSidebarCasosDashboard) {
 
 // === LISTA ===
 async function renderizarListaChatbot() {
-    console.log('🎨 renderizarListaChatbot() chamado');
+    console.log('🎨🎨🎨 [renderizarListaChatbot] FUNÇÃO CHAMADA! 🎨🎨🎨');
     const container = document.getElementById('lista-fichas-chatbot');
     if (!container) {
-        console.error('❌ Container lista-fichas-chatbot não encontrado!');
-        console.error('🔍 Elementos disponíveis:', Array.from(document.querySelectorAll('[id*="lista"]')).map(e => e.id));
+        console.error('❌ [renderizarListaChatbot] Container lista-fichas-chatbot não encontrado!');
+        console.error('🔍 [renderizarListaChatbot] Elementos disponíveis:', Array.from(document.querySelectorAll('[id*="lista"]')).map(e => e.id));
         return;
     }
     
-    console.log('✅ Container encontrado:', container);
+    console.log('✅ [renderizarListaChatbot] Container encontrado:', container);
     
     // Mostrar loading
     container.innerHTML = '<div class="loading-message">Carregando reclamações...</div>';
@@ -754,15 +754,16 @@ async function renderizarListaChatbot() {
         console.log(`🔍 Filtro de canal: ${antesCanal} -> ${filtradas.length}`);
     }
     
-    console.log('📋 Fichas após todos os filtros:', filtradas.length);
+    console.log('📋 [renderizarListaChatbot] Fichas após todos os filtros:', filtradas.length);
     
     if (filtradas.length === 0) {
         if (fichasChatbot.length === 0) {
             container.innerHTML = '<div class="no-results">Nenhuma reclamação Chatbot cadastrada ainda</div>';
-            console.log('📭 Nenhuma reclamação cadastrada');
+            console.log('📭 [renderizarListaChatbot] Nenhuma reclamação cadastrada');
         } else {
             container.innerHTML = '<div class="no-results">Nenhuma reclamação Chatbot encontrada com os filtros aplicados</div>';
-            console.log('🔍 Nenhuma reclamação encontrada com os filtros. Total disponível:', fichasChatbot.length);
+            console.log('🔍 [renderizarListaChatbot] Nenhuma reclamação encontrada com os filtros. Total disponível:', fichasChatbot.length);
+            console.log('🔍 [renderizarListaChatbot] Fichas disponíveis:', fichasChatbot.map(f => ({ id: f.id, nome: f.nomeCompleto || f.nomeCliente, status: f.status })));
         }
         return;
     }
@@ -776,19 +777,26 @@ async function renderizarListaChatbot() {
     
     // Verificar se a função criarCardChatbot existe
     if (typeof criarCardChatbot !== 'function' && typeof window.criarCardChatbot !== 'function') {
-        console.error('❌ Função criarCardChatbot não encontrada!');
+        console.error('❌ [renderizarListaChatbot] Função criarCardChatbot não encontrada!');
         container.innerHTML = '<div class="no-results">Erro: função de criação de cards não encontrada</div>';
         return;
     }
     
     const criarCard = typeof criarCardChatbot === 'function' ? criarCardChatbot : window.criarCardChatbot;
+    console.log('✅ [renderizarListaChatbot] Função criarCard encontrada:', typeof criarCard);
     
     try {
-        console.log('📋 Renderizando', filtradas.length, 'reclamações filtradas');
-        container.innerHTML = filtradas.map(f => criarCard(f)).join('');
-        console.log('✅ Lista Chatbot renderizada com sucesso! Total de cards:', filtradas.length);
+        console.log('📋 [renderizarListaChatbot] Renderizando', filtradas.length, 'reclamações filtradas');
+        const html = filtradas.map(f => {
+            console.log('🎨 [renderizarListaChatbot] Criando card para ficha:', f.id);
+            return criarCard(f);
+        }).join('');
+        console.log('📝 [renderizarListaChatbot] HTML gerado (primeiros 500 chars):', html.substring(0, 500));
+        container.innerHTML = html;
+        console.log('✅ [renderizarListaChatbot] Lista Chatbot renderizada com sucesso! Total de cards:', filtradas.length);
     } catch (error) {
-        console.error('❌ Erro ao renderizar cards:', error);
+        console.error('❌ [renderizarListaChatbot] Erro ao renderizar cards:', error);
+        console.error('❌ [renderizarListaChatbot] Stack:', error.stack);
         container.innerHTML = `<div class="no-results">Erro ao renderizar lista: ${error.message}</div>`;
     }
 }
