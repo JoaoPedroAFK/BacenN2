@@ -407,10 +407,53 @@ async function handleSubmitChatbot(e) {
             console.log('📢 Evento reclamacaoSalva disparado do chatbot-page');
         }
         
+        // Log persistente do sucesso (sobrevive ao recarregamento)
+        const logKeySucesso = 'velotax_salvamento_sucesso_' + Date.now();
+        localStorage.setItem(logKeySucesso, JSON.stringify({
+            timestamp: new Date().toISOString(),
+            tipo: 'chatbot',
+            id: ficha.id,
+            sucesso: true,
+            mensagem: 'Ficha salva com sucesso'
+        }));
+        
         // Mostrar sucesso
         mostrarAlerta('Reclamação Chatbot salva com sucesso!', 'success');
+        
+        // NÃO redirecionar imediatamente - aguardar um pouco para garantir que o Firebase salvou
+        console.log('⏳ Aguardando 1 segundo antes de redirecionar...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Verificar se a ficha foi realmente salva no Firebase
+        if (window.armazenamentoReclamacoes && window.armazenamentoReclamacoes.firebaseDB && window.armazenamentoReclamacoes.firebaseDB.inicializado) {
+            try {
+                const existe = await window.armazenamentoReclamacoes.firebaseDB.existe('chatbot', ficha.id);
+                console.log('🔍 Verificação pós-salvamento - Ficha existe no Firebase?', existe);
+                localStorage.setItem(logKeySucesso + '_verificacao', JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    existe: existe,
+                    id: ficha.id
+                }));
+            } catch (error) {
+                console.error('❌ Erro ao verificar se ficha existe:', error);
+            }
+        }
+        
+        // Redirecionar para a lista (isso vai recarregar a página)
+        mostrarSecao('lista-chatbot');
+        
     } catch (error) {
         console.error('❌ Erro ao processar submit:', error);
+        
+        // Log persistente do erro
+        const logKeyErro = 'velotax_salvamento_erro_' + Date.now();
+        localStorage.setItem(logKeyErro, JSON.stringify({
+            timestamp: new Date().toISOString(),
+            tipo: 'chatbot',
+            erro: error.message,
+            stack: error.stack
+        }));
+        
         mostrarAlerta('Erro ao salvar reclamação: ' + error.message, 'error');
     }
 }
