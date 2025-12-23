@@ -685,6 +685,25 @@
                 // Mostrar os últimos 5 logs
                 const ultimosLogs = logs.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0)).slice(0, 5);
                 console.table(ultimosLogs);
+                
+                // Se houver um salvamento recente (últimos 10 segundos), atualizar a lista
+                const agora = Date.now();
+                const salvamentoRecente = ultimosLogs.find(log => {
+                    if (log.timestamp) {
+                        const tempoLog = new Date(log.timestamp).getTime();
+                        return (agora - tempoLog) < 10000; // 10 segundos
+                    }
+                    return false;
+                });
+                
+                if (salvamentoRecente && salvamentoRecente.sucesso) {
+                    console.log('🔄 Salvamento recente detectado, atualizando lista...');
+                    setTimeout(() => {
+                        if (window.renderizarListaChatbot) {
+                            window.renderizarListaChatbot();
+                        }
+                    }, 1000);
+                }
             } else {
                 console.log('📭 Nenhum log de salvamento encontrado');
             }
