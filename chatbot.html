@@ -482,6 +482,48 @@
     <script src="js/gerenciador-anexos.js"></script>
     <script src="js/fichas-especificas.js"></script>
     <script src="js/armazenamento-reclamacoes.js"></script>
+    <!-- Definir renderizarListaChatbot antes de carregar chatbot-page.js para garantir disponibilidade -->
+    <script>
+        // Versão stub que será sobrescrita pelo chatbot-page.js se carregar corretamente
+        window.renderizarListaChatbot = window.renderizarListaChatbot || async function() {
+            console.log('🎨 [HTML STUB] renderizarListaChatbot chamada (versão HTML)');
+            const container = document.getElementById('lista-fichas-chatbot');
+            if (!container) {
+                console.error('❌ [HTML STUB] Container não encontrado');
+                return;
+            }
+            container.innerHTML = '<div class="loading-message">Carregando reclamações...</div>';
+            
+            // Tentar usar a versão completa se disponível
+            if (window._renderizarListaChatbotFull && typeof window._renderizarListaChatbotFull === 'function') {
+                console.log('✅ [HTML STUB] Usando versão completa');
+                return window._renderizarListaChatbotFull();
+            }
+            
+            // Se não houver versão completa, tentar carregar fichas diretamente
+            if (window.armazenamentoReclamacoes) {
+                try {
+                    const fichas = await window.armazenamentoReclamacoes.carregarTodos('chatbot');
+                    console.log('📋 [HTML STUB] Fichas carregadas:', fichas.length);
+                    if (fichas.length > 0) {
+                        if (window.criarCardChatbot) {
+                            container.innerHTML = fichas.map(f => window.criarCardChatbot(f)).join('');
+                        } else {
+                            container.innerHTML = fichas.map(f => `<div class="ficha-card">${f.nomeCompleto || f.id}</div>`).join('');
+                        }
+                    } else {
+                        container.innerHTML = '<div class="no-results">Nenhuma reclamação Chatbot cadastrada ainda</div>';
+                    }
+                } catch (error) {
+                    console.error('❌ [HTML STUB] Erro ao carregar fichas:', error);
+                    container.innerHTML = '<div class="no-results">Erro ao carregar reclamações</div>';
+                }
+            } else {
+                container.innerHTML = '<div class="no-results">Sistema de armazenamento não disponível</div>';
+            }
+        };
+        console.log('✅ [HTML] renderizarListaChatbot definida no HTML');
+    </script>
     <script src="js/chatbot-page.js"></script>
     <script src="js/theme-toggle.js"></script>
     <script src="js/graficos-detalhados.js"></script>
