@@ -506,10 +506,33 @@
                     const fichas = await window.armazenamentoReclamacoes.carregarTodos('chatbot');
                     console.log('📋 [HTML STUB] Fichas carregadas:', fichas.length);
                     if (fichas.length > 0) {
-                        if (window.criarCardChatbot) {
-                            container.innerHTML = fichas.map(f => window.criarCardChatbot(f)).join('');
+                        console.log('📋 [HTML STUB] Primeira ficha:', fichas[0]);
+                        // Tentar usar criarCardChatbot de várias formas
+                        let criarCard = null;
+                        if (typeof window.criarCardChatbot === 'function') {
+                            criarCard = window.criarCardChatbot;
+                            console.log('✅ [HTML STUB] Usando window.criarCardChatbot');
+                        } else if (typeof criarCardChatbot === 'function') {
+                            criarCard = criarCardChatbot;
+                            console.log('✅ [HTML STUB] Usando criarCardChatbot');
+                        }
+                        
+                        if (criarCard) {
+                            try {
+                                const html = fichas.map(f => {
+                                    console.log('🎨 [HTML STUB] Criando card para ficha:', f.id);
+                                    return criarCard(f);
+                                }).join('');
+                                console.log('📝 [HTML STUB] HTML gerado (primeiros 500 chars):', html.substring(0, 500));
+                                container.innerHTML = html;
+                                console.log('✅ [HTML STUB] Cards renderizados com sucesso!');
+                            } catch (error) {
+                                console.error('❌ [HTML STUB] Erro ao criar cards:', error);
+                                container.innerHTML = fichas.map(f => `<div class="ficha-card">${f.nomeCompleto || f.id || 'Sem nome'}</div>`).join('');
+                            }
                         } else {
-                            container.innerHTML = fichas.map(f => `<div class="ficha-card">${f.nomeCompleto || f.id}</div>`).join('');
+                            console.warn('⚠️ [HTML STUB] criarCardChatbot não encontrado, usando HTML simples');
+                            container.innerHTML = fichas.map(f => `<div class="ficha-card">${f.nomeCompleto || f.id || 'Sem nome'}</div>`).join('');
                         }
                     } else {
                         container.innerHTML = '<div class="no-results">Nenhuma reclamação Chatbot cadastrada ainda</div>';
