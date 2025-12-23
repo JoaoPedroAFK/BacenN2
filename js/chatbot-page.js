@@ -34,6 +34,7 @@ function mostrarSecao(secaoId) {
     });
     
     if (secaoId === 'lista-chatbot') {
+        console.log('📋 [mostrarSecao] Seção lista-chatbot selecionada, chamando renderizarListaChatbot...');
         renderizarListaChatbot();
     } else if (secaoId === 'minhas-reclamacoes-chatbot') {
         renderizarMinhasReclamacoesChatbot();
@@ -670,9 +671,12 @@ async function renderizarListaChatbot() {
         fichasChatbot = [];
     }
 
-    console.log('📋 Renderizando lista Chatbot geral com', fichasChatbot.length, 'fichas');
+    console.log('📋 [renderizarListaChatbot] Renderizando lista Chatbot geral com', fichasChatbot.length, 'fichas');
     if (fichasChatbot.length > 0) {
-        console.log('📋 Primeiras 3 fichas:', fichasChatbot.slice(0, 3).map(f => ({ id: f.id, nome: f.nomeCompleto, status: f.status })));
+        console.log('📋 [renderizarListaChatbot] Primeiras 3 fichas:', fichasChatbot.slice(0, 3).map(f => ({ id: f.id, nome: f.nomeCompleto || f.nomeCliente || 'sem nome', status: f.status })));
+        console.log('📋 [renderizarListaChatbot] Primeira ficha completa:', fichasChatbot[0]);
+    } else {
+        console.warn('⚠️ [renderizarListaChatbot] Nenhuma ficha para renderizar!');
     }
     
     const busca = document.getElementById('busca-chatbot')?.value.toLowerCase() || '';
