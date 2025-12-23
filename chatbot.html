@@ -560,6 +560,7 @@
         console.log('✅ [HTML] renderizarListaChatbot definida no HTML');
         
         // Definir criarCardChatbot no HTML também para garantir disponibilidade
+        // Usar o mesmo padrão das outras páginas (complaint-item)
         if (!window.criarCardChatbot) {
             window.criarCardChatbot = function(ficha) {
                 const statusLabels = {
@@ -585,33 +586,72 @@
                 if (ficha.resolvidoAutomaticamente) {
                     badges += '<span style="background: #1DFDB9; color: #000058; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 8px;">✅ Auto</span>';
                 }
+                if (ficha.encaminhadoHumano) {
+                    badges += '<span style="background: #1634FF; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 8px;">👤 Humano</span>';
+                }
                 
                 const dataFormatada = ficha.dataCriacao ? new Date(ficha.dataCriacao).toLocaleDateString('pt-BR') : 'N/A';
-                const nome = ficha.nomeCompleto || ficha.nomeCliente || 'Sem nome';
+                const nome = ficha.nomeCompleto || ficha.nomeCliente || 'Nome não informado';
                 const cpf = ficha.cpf || 'N/A';
+                const motivo = ficha.motivoReduzido || ficha.motivo || 'Não informado';
+                const responsavel = ficha.responsavel || 'Não atribuído';
                 
+                // Função auxiliar para formatar data (se não existir)
+                const formatarData = (dataString) => {
+                    if (!dataString) return 'N/A';
+                    try {
+                        return new Date(dataString).toLocaleDateString('pt-BR');
+                    } catch {
+                        return dataString;
+                    }
+                };
+                
+                // Escapar ID para uso seguro em onclick
+                const fichaIdEscapado = ficha.id.replace(/'/g, "\\'");
                 return `
-                    <div class="ficha-card" onclick="if(window.abrirFichaChatbot) window.abrirFichaChatbot('${ficha.id}'); else console.warn('abrirFichaChatbot não disponível')">
-                        <div class="ficha-header">
-                            <div class="ficha-title">
-                                <h3>${nome}</h3>
-                                <div class="ficha-badges">${badges}</div>
+                    <div class="complaint-item" onclick="abrirFichaChatbotHTML('${fichaIdEscapado}')">
+                        <div class="complaint-header">
+                            <div class="complaint-title">
+                                ${nome}
+                                ${badges}
                             </div>
-                            <div class="ficha-status ${statusClass}">${statusLabel}</div>
+                            <div class="complaint-status ${statusClass}">${statusLabel}</div>
                         </div>
-                        <div class="ficha-body">
-                            <div class="ficha-info">
-                                <span><strong>CPF:</strong> ${cpf}</span>
-                                <span><strong>Canal:</strong> ${canalLabel}</span>
-                                <span><strong>Data:</strong> ${dataFormatada}</span>
-                            </div>
-                            ${ficha.motivo ? `<div class="ficha-motivo">${ficha.motivo}</div>` : ''}
+                        <div class="complaint-summary">
+                            <div class="complaint-detail"><strong>CPF:</strong> ${cpf}</div>
+                            <div class="complaint-detail"><strong>Motivo:</strong> ${motivo}</div>
+                            <div class="complaint-detail"><strong>Canal:</strong> ${canalLabel}</div>
+                            <div class="complaint-detail"><strong>Data:</strong> ${dataFormatada}</div>
+                            <div class="complaint-detail"><strong>Responsável:</strong> ${responsavel}</div>
                         </div>
                     </div>
                 `;
             };
-            console.log('✅ [HTML] criarCardChatbot definida no HTML');
+            console.log('✅ [HTML] criarCardChatbot definida no HTML (padrão complaint-item)');
         }
+        
+        // Função auxiliar para abrir ficha (compatível com o sistema)
+        window.abrirFichaChatbotHTML = function(id) {
+            console.log('🔍 [HTML] abrirFichaChatbotHTML chamado com ID:', id);
+            if (window.abrirFichaChatbot && typeof window.abrirFichaChatbot === 'function') {
+                window.abrirFichaChatbot(id);
+            } else if (window.fichasEspecificas && window.fichasEspecificas.abrirFicha) {
+                // Buscar a ficha primeiro
+                if (window.armazenamentoReclamacoes) {
+                    window.armazenamentoReclamacoes.obterPorId('chatbot', id).then(ficha => {
+                        if (ficha) {
+                            window.fichasEspecificas.abrirFicha(ficha);
+                        } else {
+                            console.error('❌ Ficha não encontrada:', id);
+                        }
+                    });
+                } else {
+                    console.error('❌ armazenamentoReclamacoes não disponível');
+                }
+            } else {
+                console.warn('⚠️ Nenhum sistema de abertura de ficha disponível');
+            }
+        };
         
         // Listener para atualizar lista quando uma nova ficha for salva
         window.addEventListener('reclamacaoSalva', function(event) {
