@@ -647,7 +647,8 @@ if (!window.fecharSidebarCasosDashboard) {
 }
 
 // === LISTA ===
-async function renderizarListaChatbot() {
+// Garantir que renderizarListaChatbot está disponível globalmente
+window.renderizarListaChatbot = async function renderizarListaChatbot() {
     console.log('🎨🎨🎨 [renderizarListaChatbot] FUNÇÃO CHAMADA! 🎨🎨🎨');
     const container = document.getElementById('lista-fichas-chatbot');
     if (!container) {
