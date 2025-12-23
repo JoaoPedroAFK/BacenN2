@@ -51,6 +51,39 @@
                         btn.classList.add('active');
                     }
                 });
+                
+                // Chamar funções específicas de cada seção
+                if (secaoId === 'lista-chatbot') {
+                    console.log('📋 [HEAD] Seção lista-chatbot selecionada, chamando renderizarListaChatbot...');
+                    // Verificar se a função existe antes de chamar
+                    if (typeof renderizarListaChatbot === 'function') {
+                        renderizarListaChatbot();
+                    } else if (typeof window.renderizarListaChatbot === 'function') {
+                        window.renderizarListaChatbot();
+                    } else {
+                        console.warn('⚠️ [HEAD] renderizarListaChatbot não está disponível ainda');
+                        // Tentar novamente após um pequeno delay
+                        setTimeout(() => {
+                            if (typeof renderizarListaChatbot === 'function') {
+                                renderizarListaChatbot();
+                            } else if (typeof window.renderizarListaChatbot === 'function') {
+                                window.renderizarListaChatbot();
+                            }
+                        }, 500);
+                    }
+                } else if (secaoId === 'minhas-reclamacoes-chatbot') {
+                    if (typeof renderizarMinhasReclamacoesChatbot === 'function') {
+                        renderizarMinhasReclamacoesChatbot();
+                    } else if (typeof window.renderizarMinhasReclamacoesChatbot === 'function') {
+                        window.renderizarMinhasReclamacoesChatbot();
+                    }
+                } else if (secaoId === 'dashboard-chatbot') {
+                    if (typeof atualizarDashboardChatbot === 'function') {
+                        atualizarDashboardChatbot();
+                    } else if (typeof window.atualizarDashboardChatbot === 'function') {
+                        window.atualizarDashboardChatbot();
+                    }
+                }
             };
             console.log('✅ [HEAD] mostrarSecao definido globalmente no <head>');
             console.log('✅ [HEAD] typeof window.mostrarSecao:', typeof window.mostrarSecao);
