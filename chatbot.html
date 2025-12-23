@@ -665,6 +665,49 @@
             }
         });
         
+        // Garantir que o event listener do formulário seja adicionado (mesmo com erro de sintaxe)
+        (function configurarFormularioChatbot() {
+            console.log('🔧 [HTML] Configurando formulário chatbot...');
+            const form = document.getElementById('form-chatbot');
+            if (form) {
+                console.log('✅ [HTML] Formulário encontrado, adicionando listener...');
+                form.addEventListener('submit', function(e) {
+                    console.log('🚀🚀🚀 [HTML] FORMULÁRIO SUBMIT CHAMADO! 🚀🚀🚀');
+                    e.preventDefault();
+                    console.log('✅ [HTML] preventDefault executado');
+                    
+                    // Tentar usar handleSubmitChatbot se disponível
+                    if (typeof handleSubmitChatbot === 'function') {
+                        console.log('✅ [HTML] Chamando handleSubmitChatbot...');
+                        handleSubmitChatbot(e);
+                    } else if (typeof window.handleSubmitChatbot === 'function') {
+                        console.log('✅ [HTML] Chamando window.handleSubmitChatbot...');
+                        window.handleSubmitChatbot(e);
+                    } else {
+                        console.error('❌ [HTML] handleSubmitChatbot não está disponível!');
+                        console.error('   typeof handleSubmitChatbot:', typeof handleSubmitChatbot);
+                        console.error('   typeof window.handleSubmitChatbot:', typeof window.handleSubmitChatbot);
+                        // Tentar novamente após um delay
+                        setTimeout(() => {
+                            if (typeof handleSubmitChatbot === 'function') {
+                                console.log('✅ [HTML] Chamando handleSubmitChatbot após delay...');
+                                handleSubmitChatbot(e);
+                            } else if (typeof window.handleSubmitChatbot === 'function') {
+                                console.log('✅ [HTML] Chamando window.handleSubmitChatbot após delay...');
+                                window.handleSubmitChatbot(e);
+                            } else {
+                                console.error('❌ [HTML] handleSubmitChatbot ainda não está disponível após delay');
+                                alert('Erro: função de salvamento não está disponível. Recarregue a página.');
+                            }
+                        }, 500);
+                    }
+                });
+                console.log('✅ [HTML] Event listener adicionado ao formulário');
+            } else {
+                console.warn('⚠️ [HTML] Formulário form-chatbot não encontrado');
+            }
+        })();
+        
         // Verificar logs persistentes de salvamento ao carregar a página
         (function verificarLogsSalvamento() {
             console.log('🔍 Verificando logs persistentes de salvamento...');
