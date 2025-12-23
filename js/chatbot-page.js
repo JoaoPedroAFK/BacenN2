@@ -3,6 +3,11 @@
 
 console.log('📦 [chatbot-page.js] Script carregado!');
 
+// DEFINIR FUNÇÕES GLOBAIS IMEDIATAMENTE (antes de qualquer erro de sintaxe)
+// Isso garante que as funções estejam disponíveis mesmo se houver erro mais adiante no arquivo
+window.renderizarListaChatbot = null; // Será definida abaixo
+window.renderizarMinhasReclamacoesChatbot = null; // Será definida abaixo
+
 // Variáveis globais
 let fichasChatbot = [];
 

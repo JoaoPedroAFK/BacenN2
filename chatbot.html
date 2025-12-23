@@ -56,32 +56,40 @@
                 if (secaoId === 'lista-chatbot') {
                     console.log('📋 [HEAD] Seção lista-chatbot selecionada, chamando renderizarListaChatbot...');
                     // Verificar se a função existe antes de chamar
-                    if (typeof renderizarListaChatbot === 'function') {
-                        renderizarListaChatbot();
-                    } else if (typeof window.renderizarListaChatbot === 'function') {
+                    if (typeof window.renderizarListaChatbot === 'function') {
+                        console.log('✅ [HEAD] Chamando window.renderizarListaChatbot...');
                         window.renderizarListaChatbot();
+                    } else if (typeof renderizarListaChatbot === 'function') {
+                        console.log('✅ [HEAD] Chamando renderizarListaChatbot...');
+                        renderizarListaChatbot();
                     } else {
                         console.warn('⚠️ [HEAD] renderizarListaChatbot não está disponível ainda');
+                        console.warn('⚠️ [HEAD] typeof window.renderizarListaChatbot:', typeof window.renderizarListaChatbot);
+                        console.warn('⚠️ [HEAD] typeof renderizarListaChatbot:', typeof renderizarListaChatbot);
                         // Tentar novamente após um pequeno delay
                         setTimeout(() => {
-                            if (typeof renderizarListaChatbot === 'function') {
-                                renderizarListaChatbot();
-                            } else if (typeof window.renderizarListaChatbot === 'function') {
+                            if (typeof window.renderizarListaChatbot === 'function') {
+                                console.log('✅ [HEAD] Chamando window.renderizarListaChatbot após delay...');
                                 window.renderizarListaChatbot();
+                            } else if (typeof renderizarListaChatbot === 'function') {
+                                console.log('✅ [HEAD] Chamando renderizarListaChatbot após delay...');
+                                renderizarListaChatbot();
+                            } else {
+                                console.error('❌ [HEAD] renderizarListaChatbot ainda não está disponível após delay');
                             }
-                        }, 500);
+                        }, 1000);
                     }
                 } else if (secaoId === 'minhas-reclamacoes-chatbot') {
-                    if (typeof renderizarMinhasReclamacoesChatbot === 'function') {
-                        renderizarMinhasReclamacoesChatbot();
-                    } else if (typeof window.renderizarMinhasReclamacoesChatbot === 'function') {
+                    if (typeof window.renderizarMinhasReclamacoesChatbot === 'function') {
                         window.renderizarMinhasReclamacoesChatbot();
+                    } else if (typeof renderizarMinhasReclamacoesChatbot === 'function') {
+                        renderizarMinhasReclamacoesChatbot();
                     }
                 } else if (secaoId === 'dashboard-chatbot') {
-                    if (typeof atualizarDashboardChatbot === 'function') {
-                        atualizarDashboardChatbot();
-                    } else if (typeof window.atualizarDashboardChatbot === 'function') {
+                    if (typeof window.atualizarDashboardChatbot === 'function') {
                         window.atualizarDashboardChatbot();
+                    } else if (typeof atualizarDashboardChatbot === 'function') {
+                        atualizarDashboardChatbot();
                     }
                 }
             };
