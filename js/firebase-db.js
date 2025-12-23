@@ -157,20 +157,47 @@ class FirebaseDB {
             const snapshot = await this.database.ref(caminho).once('value');
             const dados = snapshot.val();
             
-            console.log(`📊 Dados brutos do Firebase para ${tipo}:`, dados);
-            console.log(`📊 Tipo dos dados:`, typeof dados);
-            console.log(`📊 É objeto?`, dados && typeof dados === 'object' && !Array.isArray(dados));
+            console.log(`📊 [FirebaseDB.carregar] Dados brutos do Firebase para ${tipo}:`, dados);
+            console.log(`📊 [FirebaseDB.carregar] Tipo dos dados:`, typeof dados);
+            console.log(`📊 [FirebaseDB.carregar] É objeto?`, dados && typeof dados === 'object' && !Array.isArray(dados));
+            console.log(`📊 [FirebaseDB.carregar] snapshot.exists():`, snapshot.exists());
             
-            if (!dados) {
-                console.log(`⚠️ Nenhuma ficha ${tipo} encontrada no Firebase (dados é null/undefined)`);
+            if (!snapshot.exists() || !dados || dados === null) {
+                console.warn(`⚠️ [FirebaseDB.carregar] Nenhuma ficha ${tipo} encontrada no Firebase`);
                 return [];
+            }
+            
+            // Verificar se dados é um objeto (estrutura do Firebase)
+            if (typeof dados !== 'object' || Array.isArray(dados)) {
+                console.error(`❌ [FirebaseDB.carregar] Dados não é um objeto válido! Tipo: ${typeof dados}, É array: ${Array.isArray(dados)}`);
+                return [];
+            }
+            
+            const keys = Object.keys(dados);
+            console.log(`📊 [FirebaseDB.carregar] Número de chaves encontradas: ${keys.length}`);
+            if (keys.length > 0) {
+                console.log(`📊 [FirebaseDB.carregar] Primeiras 3 chaves:`, keys.slice(0, 3));
             }
 
             // Converter objeto em array
-            const fichas = Object.keys(dados).map(id => dados[id]);
-            console.log(`✅ ${fichas.length} fichas ${tipo} carregadas do Firebase`);
+            // IMPORTANTE: Object.keys(dados) retorna os IDs das fichas
+            // Precisamos garantir que cada ficha tenha o ID correto
+            const fichas = Object.keys(dados).map(id => {
+                const ficha = dados[id];
+                // Garantir que o ID está presente (pode não estar no objeto salvo)
+                if (!ficha.id || ficha.id !== id) {
+                    ficha.id = id;
+                }
+                return ficha;
+            });
+            
+            console.log(`✅ [FirebaseDB.carregar] ${fichas.length} fichas ${tipo} carregadas do Firebase`);
             if (fichas.length > 0) {
-                console.log(`📋 Primeira ficha ${tipo}:`, fichas[0].id || 'sem ID', fichas[0].nomeCliente || 'sem nome');
+                console.log(`📋 [FirebaseDB.carregar] Primeira ficha ${tipo}:`, {
+                    id: fichas[0].id,
+                    nome: fichas[0].nomeCliente || fichas[0].nomeCompleto || 'sem nome'
+                });
+                console.log(`📋 [FirebaseDB.carregar] IDs das fichas:`, fichas.map(f => f.id).slice(0, 5));
             }
             return fichas;
         } catch (error) {
