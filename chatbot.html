@@ -507,6 +507,9 @@
                     console.log('📋 [HTML STUB] Fichas carregadas:', fichas.length);
                     if (fichas.length > 0) {
                         console.log('📋 [HTML STUB] Primeira ficha:', fichas[0]);
+                        // Aguardar um pouco para garantir que criarCardChatbot esteja disponível
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        
                         // Tentar usar criarCardChatbot de várias formas
                         let criarCard = null;
                         if (typeof window.criarCardChatbot === 'function') {
@@ -515,6 +518,13 @@
                         } else if (typeof criarCardChatbot === 'function') {
                             criarCard = criarCardChatbot;
                             console.log('✅ [HTML STUB] Usando criarCardChatbot');
+                        } else {
+                            // Tentar novamente após mais um delay
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                            if (typeof window.criarCardChatbot === 'function') {
+                                criarCard = window.criarCardChatbot;
+                                console.log('✅ [HTML STUB] Usando window.criarCardChatbot (após delay)');
+                            }
                         }
                         
                         if (criarCard) {
@@ -528,10 +538,12 @@
                                 console.log('✅ [HTML STUB] Cards renderizados com sucesso!');
                             } catch (error) {
                                 console.error('❌ [HTML STUB] Erro ao criar cards:', error);
+                                console.error('❌ [HTML STUB] Stack:', error.stack);
                                 container.innerHTML = fichas.map(f => `<div class="ficha-card">${f.nomeCompleto || f.id || 'Sem nome'}</div>`).join('');
                             }
                         } else {
                             console.warn('⚠️ [HTML STUB] criarCardChatbot não encontrado, usando HTML simples');
+                            console.warn('⚠️ [HTML STUB] typeof window.criarCardChatbot:', typeof window.criarCardChatbot);
                             container.innerHTML = fichas.map(f => `<div class="ficha-card">${f.nomeCompleto || f.id || 'Sem nome'}</div>`).join('');
                         }
                     } else {
@@ -546,6 +558,18 @@
             }
         };
         console.log('✅ [HTML] renderizarListaChatbot definida no HTML');
+        
+        // Listener para atualizar lista quando uma nova ficha for salva
+        window.addEventListener('reclamacaoSalva', function(event) {
+            if (event.detail && event.detail.tipo === 'chatbot') {
+                console.log('📢 [HTML] Evento reclamacaoSalva recebido para chatbot, atualizando lista...');
+                setTimeout(() => {
+                    if (window.renderizarListaChatbot) {
+                        window.renderizarListaChatbot();
+                    }
+                }, 500);
+            }
+        });
     </script>
     <script src="js/chatbot-page.js"></script>
     <script src="js/theme-toggle.js"></script>
