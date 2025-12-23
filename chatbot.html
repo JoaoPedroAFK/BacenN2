@@ -665,6 +665,114 @@
             }
         });
         
+        // Definir handleSubmitChatbot diretamente no HTML para garantir disponibilidade
+        if (!window.handleSubmitChatbot) {
+            window.handleSubmitChatbot = async function(e) {
+                console.log('🚀🚀🚀 [HTML] handleSubmitChatbot chamado (versão HTML) 🚀🚀🚀');
+                if (e) {
+                    e.preventDefault();
+                }
+                
+                // Tentar usar a versão completa se disponível
+                if (window._handleSubmitChatbotFull && typeof window._handleSubmitChatbotFull === 'function') {
+                    console.log('✅ [HTML] Usando versão completa de handleSubmitChatbot');
+                    return window._handleSubmitChatbotFull(e);
+                }
+                
+                // Versão HTML stub - coletar dados do formulário e salvar
+                try {
+                    console.log('📋 [HTML] Coletando dados do formulário...');
+                    
+                    // Função auxiliar para obter valor de campo
+                    const obterValor = (id) => {
+                        const campo = document.getElementById(id);
+                        return campo ? campo.value : '';
+                    };
+                    
+                    // Função auxiliar para obter checkbox
+                    const obterCheckbox = (id) => {
+                        const campo = document.getElementById(id);
+                        return campo ? campo.checked : false;
+                    };
+                    
+                    // Gerar ID
+                    const id = window.armazenamentoReclamacoes ? 
+                        window.armazenamentoReclamacoes.gerarId() : 
+                        `rec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                    
+                    // Coletar dados do formulário
+                    const ficha = {
+                        id: id,
+                        tipoDemanda: 'chatbot',
+                        nomeCompleto: obterValor('chatbot-nome') || '',
+                        cpf: obterValor('chatbot-cpf'),
+                        telefone: obterValor('chatbot-telefone') || '',
+                        notaAvaliacao: obterValor('chatbot-nota-avaliacao'),
+                        avaliacaoCliente: obterValor('chatbot-avaliacao-cliente'),
+                        produto: obterValor('chatbot-produto'),
+                        motivo: obterValor('chatbot-motivo'),
+                        respostaBot: document.querySelector('input[name="chatbot-resposta-bot"]:checked')?.value || '',
+                        pixStatus: obterValor('chatbot-pix-status'),
+                        enviarCobranca: document.querySelector('input[name="chatbot-enviar-cobranca"]:checked')?.value || 'Não',
+                        casosCriticos: obterCheckbox('chatbot-casos-criticos'),
+                        observacoes: obterValor('chatbot-observacoes'),
+                        status: obterValor('chatbot-status') || 'nao-iniciado',
+                        canalChatbot: obterValor('chatbot-canal') || '',
+                        dataCriacao: new Date().toISOString(),
+                        responsavel: window.sistemaPerfis?.usuarioAtual?.nome || window.sistemaPerfis?.usuarioAtual?.email || 'Sistema'
+                    };
+                    
+                    console.log('📋 [HTML] Ficha coletada:', ficha);
+                    
+                    // Validar campos obrigatórios
+                    if (!ficha.nomeCompleto || !ficha.cpf) {
+                        alert('Por favor, preencha pelo menos o nome e CPF');
+                        return;
+                    }
+                    
+                    // Salvar usando armazenamentoReclamacoes
+                    if (!window.armazenamentoReclamacoes) {
+                        alert('Erro: sistema de armazenamento não disponível');
+                        return;
+                    }
+                    
+                    console.log('💾 [HTML] Salvando ficha...');
+                    const sucesso = await window.armazenamentoReclamacoes.salvar('chatbot', ficha);
+                    console.log('📥 [HTML] Resultado do salvar:', sucesso);
+                    
+                    if (!sucesso) {
+                        alert('Erro ao salvar reclamação');
+                        return;
+                    }
+                    
+                    console.log('✅ [HTML] Ficha salva com sucesso!');
+                    
+                    // Limpar formulário
+                    const form = document.getElementById('form-chatbot');
+                    if (form) {
+                        form.reset();
+                    }
+                    
+                    // Atualizar lista
+                    if (window.renderizarListaChatbot) {
+                        await window.renderizarListaChatbot();
+                    }
+                    
+                    // Mostrar lista
+                    if (window.mostrarSecao) {
+                        window.mostrarSecao('lista-chatbot');
+                    }
+                    
+                    alert('Reclamação Chatbot salva com sucesso!');
+                    
+                } catch (error) {
+                    console.error('❌ [HTML] Erro ao salvar:', error);
+                    alert('Erro ao salvar reclamação: ' + error.message);
+                }
+            };
+            console.log('✅ [HTML] handleSubmitChatbot definida no HTML');
+        }
+        
         // Garantir que o event listener do formulário seja adicionado (mesmo com erro de sintaxe)
         (function configurarFormularioChatbot() {
             console.log('🔧 [HTML] Configurando formulário chatbot...');
@@ -676,30 +784,13 @@
                     e.preventDefault();
                     console.log('✅ [HTML] preventDefault executado');
                     
-                    // Tentar usar handleSubmitChatbot se disponível
-                    if (typeof handleSubmitChatbot === 'function') {
-                        console.log('✅ [HTML] Chamando handleSubmitChatbot...');
-                        handleSubmitChatbot(e);
-                    } else if (typeof window.handleSubmitChatbot === 'function') {
+                    // Usar handleSubmitChatbot (agora sempre disponível)
+                    if (window.handleSubmitChatbot) {
                         console.log('✅ [HTML] Chamando window.handleSubmitChatbot...');
                         window.handleSubmitChatbot(e);
                     } else {
-                        console.error('❌ [HTML] handleSubmitChatbot não está disponível!');
-                        console.error('   typeof handleSubmitChatbot:', typeof handleSubmitChatbot);
-                        console.error('   typeof window.handleSubmitChatbot:', typeof window.handleSubmitChatbot);
-                        // Tentar novamente após um delay
-                        setTimeout(() => {
-                            if (typeof handleSubmitChatbot === 'function') {
-                                console.log('✅ [HTML] Chamando handleSubmitChatbot após delay...');
-                                handleSubmitChatbot(e);
-                            } else if (typeof window.handleSubmitChatbot === 'function') {
-                                console.log('✅ [HTML] Chamando window.handleSubmitChatbot após delay...');
-                                window.handleSubmitChatbot(e);
-                            } else {
-                                console.error('❌ [HTML] handleSubmitChatbot ainda não está disponível após delay');
-                                alert('Erro: função de salvamento não está disponível. Recarregue a página.');
-                            }
-                        }, 500);
+                        console.error('❌ [HTML] window.handleSubmitChatbot não está disponível!');
+                        alert('Erro: função de salvamento não está disponível. Recarregue a página.');
                     }
                 });
                 console.log('✅ [HTML] Event listener adicionado ao formulário');
