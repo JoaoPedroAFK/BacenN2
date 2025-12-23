@@ -5,8 +5,21 @@ console.log('📦 [chatbot-page.js] Script carregado!');
 
 // DEFINIR FUNÇÕES GLOBAIS IMEDIATAMENTE (antes de qualquer erro de sintaxe)
 // Isso garante que as funções estejam disponíveis mesmo se houver erro mais adiante no arquivo
-window.renderizarListaChatbot = null; // Será definida abaixo
-window.renderizarMinhasReclamacoesChatbot = null; // Será definida abaixo
+window.renderizarListaChatbot = async function() {
+    console.log('🎨 [renderizarListaChatbot STUB] Função chamada (versão stub - será sobrescrita)');
+    // Esta é uma versão stub que será sobrescrita pela versão completa mais abaixo
+    // Mas pelo menos garante que a função existe
+    if (window._renderizarListaChatbotFull) {
+        return window._renderizarListaChatbotFull();
+    }
+    console.warn('⚠️ [renderizarListaChatbot STUB] Versão completa ainda não carregada');
+};
+window.renderizarMinhasReclamacoesChatbot = async function() {
+    console.log('🎨 [renderizarMinhasReclamacoesChatbot STUB] Função chamada (versão stub)');
+    if (window._renderizarMinhasReclamacoesChatbotFull) {
+        return window._renderizarMinhasReclamacoesChatbotFull();
+    }
+};
 
 // Variáveis globais
 let fichasChatbot = [];
@@ -653,7 +666,8 @@ if (!window.fecharSidebarCasosDashboard) {
 
 // === LISTA ===
 // Garantir que renderizarListaChatbot está disponível globalmente
-window.renderizarListaChatbot = async function renderizarListaChatbot() {
+// Salvar versão completa em variável auxiliar e depois atribuir ao window
+window._renderizarListaChatbotFull = async function renderizarListaChatbot() {
     console.log('🎨🎨🎨 [renderizarListaChatbot] FUNÇÃO CHAMADA! 🎨🎨🎨');
     const container = document.getElementById('lista-fichas-chatbot');
     if (!container) {
@@ -805,7 +819,9 @@ window.renderizarListaChatbot = async function renderizarListaChatbot() {
         console.error('❌ [renderizarListaChatbot] Stack:', error.stack);
         container.innerHTML = `<div class="no-results">Erro ao renderizar lista: ${error.message}</div>`;
     }
-}
+};
+// Atualizar a função global com a versão completa
+window.renderizarListaChatbot = window._renderizarListaChatbotFull;
 
 // Renderizar "Minhas Reclamações"
 async function renderizarMinhasReclamacoesChatbot() {
