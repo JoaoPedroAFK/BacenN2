@@ -559,6 +559,60 @@
         };
         console.log('✅ [HTML] renderizarListaChatbot definida no HTML');
         
+        // Definir criarCardChatbot no HTML também para garantir disponibilidade
+        if (!window.criarCardChatbot) {
+            window.criarCardChatbot = function(ficha) {
+                const statusLabels = {
+                    'nao-iniciado': 'Não Iniciado',
+                    'em-tratativa': 'Em Tratativa',
+                    'concluido': 'Concluído',
+                    'respondido': 'Respondido'
+                };
+                
+                const canalLabels = {
+                    'whatsapp': '📱 WhatsApp',
+                    'telegram': '✈️ Telegram',
+                    'site': '🌐 Site',
+                    'app': '📲 App',
+                    'outro': '🔗 Outro'
+                };
+                
+                const statusClass = `status-${ficha.status || 'nao-iniciado'}`;
+                const statusLabel = statusLabels[ficha.status] || ficha.status || 'Não Iniciado';
+                const canalLabel = canalLabels[ficha.canalChatbot] || ficha.canalChatbot || 'Não informado';
+                
+                let badges = `<span class="chatbot-badge">🤖 Chatbot</span>`;
+                if (ficha.resolvidoAutomaticamente) {
+                    badges += '<span style="background: #1DFDB9; color: #000058; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 8px;">✅ Auto</span>';
+                }
+                
+                const dataFormatada = ficha.dataCriacao ? new Date(ficha.dataCriacao).toLocaleDateString('pt-BR') : 'N/A';
+                const nome = ficha.nomeCompleto || ficha.nomeCliente || 'Sem nome';
+                const cpf = ficha.cpf || 'N/A';
+                
+                return `
+                    <div class="ficha-card" onclick="if(window.abrirFichaChatbot) window.abrirFichaChatbot('${ficha.id}'); else console.warn('abrirFichaChatbot não disponível')">
+                        <div class="ficha-header">
+                            <div class="ficha-title">
+                                <h3>${nome}</h3>
+                                <div class="ficha-badges">${badges}</div>
+                            </div>
+                            <div class="ficha-status ${statusClass}">${statusLabel}</div>
+                        </div>
+                        <div class="ficha-body">
+                            <div class="ficha-info">
+                                <span><strong>CPF:</strong> ${cpf}</span>
+                                <span><strong>Canal:</strong> ${canalLabel}</span>
+                                <span><strong>Data:</strong> ${dataFormatada}</span>
+                            </div>
+                            ${ficha.motivo ? `<div class="ficha-motivo">${ficha.motivo}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            };
+            console.log('✅ [HTML] criarCardChatbot definida no HTML');
+        }
+        
         // Listener para atualizar lista quando uma nova ficha for salva
         window.addEventListener('reclamacaoSalva', function(event) {
             if (event.detail && event.detail.tipo === 'chatbot') {
