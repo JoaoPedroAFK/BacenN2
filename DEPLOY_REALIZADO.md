@@ -1,5 +1,53 @@
 # ✅ Deploy Realizado - BacenN2
 
+## 📋 Data/Hora: 2025-02-01 (Sexto Deploy - Melhorias Visuais Gráficos)
+
+### 1. **Commit - Melhorias Visuais nos Gráficos**
+- ✅ Corrigido problema de labels sobrepostas nos gráficos de barras
+- ✅ Labels agora posicionadas abaixo das barras sem sobreposição
+- ✅ Botão "Expandir" adicionado para abrir gráficos em modal
+- ✅ Gráficos expandidos em modal com escala aumentada (1.5x)
+- ✅ Corrigido gráfico mensal com labels rotacionadas para evitar sobreposição
+- ✅ Ajustes de padding e espaçamento nos containers de gráficos
+- ✅ Melhorias no posicionamento de valores e labels nos gráficos de barras
+- **Commit**: `cea16b0`
+- **Mensagem**: "Melhorias visuais nos gráficos: correção labels sobrepostas, botão expandir modal, ajustes gráfico mensal - v1.5.3"
+
+### 2. **Push para GitHub**
+- ✅ Push realizado com sucesso para `origin/main`
+- ✅ Repositório: https://github.com/JoaoPedroAFK/BacenN2.git
+- ✅ Branch: `main`
+- **Status**: ✅ **CONCLUÍDO**
+
+### 3. **Arquivos Modificados no Commit**
+```
+5 files changed, 257 insertions(+), 65 deletions(-)
+- css/components.css (MODIFICADO - estilos gráficos, labels, modal)
+- js/controle-graficos-dashboard.js (MODIFICADO - ajustes controle)
+- js/demo-data.js (MODIFICADO - dados de exemplo)
+- js/graficos-detalhados.js (MODIFICADO - modal, labels, gráfico mensal)
+- n2.html (MODIFICADO - remoção elementos)
+```
+
+### 4. **Melhorias Aplicadas**
+- ✅ Labels dos gráficos de barras posicionadas abaixo das barras (sem sobreposição)
+- ✅ Valores dos gráficos de barras posicionados acima das barras
+- ✅ Botão "Expandir" adicionado em todos os gráficos para abrir em modal
+- ✅ Modal de gráficos com escala aumentada (transform: scale(1.5))
+- ✅ Gráfico mensal com labels rotacionadas (-45deg) para evitar sobreposição
+- ✅ Aumentado padding inferior dos containers de gráficos
+- ✅ Ajustado min-height dos containers para acomodar labels
+- ✅ Melhorado espaçamento entre elementos dos gráficos
+
+### 5. **Problemas Resolvidos**
+- ✅ Labels não sobrepõem mais as barras dos gráficos
+- ✅ Gráfico mensal com labels legíveis e sem sobreposição
+- ✅ Botão "Expandir" não sobrepõe mais o conteúdo do gráfico
+- ✅ Gráficos expandidos em modal com melhor visualização
+- ✅ Espaçamento adequado entre elementos visuais
+
+---
+
 ## 📋 Data/Hora: 2025-01-31 (Atualizado)
 
 ---
