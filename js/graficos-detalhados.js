@@ -324,17 +324,28 @@ class GraficosDetalhados {
         // Se o container existe mas não tem o header com botão, adicionar
         if (container) {
             const card = container.closest('.grafico-card');
-            if (card && !card.querySelector('.grafico-card-header')) {
-                // Adicionar header com botão antes do container
-                const header = document.createElement('div');
-                header.className = 'grafico-card-header';
-                header.innerHTML = `
-                    <h3>Gráfico Mensal</h3>
-                    <button class="btn-expandir-grafico" onclick="abrirGraficoModal('${containerId}', 'Gráfico Mensal', '${this.tipoDemanda}')" title="Expandir gráfico">
-                        🔍 Expandir
-                    </button>
-                `;
-                card.insertBefore(header, container);
+            if (card) {
+                // Verificar se já tem header
+                let header = card.querySelector('.grafico-card-header');
+                if (!header) {
+                    // Adicionar header com botão antes do container
+                    header = document.createElement('div');
+                    header.className = 'grafico-card-header';
+                    header.innerHTML = `
+                        <h3>Gráfico Mensal</h3>
+                        <button class="btn-expandir-grafico" onclick="abrirGraficoModal('${containerId}', 'Gráfico Mensal', '${this.tipoDemanda}')" title="Expandir gráfico">
+                            🔍 Expandir
+                        </button>
+                    `;
+                    // Inserir antes do primeiro filho (ou antes do container se não houver h3)
+                    const h3 = card.querySelector('h3');
+                    if (h3) {
+                        card.insertBefore(header, h3);
+                        h3.remove(); // Remover h3 antigo, já está no header
+                    } else {
+                        card.insertBefore(header, container);
+                    }
+                }
             }
         } else {
             return;
