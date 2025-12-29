@@ -201,8 +201,8 @@ class GraficosDetalhados {
         const dadosFiltrados = this.obterDadosFiltrados();
         
         if (this.tipoDemanda === 'bacen') {
-            // BACEN: 7 gráficos conforme proposta
-            this.renderizarGraficoStatusPizza(dadosFiltrados);
+            // BACEN: status e responsável em barras para facilitar comparação
+            this.renderizarGraficoStatus(dadosFiltrados);
             this.renderizarGraficoMensal(dadosFiltrados);
             // this.renderizarGraficoOrigem(dadosFiltrados); // REMOVIDO - gráfico não necessário
             this.renderizarGraficoPrazoBacen(dadosFiltrados);
@@ -210,16 +210,18 @@ class GraficosDetalhados {
             this.renderizarGraficoCasosCriticos(dadosFiltrados);
             this.renderizarGraficoResponsavel(dadosFiltrados);
         } else if (this.tipoDemanda === 'n2') {
-            // N2: 5 gráficos (removidos: StatusPortabilidade, BancoDestino)
-            this.renderizarGraficoStatusPizza(dadosFiltrados);
+            // N2: status e responsável em barras para facilitar comparação
+            this.renderizarGraficoStatus(dadosFiltrados);
             this.renderizarGraficoMensal(dadosFiltrados);
             // this.renderizarGraficoOrigem(dadosFiltrados); // REMOVIDO - gráfico não necessário
+            // Substituir "Bancos Mais Solicitados" por um gráfico mais útil de Status de Portabilidade
+            this.renderizarGraficoStatusPortabilidade(dadosFiltrados);
             this.renderizarGraficoCobrancaPizza(dadosFiltrados);
             this.renderizarGraficoCasosCriticos(dadosFiltrados);
             this.renderizarGraficoResponsavel(dadosFiltrados);
         } else if (this.tipoDemanda === 'chatbot') {
-            // Chatbot: 6 gráficos (removidos: ResolucaoAuto)
-            this.renderizarGraficoStatusPizza(dadosFiltrados);
+            // Chatbot: status em barras, demais mantidos
+            this.renderizarGraficoStatus(dadosFiltrados);
             this.renderizarGraficoCanal(dadosFiltrados);
             this.renderizarGraficoSatisfacao(dadosFiltrados);
             this.renderizarGraficoMensal(dadosFiltrados);
@@ -387,17 +389,30 @@ class GraficosDetalhados {
             return;
         }
 
+        // Agrupar estritamente por mês/ano com base na data, ignorando datas inválidas
         const mesesCount = {};
         dados.forEach(f => {
-            const mes = f.mes || this.extrairMes(f.dataEntrada || f.dataCriacao);
+            const mes = this.extrairMes(f.dataEntrada || f.dataCriacao || f.dataReclamacao);
             if (mes) {
                 mesesCount[mes] = (mesesCount[mes] || 0) + 1;
             }
         });
 
-        const meses = Object.keys(mesesCount).sort();
+        // Ordenar os meses por ano e mês numéricos (não ordem de string)
+        const meses = Object.keys(mesesCount).sort((a, b) => {
+            const [maRaw, yaRaw] = a.split('/');
+            const [mbRaw, ybRaw] = b.split('/');
+            const ma = parseInt(maRaw, 10) || 0;
+            const mb = parseInt(mbRaw, 10) || 0;
+            const ya = parseInt(yaRaw, 10) || 0;
+            const yb = parseInt(ybRaw, 10) || 0;
+            if (ya !== yb) return ya - yb;
+            return ma - mb;
+        });
+
         const valores = meses.map(m => mesesCount[m]);
 
+        // Gráfico de linha com meses legíveis no eixo X
         container.innerHTML = this.criarGraficoLinha(meses, valores, 'Mês', '#1634FF');
     }
 
@@ -642,19 +657,26 @@ class GraficosDetalhados {
 
     criarGraficoBarras(labels, values, cores, titulo) {
         const maxValue = Math.max(...values, 1);
-        const alturaMax = 220; // Altura fixa para todos os gráficos
+        // Um pouco menor para sobrar espaço entre o topo da barra e o número
+        const alturaMax = 200; // Altura fixa para todos os gráficos
 
+        // Layout genérico: valor em cima, barra no meio, label HORIZONTAL abaixo.
+        // Cada barra terá largura fixa e o container poderá rolar horizontalmente.
         return `
-            <div class="grafico-barras" style="min-height: 450px; padding: 50px 20px 100px 20px; position: relative; overflow: visible;">
-                <div class="grafico-barras-container" style="display: flex; justify-content: space-around; align-items: flex-end; gap: 20px; min-height: 220px; padding-bottom: 0;">
+            <div class="grafico-barras" style="min-height: 420px; padding: 40px 16px 100px 16px; position: relative; overflow-x: auto; overflow-y: visible;">
+                <div class="grafico-barras-container" style="display: inline-flex; align-items: flex-end; gap: 20px; min-height: 260px; padding-bottom: 32px;">
                     ${labels.map((label, i) => {
                         const altura = (values[i] / maxValue) * alturaMax;
                         const cor = cores && cores[label] ? cores[label] : '#1634FF';
                         return `
-                            <div class="barra-item" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-end; flex: 1; min-width: 60px; position: relative; height: 220px;">
-                                <div class="barra-valor" style="font-weight: bold; font-size: 14px; position: absolute; top: -35px; left: 50%; transform: translateX(-50%); white-space: nowrap; z-index: 10;">${values[i]}</div>
-                                <div class="barra" style="height: ${altura}px; background: ${cor}; width: 100%; max-width: 80px; border-radius: 4px 4px 0 0; transition: all 0.3s; margin-bottom: 0;" title="${label}: ${values[i]}"></div>
-                                <div class="barra-label" style="font-size: 11px; text-align: center; transform: rotate(-45deg); transform-origin: top left; white-space: nowrap; position: absolute; top: 100%; left: 50%; margin-top: 15px; width: 120px; height: 20px; overflow: visible; z-index: 1;">${this.formatarLabel(label)}</div>
+                            <div class="barra-item" style="display: flex; flex-direction: column; align-items: flex-start; width: 90px;">
+                                <div style="height: 240px; width: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center;">
+                                    <div class="barra-valor" style="font-weight: bold; font-size: 12px; margin-bottom: 12px; white-space: nowrap;">${values[i]}</div>
+                                    <div class="barra" style="height: ${altura}px; background: ${cor}; width: 100%; border-radius: 4px 4px 0 0; transition: all 0.3s;" title="${label}: ${values[i]}"></div>
+                                </div>
+                                <div class="barra-label" style="margin-top: 36px; font-size: 11px; text-align: left; padding-left: 8px; width: 120px; white-space: normal; word-break: break-word; max-height: 90px; overflow: hidden;">
+                                    ${this.formatarLabel(label)}
+                                </div>
                             </div>
                         `;
                     }).join('')}
@@ -665,26 +687,42 @@ class GraficosDetalhados {
 
     criarGraficoLinha(labels, values, titulo, cor) {
         const maxValue = Math.max(...values, 1);
-        const alturaMax = 200;
-        const largura = 500;
-        const padding = 40;
-        const larguraUtil = largura - (padding * 2);
+        const alturaMax = 220;
+        const largura = Math.max(700, labels.length * 80); // mais espaço horizontal por mês
+        const paddingEsq = 60;
+        const paddingDir = 40;
+        const paddingTopo = 20;
+        const paddingBase = 80; // espaço para meses
+        const larguraUtil = largura - (paddingEsq + paddingDir);
+
         const pontos = values.map((v, i) => ({
-            x: padding + (i / (values.length - 1 || 1)) * larguraUtil,
-            y: alturaMax - (v / maxValue) * alturaMax
+            x: paddingEsq + (labels.length <= 1 ? 0 : (i / (labels.length - 1)) * larguraUtil),
+            y: paddingTopo + (alturaMax - (v / maxValue) * alturaMax)
         }));
 
+        const alturaTotal = paddingTopo + alturaMax + paddingBase;
+
         return `
-            <div class="grafico-linha" style="padding: 20px 10px 80px 10px; min-height: 320px;">
-                <svg width="${largura}" height="${alturaMax + 100}" viewBox="0 0 ${largura} ${alturaMax + 100}" style="overflow: visible;">
+            <div class="grafico-linha" style="padding: 24px 16px 24px 16px; min-height: 340px; overflow-x: auto; overflow-y: visible;">
+                <svg width="${largura}" height="${alturaTotal}" viewBox="0 0 ${largura} ${alturaTotal}" style="overflow: visible;">
+                    <!-- Linha de base do eixo X -->
+                    <line x1="${paddingEsq}" y1="${paddingTopo + alturaMax}" x2="${paddingEsq + larguraUtil}" y2="${paddingTopo + alturaMax}" stroke="#444" stroke-width="1" />
+
+                    <!-- Linha -->
                     <polyline points="${pontos.map(p => `${p.x},${p.y}`).join(' ')}" 
-                              fill="none" stroke="${cor}" stroke-width="3"/>
+                              fill="none" stroke="${cor}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+
+                    <!-- Pontos e valores -->
                     ${pontos.map((p, i) => `
-                        <circle cx="${p.x}" cy="${p.y}" r="5" fill="${cor}"/>
-                        <text x="${p.x}" y="${alturaMax + 50}" text-anchor="middle" font-size="10" transform="rotate(-45 ${p.x} ${alturaMax + 50})" transform-origin="${p.x} ${alturaMax + 50}">${labels[i]}</text>
+                        <circle cx="${p.x}" cy="${p.y}" r="4" fill="${cor}"/>
+                        <text x="${p.x}" y="${p.y - 8}" text-anchor="middle" font-size="11" font-weight="bold" fill="#ffffff">${values[i]}</text>
                     `).join('')}
-                    ${values.map((v, i) => `
-                        <text x="${pontos[i].x}" y="${pontos[i].y - 10}" text-anchor="middle" font-size="12" font-weight="bold">${v}</text>
+
+                    <!-- Meses no eixo X -->
+                    ${pontos.map((p, i) => `
+                        <text x="${p.x}" y="${paddingTopo + alturaMax + 32}" text-anchor="middle" font-size="11" fill="#ffffff">
+                            ${titulo === 'Mês' ? this.formatarMesLinha(labels[i]) : labels[i]}
+                        </text>
                     `).join('')}
                 </svg>
             </div>
@@ -861,6 +899,7 @@ class GraficosDetalhados {
         const labels = sorted.map(([nome]) => nome);
         const values = sorted.map(([, count]) => count);
 
+        // Usa o layout genérico de barras (valor em cima, barra, label horizontal abaixo)
         container.innerHTML = this.criarGraficoBarras(labels, values, null, 'Responsável');
     }
 
@@ -904,6 +943,10 @@ class GraficosDetalhados {
     }
 
     renderizarGraficoBancoDestino(dados) {
+        // Para N2, esse gráfico foi desativado (não faz mais sentido no dashboard)
+        if (this.tipoDemanda === 'n2') {
+            return;
+        }
         const containerId = `grafico-banco-destino-${this.tipoDemanda}`;
         let container = document.getElementById(containerId);
         
@@ -1122,10 +1165,31 @@ class GraficosDetalhados {
         return labels[label] || label;
     }
 
+    // Formatação específica para labels do gráfico de linha mensal
+    formatarMesLinha(valor) {
+        // Esperado algo como "1/2025" ou "01/2025"
+        if (!valor) return '';
+        const [mesRaw, anoRaw] = valor.split('/');
+        const mes = parseInt(mesRaw, 10);
+        const ano = anoRaw ? anoRaw.toString().slice(-2) : '';
+        const nomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        if (!isNaN(mes) && mes >= 1 && mes <= 12) {
+            return `${nomes[mes - 1]}/${ano}`;
+        }
+        return valor;
+    }
+
     extrairMes(dataString) {
         if (!dataString) return null;
         const data = new Date(dataString);
-        return `${data.getMonth() + 1}/${data.getFullYear()}`;
+        if (isNaN(data.getTime())) return null;
+
+        const mes = data.getMonth() + 1;
+        const ano = data.getFullYear();
+        if (!mes || !ano) return null;
+
+        // Não precisa zero à esquerda aqui; a formatarMesLinha trata 1/2025 e 01/2025 igual.
+        return `${mes}/${ano}`;
     }
 }
 

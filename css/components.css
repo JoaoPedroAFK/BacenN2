@@ -1255,20 +1255,10 @@
     font-size: 9px;
     color: #666;
     text-align: center;
-    white-space: nowrap;
+    white-space: normal;
+    word-break: break-word;
     max-width: 100px;
-    overflow: visible;
-    transform: rotate(-45deg);
-    transform-origin: center center;
-    height: 70px;
-    width: 70px;
-    position: absolute;
-    bottom: -50px;
-    left: 50%;
-    margin-left: -35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    overflow: hidden;
 }
 
 .grafico-linha {
@@ -1449,18 +1439,13 @@
 .barra-label {
     font-size: 11px;
     text-align: center;
-    transform: rotate(-45deg);
-    transform-origin: top left;
-    white-space: nowrap;
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-top: 25px;
-    width: 120px;
-    height: 20px;
-    overflow: visible;
+    white-space: normal;
+    word-break: break-word;
+    margin-top: 8px;
+    width: 100%;
+    max-height: 60px;
+    overflow: hidden;
     color: var(--azul-escuro);
-    z-index: 1;
 }
 
 .dashboard-urgencias-section {

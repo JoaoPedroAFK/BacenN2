@@ -201,11 +201,158 @@ function loadDemoData() {
     }
 }
 
+// Seed automático para dashboards (usa as mesmas chaves do ArmazenamentoReclamacoes)
+function seedDashboardReclamacoesIfEmpty() {
+    try {
+        const chaveBacen = 'velotax_reclamacoes_bacen';
+        const chaveN2 = 'velotax_reclamacoes_n2';
+        const chaveChatbot = 'velotax_reclamacoes_chatbot';
+
+        const jaTemBacen = !!localStorage.getItem(chaveBacen);
+        const jaTemN2 = !!localStorage.getItem(chaveN2);
+        const jaTemChatbot = !!localStorage.getItem(chaveChatbot);
+
+        // Não sobrescreve nada se já houver qualquer dado salvo
+        if (jaTemBacen || jaTemN2 || jaTemChatbot) {
+            return;
+        }
+
+        const hoje = new Date();
+        const ano = hoje.getFullYear();
+
+        const demoBacen = [
+            {
+                id: 'seed-bacen-001',
+                tipoDemanda: 'bacen',
+                nomeCliente: 'Cliente BACEN 1',
+                cpf: '111.111.111-11',
+                status: 'nao-iniciado',
+                responsavel: 'analista.bacen@velotax.com',
+                origem: 'Bacen Celcoin',
+                dataCriacao: `${ano}-01-10T09:00:00.000Z`,
+                mes: `01/${ano}`,
+                enviarCobranca: false,
+                casosCriticos: true
+            },
+            {
+                id: 'seed-bacen-002',
+                tipoDemanda: 'bacen',
+                nomeCliente: 'Cliente BACEN 2',
+                cpf: '222.222.222-22',
+                status: 'em-tratativa',
+                responsavel: 'analista.bacen@velotax.com',
+                origem: 'Bacen Via Capital',
+                dataCriacao: `${ano}-02-05T11:30:00.000Z`,
+                mes: `02/${ano}`,
+                enviarCobranca: true,
+                casosCriticos: false
+            },
+            {
+                id: 'seed-bacen-003',
+                tipoDemanda: 'bacen',
+                nomeCliente: 'Cliente BACEN 3',
+                cpf: '333.333.333-33',
+                status: 'respondido',
+                responsavel: 'gestor@velotax.com',
+                origem: 'Consumidor.Gov',
+                dataCriacao: `${ano}-03-18T14:15:00.000Z`,
+                mes: `03/${ano}`,
+                enviarCobranca: false,
+                casosCriticos: false
+            },
+            {
+                id: 'seed-bacen-004',
+                tipoDemanda: 'bacen',
+                nomeCliente: 'Cliente BACEN 4',
+                cpf: '444.444.444-44',
+                status: 'concluido',
+                responsavel: 'gestor@velotax.com',
+                origem: 'Bacen Celcoin',
+                dataCriacao: `${ano}-03-25T16:45:00.000Z`,
+                mes: `03/${ano}`,
+                enviarCobranca: true,
+                casosCriticos: false
+            }
+        ];
+
+        const demoN2 = [
+            {
+                id: 'seed-n2-001',
+                tipoDemanda: 'n2',
+                nomeCliente: 'Cliente N2 1',
+                cpf: '555.555.555-55',
+                status: 'em-tratativa',
+                responsavel: 'analista.n2@velotax.com',
+                origem: 'Portabilidade',
+                dataCriacao: `${ano}-02-01T10:00:00.000Z`,
+                mes: `02/${ano}`,
+                enviarCobranca: false,
+                casosCriticos: false
+            },
+            {
+                id: 'seed-n2-002',
+                tipoDemanda: 'n2',
+                nomeCliente: 'Cliente N2 2',
+                cpf: '666.666.666-66',
+                status: 'concluido',
+                responsavel: 'analista.n2@velotax.com',
+                origem: 'Portabilidade',
+                dataCriacao: `${ano}-03-07T09:30:00.000Z`,
+                mes: `03/${ano}`,
+                enviarCobranca: true,
+                casosCriticos: false
+            }
+        ];
+
+        const demoChatbot = [
+            {
+                id: 'seed-chat-001',
+                tipoDemanda: 'chatbot',
+                nomeCliente: 'Cliente Chatbot 1',
+                cpf: '777.777.777-77',
+                status: 'em-tratativa',
+                responsavel: 'bot-owner@velotax.com',
+                origem: 'chatbot',
+                dataCriacao: `${ano}-01-12T08:20:00.000Z`,
+                mes: `01/${ano}`,
+                enviarCobranca: false,
+                casosCriticos: false
+            },
+            {
+                id: 'seed-chat-002',
+                tipoDemanda: 'chatbot',
+                nomeCliente: 'Cliente Chatbot 2',
+                cpf: '888.888.888-88',
+                status: 'respondido',
+                responsavel: 'bot-owner@velotax.com',
+                origem: 'chatbot',
+                dataCriacao: `${ano}-02-20T19:10:00.000Z`,
+                mes: `02/${ano}`,
+                enviarCobranca: false,
+                casosCriticos: false
+            }
+        ];
+
+        localStorage.setItem(chaveBacen, JSON.stringify(demoBacen));
+        localStorage.setItem(chaveN2, JSON.stringify(demoN2));
+        localStorage.setItem(chaveChatbot, JSON.stringify(demoChatbot));
+    } catch (e) {
+        console.error('Erro ao semear dados de dashboard para demonstração:', e);
+    }
+}
+
 // Função para limpar todos os dados
 function clearAllData() {
     if (confirm('Tem certeza que deseja apagar TODOS os dados? Esta ação não pode ser desfeita.')) {
+        // Chaves antigas de demo
         localStorage.removeItem('bacen-complaints');
-        alert('Todos os dados foram removidos. A página será recarregada.');
+
+        // Chaves usadas pelos dashboards (inclusive seeds de demonstração)
+        localStorage.removeItem('velotax_reclamacoes_bacen');
+        localStorage.removeItem('velotax_reclamacoes_n2');
+        localStorage.removeItem('velotax_reclamacoes_chatbot');
+
+        alert('Todos os dados de demonstração/local foram removidos. A página será recarregada.');
         window.location.reload();
     }
 }
@@ -228,7 +375,7 @@ function addDemoButtons() {
     }
 }
 
-// Inicializar botões de demonstração quando o DOM estiver pronto
+// Inicializar botões de demonstração quando o DOM estiver pronto (SEM seed automático)
 document.addEventListener('DOMContentLoaded', function() {
     addDemoButtons();
 });

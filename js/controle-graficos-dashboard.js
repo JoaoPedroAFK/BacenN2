@@ -118,31 +118,31 @@ class ControleGraficosDashboard {
         
         if (this.tipoDemanda === 'bacen') {
             graficos.push(
-                { id: 'status', nome: 'Status (Pizza)' },
+                { id: 'status', nome: 'Status (Barras)' },
                 { id: 'mensal', nome: 'Gráfico Mensal' },
                 { id: 'origem', nome: 'Origem' },
                 { id: 'prazoBacen', nome: 'Prazo BACEN' },
-                { id: 'cobranca', nome: 'Cobrança (Pizza)' },
+                { id: 'cobranca', nome: 'Cobrança' },
                 { id: 'casosCriticos', nome: 'Casos Críticos' },
                 { id: 'responsavel', nome: 'Responsável' }
             );
         } else if (this.tipoDemanda === 'n2') {
             graficos.push(
-                { id: 'status', nome: 'Status (Pizza)' },
+                { id: 'status', nome: 'Status (Barras)' },
                 { id: 'mensal', nome: 'Gráfico Mensal' },
                 { id: 'origem', nome: 'Origem' },
-                { id: 'cobranca', nome: 'Cobrança (Pizza)' },
+                { id: 'cobranca', nome: 'Cobrança' },
                 { id: 'casosCriticos', nome: 'Casos Críticos' },
                 { id: 'responsavel', nome: 'Responsável' }
             );
         } else if (this.tipoDemanda === 'chatbot') {
             graficos.push(
-                { id: 'status', nome: 'Status (Pizza)' },
+                { id: 'status', nome: 'Status (Barras)' },
                 { id: 'canal', nome: 'Canal' },
                 { id: 'satisfacao', nome: 'Satisfação' },
                 { id: 'mensal', nome: 'Gráfico Mensal' },
                 { id: 'produto', nome: 'Produto' },
-                { id: 'cobranca', nome: 'Cobrança (Pizza)' },
+                { id: 'cobranca', nome: 'Cobrança' },
                 { id: 'casosCriticos', nome: 'Casos Críticos' }
             );
         }
