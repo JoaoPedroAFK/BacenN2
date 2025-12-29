@@ -645,16 +645,16 @@ class GraficosDetalhados {
         const alturaMax = 220; // Altura fixa para todos os gráficos
 
         return `
-            <div class="grafico-barras" style="min-height: 420px; padding: 30px 20px 60px 20px; position: relative; overflow: visible;">
-                <div class="grafico-barras-container" style="display: flex; justify-content: space-around; align-items: flex-end; gap: 20px; min-height: 250px; padding-bottom: 50px;">
+            <div class="grafico-barras" style="min-height: 450px; padding: 50px 20px 100px 20px; position: relative; overflow: visible;">
+                <div class="grafico-barras-container" style="display: flex; justify-content: space-around; align-items: flex-end; gap: 20px; min-height: 220px; padding-bottom: 0;">
                     ${labels.map((label, i) => {
                         const altura = (values[i] / maxValue) * alturaMax;
                         const cor = cores && cores[label] ? cores[label] : '#1634FF';
                         return `
-                            <div class="barra-item" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-end; flex: 1; min-width: 60px; height: 100%; position: relative;">
-                                <div class="barra-valor" style="margin-bottom: 10px; font-weight: bold; font-size: 14px; position: absolute; top: -25px; left: 50%; transform: translateX(-50%); white-space: nowrap;">${values[i]}</div>
-                                <div class="barra" style="height: ${altura}px; background: ${cor}; width: 100%; max-width: 80px; border-radius: 4px 4px 0 0; transition: all 0.3s; margin-bottom: 5px;" title="${label}: ${values[i]}"></div>
-                                <div class="barra-label" style="margin-top: 15px; font-size: 11px; text-align: center; transform: rotate(-45deg); transform-origin: top left; white-space: nowrap; position: absolute; bottom: -40px; left: 50%; width: 120px; height: 20px; overflow: visible;">${this.formatarLabel(label)}</div>
+                            <div class="barra-item" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-end; flex: 1; min-width: 60px; position: relative; height: 220px;">
+                                <div class="barra-valor" style="font-weight: bold; font-size: 14px; position: absolute; top: -35px; left: 50%; transform: translateX(-50%); white-space: nowrap; z-index: 10;">${values[i]}</div>
+                                <div class="barra" style="height: ${altura}px; background: ${cor}; width: 100%; max-width: 80px; border-radius: 4px 4px 0 0; transition: all 0.3s; margin-bottom: 0;" title="${label}: ${values[i]}"></div>
+                                <div class="barra-label" style="font-size: 11px; text-align: center; transform: rotate(-45deg); transform-origin: top left; white-space: nowrap; position: absolute; top: 100%; left: 50%; margin-top: 15px; width: 120px; height: 20px; overflow: visible; z-index: 1;">${this.formatarLabel(label)}</div>
                             </div>
                         `;
                     }).join('')}
@@ -675,16 +675,16 @@ class GraficosDetalhados {
         }));
 
         return `
-            <div class="grafico-linha">
-                <svg width="${largura}" height="${alturaMax + 60}" viewBox="0 0 ${largura} ${alturaMax + 60}">
+            <div class="grafico-linha" style="padding: 20px 10px 80px 10px; min-height: 320px;">
+                <svg width="${largura}" height="${alturaMax + 100}" viewBox="0 0 ${largura} ${alturaMax + 100}" style="overflow: visible;">
                     <polyline points="${pontos.map(p => `${p.x},${p.y}`).join(' ')}" 
                               fill="none" stroke="${cor}" stroke-width="3"/>
                     ${pontos.map((p, i) => `
                         <circle cx="${p.x}" cy="${p.y}" r="5" fill="${cor}"/>
-                        <text x="${p.x}" y="${alturaMax + 25}" text-anchor="middle" font-size="10">${labels[i]}</text>
+                        <text x="${p.x}" y="${alturaMax + 50}" text-anchor="middle" font-size="10" transform="rotate(-45 ${p.x} ${alturaMax + 50})" transform-origin="${p.x} ${alturaMax + 50}">${labels[i]}</text>
                     `).join('')}
                     ${values.map((v, i) => `
-                        <text x="${pontos[i].x}" y="${pontos[i].y - 5}" text-anchor="middle" font-size="12" font-weight="bold">${v}</text>
+                        <text x="${pontos[i].x}" y="${pontos[i].y - 10}" text-anchor="middle" font-size="12" font-weight="bold">${v}</text>
                     `).join('')}
                 </svg>
             </div>
