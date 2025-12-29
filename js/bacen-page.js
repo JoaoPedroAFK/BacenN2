@@ -351,47 +351,58 @@ async function handleSubmitBacen(e) {
         console.log('💾 Salvando ficha...');
         
         // PRIORIDADE 1: Salvar no armazenamentoReclamacoes (sistema novo e confiável)
-        if (window.armazenamentoReclamacoes) {
-            try {
-                const sucesso = await window.armazenamentoReclamacoes.salvar('bacen', ficha);
-                if (sucesso) {
-                    console.log('✅ Salvo no armazenamentoReclamacoes');
-                } else {
-                    console.error('❌ Erro ao salvar no armazenamentoReclamacoes');
-                }
-            } catch (error) {
-                console.error('❌ Erro ao salvar no armazenamentoReclamacoes:', error);
-            }
+        if (!window.armazenamentoReclamacoes) {
+            console.error('❌ Sistema de armazenamento não encontrado!');
+            mostrarAlerta('Erro ao salvar: sistema de armazenamento não disponível', 'error');
+            return;
         }
         
-        // SEMPRE adicionar ao array local também
-        const indexExistente = fichasBacen.findIndex(f => f.id === ficha.id);
-        if (indexExistente >= 0) {
-            fichasBacen[indexExistente] = ficha;
-            console.log('✅ Ficha atualizada no array local');
-        } else {
-            fichasBacen.push(ficha);
-            console.log('✅ Ficha adicionada ao array local');
-        }
-        
-        // Salvar no localStorage como backup (chave nova)
         try {
-            localStorage.setItem('velotax_reclamacoes_bacen', JSON.stringify(fichasBacen));
-            console.log('💾 Salvo no localStorage (chave nova):', fichasBacen.length, 'fichas');
+            console.log('📤 [bacen-page] Chamando armazenamentoReclamacoes.salvar...');
+            const sucesso = await window.armazenamentoReclamacoes.salvar('bacen', ficha);
+            console.log('📥 [bacen-page] Resultado do salvar:', sucesso);
+            
+            if (!sucesso) {
+                console.error('❌ [bacen-page] Erro ao salvar reclamação - retornou false');
+                mostrarAlerta('Erro ao salvar reclamação', 'error');
+                return;
+            }
+            
+            console.log('✅ [bacen-page] Reclamação salva com sucesso!');
+            
+            // Aguardar um pouco para garantir que o Firebase salvou
+            await new Promise(resolve => setTimeout(resolve, 500));
         } catch (error) {
-            console.error('❌ Erro ao salvar no localStorage:', error);
+            console.error('❌ [bacen-page] Erro ao salvar reclamação:', error);
+            mostrarAlerta('Erro ao salvar reclamação: ' + error.message, 'error');
+            return;
         }
         
-        // Tentar salvar no Supabase (se disponível)
-        if (window.supabaseDB && !window.supabaseDB.usarLocalStorage) {
-            try {
-                await window.supabaseDB.salvarFichaBacen(ficha);
-                console.log('✅ Salvo no Supabase');
-            } catch (error) {
-                console.error('❌ Erro ao salvar no Supabase:', error);
-                console.log('⚠️ Continuando com localStorage apenas');
-            }
+        // RECARREGAR IMEDIATAMENTE (assíncrono)
+        await carregarFichasBacen();
+        console.log('📋 Fichas recarregadas:', fichasBacen.length);
+        
+        // Limpar formulário
+        limparFormBacen();
+        
+        // Atualizar dashboard e listas IMEDIATAMENTE
+        atualizarDashboardBacen();
+        renderizarListaBacen();
+        
+        // Mostrar lista
+        mostrarSecao('lista-bacen');
+        
+        // Disparar evento para atualizar home e relatórios
+        if (typeof window !== 'undefined') {
+            const evento = new CustomEvent('reclamacaoSalva', {
+                detail: { tipo: 'bacen', reclamacao: ficha, total: fichasBacen.length }
+            });
+            window.dispatchEvent(evento);
+            console.log('📢 Evento reclamacaoSalva disparado do bacen-page');
         }
+        
+        // Mostrar sucesso
+        mostrarAlerta('Reclamação BACEN salva com sucesso!', 'success');
         
         // Tentar salvar no gerenciador de fichas (se disponível)
         if (window.gerenciadorFichas) {

@@ -370,47 +370,58 @@ async function handleSubmitN2(e) {
         console.log('💾 Salvando ficha...');
         
         // PRIORIDADE 1: Salvar no armazenamentoReclamacoes (sistema novo e confiável)
-        if (window.armazenamentoReclamacoes) {
-            try {
-                const sucesso = await window.armazenamentoReclamacoes.salvar('n2', ficha);
-                if (sucesso) {
-                    console.log('✅ Salvo no armazenamentoReclamacoes');
-                } else {
-                    console.error('❌ Erro ao salvar no armazenamentoReclamacoes');
-                }
-            } catch (error) {
-                console.error('❌ Erro ao salvar no armazenamentoReclamacoes:', error);
-            }
+        if (!window.armazenamentoReclamacoes) {
+            console.error('❌ Sistema de armazenamento não encontrado!');
+            mostrarAlerta('Erro ao salvar: sistema de armazenamento não disponível', 'error');
+            return;
         }
         
-        // SEMPRE adicionar ao array local também
-        const indexExistente = fichasN2.findIndex(f => f.id === ficha.id);
-        if (indexExistente >= 0) {
-            fichasN2[indexExistente] = ficha;
-            console.log('✅ Ficha atualizada no array local');
-        } else {
-            fichasN2.push(ficha);
-            console.log('✅ Ficha adicionada ao array local');
-        }
-        
-        // Salvar no localStorage como backup (chave nova)
         try {
-            localStorage.setItem('velotax_reclamacoes_n2', JSON.stringify(fichasN2));
-            console.log('💾 Salvo no localStorage (chave nova):', fichasN2.length, 'fichas');
+            console.log('📤 [n2-page] Chamando armazenamentoReclamacoes.salvar...');
+            const sucesso = await window.armazenamentoReclamacoes.salvar('n2', ficha);
+            console.log('📥 [n2-page] Resultado do salvar:', sucesso);
+            
+            if (!sucesso) {
+                console.error('❌ [n2-page] Erro ao salvar reclamação - retornou false');
+                mostrarAlerta('Erro ao salvar reclamação', 'error');
+                return;
+            }
+            
+            console.log('✅ [n2-page] Reclamação salva com sucesso!');
+            
+            // Aguardar um pouco para garantir que o Firebase salvou
+            await new Promise(resolve => setTimeout(resolve, 500));
         } catch (error) {
-            console.error('❌ Erro ao salvar no localStorage:', error);
+            console.error('❌ [n2-page] Erro ao salvar reclamação:', error);
+            mostrarAlerta('Erro ao salvar reclamação: ' + error.message, 'error');
+            return;
         }
         
-        // Tentar salvar no Supabase (se disponível)
-        if (window.supabaseDB && !window.supabaseDB.usarLocalStorage) {
-            try {
-                await window.supabaseDB.salvarFichaN2(ficha);
-                console.log('✅ Salvo no Supabase');
-            } catch (error) {
-                console.error('❌ Erro ao salvar no Supabase:', error);
-                console.log('⚠️ Continuando com localStorage apenas');
-            }
+        // RECARREGAR IMEDIATAMENTE (assíncrono)
+        await carregarFichasN2();
+        console.log('📋 Fichas recarregadas:', fichasN2.length);
+        
+        // Limpar formulário
+        limparFormN2();
+        
+        // Atualizar dashboard e listas IMEDIATAMENTE
+        atualizarDashboardN2();
+        renderizarListaN2();
+        
+        // Mostrar lista
+        mostrarSecao('lista-n2');
+        
+        // Disparar evento para atualizar home e relatórios
+        if (typeof window !== 'undefined') {
+            const evento = new CustomEvent('reclamacaoSalva', {
+                detail: { tipo: 'n2', reclamacao: ficha, total: fichasN2.length }
+            });
+            window.dispatchEvent(evento);
+            console.log('📢 Evento reclamacaoSalva disparado do n2-page');
         }
+        
+        // Mostrar sucesso
+        mostrarAlerta('Reclamação N2 salva com sucesso!', 'success');
         
         // Tentar salvar no gerenciador de fichas (se disponível)
         if (window.gerenciadorFichas) {
