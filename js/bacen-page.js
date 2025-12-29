@@ -30,6 +30,36 @@ document.addEventListener('DOMContentLoaded', function() {
 // === INICIALIZAÇÃO ===
 function inicializarBacen() {
     // Não preencher automaticamente - usuário deve inserir manualmente
+    
+    // Listener para atualizar dashboard quando fichas forem importadas
+    window.addEventListener('reclamacaoSalva', async function(event) {
+        if (event.detail && (event.detail.tipo === 'bacen' || event.detail.origem === 'importacao')) {
+            console.log('📢 [BACEN] Evento reclamacaoSalva recebido, atualizando dashboard...');
+            // Recarregar fichas e atualizar dashboard
+            await carregarFichasBacen();
+            atualizarDashboardBacen();
+            // Atualizar lista se estiver visível
+            const secaoLista = document.getElementById('lista-bacen');
+            if (secaoLista && secaoLista.classList.contains('active')) {
+                renderizarListaBacen();
+            }
+        }
+    });
+    
+    // Listener para evento de importação concluída
+    window.addEventListener('importacaoConcluida', async function(event) {
+        if (event.detail && event.detail.porTipo && event.detail.porTipo.bacen > 0) {
+            console.log('📢 [BACEN] Importação concluída, atualizando dashboard...');
+            // Recarregar fichas e atualizar dashboard
+            await carregarFichasBacen();
+            atualizarDashboardBacen();
+            // Atualizar lista se estiver visível
+            const secaoLista = document.getElementById('lista-bacen');
+            if (secaoLista && secaoLista.classList.contains('active')) {
+                renderizarListaBacen();
+            }
+        }
+    });
 }
 
 // === NAVEGAÇÃO ===

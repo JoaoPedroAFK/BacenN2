@@ -953,80 +953,66 @@ class ImportadorDados {
                 }
             }
             
-            // Salva no localStorage primeiro (garantir que está salvo)
-            const bacenExistentes = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || '[]');
-            const n2Existentes = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || '[]');
-            const chatbotExistentes = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || '[]');
+            // Verificar se Firebase está ativo antes de salvar no localStorage
+            const usarFirebase = window.armazenamentoReclamacoes && window.armazenamentoReclamacoes.usarFirebase;
             
-            // Mescla com dados existentes (evita duplicatas por ID)
-            const mesclarDados = (existentes, novos) => {
-                const mapa = new Map();
-                existentes.forEach(item => mapa.set(item.id, item));
-                novos.forEach(item => mapa.set(item.id, item));
-                return Array.from(mapa.values());
-            };
-            
-            const bacenFinal = mesclarDados(bacenExistentes, dadosSeparados.bacen);
-            const n2Final = mesclarDados(n2Existentes, dadosSeparados.n2);
-            const chatbotFinal = mesclarDados(chatbotExistentes, dadosSeparados.chatbot);
-            
-            // NÃO salvar tudo no localStorage de uma vez (evita quota excedida)
-            // localStorage será usado apenas como fallback pelo sistema de armazenamento
-            // Se Supabase estiver ativo, os dados serão salvos lá
-            try {
-                // Tentar salvar apenas se não exceder quota (limite de ~2MB por tipo)
-                const tamanhoBacen = new Blob([JSON.stringify(bacenFinal)]).size / 1024 / 1024;
-                const tamanhoN2 = new Blob([JSON.stringify(n2Final)]).size / 1024 / 1024;
-                const tamanhoChatbot = new Blob([JSON.stringify(chatbotFinal)]).size / 1024 / 1024;
+            if (!usarFirebase) {
+                // Apenas salvar no localStorage se Firebase NÃO estiver ativo
+                this.adicionarLog(`💾 Firebase não está ativo, salvando no localStorage como fallback...`, 'aviso');
                 
-                if (tamanhoBacen < 2) {
-                    localStorage.setItem('velotax_reclamacoes_bacen', JSON.stringify(bacenFinal));
-                    this.adicionarLog(`💾 Dados BACEN salvos no localStorage (${tamanhoBacen.toFixed(2)}MB)`, 'sucesso');
-                } else {
-                    this.adicionarLog(`⚠️ Dados BACEN muito grandes (${tamanhoBacen.toFixed(2)}MB), não salvando no localStorage`, 'aviso');
-                }
+                // Salva no localStorage primeiro (garantir que está salvo)
+                const bacenExistentes = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || '[]');
+                const n2Existentes = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || '[]');
+                const chatbotExistentes = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || '[]');
                 
-                if (tamanhoN2 < 2) {
-                    localStorage.setItem('velotax_reclamacoes_n2', JSON.stringify(n2Final));
-                    this.adicionarLog(`💾 Dados N2 salvos no localStorage (${tamanhoN2.toFixed(2)}MB)`, 'sucesso');
-                } else {
-                    this.adicionarLog(`⚠️ Dados N2 muito grandes (${tamanhoN2.toFixed(2)}MB), não salvando no localStorage`, 'aviso');
-                }
+                // Mescla com dados existentes (evita duplicatas por ID)
+                const mesclarDados = (existentes, novos) => {
+                    const mapa = new Map();
+                    existentes.forEach(item => mapa.set(item.id, item));
+                    novos.forEach(item => mapa.set(item.id, item));
+                    return Array.from(mapa.values());
+                };
                 
-                if (tamanhoChatbot < 2) {
-                    localStorage.setItem('velotax_reclamacoes_chatbot', JSON.stringify(chatbotFinal));
-                    this.adicionarLog(`💾 Dados Chatbot salvos no localStorage (${tamanhoChatbot.toFixed(2)}MB)`, 'sucesso');
-                } else {
-                    this.adicionarLog(`⚠️ Dados Chatbot muito grandes (${tamanhoChatbot.toFixed(2)}MB), não salvando no localStorage`, 'aviso');
+                const bacenFinal = mesclarDados(bacenExistentes, dadosSeparados.bacen);
+                const n2Final = mesclarDados(n2Existentes, dadosSeparados.n2);
+                const chatbotFinal = mesclarDados(chatbotExistentes, dadosSeparados.chatbot);
+                
+                try {
+                    // Tentar salvar apenas se não exceder quota (limite de ~2MB por tipo)
+                    const tamanhoBacen = new Blob([JSON.stringify(bacenFinal)]).size / 1024 / 1024;
+                    const tamanhoN2 = new Blob([JSON.stringify(n2Final)]).size / 1024 / 1024;
+                    const tamanhoChatbot = new Blob([JSON.stringify(chatbotFinal)]).size / 1024 / 1024;
+                    
+                    if (tamanhoBacen < 2) {
+                        localStorage.setItem('velotax_reclamacoes_bacen', JSON.stringify(bacenFinal));
+                        this.adicionarLog(`💾 Dados BACEN salvos no localStorage (${tamanhoBacen.toFixed(2)}MB)`, 'sucesso');
+                    } else {
+                        this.adicionarLog(`⚠️ Dados BACEN muito grandes (${tamanhoBacen.toFixed(2)}MB), não salvando no localStorage`, 'aviso');
+                    }
+                    
+                    if (tamanhoN2 < 2) {
+                        localStorage.setItem('velotax_reclamacoes_n2', JSON.stringify(n2Final));
+                        this.adicionarLog(`💾 Dados N2 salvos no localStorage (${tamanhoN2.toFixed(2)}MB)`, 'sucesso');
+                    } else {
+                        this.adicionarLog(`⚠️ Dados N2 muito grandes (${tamanhoN2.toFixed(2)}MB), não salvando no localStorage`, 'aviso');
+                    }
+                    
+                    if (tamanhoChatbot < 2) {
+                        localStorage.setItem('velotax_reclamacoes_chatbot', JSON.stringify(chatbotFinal));
+                        this.adicionarLog(`💾 Dados Chatbot salvos no localStorage (${tamanhoChatbot.toFixed(2)}MB)`, 'sucesso');
+                    } else {
+                        this.adicionarLog(`⚠️ Dados Chatbot muito grandes (${tamanhoChatbot.toFixed(2)}MB), não salvando no localStorage`, 'aviso');
+                    }
+                } catch (error) {
+                    if (error.name === 'QuotaExceededError') {
+                        this.adicionarLog(`❌ QUOTA EXCEDIDA no localStorage!`, 'erro');
+                        this.adicionarLog(`   ⚠️ Configure o Firebase para salvar todos os dados!`, 'aviso');
+                    } else {
+                        this.adicionarLog(`❌ Erro ao salvar no localStorage: ${error.message}`, 'erro');
+                    }
                 }
-            } catch (error) {
-                if (error.name === 'QuotaExceededError') {
-                    this.adicionarLog(`❌ QUOTA EXCEDIDA no localStorage!`, 'erro');
-                    this.adicionarLog(`   ⚠️ Use o Supabase para salvar todos os dados!`, 'aviso');
-                    this.adicionarLog(`   Execute o script SQL para corrigir as tabelas!`, 'aviso');
-                } else {
-                    this.adicionarLog(`❌ Erro ao salvar no localStorage: ${error.message}`, 'erro');
-                }
-            }
-            
-            // Verificar se foi salvo corretamente (apenas se tentou salvar)
-            let verificarBacen = [], verificarN2 = [], verificarChatbot = [];
-            try {
-                verificarBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || '[]');
-                verificarN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || '[]');
-                verificarChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || '[]');
-            } catch (e) {
-                // Ignorar erro de parse
-            }
-            
-            this.adicionarLog(`💾 Dados no localStorage: BACEN=${verificarBacen.length}, N2=${verificarN2.length}, Chatbot=${verificarChatbot.length}`, 'info');
-            this.adicionarLog(`📊 Dados importados: BACEN=${bacenFinal.length}, N2=${n2Final.length}, Chatbot=${chatbotFinal.length}`, 'info');
-            
-            if (verificarBacen.length > 0) {
-                this.adicionarLog(`📋 Exemplo BACEN: ${verificarBacen[0].nomeCliente || verificarBacen[0].nomeCompleto || 'Sem nome'} (ID: ${verificarBacen[0].id})`, 'info');
-            }
-            if (verificarN2.length > 0) {
-                this.adicionarLog(`📋 Exemplo N2: ${verificarN2[0].nomeCliente || verificarN2[0].nomeCompleto || 'Sem nome'} (ID: ${verificarN2[0].id})`, 'info');
+            } else {
+                this.adicionarLog(`🔥 Firebase está ativo - dados serão salvos apenas no Firebase (não no localStorage)`, 'info');
             }
             
             // Usar o sistema de armazenamento se disponível (para sincronização)
@@ -1040,9 +1026,14 @@ class ImportadorDados {
                 
                 // Aguardar um pouco para garantir que Firebase está pronto
                 await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                let salvosBacen = 0, salvosN2 = 0, salvosChatbot = 0;
-                let errosBacen = 0, errosN2 = 0, errosChatbot = 0;
+            }
+            
+            // Inicializar contadores (mesmo se não usar Firebase)
+            let salvosBacen = 0, salvosN2 = 0, salvosChatbot = 0;
+            let errosBacen = 0, errosN2 = 0, errosChatbot = 0;
+            
+            // Usar o sistema de armazenamento se disponível (para sincronização)
+            if (window.armazenamentoReclamacoes) {
                 
                 this.adicionarLog(`💾 Salvando dados via sistema de armazenamento...`, 'info');
                 
@@ -1127,22 +1118,51 @@ class ImportadorDados {
                     chatbot: dadosSeparados.chatbot.length
                 },
                 totalSalvos: {
-                    bacen: bacenFinal.length,
-                    n2: n2Final.length,
-                    chatbot: chatbotFinal.length
+                    bacen: salvosBacen || dadosSeparados.bacen.length,
+                    n2: salvosN2 || dadosSeparados.n2.length,
+                    chatbot: salvosChatbot || dadosSeparados.chatbot.length
                 }
             };
             localStorage.setItem('velotax_importacao_estatisticas', JSON.stringify(estatisticas));
             
             this.mostrarNotificacao(`✅ Importação concluída com sucesso!`, 'sucesso');
             this.adicionarLog(`📊 Dados separados por tipo:`, 'info');
-            this.adicionarLog(`   🏦 BACEN: ${dadosSeparados.bacen.length} novos, ${bacenFinal.length} total`, 'info');
-            this.adicionarLog(`   🔄 N2: ${dadosSeparados.n2.length} novos, ${n2Final.length} total`, 'info');
-            this.adicionarLog(`   🤖 Chatbot: ${dadosSeparados.chatbot.length} novos, ${chatbotFinal.length} total`, 'info');
+            this.adicionarLog(`   🏦 BACEN: ${dadosSeparados.bacen.length} fichas importadas`, 'info');
+            this.adicionarLog(`   🔄 N2: ${dadosSeparados.n2.length} fichas importadas`, 'info');
+            this.adicionarLog(`   🤖 Chatbot: ${dadosSeparados.chatbot.length} fichas importadas`, 'info');
             
-            // Dispara evento para atualizar outras páginas
-            window.dispatchEvent(new CustomEvent('reclamacaoSalva', { 
-                detail: { tipo: 'importacao', total: dadosValidos.length } 
+            // Dispara eventos para atualizar dashboards e listas
+            // Disparar evento para cada tipo de ficha importada
+            if (salvosBacen > 0) {
+                window.dispatchEvent(new CustomEvent('reclamacaoSalva', { 
+                    detail: { tipo: 'bacen', total: salvosBacen, origem: 'importacao' } 
+                }));
+                this.adicionarLog(`📢 Evento reclamacaoSalva disparado para BACEN (${salvosBacen} fichas)`, 'info');
+            }
+            if (salvosN2 > 0) {
+                window.dispatchEvent(new CustomEvent('reclamacaoSalva', { 
+                    detail: { tipo: 'n2', total: salvosN2, origem: 'importacao' } 
+                }));
+                this.adicionarLog(`📢 Evento reclamacaoSalva disparado para N2 (${salvosN2} fichas)`, 'info');
+            }
+            if (salvosChatbot > 0) {
+                window.dispatchEvent(new CustomEvent('reclamacaoSalva', { 
+                    detail: { tipo: 'chatbot', total: salvosChatbot, origem: 'importacao' } 
+                }));
+                this.adicionarLog(`📢 Evento reclamacaoSalva disparado para Chatbot (${salvosChatbot} fichas)`, 'info');
+            }
+            
+            // Disparar evento geral de importação
+            window.dispatchEvent(new CustomEvent('importacaoConcluida', { 
+                detail: { 
+                    tipo: 'importacao', 
+                    total: dadosValidos.length,
+                    porTipo: {
+                        bacen: salvosBacen,
+                        n2: salvosN2,
+                        chatbot: salvosChatbot
+                    }
+                } 
             }));
             
             // Log final de verificação
@@ -1152,13 +1172,13 @@ class ImportadorDados {
             this.adicionarLog(`   📦 localStorage.getItem('velotax_reclamacoes_chatbot'): ${localStorage.getItem('velotax_reclamacoes_chatbot') ? 'EXISTE' : 'NÃO EXISTE'}`, 'info');
             
             // Verificar estrutura de uma ficha de exemplo
-            if (bacenFinal.length > 0) {
-                const exemplo = bacenFinal[0];
+            if (dadosSeparados.bacen.length > 0) {
+                const exemplo = dadosSeparados.bacen[0];
                 this.adicionarLog(`   📋 Exemplo BACEN - Campos: ${Object.keys(exemplo).join(', ')}`, 'info');
                 this.adicionarLog(`   📋 Exemplo BACEN - nomeCliente: ${exemplo.nomeCliente || 'AUSENTE'}, nomeCompleto: ${exemplo.nomeCompleto || 'AUSENTE'}`, 'info');
             }
-            if (n2Final.length > 0) {
-                const exemplo = n2Final[0];
+            if (dadosSeparados.n2.length > 0) {
+                const exemplo = dadosSeparados.n2[0];
                 this.adicionarLog(`   📋 Exemplo N2 - Campos: ${Object.keys(exemplo).join(', ')}`, 'info');
                 this.adicionarLog(`   📋 Exemplo N2 - nomeCliente: ${exemplo.nomeCliente || 'AUSENTE'}, nomeCompleto: ${exemplo.nomeCompleto || 'AUSENTE'}`, 'info');
             }

@@ -43,6 +43,36 @@ document.addEventListener('DOMContentLoaded', function() {
 // === INICIALIZAÇÃO ===
 function inicializarN2() {
     // Não preencher automaticamente - usuário deve inserir manualmente
+    
+    // Listener para atualizar dashboard quando fichas forem importadas
+    window.addEventListener('reclamacaoSalva', async function(event) {
+        if (event.detail && (event.detail.tipo === 'n2' || event.detail.origem === 'importacao')) {
+            console.log('📢 [N2] Evento reclamacaoSalva recebido, atualizando dashboard...');
+            // Recarregar fichas e atualizar dashboard
+            await carregarFichasN2();
+            atualizarDashboardN2();
+            // Atualizar lista se estiver visível
+            const secaoLista = document.getElementById('lista-n2');
+            if (secaoLista && secaoLista.classList.contains('active')) {
+                renderizarListaN2();
+            }
+        }
+    });
+    
+    // Listener para evento de importação concluída
+    window.addEventListener('importacaoConcluida', async function(event) {
+        if (event.detail && event.detail.porTipo && event.detail.porTipo.n2 > 0) {
+            console.log('📢 [N2] Importação concluída, atualizando dashboard...');
+            // Recarregar fichas e atualizar dashboard
+            await carregarFichasN2();
+            atualizarDashboardN2();
+            // Atualizar lista se estiver visível
+            const secaoLista = document.getElementById('lista-n2');
+            if (secaoLista && secaoLista.classList.contains('active')) {
+                renderizarListaN2();
+            }
+        }
+    });
 }
 
 // === NAVEGAÇÃO ===

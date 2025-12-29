@@ -1740,6 +1740,36 @@ function inicializarChatbotPage() {
     } catch (error) {
         console.error('❌ [chatbot-page] Erro ao carregar fichas:', error);
     }
+    
+    // Listener para atualizar dashboard quando fichas forem importadas
+    window.addEventListener('reclamacaoSalva', async function(event) {
+        if (event.detail && (event.detail.tipo === 'chatbot' || event.detail.origem === 'importacao')) {
+            console.log('📢 [CHATBOT] Evento reclamacaoSalva recebido, atualizando dashboard...');
+            // Recarregar fichas e atualizar dashboard
+            await carregarFichasChatbot();
+            atualizarDashboardChatbot();
+            // Atualizar lista se estiver visível
+            const secaoLista = document.getElementById('lista-chatbot');
+            if (secaoLista && secaoLista.classList.contains('active')) {
+                renderizarListaChatbot();
+            }
+        }
+    });
+    
+    // Listener para evento de importação concluída
+    window.addEventListener('importacaoConcluida', async function(event) {
+        if (event.detail && event.detail.porTipo && event.detail.porTipo.chatbot > 0) {
+            console.log('📢 [CHATBOT] Importação concluída, atualizando dashboard...');
+            // Recarregar fichas e atualizar dashboard
+            await carregarFichasChatbot();
+            atualizarDashboardChatbot();
+            // Atualizar lista se estiver visível
+            const secaoLista = document.getElementById('lista-chatbot');
+            if (secaoLista && secaoLista.classList.contains('active')) {
+                renderizarListaChatbot();
+            }
+        }
+    });
 }
 
 // Inicializar quando o DOM estiver pronto
@@ -1755,9 +1785,8 @@ if (document.readyState === 'loading') {
     // Chamar imediatamente
     inicializarChatbotPage();
     // E também com um pequeno delay para garantir que tudo está pronto
-    setTimeout(() => {
+    setTimeout(function() {
         console.log('⏰ [chatbot-page] Re-inicializando após delay (fallback)...');
         inicializarChatbotPage();
     }, 500);
 }
-
