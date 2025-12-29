@@ -1328,9 +1328,10 @@
 .graficos-n2,
 .graficos-chatbot {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 24px;
-    margin-top: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 32px;
+    margin-top: 32px;
+    padding: 0 10px;
 }
 
 .grafico-card {
@@ -1338,12 +1339,112 @@
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: visible;
+    margin-bottom: 20px;
 }
 
 .grafico-card h3 {
     margin-bottom: 20px;
     color: var(--azul-escuro);
     font-size: 1.2rem;
+}
+
+.grafico-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 10;
+}
+
+.grafico-card-header h3 {
+    margin: 0;
+    flex: 1;
+}
+
+.btn-expandir-grafico {
+    background: var(--cor-primaria, #1634FF);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 20;
+    flex-shrink: 0;
+    margin-left: 15px;
+    white-space: nowrap;
+}
+
+.btn-expandir-grafico:hover {
+    background: var(--cor-primaria-hover, #0d2bb3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.grafico-barras {
+    position: relative;
+    padding: 20px 10px;
+    min-height: 350px;
+}
+
+.grafico-barras-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    gap: 20px;
+    min-height: 280px;
+    padding: 10px 0;
+}
+
+.barra-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 60px;
+    position: relative;
+}
+
+.barra-valor {
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 14px;
+    color: var(--azul-escuro);
+}
+
+.barra {
+    width: 100%;
+    max-width: 80px;
+    border-radius: 4px 4px 0 0;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.barra:hover {
+    opacity: 0.8;
+    transform: scaleY(1.05);
+}
+
+.barra-label {
+    margin-top: 10px;
+    font-size: 11px;
+    text-align: center;
+    transform: rotate(-45deg);
+    transform-origin: center;
+    white-space: nowrap;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--azul-escuro);
 }
 
 .dashboard-urgencias-section {

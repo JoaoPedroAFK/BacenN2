@@ -204,7 +204,7 @@ class GraficosDetalhados {
             // BACEN: 7 gráficos conforme proposta
             this.renderizarGraficoStatusPizza(dadosFiltrados);
             this.renderizarGraficoMensal(dadosFiltrados);
-            this.renderizarGraficoOrigem(dadosFiltrados);
+            // this.renderizarGraficoOrigem(dadosFiltrados); // REMOVIDO - gráfico não necessário
             this.renderizarGraficoPrazoBacen(dadosFiltrados);
             this.renderizarGraficoCobrancaPizza(dadosFiltrados);
             this.renderizarGraficoCasosCriticos(dadosFiltrados);
@@ -213,7 +213,7 @@ class GraficosDetalhados {
             // N2: 5 gráficos (removidos: StatusPortabilidade, BancoDestino)
             this.renderizarGraficoStatusPizza(dadosFiltrados);
             this.renderizarGraficoMensal(dadosFiltrados);
-            this.renderizarGraficoOrigem(dadosFiltrados);
+            // this.renderizarGraficoOrigem(dadosFiltrados); // REMOVIDO - gráfico não necessário
             this.renderizarGraficoCobrancaPizza(dadosFiltrados);
             this.renderizarGraficoCasosCriticos(dadosFiltrados);
             this.renderizarGraficoResponsavel(dadosFiltrados);
@@ -645,16 +645,16 @@ class GraficosDetalhados {
         const alturaMax = 220; // Altura fixa para todos os gráficos
 
         return `
-            <div class="grafico-barras" style="min-height: 380px;">
-                <div class="grafico-barras-container">
+            <div class="grafico-barras" style="min-height: 380px; padding: 20px 10px; position: relative;">
+                <div class="grafico-barras-container" style="display: flex; justify-content: space-around; align-items: flex-end; gap: 15px; min-height: 280px;">
                     ${labels.map((label, i) => {
                         const altura = (values[i] / maxValue) * alturaMax;
                         const cor = cores && cores[label] ? cores[label] : '#1634FF';
                         return `
-                            <div class="barra-item">
-                                <div class="barra-valor">${values[i]}</div>
-                                <div class="barra" style="height: ${altura}px; background: ${cor};" title="${label}: ${values[i]}"></div>
-                                <div class="barra-label">${this.formatarLabel(label)}</div>
+                            <div class="barra-item" style="display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 60px;">
+                                <div class="barra-valor" style="margin-bottom: 8px; font-weight: bold; font-size: 14px;">${values[i]}</div>
+                                <div class="barra" style="height: ${altura}px; background: ${cor}; width: 100%; max-width: 80px; border-radius: 4px 4px 0 0; transition: all 0.3s;" title="${label}: ${values[i]}"></div>
+                                <div class="barra-label" style="margin-top: 8px; font-size: 11px; text-align: center; transform: rotate(-45deg); transform-origin: center; white-space: nowrap; max-width: 100px; overflow: hidden; text-overflow: ellipsis;">${this.formatarLabel(label)}</div>
                             </div>
                         `;
                     }).join('')}
