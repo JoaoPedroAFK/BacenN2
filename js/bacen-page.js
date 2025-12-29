@@ -31,6 +31,22 @@ document.addEventListener('DOMContentLoaded', function() {
 function inicializarBacen() {
     // Não preencher automaticamente - usuário deve inserir manualmente
     
+    // Listener CRÍTICO: Recarregar fichas quando Firebase estiver pronto
+    window.addEventListener('firebaseReady', async function(event) {
+        console.log('🔥 [BACEN] Firebase está pronto! Recarregando fichas...');
+        // Aguardar um pouco para garantir que armazenamentoReclamacoes também está pronto
+        await new Promise(resolve => setTimeout(resolve, 500));
+        // Recarregar fichas do Firebase
+        await carregarFichasBacen();
+        // Atualizar dashboard
+        atualizarDashboardBacen();
+        // Atualizar lista se estiver visível
+        const secaoLista = document.getElementById('lista-bacen');
+        if (secaoLista && secaoLista.classList.contains('active')) {
+            renderizarListaBacen();
+        }
+    });
+    
     // Listener para atualizar dashboard quando fichas forem importadas
     window.addEventListener('reclamacaoSalva', async function(event) {
         if (event.detail && (event.detail.tipo === 'bacen' || event.detail.origem === 'importacao')) {

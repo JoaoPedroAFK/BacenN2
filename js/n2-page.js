@@ -44,6 +44,22 @@ document.addEventListener('DOMContentLoaded', function() {
 function inicializarN2() {
     // Não preencher automaticamente - usuário deve inserir manualmente
     
+    // Listener CRÍTICO: Recarregar fichas quando Firebase estiver pronto
+    window.addEventListener('firebaseReady', async function(event) {
+        console.log('🔥 [N2] Firebase está pronto! Recarregando fichas...');
+        // Aguardar um pouco para garantir que armazenamentoReclamacoes também está pronto
+        await new Promise(resolve => setTimeout(resolve, 500));
+        // Recarregar fichas do Firebase
+        await carregarFichasN2();
+        // Atualizar dashboard
+        atualizarDashboardN2();
+        // Atualizar lista se estiver visível
+        const secaoLista = document.getElementById('lista-n2');
+        if (secaoLista && secaoLista.classList.contains('active')) {
+            renderizarListaN2();
+        }
+    });
+    
     // Listener para atualizar dashboard quando fichas forem importadas
     window.addEventListener('reclamacaoSalva', async function(event) {
         if (event.detail && (event.detail.tipo === 'n2' || event.detail.origem === 'importacao')) {
@@ -144,15 +160,51 @@ async function carregarFichasN2() {
     
     let fichasCarregadas = [];
     
+    // PRIORIDADE 1: Aguardar armazenamentoReclamacoes estar disponível
+    if (!window.armazenamentoReclamacoes) {
+        console.log('⏳ Aguardando armazenamentoReclamacoes estar disponível...');
+        // Aguardar até 5 segundos
+        for (let i = 0; i < 10; i++) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            if (window.armazenamentoReclamacoes) {
+                console.log('✅ armazenamentoReclamacoes agora está disponível!');
+                break;
+            }
+        }
+    }
+    
     // PRIORIDADE 1: Usar armazenamentoReclamacoes (sistema novo e confiável)
     if (window.armazenamentoReclamacoes) {
         try {
             console.log('📦 Carregando do armazenamentoReclamacoes...');
+            console.log('🔍 Estado do Firebase:', {
+                usarFirebase: window.armazenamentoReclamacoes.usarFirebase,
+                firebaseDB: window.firebaseDB ? 'existe' : 'não existe',
+                firebaseInicializado: window.firebaseDB?.inicializado,
+                firebaseUsarLocalStorage: window.firebaseDB?.usarLocalStorage
+            });
+            
+            // Aguardar um pouco para garantir que Firebase está pronto
+            if (window.firebaseDB && !window.firebaseDB.inicializado) {
+                console.log('⏳ Aguardando Firebase inicializar...');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                // Re-verificar Firebase
+                if (window.armazenamentoReclamacoes.verificarEAtivarFirebase) {
+                    window.armazenamentoReclamacoes.verificarEAtivarFirebase();
+                }
+            }
+            
             fichasCarregadas = await window.armazenamentoReclamacoes.carregarTodos('n2') || [];
             console.log('✅ Fichas carregadas do armazenamentoReclamacoes:', fichasCarregadas.length);
+            if (fichasCarregadas.length > 0) {
+                console.log('📋 Primeiras 3 fichas:', fichasCarregadas.slice(0, 3).map(f => f.id || 'sem ID'));
+            }
         } catch (error) {
             console.error('❌ Erro ao carregar do armazenamentoReclamacoes:', error);
+            console.error('   Stack:', error.stack);
         }
+    } else {
+        console.warn('⚠️ window.armazenamentoReclamacoes não está disponível após aguardar!');
     }
     
     // FALLBACK: Se não encontrou nada, tentar localStorage (chaves novas e antigas)

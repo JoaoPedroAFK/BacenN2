@@ -1758,6 +1758,22 @@ function inicializarChatbotPage() {
         console.error('❌ [chatbot-page] Erro ao carregar fichas:', error);
     }
     
+    // Listener CRÍTICO: Recarregar fichas quando Firebase estiver pronto
+    window.addEventListener('firebaseReady', async function(event) {
+        console.log('🔥 [CHATBOT] Firebase está pronto! Recarregando fichas...');
+        // Aguardar um pouco para garantir que armazenamentoReclamacoes também está pronto
+        await new Promise(resolve => setTimeout(resolve, 500));
+        // Recarregar fichas do Firebase
+        await carregarFichasChatbot();
+        // Atualizar dashboard
+        atualizarDashboardChatbot();
+        // Atualizar lista se estiver visível
+        const secaoLista = document.getElementById('lista-chatbot');
+        if (secaoLista && secaoLista.classList.contains('active')) {
+            renderizarListaChatbot();
+        }
+    });
+    
     // Listener para atualizar dashboard quando fichas forem importadas
     window.addEventListener('reclamacaoSalva', async function(event) {
         if (event.detail && (event.detail.tipo === 'chatbot' || event.detail.origem === 'importacao')) {

@@ -141,6 +141,52 @@ vercel --prod
 
 ---
 
+## 📋 Data/Hora: 2025-01-31 (Quarto Deploy)
+
+### 1. **Commit - Correções Múltiplas**
+- ✅ Corrigido problema de timing do `armazenamentoReclamacoes` no `bacen-page.js` (aguarda até 5 segundos)
+- ✅ Corrigido "Minhas Reclamações" chatbot para mostrar fichas sem responsável e com `responsavelChatbot`
+- ✅ Adicionado campo `responsavelChatbot` ao salvar fichas chatbot
+- ✅ Verificado e confirmado que importador-dados.js usa caminhos corretos (`fichas_bacen`, `fichas_n2`, `fichas_chatbot`)
+- ✅ Modificado sistema de gráficos para abrir em modal em vez de expandir inline
+- ✅ Adicionada função `abrirGraficoModal()` e `fecharGraficoModal()` global
+- ✅ Adicionados botões "Expandir" nos gráficos Status e Cobrança
+- ✅ Adicionados estilos CSS para modal de gráficos
+- **Commit**: `d021ec4`
+- **Mensagem**: "Corrigir problemas: armazenamentoReclamacoes timing, Minhas Reclamações, dashboard atualização, gráficos em modal - v1.2.0"
+
+### 2. **Push para GitHub**
+- ✅ Push realizado com sucesso para `origin/main`
+- ✅ Repositório: https://github.com/JoaoPedroAFK/BacenN2.git
+- ✅ Branch: `main`
+- **Status**: ✅ **CONCLUÍDO**
+
+### 3. **Arquivos Modificados no Commit**
+```
+4 files changed, 194 insertions(+), 7 deletions(-)
+- js/bacen-page.js (MODIFICADO - aguardar armazenamentoReclamacoes)
+- js/chatbot-page.js (MODIFICADO - responsavelChatbot e filtro Minhas Reclamações)
+- js/graficos-detalhados.js (MODIFICADO - modal para gráficos)
+- DEPLOY_REALIZADO.md (MODIFICADO - atualização do log)
+```
+
+### 4. **Correções Aplicadas**
+- ✅ `bacen-page.js` agora aguarda até 5 segundos para `armazenamentoReclamacoes` estar disponível
+- ✅ `chatbot-page.js` adiciona `responsavelChatbot` ao salvar fichas
+- ✅ `renderizarMinhasReclamacoesChatbot` agora mostra fichas sem responsável e com melhor filtro
+- ✅ Gráficos agora abrem em modal ao clicar em "Expandir"
+- ✅ Função global `abrirGraficoModal()` criada para abrir gráficos em modal
+- ✅ Estilos CSS adicionados para modal de gráficos
+
+### 5. **Problemas Resolvidos**
+- ✅ `window.armazenamentoReclamacoes não está disponível` corrigido com aguardo
+- ✅ Fichas não aparecem em "Minhas Reclamações" corrigido com melhor filtro
+- ✅ Dashboard não atualiza após salvar corrigido (já estava funcionando, mas melhorado)
+- ✅ Importador-dados.js confirmado usando caminhos corretos
+- ✅ Gráficos agora abrem em modal em vez de expandir inline
+
+---
+
 ## 📋 Data/Hora: 2025-01-31 (Terceiro Deploy)
 
 ### 1. **Commit - Correção de Sintaxe e Variáveis Globais**
