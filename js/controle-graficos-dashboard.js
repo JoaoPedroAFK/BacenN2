@@ -207,57 +207,15 @@ class ControleGraficosDashboard {
     }
 
     adicionarListenersRedimensionamento() {
-        // Aguardar gráficos serem renderizados
-        setTimeout(() => {
-            const cards = document.querySelectorAll(`#dashboard-${this.tipoDemanda} .grafico-card`);
-            cards.forEach(card => {
-                if (!card.classList.contains('resizable')) {
-                    card.classList.add('resizable');
-                    this.tornarResizavel(card);
-                }
-            });
-        }, 1500);
+        // FUNCIONALIDADE DE RESIZE REMOVIDA
+        // Agora os gráficos só podem ser expandidos via botão "Expandir" que abre modal
+        console.log('ℹ️ Redimensionamento por arrastar desabilitado. Use o botão "Expandir" para ver gráficos maiores.');
     }
 
     tornarResizavel(elemento) {
-        let isResizing = false;
-        let startX, startY, startWidth, startHeight;
-
-        const handle = document.createElement('div');
-        handle.className = 'resize-handle';
-        handle.innerHTML = '↘';
-        elemento.appendChild(handle);
-        elemento.style.position = 'relative';
-
-        handle.addEventListener('mousedown', (e) => {
-            isResizing = true;
-            startX = e.clientX;
-            startY = e.clientY;
-            startWidth = parseInt(document.defaultView.getComputedStyle(elemento).width, 10);
-            startHeight = parseInt(document.defaultView.getComputedStyle(elemento).height, 10);
-            e.preventDefault();
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isResizing) return;
-            
-            const width = startWidth + e.clientX - startX;
-            const height = startHeight + e.clientY - startY;
-            
-            elemento.style.width = Math.max(300, width) + 'px';
-            elemento.style.height = Math.max(200, height) + 'px';
-            
-            // Salvar tamanho
-            const graficoId = this.obterIdGraficoDoElemento(elemento);
-            if (graficoId) {
-                this.tamanhosGraficos[graficoId] = { width, height };
-                this.salvarPreferencias();
-            }
-        });
-
-        document.addEventListener('mouseup', () => {
-            isResizing = false;
-        });
+        // FUNCIONALIDADE REMOVIDA - não fazer nada
+        // Os gráficos agora só podem ser expandidos via modal
+        return;
     }
 
     obterIdGraficoDoElemento(elemento) {

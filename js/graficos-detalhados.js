@@ -12,6 +12,19 @@ class GraficosDetalhados {
         };
         this.inicializar();
     }
+    
+    // Função helper para criar HTML do card de gráfico com botão Expandir
+    criarCardGraficoHTML(titulo, containerId) {
+        return `
+            <div class="grafico-card-header">
+                <h3>${titulo}</h3>
+                <button class="btn-expandir-grafico" onclick="abrirGraficoModal('${containerId}', '${titulo}', '${this.tipoDemanda}')" title="Expandir gráfico">
+                    🔍 Expandir
+                </button>
+            </div>
+            <div id="${containerId}"></div>
+        `;
+    }
 
     inicializar() {
         // Carregar dados de forma assíncrona
@@ -305,8 +318,27 @@ class GraficosDetalhados {
     }
 
     renderizarGraficoMensal(dados) {
-        const container = document.getElementById(`grafico-mensal-${this.tipoDemanda}`);
-        if (!container) return;
+        const containerId = `grafico-mensal-${this.tipoDemanda}`;
+        let container = document.getElementById(containerId);
+        
+        // Se o container existe mas não tem o header com botão, adicionar
+        if (container) {
+            const card = container.closest('.grafico-card');
+            if (card && !card.querySelector('.grafico-card-header')) {
+                // Adicionar header com botão antes do container
+                const header = document.createElement('div');
+                header.className = 'grafico-card-header';
+                header.innerHTML = `
+                    <h3>Gráfico Mensal</h3>
+                    <button class="btn-expandir-grafico" onclick="abrirGraficoModal('${containerId}', 'Gráfico Mensal', '${this.tipoDemanda}')" title="Expandir gráfico">
+                        🔍 Expandir
+                    </button>
+                `;
+                card.insertBefore(header, container);
+            }
+        } else {
+            return;
+        }
 
         const mesesCount = {};
         dados.forEach(f => {
@@ -331,7 +363,7 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Reclamações por Dia (Últimos 30 dias)</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = this.criarCardGraficoHTML('Reclamações por Dia (Últimos 30 dias)', containerId);
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
@@ -431,7 +463,7 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Distribuição por Responsável (Pizza)</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = this.criarCardGraficoHTML('Distribuição por Responsável (Pizza)', containerId);
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
@@ -458,7 +490,8 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Enviado para Cobrança</h3><div id="grafico-cobranca-${this.tipoDemanda}"></div>`;
+                const containerId = `grafico-cobranca-${this.tipoDemanda}`;
+                novoContainer.innerHTML = this.criarCardGraficoHTML('Enviado para Cobrança', containerId);
                 graficosContainer.appendChild(novoContainer);
             } else {
                 return;
@@ -487,7 +520,8 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Blacklist (Casos Críticos)</h3><div id="grafico-blacklist-${this.tipoDemanda}"></div>`;
+                const containerId = `grafico-blacklist-${this.tipoDemanda}`;
+                novoContainer.innerHTML = this.criarCardGraficoHTML('Blacklist (Casos Críticos)', containerId);
                 graficosContainer.appendChild(novoContainer);
             } else {
                 return;
@@ -518,7 +552,7 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Por Origem</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = this.criarCardGraficoHTML('Por Origem', containerId);
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
@@ -664,7 +698,7 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Prazo Vencendo/Vencido</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = this.criarCardGraficoHTML('Prazo Vencendo/Vencido', containerId);
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
@@ -715,7 +749,7 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Casos Críticos</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = this.criarCardGraficoHTML('Casos Críticos', containerId);
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
@@ -747,7 +781,7 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Por Responsável</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = this.criarCardGraficoHTML('Por Responsável', containerId);
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
@@ -788,7 +822,7 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Status de Portabilidade</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = this.criarCardGraficoHTML('Status de Portabilidade', containerId);
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
@@ -826,7 +860,7 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Top 10 Bancos Destino</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = this.criarCardGraficoHTML('Top 10 Bancos Destino', containerId);
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
@@ -861,7 +895,7 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Resolução Automática vs Humana</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = this.criarCardGraficoHTML('Resolução Automática vs Humana', containerId);
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
@@ -948,7 +982,7 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Distribuição de Satisfação (Nota)</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = this.criarCardGraficoHTML('Distribuição de Satisfação (Nota)', containerId);
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
@@ -1000,7 +1034,7 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Por Produto</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = this.criarCardGraficoHTML('Por Produto', containerId);
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
@@ -1224,8 +1258,19 @@ if (!document.getElementById('estilos-modal-grafico')) {
         }
         .modal-grafico-body {
             padding: 20px;
-            min-width: 600px;
-            min-height: 400px;
+            min-width: 800px;
+            min-height: 600px;
+            max-width: 95vw;
+            max-height: 90vh;
+            overflow: auto;
+        }
+        .modal-grafico-body .grafico-barras,
+        .modal-grafico-body .grafico-pizza,
+        .modal-grafico-body .grafico-linha {
+            transform: scale(1.5);
+            transform-origin: top left;
+            margin-bottom: 200px;
+            margin-right: 200px;
         }
         .grafico-card-header {
             display: flex;
