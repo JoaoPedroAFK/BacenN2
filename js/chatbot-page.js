@@ -23,6 +23,14 @@ window.renderizarMinhasReclamacoesChatbot = async function() {
 
 // Variáveis globais
 let fichasChatbot = [];
+// Função helper para atualizar fichasChatbot e window.fichasChatbot simultaneamente
+function atualizarFichasChatbot(novasFichas) {
+    fichasChatbot = novasFichas;
+    window.fichasChatbot = fichasChatbot;
+    return fichasChatbot;
+}
+// Expor no window para acesso global
+window.fichasChatbot = fichasChatbot;
 
 // === NAVEGAÇÃO ===
 // Definir mostrarSecao imediatamente para garantir disponibilidade global
@@ -132,7 +140,7 @@ async function carregarFichasChatbot() {
                 }
             }
             
-            fichasChatbot = await window.armazenamentoReclamacoes.carregarTodos('chatbot') || [];
+            atualizarFichasChatbot(await window.armazenamentoReclamacoes.carregarTodos('chatbot') || []);
             console.log('✅ Fichas carregadas via sistema:', fichasChatbot.length);
             if (fichasChatbot.length > 0) {
                 console.log('📋 IDs:', fichasChatbot.slice(0, 5).map(f => f.id).join(', '));
@@ -141,7 +149,7 @@ async function carregarFichasChatbot() {
         } catch (error) {
             console.error('❌ Erro ao carregar do armazenamentoReclamacoes:', error);
             console.error('   Stack:', error.stack);
-            fichasChatbot = [];
+            atualizarFichasChatbot([]);
         }
     } else {
         console.error('❌ Sistema de armazenamento não encontrado!');
@@ -154,22 +162,22 @@ async function carregarFichasChatbot() {
             const dadosAntigos = localStorage.getItem(chaveAntiga);
             const dados = dadosNovos || dadosAntigos;
             if (dados) {
-                fichasChatbot = JSON.parse(dados);
+                atualizarFichasChatbot(JSON.parse(dados));
                 console.log('✅ Carregado do localStorage (fallback):', fichasChatbot.length);
             } else {
-                fichasChatbot = [];
+                atualizarFichasChatbot([]);
                 console.log('📦 Nenhum dado encontrado no localStorage');
             }
         } catch (error) {
             console.error('❌ Erro ao carregar do localStorage:', error);
-            fichasChatbot = [];
+            atualizarFichasChatbot([]);
         }
     }
     
     // Garantir que é um array
     if (!Array.isArray(fichasChatbot)) {
         console.warn('⚠️ fichasChatbot não é um array, convertendo...');
-        fichasChatbot = [];
+        atualizarFichasChatbot([]);
     }
     
     // Verificar novamente após carregar (apenas se não usou armazenamentoReclamacoes)
@@ -182,7 +190,7 @@ async function carregarFichasChatbot() {
             if (dadosFinais.length !== fichasChatbot.length) {
             console.warn('⚠️ DISCREPÂNCIA: localStorage tem', dadosFinais.length, 'mas fichasChatbot tem', fichasChatbot.length);
             // Sincronizar
-            fichasChatbot = dadosFinais;
+            atualizarFichasChatbot(dadosFinais);
             console.log('✅ Sincronizado com localStorage');
         }
     }
@@ -731,7 +739,7 @@ window._renderizarListaChatbotFull = async function renderizarListaChatbot() {
     // Verificar novamente após carregar
     if (!fichasChatbot || !Array.isArray(fichasChatbot)) {
         console.error('❌ fichasChatbot não é um array válido após carregamento');
-        fichasChatbot = [];
+        atualizarFichasChatbot([]);
     }
 
     console.log('📋 [renderizarListaChatbot] Renderizando lista Chatbot geral com', fichasChatbot.length, 'fichas');
@@ -888,7 +896,7 @@ async function renderizarMinhasReclamacoesChatbot() {
     // Verificar novamente após carregar
     if (!fichasChatbot || !Array.isArray(fichasChatbot)) {
         console.warn('⚠️ fichasChatbot não é um array válido, inicializando...');
-        fichasChatbot = [];
+        atualizarFichasChatbot([]);
     }
     
     console.log('📋 Total de fichas disponíveis:', fichasChatbot.length);
@@ -1059,7 +1067,7 @@ function gerarRelatorioPeriodoChatbot() {
     }
     
     // Atualizar variável global
-    fichasChatbot = fichasParaRelatorio;
+    atualizarFichasChatbot(fichasParaRelatorio);
     
     mostrarModalPeriodo((inicio, fim) => {
         if (!inicio || !fim) return;
@@ -1104,7 +1112,7 @@ function gerarRelatorioAutoChatbot() {
     }
     
     // Atualizar variável global
-    fichasChatbot = fichasParaRelatorio;
+    atualizarFichasChatbot(fichasParaRelatorio);
     
     const auto = fichasParaRelatorio.filter(f => f.resolvidoAutomaticamente);
     console.log('📋 Fichas auto-resolvidas:', auto.length);
@@ -1129,7 +1137,7 @@ function gerarRelatorioSatisfacaoChatbot() {
     }
     
     // Atualizar variável global
-    fichasChatbot = fichasParaRelatorio;
+    atualizarFichasChatbot(fichasParaRelatorio);
     
     console.log('📋 Total de fichas carregadas:', fichasParaRelatorio.length);
     console.log('📋 Primeiras 3 fichas:', fichasParaRelatorio.slice(0, 3).map(f => ({ 
@@ -1192,7 +1200,7 @@ function gerarRelatorioCompletoChatbot() {
     }
     
     // Atualizar variável global também
-    fichasChatbot = fichasParaRelatorio;
+    atualizarFichasChatbot(fichasParaRelatorio);
     
     console.log('📋 Total de fichas para relatório:', fichasParaRelatorio.length);
     mostrarRelatorioChatbot('Relatório Completo - Chatbot', fichasParaRelatorio, 
@@ -1790,3 +1798,8 @@ if (document.readyState === 'loading') {
         inicializarChatbotPage();
     }, 500);
 }
+
+// Expor funções e variáveis globalmente
+window.carregarFichasChatbot = carregarFichasChatbot;
+// window.fichasChatbot já é atualizado pela função atualizarFichasChatbot()
+

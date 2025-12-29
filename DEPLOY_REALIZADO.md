@@ -1,6 +1,6 @@
 # ✅ Deploy Realizado - BacenN2
 
-## 📋 Data/Hora: 2025-01-31
+## 📋 Data/Hora: 2025-01-31 (Atualizado)
 
 ## ✅ Ações Realizadas
 
@@ -16,6 +16,44 @@
 - ✅ Repositório: https://github.com/JoaoPedroAFK/BacenN2.git
 - ✅ Branch: `main`
 - **Status**: ✅ **CONCLUÍDO**
+
+---
+
+## 📋 Data/Hora: 2025-01-31 (Segundo Deploy)
+
+### 1. **Commit - Script de Debug e Melhorias**
+- ✅ Arquivo `js/DEBUG_CARREGAMENTO_FIREBASE.js` criado (v1.1.0)
+- ✅ Script de debug adicionado em 4 arquivos HTML (chatbot, bacen, n2, importacao)
+- ✅ 3 arquivos de documentação criados:
+  - `DOCUMENTACAO_TECNICA_FIREBASE.md`
+  - `GUIA_DEPURACAO_CARREGAMENTO.md`
+  - `DEPLOY_REALIZADO.md`
+- ✅ Melhorias em arquivos JS (bacen-page, chatbot-page, n2-page, importador-dados)
+- **Commit**: `19ce9a5`
+- **Mensagem**: "Adicionar script de debug Firebase e melhorias de carregamento - v1.1.0"
+
+### 2. **Push para GitHub**
+- ✅ Push realizado com sucesso para `origin/main`
+- ✅ Repositório: https://github.com/JoaoPedroAFK/BacenN2.git
+- ✅ Branch: `main`
+- **Status**: ✅ **CONCLUÍDO**
+
+### 3. **Arquivos Modificados no Commit**
+```
+12 files changed, 2313 insertions(+), 87 deletions(-)
+- js/DEBUG_CARREGAMENTO_FIREBASE.js (NOVO - v1.1.0)
+- bacen.html (MODIFICADO - script debug adicionado)
+- chatbot.html (MODIFICADO - script debug adicionado)
+- n2.html (MODIFICADO - script debug adicionado)
+- importacao.html (MODIFICADO - script debug adicionado)
+- js/bacen-page.js (MODIFICADO - melhorias)
+- js/chatbot-page.js (MODIFICADO - melhorias)
+- js/n2-page.js (MODIFICADO - melhorias)
+- js/importador-dados.js (MODIFICADO - melhorias)
+- DOCUMENTACAO_TECNICA_FIREBASE.md (NOVO)
+- GUIA_DEPURACAO_CARREGAMENTO.md (NOVO)
+- DEPLOY_REALIZADO.md (NOVO)
+```
 
 ## 🚀 Deploy Automático
 
@@ -100,4 +138,29 @@ vercel --prod
 
 *Deploy realizado em: 2025-01-31*
 *Status: ✅ Push realizado com sucesso - Aguardando deploy automático (se configurado)*
+
+---
+
+## 🆕 Novas Funcionalidades no Deploy
+
+### Script de Debug Firebase (`js/DEBUG_CARREGAMENTO_FIREBASE.js`)
+- ✅ Diagnóstico completo em 7 passos
+- ✅ Verificação de inicialização do Firebase
+- ✅ Teste de carregamento de dados
+- ✅ Verificação de renderização na lista
+- ✅ Funções auxiliares: `testarSalvamentoManual()`, `forcarAtualizacaoLista()`
+- ✅ Limpeza de logs antigos: `limparLogsDebug()`
+
+### Como Usar:
+```javascript
+// No console do navegador (F12)
+await debugCarregamentoFirebase('chatbot');  // Diagnóstico completo
+await testarSalvamentoManual('chatbot');     // Testar salvamento
+await forcarAtualizacaoLista('chatbot');    // Forçar atualização
+limparLogsDebug(7);                          // Limpar logs antigos
+```
+
+### Documentação Criada:
+- ✅ `DOCUMENTACAO_TECNICA_FIREBASE.md` - Explicação técnica completa do sistema
+- ✅ `GUIA_DEPURACAO_CARREGAMENTO.md` - Guia passo a passo de depuração
 
