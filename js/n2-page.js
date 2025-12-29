@@ -347,6 +347,8 @@ async function handleSubmitN2(e) {
         protocoloProcon: obterProtocolosDoContainer('n2-protocolos-procon-container') || [],
         protocolosSemAcionamento: obterValorCampoN2('n2-protocolos-sem-acionamento'),
         pixStatus: obterValorCampoN2('n2-pix-status'),
+        statusContratoQuitado: document.getElementById('n2-status-contrato-quitado')?.checked || false,
+        statusContratoAberto: document.getElementById('n2-status-contrato-aberto')?.checked || false,
         enviarCobranca: document.querySelector('input[name="n2-enviar-cobranca"]:checked')?.value || 'Não',
         casosCriticos: obterCheckboxN2('n2-casos-criticos'),
         status: obterValorCampoN2('n2-status'),

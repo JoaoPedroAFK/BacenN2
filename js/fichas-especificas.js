@@ -104,7 +104,22 @@ class FichasEspecificas {
                             </div>
                             <div class="ficha-item">
                                 <label>PIX liberado ou excluído?</label>
-                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído"]'>${dados.pixStatus === 'Liberado' ? 'Liberado' : dados.pixStatus === 'Excluído' ? 'Excluído' : dados.pixLiberado ? 'Liberado' : 'Excluído'}</span>
+                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído","Liberado para Retirada","Não Aplicável"]'>${dados.pixStatus || (dados.pixLiberado ? 'Liberado' : 'Excluído')}</span>
+                            </div>
+                            <div class="ficha-item">
+                                <label>Status do contrato</label>
+                                <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" ${dados.statusContratoQuitado ? 'checked' : ''} disabled>
+                                        <span class="checkmark"></span>
+                                        Quitado
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" ${dados.statusContratoAberto ? 'checked' : ''} disabled>
+                                        <span class="checkmark"></span>
+                                        Em aberto
+                                    </label>
+                                </div>
                             </div>
                             <div class="ficha-item">
                                 <label>Aceitou liquidação Antecipada?</label>
@@ -245,7 +260,22 @@ class FichasEspecificas {
                             </div>
                             <div class="ficha-item">
                                 <label>PIX liberado ou excluído?</label>
-                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído"]'>${dados.pixStatus === 'Liberado' ? 'Liberado' : dados.pixStatus === 'Excluído' ? 'Excluído' : dados.pixLiberado ? 'Liberado' : 'Excluído'}</span>
+                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído","Liberado para Retirada","Não Aplicável"]'>${dados.pixStatus || (dados.pixLiberado ? 'Liberado' : 'Excluído')}</span>
+                            </div>
+                            <div class="ficha-item">
+                                <label>Status do contrato</label>
+                                <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" ${dados.statusContratoQuitado ? 'checked' : ''} disabled>
+                                        <span class="checkmark"></span>
+                                        Quitado
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" ${dados.statusContratoAberto ? 'checked' : ''} disabled>
+                                        <span class="checkmark"></span>
+                                        Em aberto
+                                    </label>
+                                </div>
                             </div>
                             <div class="ficha-item">
                                 <label>Enviar para cobrança?</label>
@@ -365,6 +395,26 @@ class FichasEspecificas {
                     </div>
 
                     <div class="ficha-secao">
+                        <h3>⭐ Detalhe da Avaliação</h3>
+                        <div class="ficha-grid">
+                            <div class="ficha-item">
+                                <label>Resposta do Bot</label>
+                                <span class="ficha-valor editavel" data-campo="respostaBot">${dados.respostaBot || 'Não informado'}</span>
+                            </div>
+                            ${dados.respostaBot === 'Não' && dados.observacaoRespostaBot ? `
+                            <div class="ficha-item full-width">
+                                <label>Observação sobre Resposta do Bot</label>
+                                <span class="ficha-valor editavel" data-campo="observacaoRespostaBot">${dados.observacaoRespostaBot || 'Nenhuma observação'}</span>
+                            </div>
+                            ` : ''}
+                            <div class="ficha-item">
+                                <label>Avaliação do Cliente:</label>
+                                <span class="ficha-valor editavel" data-campo="avaliacaoCliente">${dados.avaliacaoCliente || 'Não informado'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ficha-secao">
                         <h3>🤖 Campos Específicos Chatbot</h3>
                         <div class="ficha-grid">
                             <div class="ficha-item">
@@ -385,7 +435,7 @@ class FichasEspecificas {
                             </div>
                             <div class="ficha-item">
                                 <label>PIX liberado ou excluído?</label>
-                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído"]'>${dados.pixStatus === 'Liberado' ? 'Liberado' : dados.pixStatus === 'Excluído' ? 'Excluído' : dados.pixLiberado ? 'Liberado' : 'Excluído'}</span>
+                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído","Liberado para Retirada","Não Aplicável"]'>${dados.pixStatus || (dados.pixLiberado ? 'Liberado' : 'Excluído')}</span>
                             </div>
                             <div class="ficha-item">
                                 <label>Enviar para cobrança?</label>
@@ -494,7 +544,7 @@ class FichasEspecificas {
                 // Campo PIX com select
                 if (campo === 'pixStatus' && tipo === 'select') {
                     const valorAtual = elemento.textContent.trim();
-                    const opcoes = JSON.parse(elemento.dataset.opcoes || '["Liberado","Excluído"]');
+                    const opcoes = JSON.parse(elemento.dataset.opcoes || '["Liberado","Excluído","Liberado para Retirada","Não Aplicável"]');
                     let optionsHTML = opcoes.map(op => {
                         const selected = valorAtual === op ? 'selected' : '';
                         return `<option value="${op}" ${selected}>${op}</option>`;

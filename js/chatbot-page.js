@@ -294,6 +294,7 @@ async function handleSubmitChatbot(e) {
             produto: obterValorCampoChatbot('chatbot-produto'),
             motivo: obterValorCampoChatbot('chatbot-motivo'),
             respostaBot: document.querySelector('input[name="chatbot-resposta-bot"]:checked')?.value || '',
+            observacaoRespostaBot: obterValorCampoChatbot('chatbot-observacao-resposta-bot-texto') || '',
             pixStatus: obterValorCampoChatbot('chatbot-pix-status'),
             enviarCobranca: document.querySelector('input[name="chatbot-enviar-cobranca"]:checked')?.value || 'Não',
             casosCriticos: obterCheckboxChatbot('chatbot-casos-criticos'),

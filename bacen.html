@@ -415,6 +415,7 @@
                                 <option value="">Selecione...</option>
                                 <option value="Liberado">Liberado</option>
                                 <option value="Excluído">Excluído</option>
+                                <option value="Liberado para Retirada">Liberado para Retirada</option>
                                 <option value="Não Aplicável">Não Aplicável</option>
                             </select>
                         </div>
@@ -428,6 +429,23 @@
                                 <label class="radio-label">
                                     <input type="radio" name="bacen-enviar-cobranca" value="Não" required>
                                     <span>Não</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Status do contrato</label>
+                            <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="bacen-status-contrato-quitado">
+                                    <span class="checkmark"></span>
+                                    Quitado
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="bacen-status-contrato-aberto">
+                                    <span class="checkmark"></span>
+                                    Em aberto
                                 </label>
                             </div>
                         </div>

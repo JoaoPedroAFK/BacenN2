@@ -315,18 +315,22 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Resposta do Bot (Sim ou Não)</label>
+                            <label>Resposta do Bot</label>
                             <div style="display: flex; gap: 16px; margin-top: 8px;">
                                 <label class="radio-label">
-                                    <input type="radio" name="chatbot-resposta-bot" value="Sim">
+                                    <input type="radio" name="chatbot-resposta-bot" value="Sim" onchange="toggleObservacaoRespostaBot()">
                                     <span>Sim</span>
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="chatbot-resposta-bot" value="Não">
+                                    <input type="radio" name="chatbot-resposta-bot" value="Não" onchange="toggleObservacaoRespostaBot()">
                                     <span>Não</span>
                                 </label>
                             </div>
                         </div>
+                    </div>
+                    <div id="chatbot-observacao-resposta-bot" class="form-group" style="display: none;">
+                        <label for="chatbot-observacao-resposta-bot-texto">Observação</label>
+                        <textarea id="chatbot-observacao-resposta-bot-texto" class="velohub-input" rows="4" placeholder="Digite a observação sobre a resposta do bot..."></textarea>
                     </div>
                     <div class="form-group">
                         <label for="chatbot-avaliacao-cliente">Avaliação do Cliente (campo aberto)</label>
@@ -712,6 +716,7 @@
                         produto: obterValor('chatbot-produto'),
                         motivo: obterValor('chatbot-motivo'),
                         respostaBot: document.querySelector('input[name="chatbot-resposta-bot"]:checked')?.value || '',
+                        observacaoRespostaBot: obterValor('chatbot-observacao-resposta-bot-texto') || '',
                         pixStatus: obterValor('chatbot-pix-status'),
                         enviarCobranca: document.querySelector('input[name="chatbot-enviar-cobranca"]:checked')?.value || 'Não',
                         casosCriticos: obterCheckbox('chatbot-casos-criticos'),
@@ -798,6 +803,28 @@
                 console.warn('⚠️ [HTML] Formulário form-chatbot não encontrado');
             }
         })();
+        
+        // Função para mostrar/ocultar campo de observação quando selecionar "Não" em Resposta do Bot
+        window.toggleObservacaoRespostaBot = function() {
+            const respostaBot = document.querySelector('input[name="chatbot-resposta-bot"]:checked')?.value;
+            const campoObservacao = document.getElementById('chatbot-observacao-resposta-bot');
+            const campoTexto = document.getElementById('chatbot-observacao-resposta-bot-texto');
+            
+            if (respostaBot === 'Não' && campoObservacao) {
+                campoObservacao.style.display = 'block';
+                if (campoTexto) {
+                    campoTexto.required = true;
+                }
+            } else {
+                if (campoObservacao) {
+                    campoObservacao.style.display = 'none';
+                }
+                if (campoTexto) {
+                    campoTexto.required = false;
+                    campoTexto.value = '';
+                }
+            }
+        };
         
         // Verificar logs persistentes de salvamento ao carregar a página
         (function verificarLogsSalvamento() {

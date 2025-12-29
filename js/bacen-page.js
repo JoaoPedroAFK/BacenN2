@@ -328,6 +328,8 @@ async function handleSubmitBacen(e) {
         protocoloProcon: obterProtocolosDoContainer('bacen-protocolos-procon-container') || [],
         protocolosSemAcionamento: obterValorCampo('bacen-protocolos-sem-acionamento'),
         pixStatus: obterValorCampo('bacen-pix-status'),
+        statusContratoQuitado: document.getElementById('bacen-status-contrato-quitado')?.checked || false,
+        statusContratoAberto: document.getElementById('bacen-status-contrato-aberto')?.checked || false,
         enviarCobranca: document.querySelector('input[name="bacen-enviar-cobranca"]:checked')?.value || 'Não',
         casosCriticos: obterCheckbox('bacen-casos-criticos'),
         status: obterValorCampo('bacen-status'),
