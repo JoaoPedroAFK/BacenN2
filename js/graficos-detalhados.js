@@ -1328,20 +1328,37 @@ if (!document.getElementById('estilos-modal-grafico')) {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+        .grafico-card-header h3 {
+            margin: 0;
+            flex: 1;
         }
         .btn-expandir-grafico {
             background: var(--cor-primaria, #1634FF);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+            padding: 10px 18px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
-            transition: background 0.3s;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 20;
+            flex-shrink: 0;
+            margin-left: 15px;
+            white-space: nowrap;
         }
         .btn-expandir-grafico:hover {
             background: var(--cor-primaria-hover, #0d2bb3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
     `;
     document.head.appendChild(style);
