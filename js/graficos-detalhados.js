@@ -292,8 +292,12 @@ class GraficosDetalhados {
     }
 
     renderizarGraficoStatus(dados) {
-        const container = document.getElementById(`grafico-status-${this.tipoDemanda}`);
+        const containerId = `grafico-status-${this.tipoDemanda}`;
+        const container = document.getElementById(containerId);
         if (!container) return;
+
+        // Adicionar botão Expandir se não existir (antes de renderizar)
+        this.adicionarBotaoExpandir(containerId, 'Status das Reclamações');
 
         const statusCount = {};
         dados.forEach(f => {
@@ -315,9 +319,6 @@ class GraficosDetalhados {
         };
 
         container.innerHTML = this.criarGraficoBarras(labels, values, cores, 'Status');
-        
-        // Adicionar botão Expandir se não existir
-        this.adicionarBotaoExpandir(`grafico-status-${this.tipoDemanda}`, 'Status das Reclamações');
     }
     
     // Função helper para adicionar botão Expandir a gráficos existentes no HTML
@@ -450,6 +451,11 @@ class GraficosDetalhados {
         // Usar o ID padrão: grafico-cobranca-{tipo}
         const containerId = `grafico-cobranca-${this.tipoDemanda}`;
         let container = document.getElementById(containerId);
+        
+        // Adicionar botão Expandir se o container já existe no HTML
+        if (container) {
+            this.adicionarBotaoExpandir(containerId, 'Enviado para Cobrança');
+        }
         
         if (!container) {
             // Tentar encontrar container de gráficos de várias formas
