@@ -395,8 +395,8 @@ async function handleSubmitChatbot(e) {
         console.log('🧹 Limpando formulário...');
         limparFormChatbot();
         
-        // Atualizar dashboard e listas IMEDIATAMENTE
-        atualizarDashboardChatbot(); // async, mas não precisa await aqui
+        // Atualizar dashboard e listas IMEDIATAMENTE (AGUARDAR para garantir que está atualizado)
+        await atualizarDashboardChatbot();
         renderizarListaChatbot();
         
         // Atualizar "Minhas Reclamações" se a seção estiver visível
@@ -1765,8 +1765,8 @@ function inicializarChatbotPage() {
         await new Promise(resolve => setTimeout(resolve, 500));
         // Recarregar fichas do Firebase
         await carregarFichasChatbot();
-        // Atualizar dashboard
-        atualizarDashboardChatbot();
+        // Atualizar dashboard (AGUARDAR para garantir que está atualizado)
+        await atualizarDashboardChatbot();
         // Atualizar lista se estiver visível
         const secaoLista = document.getElementById('lista-chatbot');
         if (secaoLista && secaoLista.classList.contains('active')) {
@@ -1778,9 +1778,9 @@ function inicializarChatbotPage() {
     window.addEventListener('reclamacaoSalva', async function(event) {
         if (event.detail && (event.detail.tipo === 'chatbot' || event.detail.origem === 'importacao')) {
             console.log('📢 [CHATBOT] Evento reclamacaoSalva recebido, atualizando dashboard...');
-            // Recarregar fichas e atualizar dashboard
+            // Recarregar fichas e atualizar dashboard (AGUARDAR)
             await carregarFichasChatbot();
-            atualizarDashboardChatbot();
+            await atualizarDashboardChatbot();
             // Atualizar lista se estiver visível
             const secaoLista = document.getElementById('lista-chatbot');
             if (secaoLista && secaoLista.classList.contains('active')) {
@@ -1793,9 +1793,9 @@ function inicializarChatbotPage() {
     window.addEventListener('importacaoConcluida', async function(event) {
         if (event.detail && event.detail.porTipo && event.detail.porTipo.chatbot > 0) {
             console.log('📢 [CHATBOT] Importação concluída, atualizando dashboard...');
-            // Recarregar fichas e atualizar dashboard
+            // Recarregar fichas e atualizar dashboard (AGUARDAR)
             await carregarFichasChatbot();
-            atualizarDashboardChatbot();
+            await atualizarDashboardChatbot();
             // Atualizar lista se estiver visível
             const secaoLista = document.getElementById('lista-chatbot');
             if (secaoLista && secaoLista.classList.contains('active')) {
