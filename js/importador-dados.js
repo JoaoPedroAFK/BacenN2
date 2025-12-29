@@ -1,4 +1,5 @@
 /* === SCRIPT DE IMPORTAÇÃO DE DADOS - PLANILHA VELOTAX === */
+/* VERSÃO: v2.1.0 | DATA: 2025-02-01 | ALTERAÇÕES: Processar apenas Base Bacen e Base Ouvidoria, mapear apenas colunas existentes nas fichas */
 
 class ImportadorDados {
     constructor() {
@@ -16,9 +17,9 @@ class ImportadorDados {
             <div class="importacao-container">
                 <div class="importacao-header">
                     <h2>📥 Importação de Dados - Planilha Velotax</h2>
-                    <p>Importe os dados da planilha "Cópia de Ação Bacen e Ouvidoria.xlsx"</p>
+                    <p>Importe os dados da planilha "Ação Bacen e Ouvidoria (1).xlsx"</p>
                     <p style="font-size: 0.9rem; color: var(--texto-secundario); margin-top: 8px;">
-                        O sistema processará todas as abas e separará automaticamente por tipo (BACEN, N2, Chatbot)
+                        O sistema processará apenas as abas <strong>"Base Bacen"</strong> e <strong>"Base Ouvidoria"</strong> e mapeará apenas colunas que existem nas fichas do sistema.
                     </p>
                 </div>
 
@@ -181,8 +182,8 @@ class ImportadorDados {
                     
                     this.adicionarLog(`📋 Planilha carregada. Encontradas ${workbook.SheetNames.length} abas: ${workbook.SheetNames.join(', ')}`);
                     
-                    // Filtrar apenas as abas que queremos processar
-                    const abasPermitidas = ['Base Bacen', 'Base Ouvidoria', 'Planilha Chatbot', 'Chatbot'];
+                    // Filtrar apenas as abas que queremos processar (APENAS Base Bacen e Base Ouvidoria)
+                    const abasPermitidas = ['Base Bacen', 'Base Ouvidoria'];
                     const abasParaProcessar = workbook.SheetNames.filter(nomeAba => {
                         const nomeNormalizado = nomeAba.trim().toLowerCase();
                         return abasPermitidas.some(permitida => {
@@ -190,8 +191,7 @@ class ImportadorDados {
                             return nomeNormalizado.includes(permitidaLower) || 
                                    permitidaLower.includes(nomeNormalizado) ||
                                    nomeNormalizado === permitidaLower ||
-                                   (permitidaLower.includes('chatbot') && nomeNormalizado.includes('chatbot')) ||
-                                   (permitidaLower.includes('planilha') && nomeNormalizado.includes('planilha') && nomeNormalizado.includes('chatbot'));
+                                   (permitidaLower.includes('base') && nomeNormalizado.includes('base') && (nomeNormalizado.includes('bacen') || nomeNormalizado.includes('ouvidoria')));
                         });
                     });
                     
@@ -448,18 +448,13 @@ class ImportadorDados {
         };
         
         // PRIORIDADE 1: Verifica campo _aba (identificador da aba da planilha)
+        // APENAS Base Bacen e Base Ouvidoria são processadas
         if (dadoBruto["_aba"]) {
             const aba = dadoBruto["_aba"].toString().toLowerCase().trim();
             console.log(`🔍 Identificando tipo pela aba: "${aba}"`);
             
-            // Planilha Chatbot = Chatbot (prioridade máxima)
-            if (aba.includes("planilha chatbot") || aba.includes("chatbot")) {
-                console.log(`✅ Identificado como Chatbot pela aba: "${aba}"`);
-                return "chatbot";
-            }
-            
             // Base Ouvidoria = N2 (prioridade máxima)
-            if (aba.includes("ouvidoria")) {
+            if (aba.includes("ouvidoria") || (aba.includes("base") && aba.includes("ouvidoria"))) {
                 console.log(`✅ Identificado como N2 pela aba: "${aba}"`);
                 return "n2";
             }
@@ -470,14 +465,10 @@ class ImportadorDados {
                 return "bacen";
             }
             
-            // Verificações adicionais
+            // Verificações adicionais (apenas para N2 e BACEN)
             if (aba.includes("n2") || aba.includes("portabilidade")) {
                 console.log(`✅ Identificado como N2 pela aba: "${aba}"`);
                 return "n2";
-            }
-            if (aba.includes("chat") || aba.includes("bot")) {
-                console.log(`✅ Identificado como Chatbot pela aba: "${aba}"`);
-                return "chatbot";
             }
             if (aba.includes("bacen")) {
                 console.log(`✅ Identificado como BACEN pela aba: "${aba}"`);
