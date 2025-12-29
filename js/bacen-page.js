@@ -127,6 +127,19 @@ async function carregarFichasBacen() {
     
     let fichasCarregadas = [];
     
+    // PRIORIDADE 1: Aguardar armazenamentoReclamacoes estar disponível
+    if (!window.armazenamentoReclamacoes) {
+        console.log('⏳ Aguardando armazenamentoReclamacoes estar disponível...');
+        // Aguardar até 5 segundos
+        for (let i = 0; i < 10; i++) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            if (window.armazenamentoReclamacoes) {
+                console.log('✅ armazenamentoReclamacoes agora está disponível!');
+                break;
+            }
+        }
+    }
+    
     // PRIORIDADE 1: Usar armazenamentoReclamacoes (sistema novo e confiável)
     if (window.armazenamentoReclamacoes) {
         try {
@@ -158,7 +171,7 @@ async function carregarFichasBacen() {
             console.error('   Stack:', error.stack);
         }
     } else {
-        console.warn('⚠️ window.armazenamentoReclamacoes não está disponível!');
+        console.warn('⚠️ window.armazenamentoReclamacoes não está disponível após aguardar!');
     }
     
     // FALLBACK: Se não encontrou nada, tentar localStorage (chaves novas e antigas)

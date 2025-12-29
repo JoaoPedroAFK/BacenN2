@@ -141,6 +141,44 @@ vercel --prod
 
 ---
 
+## 📋 Data/Hora: 2025-01-31 (Terceiro Deploy)
+
+### 1. **Commit - Correção de Sintaxe e Variáveis Globais**
+- ✅ Corrigido erro de sintaxe em `chatbot-page.js` (linha 1793)
+- ✅ Adicionada função `atualizarFichasChatbot()` para sincronizar variável global
+- ✅ Exposição de `window.fichasChatbot` e `window.carregarFichasChatbot` globalmente
+- ✅ Todas as atribuições a `fichasChatbot` agora atualizam `window.fichasChatbot`
+- **Commit**: `e53ed47`
+- **Mensagem**: "Corrigir erro de sintaxe chatbot-page.js e expor variáveis globais (window.fichasChatbot, window.carregarFichasChatbot) - v1.1.1"
+
+### 2. **Push para GitHub**
+- ✅ Push realizado com sucesso para `origin/main`
+- ✅ Repositório: https://github.com/JoaoPedroAFK/BacenN2.git
+- ✅ Branch: `main`
+- **Status**: ✅ **CONCLUÍDO**
+
+### 3. **Arquivos Modificados no Commit**
+```
+2 files changed, 90 insertions(+), 14 deletions(-)
+- js/chatbot-page.js (MODIFICADO - correção sintaxe e variáveis globais)
+- DEPLOY_REALIZADO.md (MODIFICADO - atualização do log)
+```
+
+### 4. **Correções Aplicadas**
+- ✅ Erro de sintaxe corrigido (faltava chave de fechamento)
+- ✅ `window.fichasChatbot` agora é atualizado automaticamente
+- ✅ `window.carregarFichasChatbot` exposto globalmente
+- ✅ Função `atualizarFichasChatbot()` criada para sincronização
+- ✅ Todas as atribuições diretas substituídas por `atualizarFichasChatbot()`
+
+### 5. **Problemas Resolvidos**
+- ✅ `SyntaxError: Unexpected end of input` corrigido
+- ✅ Variável global `window.fichasChatbot` agora disponível para debug
+- ✅ Função `window.carregarFichasChatbot` disponível para debug
+- ✅ Script de debug agora pode verificar variáveis globais corretamente
+
+---
+
 ## 🆕 Novas Funcionalidades no Deploy
 
 ### Script de Debug Firebase (`js/DEBUG_CARREGAMENTO_FIREBASE.js`)

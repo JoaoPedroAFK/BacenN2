@@ -240,7 +240,15 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Status das Reclamações</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = `
+                    <div class="grafico-card-header">
+                        <h3>Status das Reclamações</h3>
+                        <button class="btn-expandir-grafico" onclick="abrirGraficoModal('${containerId}', 'Status das Reclamações', '${this.tipoDemanda}')" title="Expandir gráfico">
+                            🔍 Expandir
+                        </button>
+                    </div>
+                    <div id="${containerId}"></div>
+                `;
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
@@ -384,7 +392,15 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Enviado para Cobrança</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = `
+                    <div class="grafico-card-header">
+                        <h3>Enviado para Cobrança</h3>
+                        <button class="btn-expandir-grafico" onclick="abrirGraficoModal('${containerId}', 'Enviado para Cobrança', '${this.tipoDemanda}')" title="Expandir gráfico">
+                            🔍 Expandir
+                        </button>
+                    </div>
+                    <div id="${containerId}"></div>
+                `;
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
@@ -892,7 +908,15 @@ class GraficosDetalhados {
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = `<h3>Distribuição por Canal</h3><div id="${containerId}"></div>`;
+                novoContainer.innerHTML = `
+                    <div class="grafico-card-header">
+                        <h3>Distribuição por Canal</h3>
+                        <button class="btn-expandir-grafico" onclick="abrirGraficoModal('${containerId}', 'Distribuição por Canal', '${this.tipoDemanda}')" title="Expandir gráfico">
+                            🔍 Expandir
+                        </button>
+                    </div>
+                    <div id="${containerId}"></div>
+                `;
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
@@ -1122,4 +1146,107 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 100);
 })();
+
+// === FUNÇÃO GLOBAL PARA ABRIR GRÁFICO EM MODAL ===
+window.abrirGraficoModal = function(containerId, titulo, tipoDemanda) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error('❌ Container não encontrado:', containerId);
+        return;
+    }
+    
+    // Criar modal
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay modal-grafico';
+    modal.id = 'modal-grafico-expandido';
+    modal.innerHTML = `
+        <div class="modal-content modal-grafico-content">
+            <div class="modal-header">
+                <h2>${titulo}</h2>
+                <button class="modal-close" onclick="fecharGraficoModal()">&times;</button>
+            </div>
+            <div class="modal-body modal-grafico-body">
+                ${container.innerHTML}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Fechar ao clicar fora
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            fecharGraficoModal();
+        }
+    });
+    
+    // Fechar com ESC
+    const fecharComEsc = function(e) {
+        if (e.key === 'Escape') {
+            fecharGraficoModal();
+            document.removeEventListener('keydown', fecharComEsc);
+        }
+    };
+    document.addEventListener('keydown', fecharComEsc);
+};
+
+window.fecharGraficoModal = function() {
+    const modal = document.getElementById('modal-grafico-expandido');
+    if (modal) {
+        modal.remove();
+    }
+};
+
+// Adicionar estilos CSS para o modal de gráfico
+if (!document.getElementById('estilos-modal-grafico')) {
+    const style = document.createElement('style');
+    style.id = 'estilos-modal-grafico';
+    style.textContent = `
+        .modal-grafico {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .modal-grafico-content {
+            background: white;
+            border-radius: 8px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .modal-grafico-body {
+            padding: 20px;
+            min-width: 600px;
+            min-height: 400px;
+        }
+        .grafico-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .btn-expandir-grafico {
+            background: var(--cor-primaria, #1634FF);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .btn-expandir-grafico:hover {
+            background: var(--cor-primaria-hover, #0d2bb3);
+        }
+    `;
+    document.head.appendChild(style);
+}
 

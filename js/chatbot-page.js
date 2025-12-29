@@ -278,11 +278,13 @@ async function handleSubmitChatbot(e) {
             window.armazenamentoReclamacoes.gerarId() : 
             `rec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         
+        const responsavel = window.sistemaPerfis?.usuarioAtual?.nome || window.sistemaPerfis?.usuarioAtual?.email || 'Sistema';
         const ficha = {
             id: id,
             tipoDemanda: 'chatbot',
             dataClienteChatbot: dataClienteChatbot,
-            responsavel: window.sistemaPerfis?.usuarioAtual?.nome || window.sistemaPerfis?.usuarioAtual?.email || 'Sistema',
+            responsavel: responsavel,
+            responsavelChatbot: responsavel, // Também adicionar no campo específico do chatbot
             nomeCompleto: obterValorCampoChatbot('chatbot-nome') || '',
             cpf: obterValorCampoChatbot('chatbot-cpf'),
             // Removido: origem (não existe mais em chatbot)
@@ -915,10 +917,17 @@ async function renderizarMinhasReclamacoesChatbot() {
     const emailAtual = usuarioAtual.email || '';
     
     // Filtrar apenas reclamações do usuário logado
+    // Também incluir fichas sem responsável atribuído (para mostrar todas as fichas do usuário)
     const minhasFichas = fichasChatbot.filter(f => {
-        const responsavelFicha = (f.responsavel || '').toString().toLowerCase().trim();
+        const responsavelFicha = (f.responsavel || f.responsavelChatbot || '').toString().toLowerCase().trim();
         const nomeAtual = (responsavelAtual || '').toString().toLowerCase().trim();
         const emailAtualLower = (emailAtual || '').toString().toLowerCase().trim();
+        
+        // Se não tem responsável, mostrar todas (assumindo que são do usuário atual)
+        if (!responsavelFicha || responsavelFicha === '') {
+            console.log('📋 Ficha sem responsável:', f.id, '- incluindo na lista');
+            return true; // Incluir fichas sem responsável
+        }
         
         const match = responsavelFicha === nomeAtual || 
                       responsavelFicha === emailAtualLower ||
@@ -927,7 +936,7 @@ async function renderizarMinhasReclamacoesChatbot() {
                       responsavelFicha.includes(emailAtualLower);
         
         if (match) {
-            console.log('✅ Match encontrado:', f.id, 'Responsável:', f.responsavel, 'vs', nomeAtual);
+            console.log('✅ Match encontrado:', f.id, 'Responsável:', f.responsavel || f.responsavelChatbot, 'vs', nomeAtual);
         }
         
         return match;
