@@ -2,6 +2,49 @@
 
 ## 📋 Data/Hora: 2025-01-31 (Atualizado)
 
+---
+
+## 📋 Data/Hora: 2025-01-31 (Quinto Deploy - CRÍTICO)
+
+### 1. **Commit - Correção de Carregamento de Fichas Importadas**
+- ✅ Adicionado listener `firebaseReady` em `bacen-page.js` para recarregar fichas quando Firebase estiver pronto
+- ✅ Adicionado listener `firebaseReady` em `n2-page.js` para recarregar fichas quando Firebase estiver pronto
+- ✅ Adicionado listener `firebaseReady` em `chatbot-page.js` para recarregar fichas quando Firebase estiver pronto
+- ✅ Melhorado `carregarFichasN2()` para aguardar `armazenamentoReclamacoes` estar disponível (até 5 segundos)
+- ✅ Adicionados logs detalhados para debug do carregamento
+- **Problema resolvido**: Fichas importadas via planilha não apareciam nas listas porque as páginas carregavam antes do Firebase estar pronto
+- **Commit**: `50d7316`
+- **Mensagem**: "Adicionar listener firebaseReady para recarregar fichas quando Firebase estiver pronto - corrige problema de fichas importadas não aparecerem - v1.2.1"
+
+### 2. **Push para GitHub**
+- ✅ Push realizado com sucesso para `origin/main`
+- ✅ Repositório: https://github.com/JoaoPedroAFK/BacenN2.git
+- ✅ Branch: `main`
+- **Status**: ✅ **CONCLUÍDO**
+
+### 3. **Arquivos Modificados no Commit**
+```
+4 files changed, 130 insertions(+)
+- js/bacen-page.js (MODIFICADO - listener firebaseReady)
+- js/n2-page.js (MODIFICADO - listener firebaseReady e aguardar armazenamentoReclamacoes)
+- js/chatbot-page.js (MODIFICADO - listener firebaseReady)
+- DEPLOY_REALIZADO.md (MODIFICADO - atualização do log)
+```
+
+### 4. **Correções Aplicadas**
+- ✅ **Problema crítico resolvido**: Fichas importadas via planilha agora aparecem nas listas
+- ✅ Todas as páginas (BACEN, N2, Chatbot) agora recarregam fichas automaticamente quando Firebase estiver pronto
+- ✅ `n2-page.js` agora aguarda até 5 segundos para `armazenamentoReclamacoes` estar disponível
+- ✅ Logs detalhados adicionados para facilitar debug futuro
+
+### 5. **Como Funciona Agora**
+1. Página carrega e tenta carregar fichas (pode não encontrar porque Firebase ainda não está pronto)
+2. Firebase inicializa e dispara evento `firebaseReady`
+3. Listener em cada página detecta o evento e recarrega as fichas automaticamente
+4. Dashboard e listas são atualizados automaticamente
+
+---
+
 ## ✅ Ações Realizadas
 
 ### 1. **Commit das Correções**
