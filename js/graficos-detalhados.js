@@ -315,6 +315,41 @@ class GraficosDetalhados {
         };
 
         container.innerHTML = this.criarGraficoBarras(labels, values, cores, 'Status');
+        
+        // Adicionar botão Expandir se não existir
+        this.adicionarBotaoExpandir(`grafico-status-${this.tipoDemanda}`, 'Status das Reclamações');
+    }
+    
+    // Função helper para adicionar botão Expandir a gráficos existentes no HTML
+    adicionarBotaoExpandir(containerId, titulo) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        const card = container.closest('.grafico-card');
+        if (!card) return;
+        
+        // Verificar se já tem header com botão
+        if (card.querySelector('.grafico-card-header')) return;
+        
+        // Adicionar header com botão
+        const header = document.createElement('div');
+        header.className = 'grafico-card-header';
+        const h3 = card.querySelector('h3');
+        const tituloTexto = h3 ? h3.textContent : titulo;
+        header.innerHTML = `
+            <h3>${tituloTexto}</h3>
+            <button class="btn-expandir-grafico" onclick="abrirGraficoModal('${containerId}', '${tituloTexto}', '${this.tipoDemanda}')" title="Expandir gráfico">
+                🔍 Expandir
+            </button>
+        `;
+        
+        // Inserir antes do container ou substituir h3
+        if (h3) {
+            card.insertBefore(header, h3);
+            h3.remove();
+        } else {
+            card.insertBefore(header, container);
+        }
     }
 
     renderizarGraficoMensal(dados) {
