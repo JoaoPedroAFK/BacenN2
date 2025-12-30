@@ -944,7 +944,12 @@ window.criarCardN2 = function criarCardN2(ficha) {
                     ${ficha.nomeCompleto || ficha.nomeCliente || 'Nome não informado'}
                     <span class="n2-badge">🔄 N2</span>
                 </div>
-                <div class="complaint-status ${statusClass}">${statusLabel}</div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <div class="complaint-status ${statusClass}">${statusLabel}</div>
+                    <button class="btn-excluir-ficha" onclick="event.stopPropagation(); excluirFichaN2('${ficha.id}')" title="Excluir reclamação">
+                        🗑️
+                    </button>
+                </div>
             </div>
             <div class="complaint-summary">
                 <div class="complaint-detail"><strong>CPF:</strong> ${ficha.cpf}</div>
@@ -1394,6 +1399,39 @@ function formatPhone(e) {
     }
     e.target.value = value;
 }
+
+// Função para excluir ficha N2
+async function excluirFichaN2(id) {
+    if (!confirm('Tem certeza que deseja excluir esta reclamação? Esta ação não pode ser desfeita.')) {
+        return;
+    }
+    
+    try {
+        // Remover do armazenamento
+        if (window.armazenamentoReclamacoes) {
+            await window.armazenamentoReclamacoes.remover(id, 'n2');
+        }
+        
+        // Recarregar fichas e atualizar interface
+        await carregarFichasN2();
+        atualizarDashboardN2();
+        renderizarListaN2();
+        
+        // Atualizar "Minhas Reclamações" se estiver visível
+        const secaoMinhas = document.getElementById('minhas-reclamacoes-n2');
+        if (secaoMinhas && secaoMinhas.classList.contains('active')) {
+            renderizarMinhasReclamacoesN2();
+        }
+        
+        mostrarAlerta('Reclamação excluída com sucesso!', 'success');
+    } catch (error) {
+        console.error('❌ Erro ao excluir ficha N2:', error);
+        mostrarAlerta('Erro ao excluir reclamação: ' + error.message, 'error');
+    }
+}
+
+// Tornar função global
+window.excluirFichaN2 = excluirFichaN2;
 
 function validarCPF(cpf) {
     cpf = cpf.replace(/\D/g, '');

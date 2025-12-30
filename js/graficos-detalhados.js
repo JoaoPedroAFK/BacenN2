@@ -1367,26 +1367,36 @@ if (!document.getElementById('estilos-modal-grafico')) {
         .modal-grafico-content {
             background: white;
             border-radius: 8px;
-            max-width: 90%;
-            max-height: 90%;
-            overflow: auto;
+            width: 95vw;
+            height: 95vh;
+            max-width: 95vw;
+            max-height: 95vh;
+            overflow: hidden;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
         }
         .modal-grafico-body {
-            padding: 20px;
-            min-width: 800px;
-            min-height: 600px;
-            max-width: 95vw;
-            max-height: 90vh;
+            padding: 30px;
+            width: 100%;
+            height: 100%;
             overflow: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         .modal-grafico-body .grafico-barras,
         .modal-grafico-body .grafico-pizza,
         .modal-grafico-body .grafico-linha {
-            transform: scale(1.5);
-            transform-origin: top left;
-            margin-bottom: 200px;
-            margin-right: 200px;
+            width: 100%;
+            max-width: 100%;
+            transform: none;
+            margin: 0;
+        }
+        .dark .modal-grafico-content {
+            background: var(--cor-card-escuro);
+            color: var(--texto-claro);
         }
         .grafico-card-header {
             display: flex;

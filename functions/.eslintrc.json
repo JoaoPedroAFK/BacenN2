@@ -1,0 +1,22 @@
+{
+  "extends": "google",
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018
+  },
+  "rules": {
+    "no-unused-vars": "warn",
+    "require-jsdoc": "off",
+    "valid-jsdoc": "off",
+    "max-len": ["error", {"code": 120}],
+    "no-console": "off",
+    "linebreak-style": "off",
+    "comma-dangle": "off",
+    "indent": "off",
+    "prefer-const": "warn"
+  }
+}
+

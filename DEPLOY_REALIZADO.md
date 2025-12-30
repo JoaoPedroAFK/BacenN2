@@ -1,5 +1,51 @@
 # ✅ Deploy Realizado - BacenN2
 
+## 📋 Data/Hora: 2025-02-01 (Nono Deploy - Correções Dashboard, Gráficos e Exclusão)
+
+### 1. **Commit - Correções Dashboard, Gráficos e Exclusão**
+- ✅ Adicionado gráfico mensal na área N2 (igual ao de BACEN)
+- ✅ Adicionado botão de excluir reclamações nas listas (N2, BACEN e Chatbot)
+- ✅ Corrigido tema escuro na ficha detalhada (legibilidade)
+- ✅ Corrigido modal do gráfico (aumentado para 95vw x 95vh, gráficos centralizados)
+- ✅ Corrigida atualização dos cards da dashboard do Chatbot (seguindo padrão N2)
+- ✅ Funções de exclusão criadas: `excluirFichaN2()`, `excluirFichaBacen()`, `excluirFichaChatbot()`
+- ✅ Estilos CSS adicionados para botão de excluir e tema escuro na ficha
+- **Versão**: v1.7.0
+
+### 2. **Push para GitHub**
+- ⏳ Aguardando push para `origin/main`
+- ⏳ Repositório: https://github.com/JoaoPedroAFK/BacenN2.git
+- ⏳ Branch: `main`
+- **Status**: ⏳ **PENDENTE**
+
+### 3. **Arquivos Modificados**
+```
+- n2.html (MODIFICADO - adicionado gráfico mensal)
+- js/n2-page.js (MODIFICADO - botão excluir e função exclusão)
+- js/bacen-page.js (MODIFICADO - botão excluir e função exclusão)
+- js/chatbot-page.js (MODIFICADO - botão excluir, função exclusão e correção dashboard)
+- js/fichas-especificas.js (MODIFICADO - estilos tema escuro)
+- js/graficos-detalhados.js (MODIFICADO - modal gráfico aumentado)
+- css/styles.css (MODIFICADO - estilos botão excluir)
+```
+
+### 4. **Correções Aplicadas**
+- ✅ Gráfico mensal adicionado no N2 (container `grafico-mensal-n2`)
+- ✅ Botão de excluir (🗑️) adicionado em todos os cards das listas
+- ✅ Funções de exclusão com confirmação e atualização automática
+- ✅ Tema escuro corrigido na ficha detalhada (cores legíveis)
+- ✅ Modal do gráfico aumentado e gráficos centralizados corretamente
+- ✅ Dashboard do Chatbot agora atualiza corretamente após salvar reclamação
+
+### 5. **Problemas Resolvidos**
+- ✅ Gráfico mensal faltando no N2
+- ✅ Impossibilidade de excluir reclamações das listas
+- ✅ Ficha detalhada ilegível no tema escuro
+- ✅ Modal do gráfico pequeno e desenquadrado
+- ✅ Cards da dashboard do Chatbot não atualizavam após salvar
+
+---
+
 ## 📋 Data/Hora: 2025-01-31 (Oitavo Deploy - Logo Símbolo Branco Menor)
 
 ### 1. **Commit - Alterar Logo para Símbolo Branco Menor**

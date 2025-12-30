@@ -260,7 +260,7 @@ class SistemaPerfis {
                 <div class="login-card">
                     <div class="login-header">
                         <div class="logo-velotax">
-                            <img src="img/velotax_natal.png" alt="Velotax Logo" class="logo-velotax-img">
+                            <img src="img/simbolo_velotax_ajustada_branco.png" alt="Velotax Logo" class="logo-velotax-img">
                         </div>
                     </div>
                     
@@ -581,12 +581,11 @@ class SistemaPerfis {
                 }
 
                 .logo-velotax-img {
-                    max-width: 600px;
-                    width: 70%;
-                    height: auto;
+                    height: 60px;
+                    width: auto;
+                    object-fit: contain;
                     margin-bottom: 0;
                     display: block;
-                    object-fit: contain;
                 }
 
                 .login-form {

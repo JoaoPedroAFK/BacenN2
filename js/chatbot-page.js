@@ -389,22 +389,14 @@ async function handleSubmitChatbot(e) {
         // RECARREGAR IMEDIATAMENTE (assíncrono)
         await carregarFichasChatbot();
         console.log('📋 Fichas recarregadas:', fichasChatbot.length);
-        console.log('📋 Última ficha salva:', fichasChatbot[fichasChatbot.length - 1]);
-        console.log('📋 Ficha salva está no array?', fichasChatbot.find(f => f.id === ficha.id) ? 'Sim' : 'Não');
         
         // Limpar formulário
         console.log('🧹 Limpando formulário...');
         limparFormChatbot();
         
-        // Atualizar dashboard e listas IMEDIATAMENTE (AGUARDAR para garantir que está atualizado)
-        await atualizarDashboardChatbot();
+        // Atualizar dashboard e listas IMEDIATAMENTE (seguindo padrão N2)
+        atualizarDashboardChatbot();
         renderizarListaChatbot();
-        
-        // Atualizar "Minhas Reclamações" se a seção estiver visível
-        const secaoMinhas = document.getElementById('minhas-reclamacoes-chatbot');
-        if (secaoMinhas && secaoMinhas.classList.contains('active')) {
-            renderizarMinhasReclamacoesChatbot();
-        }
         
         // Mostrar lista
         mostrarSecao('lista-chatbot');
@@ -418,6 +410,46 @@ async function handleSubmitChatbot(e) {
             console.log('📢 Evento reclamacaoSalva disparado do chatbot-page');
         }
         
+        // Mostrar sucesso
+        mostrarAlerta('Reclamação Chatbot salva com sucesso!', 'success');
+        
+        // Tentar salvar no gerenciador de fichas (se disponível)
+        if (window.gerenciadorFichas) {
+            try {
+                window.gerenciadorFichas.adicionarFicha(ficha);
+                console.log('✅ Salvo no gerenciadorFichas');
+            } catch (error) {
+                console.error('❌ Erro ao salvar no gerenciadorFichas:', error);
+            }
+        }
+        
+        // Disparar evento novamente para garantir atualização (seguindo padrão N2)
+        if (typeof window !== 'undefined') {
+            const evento = new CustomEvent('reclamacaoSalva', {
+                detail: { tipo: 'chatbot', reclamacao: ficha, total: fichasChatbot.length }
+            });
+            window.dispatchEvent(evento);
+            console.log('📢 Evento reclamacaoSalva disparado novamente do chatbot-page');
+        }
+        
+        // Recarregar fichas para garantir que a nova ficha esteja disponível (seguindo padrão N2)
+        await carregarFichasChatbot();
+        console.log('📋 Fichas Chatbot carregadas após salvar:', fichasChatbot.length);
+        console.log('📋 Última ficha salva:', fichasChatbot[fichasChatbot.length - 1]);
+        console.log('📋 Ficha salva está no array?', fichasChatbot.find(f => f.id === ficha.id) ? 'Sim' : 'Não');
+        
+        // Atualizar dashboard e listas NOVAMENTE (seguindo padrão N2)
+        await atualizarDashboardChatbot();
+        
+        // Atualizar lista geral (sem filtro de usuário)
+        renderizarListaChatbot();
+        
+        // Atualizar "Minhas Reclamações" se a seção estiver visível
+        const secaoMinhas = document.getElementById('minhas-reclamacoes-chatbot');
+        if (secaoMinhas && secaoMinhas.classList.contains('active')) {
+            renderizarMinhasReclamacoesChatbot();
+        }
+        
         // Log persistente do sucesso (sobrevive ao recarregamento)
         const logKeySucesso = 'velotax_salvamento_sucesso_' + Date.now();
         localStorage.setItem(logKeySucesso, JSON.stringify({
@@ -428,29 +460,6 @@ async function handleSubmitChatbot(e) {
             mensagem: 'Ficha salva com sucesso'
         }));
         
-        // Mostrar sucesso
-        mostrarAlerta('Reclamação Chatbot salva com sucesso!', 'success');
-        
-        // NÃO redirecionar imediatamente - aguardar um pouco para garantir que o Firebase salvou
-        console.log('⏳ Aguardando 1 segundo antes de redirecionar...');
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Verificar se a ficha foi realmente salva no Firebase
-        if (window.armazenamentoReclamacoes && window.armazenamentoReclamacoes.firebaseDB && window.armazenamentoReclamacoes.firebaseDB.inicializado) {
-            try {
-                const existe = await window.armazenamentoReclamacoes.firebaseDB.existe('chatbot', ficha.id);
-                console.log('🔍 Verificação pós-salvamento - Ficha existe no Firebase?', existe);
-                localStorage.setItem(logKeySucesso + '_verificacao', JSON.stringify({
-                    timestamp: new Date().toISOString(),
-                    existe: existe,
-                    id: ficha.id
-                }));
-            } catch (error) {
-                console.error('❌ Erro ao verificar se ficha existe:', error);
-            }
-        }
-        
-        // Redirecionar para a lista (isso vai recarregar a página)
         mostrarSecao('lista-chatbot');
         
     } catch (error) {
@@ -511,6 +520,39 @@ function validarFichaChatbot(ficha) {
 }
 
 // === DASHBOARD ===
+// Função para excluir ficha Chatbot
+async function excluirFichaChatbot(id) {
+    if (!confirm('Tem certeza que deseja excluir esta reclamação? Esta ação não pode ser desfeita.')) {
+        return;
+    }
+    
+    try {
+        // Remover do armazenamento
+        if (window.armazenamentoReclamacoes) {
+            await window.armazenamentoReclamacoes.remover(id, 'chatbot');
+        }
+        
+        // Recarregar fichas e atualizar interface
+        await carregarFichasChatbot();
+        await atualizarDashboardChatbot();
+        renderizarListaChatbot();
+        
+        // Atualizar "Minhas Reclamações" se estiver visível
+        const secaoMinhas = document.getElementById('minhas-reclamacoes-chatbot');
+        if (secaoMinhas && secaoMinhas.classList.contains('active')) {
+            renderizarMinhasReclamacoesChatbot();
+        }
+        
+        mostrarAlerta('Reclamação excluída com sucesso!', 'success');
+    } catch (error) {
+        console.error('❌ Erro ao excluir ficha Chatbot:', error);
+        mostrarAlerta('Erro ao excluir reclamação: ' + error.message, 'error');
+    }
+}
+
+// Tornar função global
+window.excluirFichaChatbot = excluirFichaChatbot;
+
 async function atualizarDashboardChatbot() {
     await carregarFichasChatbot();
     
@@ -1021,7 +1063,12 @@ window.criarCardChatbot = function criarCardChatbot(ficha) {
                     ${ficha.nomeCompleto || ficha.nomeCliente || 'Nome não informado'}
                     ${badges}
                 </div>
-                <div class="complaint-status ${statusClass}">${statusLabel}</div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <div class="complaint-status ${statusClass}">${statusLabel}</div>
+                    <button class="btn-excluir-ficha" onclick="event.stopPropagation(); excluirFichaChatbot('${ficha.id}')" title="Excluir reclamação">
+                        🗑️
+                    </button>
+                </div>
             </div>
             <div class="complaint-summary">
                 <div class="complaint-detail"><strong>CPF:</strong> ${ficha.cpf}</div>

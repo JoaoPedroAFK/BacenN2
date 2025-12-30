@@ -506,6 +506,39 @@ function validarFichaBacen(ficha) {
 }
 
 // === DASHBOARD ===
+// Função para excluir ficha BACEN
+async function excluirFichaBacen(id) {
+    if (!confirm('Tem certeza que deseja excluir esta reclamação? Esta ação não pode ser desfeita.')) {
+        return;
+    }
+    
+    try {
+        // Remover do armazenamento
+        if (window.armazenamentoReclamacoes) {
+            await window.armazenamentoReclamacoes.remover(id, 'bacen');
+        }
+        
+        // Recarregar fichas e atualizar interface
+        await carregarFichasBacen();
+        atualizarDashboardBacen();
+        renderizarListaBacen();
+        
+        // Atualizar "Minhas Reclamações" se estiver visível
+        const secaoMinhas = document.getElementById('minhas-reclamacoes-bacen');
+        if (secaoMinhas && secaoMinhas.classList.contains('active')) {
+            renderizarMinhasReclamacoesBacen();
+        }
+        
+        mostrarAlerta('Reclamação excluída com sucesso!', 'success');
+    } catch (error) {
+        console.error('❌ Erro ao excluir ficha BACEN:', error);
+        mostrarAlerta('Erro ao excluir reclamação: ' + error.message, 'error');
+    }
+}
+
+// Tornar função global
+window.excluirFichaBacen = excluirFichaBacen;
+
 async function atualizarDashboardBacen() {
     await carregarFichasBacen();
     
@@ -875,7 +908,12 @@ function criarCardBacen(ficha) {
                     <span class="bacen-badge">🏦 BACEN</span>
                     ${prazoText ? `<span class="${prazoClass}">${prazoText}</span>` : ''}
                 </div>
-                <div class="complaint-status ${statusClass}">${statusLabel}</div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <div class="complaint-status ${statusClass}">${statusLabel}</div>
+                    <button class="btn-excluir-ficha" onclick="event.stopPropagation(); excluirFichaBacen('${ficha.id}')" title="Excluir reclamação">
+                        🗑️
+                    </button>
+                </div>
             </div>
             <div class="complaint-summary">
                 <div class="complaint-detail"><strong>CPF:</strong> ${ficha.cpf}</div>

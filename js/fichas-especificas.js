@@ -1139,6 +1139,44 @@ class FichasEspecificas {
                     border-radius: 4px;
                     min-height: 24px;
                 }
+                
+                /* === TEMA ESCURO - FICHA DETALHADA === */
+                .dark .ficha-detalhada-container {
+                    background: var(--cor-card-escuro);
+                    color: var(--texto-claro);
+                }
+                
+                .dark .ficha-header {
+                    background: var(--cor-sidebar);
+                    border-bottom: 1px solid var(--borda-escura);
+                }
+                
+                .dark .ficha-titulo h2 {
+                    color: var(--texto-claro);
+                }
+                
+                .dark .ficha-secao h3 {
+                    color: var(--azul-ciano);
+                    border-bottom-color: var(--borda-escura);
+                }
+                
+                .dark .ficha-item label {
+                    color: var(--texto-secundario-escuro);
+                }
+                
+                .dark .ficha-valor {
+                    color: var(--texto-claro);
+                    background: var(--cor-container-escuro);
+                }
+                
+                .dark .ficha-rodape {
+                    background: var(--cor-sidebar);
+                    border-top-color: var(--borda-escura);
+                }
+                
+                .dark .ficha-conteudo-scroll {
+                    background: var(--cor-card-escuro);
+                }
 
                 .ficha-valor.editando {
                     background: var(--cor-container);
