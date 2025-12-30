@@ -35,6 +35,40 @@ function carregarFichas() {
 
 // === INICIALIZAÇÃO ===
 document.addEventListener('DOMContentLoaded', function() {
+    // Garantir que o logo da home está usando o logo padrão (não de Natal ou outros)
+    function garantirLogoPadrao() {
+        const logoHome = document.getElementById('logo-home');
+        const logoHeader = document.querySelector('.logo-header');
+        const logoPadrao = 'img/velotax_ajustada_cor (1).png';
+        
+        // Verificar e corrigir logo-home
+        if (logoHome && logoHome.src && !logoHome.src.includes('velotax_ajustada_cor')) {
+            logoHome.src = logoPadrao;
+            console.log('✅ Logo da home corrigido para padrão');
+        }
+        
+        // Verificar e corrigir qualquer logo-header na home
+        if (logoHeader && logoHeader.src && !logoHeader.src.includes('velotax_ajustada_cor')) {
+            logoHeader.src = logoPadrao;
+            console.log('✅ Logo header corrigido para padrão');
+        }
+        
+        // Garantir que não há logo de Natal
+        if (logoHome && logoHome.src && logoHome.src.includes('natal')) {
+            logoHome.src = logoPadrao;
+            console.log('✅ Logo de Natal removido, usando padrão');
+        }
+    }
+    
+    // Executar imediatamente
+    garantirLogoPadrao();
+    
+    // Executar novamente após um delay para garantir
+    setTimeout(garantirLogoPadrao, 500);
+    
+    // Executar periodicamente para garantir que não mude
+    setInterval(garantirLogoPadrao, 5000);
+    
     // Mostra loading
     if (window.loadingVelotax) {
         window.loadingVelotax.mostrar();
@@ -70,21 +104,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 100);
     
     // Listener para atualizar home quando uma nova reclamação for salva
-    window.addEventListener('reclamacaoSalva', function(event) {
+    window.addEventListener('reclamacaoSalva', async function(event) {
         console.log('📢 Evento reclamacaoSalva recebido:', event.detail);
-        // Recarregar dados e atualizar dashboard e home stats IMEDIATAMENTE
-        atualizarHomeStats();
-        console.log('✅ Home atualizada após nova reclamação');
         
-        // Também atualizar dashboard se necessário
-        setTimeout(() => {
+        // Recarregar dados ANTES de atualizar
+        try {
+            // Recarregar fichas de todas as fontes
             if (typeof carregarFichas === 'function') {
                 carregarFichas();
             }
+            
+            // Aguardar um pouco para garantir que os dados foram carregados
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            // Atualizar dashboard (que usa os cards: total-complaints, in-progress, completed, responded)
             if (typeof updateDashboard === 'function') {
                 updateDashboard();
+                console.log('✅ Dashboard atualizado após nova reclamação');
             }
-        }, 100);
+            
+            // Atualizar home stats (se os elementos existirem)
+            if (typeof atualizarHomeStats === 'function') {
+                atualizarHomeStats();
+                console.log('✅ Home stats atualizada após nova reclamação');
+            }
+            
+            // Se o dashboard avançado existir, atualizar também
+            if (window.dashboardAvancado && typeof window.dashboardAvancado.atualizarDados === 'function') {
+                window.dashboardAvancado.atualizarDados();
+                console.log('✅ Dashboard avançado atualizado após nova reclamação');
+            }
+        } catch (error) {
+            console.error('❌ Erro ao atualizar após nova reclamação:', error);
+        }
     });
     
     // Atualizar home periodicamente (a cada 2 segundos) para garantir sincronização
@@ -898,15 +950,27 @@ function abrirBuscaAvancada() {
 
 // === DASHBOARD ===
 function updateDashboard() {
+    // Recarregar dados ANTES de atualizar os cards
+    carregarFichas();
+    
+    // Usar a variável complaints atualizada
     const total = complaints.length;
     const inProgress = complaints.filter(c => c.status === 'em-tratativa').length;
     const completed = complaints.filter(c => c.status === 'concluido').length;
     const responded = complaints.filter(c => c.status === 'respondido').length;
     
-    document.getElementById('total-complaints').textContent = total;
-    document.getElementById('in-progress').textContent = inProgress;
-    document.getElementById('completed').textContent = completed;
-    document.getElementById('responded').textContent = responded;
+    // Atualizar os elementos do dashboard se existirem
+    const totalEl = document.getElementById('total-complaints');
+    const inProgressEl = document.getElementById('in-progress');
+    const completedEl = document.getElementById('completed');
+    const respondedEl = document.getElementById('responded');
+    
+    if (totalEl) totalEl.textContent = total;
+    if (inProgressEl) inProgressEl.textContent = inProgress;
+    if (completedEl) completedEl.textContent = completed;
+    if (respondedEl) respondedEl.textContent = responded;
+    
+    console.log('📊 Dashboard atualizado:', { total, inProgress, completed, responded });
 }
 
 // === RELATÓRIOS ===
