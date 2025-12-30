@@ -1,5 +1,47 @@
 # ✅ Deploy Realizado - BacenN2
 
+## 📋 Data/Hora: 2025-01-31 (Oitavo Deploy - Logo Símbolo Branco Menor)
+
+### 1. **Commit - Alterar Logo para Símbolo Branco Menor**
+- ✅ Logo alterado de `velotax_ajustada_cor (1).png` para `simbolo_velotax_ajustada_branco.png` em todas as páginas
+- ✅ Tamanho do logo reduzido de `150px` para `60px` de altura
+- ✅ Aplicado em: Home, BACEN, N2 e Chatbot
+- ✅ CSS atualizado em `styles.css` e `components.css`
+- ✅ JavaScript atualizado para garantir símbolo branco
+- **Commit**: `151d499`
+- **Mensagem**: "Alterar logo para simbolo branco menor em todas as paginas - v1.6.1"
+
+### 2. **Push para GitHub**
+- ✅ Push realizado com sucesso para `origin/main`
+- ✅ Repositório: https://github.com/JoaoPedroAFK/BacenN2.git
+- ✅ Branch: `main`
+- **Status**: ✅ **CONCLUÍDO**
+
+### 3. **Arquivos Modificados no Commit**
+```
+7 files changed, 34 insertions(+), 81 deletions(-)
+- index.html (MODIFICADO - logo símbolo branco)
+- bacen.html (MODIFICADO - logo símbolo branco)
+- n2.html (MODIFICADO - logo símbolo branco)
+- chatbot.html (MODIFICADO - logo símbolo branco)
+- css/styles.css (MODIFICADO - altura logo 60px)
+- css/components.css (MODIFICADO - altura logo 60px)
+- js/main.js (MODIFICADO - garantia símbolo branco)
+```
+
+### 4. **Alterações Aplicadas**
+- ✅ Logo substituído por símbolo branco em todas as páginas principais
+- ✅ Tamanho reduzido de 150px para 60px (60% menor)
+- ✅ Função `garantirLogoPadrao()` atualizada para garantir símbolo branco
+- ✅ CSS duplicado removido em `styles.css`
+
+### 5. **Resultado Visual**
+- ✅ Logo mais compacto e discreto
+- ✅ Símbolo branco consistente em todas as páginas
+- ✅ Melhor proporção visual no header
+
+---
+
 ## 📋 Data/Hora: 2025-01-31 (Sétimo Deploy - Correção Cards Dashboard e Logo Home)
 
 ### 1. **Commit - Correção Cards Dashboard e Logo Home**
