@@ -219,7 +219,7 @@
 }
 
 .logo-header {
-  height: 150px;
+  height: 60px;
   width: auto;
   object-fit: contain;
 }
@@ -1764,53 +1764,16 @@
     }
 }
 
-/* === ELEMENTOS DE NATAL === */
-.logo-container-natal {
+/* === ELEMENTOS DE NATAL - REMOVIDOS === */
+/* Estilos de natal foram removidos - usando logo padrão e robô sem chapeuzinho */
+
+/* Container de logo padrão */
+.logo-container {
     position: relative;
     display: inline-block;
 }
 
-.natal-chapeu {
-    position: absolute;
-    top: -25px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 30px;
-    z-index: 10;
-    animation: bounce-natal 2s ease-in-out infinite;
-}
-
-.natal-chapeu-img {
-    position: absolute;
-    top: -15px;
-    right: -10px;
-    width: 50px;
-    height: 50px;
-    z-index: 10;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-    object-fit: contain;
-    object-position: center;
-}
-
-/* Animação removida - chapéu e robô agora estão fixos sobrepondo o logo */
-
-.segmento-icon-natal {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-}
-
-.natal-chapeu-icon {
-    position: absolute;
-    top: -12px;
-    right: 10px;
-    font-size: 24px;
-    z-index: 11;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-}
-
+/* Ícone do robô (sem chapeuzinho) */
 .robot-icon-base {
     display: inline-block;
     font-size: 4rem;
@@ -1819,17 +1782,13 @@
     margin: 0 auto;
 }
 
-.robot-chapeu-img {
-    position: absolute;
-    top: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 40px;
-    height: 40px;
-    z-index: 11;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-    object-fit: contain;
-    object-position: center;
+/* Container de ícone de segmento padrão */
+.segmento-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
 }
 
 .robot-icon {

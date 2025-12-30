@@ -97,7 +97,7 @@ body {
 }
 
 .logo-header {
-  height: 150px;
+  height: 60px;
   width: auto;
   object-fit: contain;
 }
@@ -110,12 +110,6 @@ body {
   font-size: 1.8rem;
   margin: 0;
   letter-spacing: 0.5px;
-}
-
-.logo-header {
-  height: 150px;
-  width: auto;
-  object-fit: contain;
 }
 
 .header-actions {

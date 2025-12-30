@@ -35,28 +35,28 @@ function carregarFichas() {
 
 // === INICIALIZAÇÃO ===
 document.addEventListener('DOMContentLoaded', function() {
-    // Garantir que o logo da home está usando o logo padrão (não de Natal ou outros)
+    // Garantir que o logo da home está usando o símbolo branco
     function garantirLogoPadrao() {
         const logoHome = document.getElementById('logo-home');
         const logoHeader = document.querySelector('.logo-header');
-        const logoPadrao = 'img/velotax_ajustada_cor (1).png';
+        const logoSymboloBranco = 'img/simbolo_velotax_ajustada_branco.png';
         
         // Verificar e corrigir logo-home
-        if (logoHome && logoHome.src && !logoHome.src.includes('velotax_ajustada_cor')) {
-            logoHome.src = logoPadrao;
-            console.log('✅ Logo da home corrigido para padrão');
+        if (logoHome && logoHome.src && !logoHome.src.includes('simbolo_velotax_ajustada_branco')) {
+            logoHome.src = logoSymboloBranco;
+            console.log('✅ Logo da home corrigido para símbolo branco');
         }
         
         // Verificar e corrigir qualquer logo-header na home
-        if (logoHeader && logoHeader.src && !logoHeader.src.includes('velotax_ajustada_cor')) {
-            logoHeader.src = logoPadrao;
-            console.log('✅ Logo header corrigido para padrão');
+        if (logoHeader && logoHeader.src && !logoHeader.src.includes('simbolo_velotax_ajustada_branco')) {
+            logoHeader.src = logoSymboloBranco;
+            console.log('✅ Logo header corrigido para símbolo branco');
         }
         
-        // Garantir que não há logo de Natal
-        if (logoHome && logoHome.src && logoHome.src.includes('natal')) {
-            logoHome.src = logoPadrao;
-            console.log('✅ Logo de Natal removido, usando padrão');
+        // Garantir que não há logo de Natal ou logo colorido grande
+        if (logoHome && logoHome.src && (logoHome.src.includes('natal') || logoHome.src.includes('velotax_ajustada_cor'))) {
+            logoHome.src = logoSymboloBranco;
+            console.log('✅ Logo substituído por símbolo branco');
         }
     }
     
