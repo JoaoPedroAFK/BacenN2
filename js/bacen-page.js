@@ -506,20 +506,17 @@ function validarFichaBacen(ficha) {
 }
 
 // === DASHBOARD ===
-// Função para excluir ficha BACEN
+// Função para excluir ficha BACEN (apenas das listas e contagens, não do Firebase)
 async function excluirFichaBacen(id) {
-    if (!confirm('Tem certeza que deseja excluir esta reclamação? Esta ação não pode ser desfeita.')) {
+    if (!confirm('Tem certeza que deseja excluir esta reclamação das listas? Esta ação não pode ser desfeita.')) {
         return;
     }
     
     try {
-        // Remover do armazenamento
-        if (window.armazenamentoReclamacoes) {
-            await window.armazenamentoReclamacoes.remover(id, 'bacen');
-        }
+        // Remover apenas do array local (não do Firebase)
+        fichasBacen = fichasBacen.filter(f => f.id !== id);
         
-        // Recarregar fichas e atualizar interface
-        await carregarFichasBacen();
+        // Atualizar interface imediatamente
         atualizarDashboardBacen();
         renderizarListaBacen();
         
@@ -529,10 +526,16 @@ async function excluirFichaBacen(id) {
             renderizarMinhasReclamacoesBacen();
         }
         
-        mostrarAlerta('Reclamação excluída com sucesso!', 'success');
+        // Atualizar gráficos se estiverem visíveis
+        if (window.graficosDetalhadosBacen) {
+            await window.graficosDetalhadosBacen.carregarDados();
+            window.graficosDetalhadosBacen.renderizarGraficos();
+        }
+        
+        mostrarAlerta('Reclamação removida das listas com sucesso!', 'success');
     } catch (error) {
         console.error('❌ Erro ao excluir ficha BACEN:', error);
-        mostrarAlerta('Erro ao excluir reclamação: ' + error.message, 'error');
+        mostrarAlerta('Erro ao remover reclamação: ' + error.message, 'error');
     }
 }
 

@@ -1400,20 +1400,17 @@ function formatPhone(e) {
     e.target.value = value;
 }
 
-// Função para excluir ficha N2
+// Função para excluir ficha N2 (apenas das listas e contagens, não do Firebase)
 async function excluirFichaN2(id) {
-    if (!confirm('Tem certeza que deseja excluir esta reclamação? Esta ação não pode ser desfeita.')) {
+    if (!confirm('Tem certeza que deseja excluir esta reclamação das listas? Esta ação não pode ser desfeita.')) {
         return;
     }
     
     try {
-        // Remover do armazenamento
-        if (window.armazenamentoReclamacoes) {
-            await window.armazenamentoReclamacoes.remover(id, 'n2');
-        }
+        // Remover apenas do array local (não do Firebase)
+        fichasN2 = fichasN2.filter(f => f.id !== id);
         
-        // Recarregar fichas e atualizar interface
-        await carregarFichasN2();
+        // Atualizar interface imediatamente
         atualizarDashboardN2();
         renderizarListaN2();
         
@@ -1423,10 +1420,16 @@ async function excluirFichaN2(id) {
             renderizarMinhasReclamacoesN2();
         }
         
-        mostrarAlerta('Reclamação excluída com sucesso!', 'success');
+        // Atualizar gráficos se estiverem visíveis
+        if (window.graficosDetalhadosN2) {
+            await window.graficosDetalhadosN2.carregarDados();
+            window.graficosDetalhadosN2.renderizarGraficos();
+        }
+        
+        mostrarAlerta('Reclamação removida das listas com sucesso!', 'success');
     } catch (error) {
         console.error('❌ Erro ao excluir ficha N2:', error);
-        mostrarAlerta('Erro ao excluir reclamação: ' + error.message, 'error');
+        mostrarAlerta('Erro ao remover reclamação: ' + error.message, 'error');
     }
 }
 

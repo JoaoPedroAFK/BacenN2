@@ -522,18 +522,16 @@ function validarFichaChatbot(ficha) {
 // === DASHBOARD ===
 // Função para excluir ficha Chatbot
 async function excluirFichaChatbot(id) {
-    if (!confirm('Tem certeza que deseja excluir esta reclamação? Esta ação não pode ser desfeita.')) {
+    if (!confirm('Tem certeza que deseja excluir esta reclamação das listas? Esta ação não pode ser desfeita.')) {
         return;
     }
     
     try {
-        // Remover do armazenamento
-        if (window.armazenamentoReclamacoes) {
-            await window.armazenamentoReclamacoes.remover(id, 'chatbot');
-        }
+        // Remover apenas do array local (não do Firebase)
+        fichasChatbot = fichasChatbot.filter(f => f.id !== id);
+        atualizarFichasChatbot(fichasChatbot);
         
-        // Recarregar fichas e atualizar interface
-        await carregarFichasChatbot();
+        // Atualizar interface imediatamente
         await atualizarDashboardChatbot();
         renderizarListaChatbot();
         
@@ -543,10 +541,16 @@ async function excluirFichaChatbot(id) {
             renderizarMinhasReclamacoesChatbot();
         }
         
-        mostrarAlerta('Reclamação excluída com sucesso!', 'success');
+        // Atualizar gráficos se estiverem visíveis
+        if (window.graficosDetalhadosChatbot) {
+            await window.graficosDetalhadosChatbot.carregarDados();
+            window.graficosDetalhadosChatbot.renderizarGraficos();
+        }
+        
+        mostrarAlerta('Reclamação removida das listas com sucesso!', 'success');
     } catch (error) {
         console.error('❌ Erro ao excluir ficha Chatbot:', error);
-        mostrarAlerta('Erro ao excluir reclamação: ' + error.message, 'error');
+        mostrarAlerta('Erro ao remover reclamação: ' + error.message, 'error');
     }
 }
 

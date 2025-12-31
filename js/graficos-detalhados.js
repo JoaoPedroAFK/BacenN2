@@ -401,8 +401,14 @@ class GraficosDetalhados {
             }
         });
 
-        // Ordenar os meses por ano e mês numéricos (não ordem de string)
-        const meses = Object.keys(mesesCount).sort((a, b) => {
+        // Se não há dados, mostrar mensagem
+        if (Object.keys(mesesCount).length === 0) {
+            container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--texto-secundario);">Nenhum dado disponível</p>';
+            return;
+        }
+
+        // Encontrar primeiro e último mês
+        const mesesComDados = Object.keys(mesesCount).sort((a, b) => {
             const [maRaw, yaRaw] = a.split('/');
             const [mbRaw, ybRaw] = b.split('/');
             const ma = parseInt(maRaw, 10) || 0;
@@ -413,7 +419,37 @@ class GraficosDetalhados {
             return ma - mb;
         });
 
-        const valores = meses.map(m => mesesCount[m]);
+        if (mesesComDados.length === 0) {
+            container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--texto-secundario);">Nenhum dado disponível</p>';
+            return;
+        }
+
+        // Extrair primeiro e último mês/ano
+        const [primeiroMesRaw, primeiroAnoRaw] = mesesComDados[0].split('/');
+        const [ultimoMesRaw, ultimoAnoRaw] = mesesComDados[mesesComDados.length - 1].split('/');
+        const primeiroMes = parseInt(primeiroMesRaw, 10);
+        const primeiroAno = parseInt(primeiroAnoRaw, 10);
+        const ultimoMes = parseInt(ultimoMesRaw, 10);
+        const ultimoAno = parseInt(ultimoAnoRaw, 10);
+
+        // Preencher todos os meses entre o primeiro e último
+        const meses = [];
+        const valores = [];
+        
+        let mesAtual = primeiroMes;
+        let anoAtual = primeiroAno;
+        
+        while (anoAtual < ultimoAno || (anoAtual === ultimoAno && mesAtual <= ultimoMes)) {
+            const chaveMes = `${mesAtual}/${anoAtual}`;
+            meses.push(chaveMes);
+            valores.push(mesesCount[chaveMes] || 0);
+            
+            mesAtual++;
+            if (mesAtual > 12) {
+                mesAtual = 1;
+                anoAtual++;
+            }
+        }
 
         // Gráfico de linha com meses legíveis no eixo X
         container.innerHTML = this.criarGraficoLinha(meses, valores, 'Mês', '#1634FF');
