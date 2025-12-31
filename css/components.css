@@ -1753,6 +1753,48 @@
     border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
+/* === TEMA ESCURO - SIDEBAR CASOS EM ABERTO === */
+.dark .sidebar-casos-abertos {
+    background: var(--cor-container-escuro);
+    border-left-color: var(--borda-escura);
+}
+
+.dark .sidebar-header {
+    background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul-royal) 100%);
+    border-bottom-color: var(--borda-escura);
+}
+
+.dark .sidebar-search {
+    border-bottom-color: var(--borda-escura);
+}
+
+.dark .caso-item {
+    background: var(--cor-card-escuro);
+    border-color: var(--borda-escura);
+    color: var(--texto-claro);
+}
+
+.dark .caso-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.dark .caso-tipo {
+    color: var(--azul-ciano);
+}
+
+.dark .caso-nome {
+    color: var(--texto-claro);
+}
+
+.dark .caso-cpf {
+    color: var(--texto-secundario-escuro);
+}
+
+.dark .sem-casos,
+.dark .loading-casos {
+    color: var(--texto-secundario-escuro);
+}
+
 @media (max-width: 768px) {
     .sidebar-casos-abertos {
         width: 100%;

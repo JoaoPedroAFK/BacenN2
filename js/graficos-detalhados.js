@@ -214,8 +214,7 @@ class GraficosDetalhados {
             this.renderizarGraficoStatus(dadosFiltrados);
             this.renderizarGraficoMensal(dadosFiltrados);
             // this.renderizarGraficoOrigem(dadosFiltrados); // REMOVIDO - gráfico não necessário
-            // Substituir "Bancos Mais Solicitados" por um gráfico mais útil de Status de Portabilidade
-            this.renderizarGraficoStatusPortabilidade(dadosFiltrados);
+            // REMOVIDO: renderizarGraficoStatusPortabilidade - gráfico não necessário
             this.renderizarGraficoCobrancaPizza(dadosFiltrados);
             this.renderizarGraficoCasosCriticos(dadosFiltrados);
             this.renderizarGraficoResponsavel(dadosFiltrados);
@@ -392,7 +391,11 @@ class GraficosDetalhados {
         // Agrupar estritamente por mês/ano com base na data, ignorando datas inválidas
         const mesesCount = {};
         dados.forEach(f => {
-            const mes = this.extrairMes(f.dataEntrada || f.dataCriacao || f.dataReclamacao);
+            // Para N2, usar dataEntradaN2 ou dataEntradaAtendimento, depois dataEntrada, dataCriacao ou dataReclamacao
+            const dataParaMes = this.tipoDemanda === 'n2' 
+                ? (f.dataEntradaN2 || f.dataEntradaAtendimento || f.dataEntrada || f.dataCriacao || f.dataReclamacao)
+                : (f.dataEntrada || f.dataCriacao || f.dataReclamacao);
+            const mes = this.extrairMes(dataParaMes);
             if (mes) {
                 mesesCount[mes] = (mesesCount[mes] || 0) + 1;
             }

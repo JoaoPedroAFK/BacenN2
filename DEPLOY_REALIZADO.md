@@ -13,10 +13,18 @@
 - **Versão**: v1.7.0
 
 ### 2. **Push para GitHub**
-- ⏳ Aguardando push para `origin/main`
-- ⏳ Repositório: https://github.com/JoaoPedroAFK/BacenN2.git
-- ⏳ Branch: `main`
-- **Status**: ⏳ **PENDENTE**
+- ✅ Push realizado com sucesso para `origin/main`
+- ✅ Repositório: https://github.com/JoaoPedroAFK/BacenN2.git
+- ✅ Branch: `main`
+- **Commit**: `995b3fd`
+- **Mensagem**: "Correções dashboard, gráficos e exclusão - v1.7.0: Adicionar gráfico mensal N2, botão excluir reclamações, corrigir tema escuro ficha, aumentar modal gráfico, corrigir atualização dashboard Chatbot"
+- **Status**: ✅ **CONCLUÍDO**
+
+### 2.1. **Deploy Firebase**
+- ⚠️ Deploy pendente - requer autenticação manual
+- ⚠️ Execute: `firebase login` (abrirá navegador)
+- ⚠️ Depois execute: `firebase deploy --only hosting`
+- **Status**: ⏳ **PENDENTE - REQUER AUTENTICAÇÃO**
 
 ### 3. **Arquivos Modificados**
 ```

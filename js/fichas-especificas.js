@@ -1170,12 +1170,34 @@ class FichasEspecificas {
                 }
                 
                 .dark .ficha-rodape {
-                    background: var(--cor-sidebar);
+                    background: var(--cor-container-escuro);
                     border-top-color: var(--borda-escura);
                 }
                 
                 .dark .ficha-conteudo-scroll {
                     background: var(--cor-card-escuro);
+                }
+                
+                .dark .ficha-modal-content {
+                    background: var(--cor-card-escuro);
+                }
+                
+                .dark .ficha-modal-overlay {
+                    background: rgba(0, 0, 0, 0.85);
+                }
+                
+                .dark .ficha-rodape .velohub-btn {
+                    color: var(--texto-claro);
+                }
+                
+                .dark .ficha-rodape .velohub-btn.btn-primary {
+                    background: var(--azul-royal);
+                    color: white;
+                }
+                
+                .dark .ficha-rodape .velohub-btn.btn-secondary {
+                    background: var(--azul-ciano);
+                    color: var(--azul-escuro);
                 }
 
                 .ficha-valor.editando {
