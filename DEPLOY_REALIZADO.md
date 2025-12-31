@@ -1,5 +1,53 @@
 # ✅ Deploy Realizado - BacenN2
 
+## 📋 Data/Hora: 2025-02-01 (Décimo Deploy - Correções Gráfico Mensal N2, Tema Escuro e Remoção Gráfico Portabilidade)
+
+### 1. **Commit - Correções Gráfico Mensal N2, Tema Escuro e Remoção Gráfico Portabilidade**
+- ✅ Corrigido gráfico mensal N2 para usar campos corretos (`dataEntradaN2` ou `dataEntradaAtendimento`)
+- ✅ Gráfico mensal N2 agora funciona igual ao BACEN (com datas e valores exibidos corretamente)
+- ✅ Removido gráfico de Status de Portabilidade do N2 (HTML e JavaScript)
+- ✅ Corrigido tema escuro na sidebar de casos em aberto (legibilidade)
+- ✅ Corrigido tema escuro no modal de ficha (fundo, overlay e botões legíveis)
+- ✅ Estilos CSS adicionados para tema escuro em casos em aberto e modal de ficha
+- **Versão**: v1.8.0
+
+### 2. **Push para GitHub**
+- ✅ Push realizado com sucesso para `origin/main`
+- ✅ Repositório: https://github.com/JoaoPedroAFK/BacenN2.git
+- ✅ Branch: `main`
+- **Commit**: `f7e9a84`
+- **Mensagem**: "Correções gráfico mensal N2, tema escuro e remoção gráfico portabilidade - v1.8.0: Corrigir gráfico mensal N2 (usar dataEntradaN2), remover gráfico Status Portabilidade, corrigir tema escuro casos em aberto e modal ficha"
+- **Status**: ✅ **CONCLUÍDO**
+
+### 2.1. **Deploy Firebase**
+- ⚠️ Deploy pendente - requer autenticação manual
+- ⚠️ Execute: `firebase login` (abrirá navegador)
+- ⚠️ Depois execute: `firebase deploy --only hosting`
+- **Status**: ⏳ **PENDENTE - REQUER AUTENTICAÇÃO**
+
+### 3. **Arquivos Modificados**
+```
+- n2.html (MODIFICADO - removido gráfico Status de Portabilidade)
+- js/graficos-detalhados.js (MODIFICADO - gráfico mensal N2 usa dataEntradaN2, removido renderizarGraficoStatusPortabilidade)
+- js/fichas-especificas.js (MODIFICADO - estilos tema escuro modal ficha)
+- css/components.css (MODIFICADO - estilos tema escuro casos em aberto)
+```
+
+### 4. **Correções Aplicadas**
+- ✅ Gráfico mensal N2 agora usa `dataEntradaN2` ou `dataEntradaAtendimento` (campos específicos do N2)
+- ✅ Gráfico mensal N2 exibe datas e valores corretamente (igual ao BACEN)
+- ✅ Gráfico de Status de Portabilidade removido do dashboard N2
+- ✅ Tema escuro corrigido na sidebar de casos em aberto (cores legíveis)
+- ✅ Tema escuro corrigido no modal de ficha (fundo escuro, botões legíveis)
+
+### 5. **Problemas Resolvidos**
+- ✅ Gráfico mensal N2 sem dados (agora funciona corretamente)
+- ✅ Gráfico de Status de Portabilidade desnecessário (removido)
+- ✅ Casos em aberto ilegível no tema escuro (corrigido)
+- ✅ Modal de ficha com fundo branco e botões ilegíveis no tema escuro (corrigido)
+
+---
+
 ## 📋 Data/Hora: 2025-02-01 (Nono Deploy - Correções Dashboard, Gráficos e Exclusão)
 
 ### 1. **Commit - Correções Dashboard, Gráficos e Exclusão**
