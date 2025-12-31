@@ -1,5 +1,49 @@
 # ✅ Deploy Realizado - BacenN2
 
+## 📋 Data/Hora: 2025-02-01 (Décimo Primeiro Deploy - Correções Gráfico Mensal e Exclusão de Reclamações)
+
+### 1. **Commit - Correções Gráfico Mensal e Exclusão de Reclamações**
+- ✅ Corrigido gráfico mensal para preencher todos os meses entre primeiro e último mês com dados
+- ✅ Meses intermediários sem dados agora aparecem com valor 0 no gráfico
+- ✅ Exclusão de reclamações modificada para remover apenas das listas e contagens (não do Firebase)
+- ✅ Funções de exclusão atualizadas em N2, BACEN e Chatbot
+- ✅ Gráficos atualizados automaticamente após exclusão
+- **Versão**: v1.9.0
+
+### 2. **Push para GitHub**
+- ✅ Push realizado com sucesso para `origin/main`
+- ✅ Repositório: https://github.com/JoaoPedroAFK/BacenN2.git
+- ✅ Branch: `main`
+- **Commit**: `95e6a49`
+- **Mensagem**: "Correções gráfico mensal e exclusão de reclamações - v1.9.0: Preencher todos os meses no gráfico mensal, exclusão apenas das listas (não do Firebase)"
+- **Status**: ✅ **CONCLUÍDO**
+
+### 2.1. **Deploy Firebase**
+- ⚠️ Deploy pendente - requer autenticação manual
+- ⚠️ Execute: `firebase login` (abrirá navegador)
+- ⚠️ Depois execute: `firebase deploy --only hosting`
+- **Status**: ⏳ **PENDENTE - REQUER AUTENTICAÇÃO**
+
+### 3. **Arquivos Modificados**
+```
+- js/graficos-detalhados.js (MODIFICADO - preencher todos os meses no gráfico mensal)
+- js/n2-page.js (MODIFICADO - exclusão apenas das listas)
+- js/bacen-page.js (MODIFICADO - exclusão apenas das listas)
+- js/chatbot-page.js (MODIFICADO - exclusão apenas das listas)
+```
+
+### 4. **Correções Aplicadas**
+- ✅ Gráfico mensal agora preenche todos os meses entre primeiro e último (meses intermediários com 0)
+- ✅ Exclusão de reclamações remove apenas das listas e contagens (dados permanecem no Firebase)
+- ✅ Dashboard, listas e gráficos atualizados automaticamente após exclusão
+- ✅ Mensagem de confirmação atualizada: "excluir das listas"
+
+### 5. **Problemas Resolvidos**
+- ✅ Gráfico mensal mostrando apenas outubro e dezembro (agora mostra todos os meses intermediários)
+- ✅ Exclusão de reclamações removendo do Firebase (agora remove apenas das listas)
+
+---
+
 ## 📋 Data/Hora: 2025-02-01 (Décimo Deploy - Correções Gráfico Mensal N2, Tema Escuro e Remoção Gráfico Portabilidade)
 
 ### 1. **Commit - Correções Gráfico Mensal N2, Tema Escuro e Remoção Gráfico Portabilidade**
