@@ -35,17 +35,29 @@ class GraficosDetalhados {
     }
 
     async carregarDados() {
+        console.log(`📊 [GraficosDetalhados] carregarDados chamado para tipo: ${this.tipoDemanda}`);
         if (window.gerenciadorFichas) {
             this.dados = window.gerenciadorFichas.obterFichasPorTipo(this.tipoDemanda);
+            console.log(`📊 [GraficosDetalhados] Dados carregados via gerenciadorFichas: ${this.dados.length}`);
         } else if (window.armazenamentoReclamacoes) {
             // Usar o novo sistema de armazenamento (AGUARDAR carregamento do Supabase)
             this.dados = await window.armazenamentoReclamacoes.carregarTodos(this.tipoDemanda);
+            console.log(`📊 [GraficosDetalhados] Dados carregados via armazenamentoReclamacoes: ${this.dados.length}`);
+            if (this.dados.length > 0) {
+                console.log(`📊 [GraficosDetalhados] Primeiras 3 fichas:`, this.dados.slice(0, 3).map(f => ({
+                    id: f.id,
+                    nome: f.nomeCompleto || f.nomeCliente,
+                    tipoDemanda: f.tipoDemanda
+                })));
+            }
         } else {
             // Fallback: tentar chave nova primeiro, depois antiga
             const keyNova = `velotax_reclamacoes_${this.tipoDemanda}`;
             const keyAntiga = `velotax_demandas_${this.tipoDemanda}`;
             this.dados = JSON.parse(localStorage.getItem(keyNova) || localStorage.getItem(keyAntiga) || '[]');
+            console.log(`📊 [GraficosDetalhados] Dados carregados via localStorage: ${this.dados.length}`);
         }
+        console.log(`✅ [GraficosDetalhados] Total de dados carregados: ${this.dados.length}`);
     }
 
     renderizarFiltros() {
@@ -198,7 +210,11 @@ class GraficosDetalhados {
     }
 
     renderizarGraficos() {
+        console.log(`📊 [GraficosDetalhados] renderizarGraficos chamado para tipo: ${this.tipoDemanda}`);
+        console.log(`📊 [GraficosDetalhados] Total de dados disponíveis: ${this.dados.length}`);
+        
         const dadosFiltrados = this.obterDadosFiltrados();
+        console.log(`📊 [GraficosDetalhados] Dados após filtros: ${dadosFiltrados.length}`);
         
         if (this.tipoDemanda === 'bacen') {
             // BACEN: status e responsável em barras para facilitar comparação
@@ -220,13 +236,17 @@ class GraficosDetalhados {
             this.renderizarGraficoResponsavel(dadosFiltrados);
         } else if (this.tipoDemanda === 'chatbot') {
             // Chatbot: status em barras, demais mantidos
+            console.log(`📊 [GraficosDetalhados] Renderizando gráficos Chatbot com ${dadosFiltrados.length} fichas`);
             this.renderizarGraficoStatus(dadosFiltrados);
+            // Renderizar gráfico de resolução automática vs humana (usando o container do HTML)
+            this.renderizarGraficoResolucaoAuto(dadosFiltrados);
             this.renderizarGraficoCanal(dadosFiltrados);
             this.renderizarGraficoSatisfacao(dadosFiltrados);
             this.renderizarGraficoMensal(dadosFiltrados);
             this.renderizarGraficoProduto(dadosFiltrados);
             this.renderizarGraficoCobrancaPizza(dadosFiltrados);
             this.renderizarGraficoCasosCriticos(dadosFiltrados);
+            console.log(`✅ [GraficosDetalhados] Gráficos Chatbot renderizados`);
         }
     }
 
@@ -1032,11 +1052,30 @@ class GraficosDetalhados {
 
     // === GRÁFICOS ESPECÍFICOS CHATBOT ===
     renderizarGraficoResolucaoAuto(dados) {
-        const containerId = `grafico-resolucao-auto-${this.tipoDemanda}`;
-        let container = document.getElementById(containerId);
+        // Tentar primeiro o ID do HTML: grafico-resolucao-chatbot
+        let container = document.getElementById(`grafico-resolucao-${this.tipoDemanda}`);
+        const containerId = container ? `grafico-resolucao-${this.tipoDemanda}` : `grafico-resolucao-auto-${this.tipoDemanda}`;
         
         if (!container) {
-            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            container = document.getElementById(containerId);
+        }
+        
+        if (!container) {
+            // Tentar encontrar container de gráficos de várias formas
+            let graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-chatbot`);
+            }
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-bacen`);
+            }
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-n2`);
+            }
+            if (!graficosContainer) {
+                graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda}`);
+            }
+            
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
@@ -1044,19 +1083,41 @@ class GraficosDetalhados {
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
+                console.error(`❌ Container de gráficos não encontrado para ${this.tipoDemanda}`);
                 return;
             }
         }
+        
+        console.log(`✅ Renderizando gráfico Resolução em: ${containerId} com ${dados.length} fichas`);
+
+        // Contar resoluções automáticas e encaminhadas (incluindo inferência de respostaBot)
+        const resolvidasAuto = dados.filter(f => {
+            if (f.resolvidoAutomaticamente === true || f.resolvidoAutomaticamente === 'Sim') return true;
+            if (f.respostaBot === 'Sim' || f.respostaBot === 'sim') return true;
+            return false;
+        }).length;
+        
+        const encaminhadas = dados.filter(f => {
+            if (f.encaminhadoHumano === true || f.encaminhadoHumano === 'Sim') return true;
+            if (f.respostaBot === 'Não' || f.respostaBot === 'não' || f.respostaBot === 'Nao') return true;
+            return false;
+        }).length;
 
         const resolucaoCount = {
-            'Resolvido Automaticamente': dados.filter(f => f.resolvidoAutomaticamente === true || f.resolvidoAutomaticamente === 'Sim').length,
-            'Encaminhado para Humano': dados.filter(f => f.encaminhadoHumano === true || f.encaminhadoHumano === 'Sim').length
+            'Resolvido Automaticamente': resolvidasAuto,
+            'Encaminhado para Humano': encaminhadas
         };
 
         const labels = Object.keys(resolucaoCount);
         const values = Object.values(resolucaoCount);
+        
+        console.log(`📊 [renderizarGraficoResolucaoAuto] Resolvidas Auto: ${resolvidasAuto}, Encaminhadas: ${encaminhadas}`);
 
-        container.innerHTML = this.criarGraficoPizza(labels, values, 'Resolução');
+        if (values.every(v => v === 0)) {
+            container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--texto-secundario);">Nenhum dado disponível</p>';
+        } else {
+            container.innerHTML = this.criarGraficoPizza(labels, values, 'Resolução');
+        }
     }
 
     renderizarGraficoCanal(dados) {
@@ -1104,7 +1165,7 @@ class GraficosDetalhados {
             }
         }
         
-        console.log(`✅ Renderizando gráfico Canal em: ${containerId}`);
+        console.log(`✅ Renderizando gráfico Canal em: ${containerId} com ${dados.length} fichas`);
 
         const canalCount = {};
         dados.forEach(f => {
@@ -1114,8 +1175,14 @@ class GraficosDetalhados {
 
         const labels = Object.keys(canalCount);
         const values = Object.values(canalCount);
+        
+        console.log(`📊 [renderizarGraficoCanal] Canais encontrados:`, canalCount);
 
-        container.innerHTML = this.criarGraficoBarras(labels, values, null, 'Canal');
+        if (labels.length === 0 || values.every(v => v === 0)) {
+            container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--texto-secundario);">Nenhum dado disponível</p>';
+        } else {
+            container.innerHTML = this.criarGraficoBarras(labels, values, null, 'Canal');
+        }
     }
 
     renderizarGraficoSatisfacao(dados) {

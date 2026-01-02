@@ -86,11 +86,14 @@
                         renderizarMinhasReclamacoesChatbot();
                     }
                 } else if (secaoId === 'dashboard-chatbot') {
-                    if (typeof window.atualizarDashboardChatbot === 'function') {
-                        window.atualizarDashboardChatbot();
-                    } else if (typeof atualizarDashboardChatbot === 'function') {
-                        atualizarDashboardChatbot();
-                    }
+                    // Aguardar um pouco para garantir que armazenamentoReclamacoes está pronto
+                    setTimeout(async () => {
+                        if (typeof window.atualizarDashboardChatbot === 'function') {
+                            await window.atualizarDashboardChatbot();
+                        } else if (typeof atualizarDashboardChatbot === 'function') {
+                            await atualizarDashboardChatbot();
+                        }
+                    }, 500);
                 }
             };
             console.log('✅ [HEAD] mostrarSecao definido globalmente no <head>');

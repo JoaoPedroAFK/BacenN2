@@ -276,6 +276,351 @@ async function atualizarDashboardGeral() {
         n2: { total: totalN2, emTratativa: emTratativaN2 },
         chatbot: { total: totalChatbot, auto: autoChatbot, encaminhadas: encaminhadasChatbot }
     });
+    
+    // Renderizar gráficos consolidados
+    renderizarGraficosDashboardGeral(todasFichas, fichasBacen, fichasN2, fichasChatbot);
+}
+
+// Função para renderizar gráficos na dashboard geral
+function renderizarGraficosDashboardGeral(todasFichas, fichasBacen, fichasN2, fichasChatbot) {
+    console.log('📊 [Dashboard Geral] Renderizando gráficos...');
+    
+    // Gráfico de Status Geral
+    renderizarGraficoStatusGeral(todasFichas);
+    
+    // Gráfico Mensal Consolidado
+    renderizarGraficoMensalGeral(todasFichas);
+    
+    // Gráfico por Canal
+    renderizarGraficoCanalGeral(fichasBacen, fichasN2, fichasChatbot);
+    
+    // Gráfico Status por Canal
+    renderizarGraficoStatusCanalGeral(fichasBacen, fichasN2, fichasChatbot);
+}
+
+// Gráfico de Status Geral
+function renderizarGraficoStatusGeral(todasFichas) {
+    const container = document.getElementById('grafico-status-geral');
+    if (!container) return;
+    
+    const statusCount = {};
+    todasFichas.forEach(f => {
+        const status = f.status || 'sem-status';
+        const statusNormalizado = status.toLowerCase().trim().replace('í', 'i').replace('é', 'e');
+        statusCount[statusNormalizado] = (statusCount[statusNormalizado] || 0) + 1;
+    });
+    
+    const labels = Object.keys(statusCount);
+    const values = Object.values(statusCount);
+    const cores = {
+        'nao-iniciado': '#FF8400',
+        'em-tratativa': '#1634FF',
+        'concluido': '#1DFDB9',
+        'concluído': '#1DFDB9',
+        'respondido': '#791DD0',
+        'sem-status': '#666'
+    };
+    
+    container.innerHTML = criarGraficoBarras(labels, values, cores);
+}
+
+// Gráfico Mensal Consolidado
+function renderizarGraficoMensalGeral(todasFichas) {
+    const container = document.getElementById('grafico-mensal-geral');
+    if (!container) return;
+    
+    console.log('📊 [renderizarGraficoMensalGeral] Total de fichas:', todasFichas.length);
+    
+    const mesesCount = {};
+    let fichasComData = 0;
+    let fichasSemData = 0;
+    
+    todasFichas.forEach((f, index) => {
+        // Tentar diferentes campos de data baseado no tipo
+        let dataParaMes = null;
+        
+        // Para N2, priorizar dataEntradaN2 ou dataEntradaAtendimento
+        if (f.tipoDemanda === 'n2') {
+            dataParaMes = f.dataEntradaN2 || f.dataEntradaAtendimento || f.dataEntrada || f.dataCriacao || f.dataReclamacao;
+        }
+        // Para Chatbot, priorizar dataClienteChatbot
+        else if (f.tipoDemanda === 'chatbot') {
+            dataParaMes = f.dataClienteChatbot || f.dataCriacao || f.dataReclamacao || f.dataEntrada;
+        }
+        // Para BACEN, usar dataEntrada ou dataRecebimento
+        else {
+            dataParaMes = f.dataEntrada || f.dataRecebimento || f.dataCriacao || f.dataReclamacao;
+        }
+        
+        if (dataParaMes) {
+            // Tentar parsear como Date
+            let data = null;
+            if (dataParaMes instanceof Date) {
+                data = dataParaMes;
+            } else if (typeof dataParaMes === 'string') {
+                // Tentar diferentes formatos de data
+                data = new Date(dataParaMes);
+                // Se falhar, tentar formato DD/MM/YYYY
+                if (isNaN(data.getTime()) && dataParaMes.includes('/')) {
+                    const partes = dataParaMes.split('/');
+                    if (partes.length === 3) {
+                        data = new Date(parseInt(partes[2]), parseInt(partes[1]) - 1, parseInt(partes[0]));
+                    }
+                }
+            }
+            
+            if (data && !isNaN(data.getTime())) {
+                const mes = `${data.getMonth() + 1}/${data.getFullYear()}`;
+                mesesCount[mes] = (mesesCount[mes] || 0) + 1;
+                fichasComData++;
+                
+                // Log das primeiras 5 fichas para debug
+                if (fichasComData <= 5) {
+                    console.log(`📅 [${fichasComData}] Ficha ${f.tipoDemanda || 'sem-tipo'}: dataParaMes="${dataParaMes}" → mes="${mes}"`);
+                }
+            } else {
+                fichasSemData++;
+                // Log das primeiras 5 fichas sem data para debug
+                if (fichasSemData <= 5) {
+                    console.log(`⚠️ [${fichasSemData}] Ficha sem data válida: tipo=${f.tipoDemanda || 'sem-tipo'}, dataParaMes="${dataParaMes}"`);
+                }
+            }
+        } else {
+            fichasSemData++;
+        }
+    });
+    
+    console.log(`📊 [renderizarGraficoMensalGeral] Fichas com data: ${fichasComData}, sem data: ${fichasSemData}`);
+    console.log(`📊 [renderizarGraficoMensalGeral] Meses encontrados:`, Object.keys(mesesCount));
+    
+    if (Object.keys(mesesCount).length === 0) {
+        container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--texto-secundario);">Nenhum dado disponível</p>';
+        return;
+    }
+    
+    // Ordenar meses
+    const mesesOrdenados = Object.keys(mesesCount).sort((a, b) => {
+        const [ma, ya] = a.split('/').map(Number);
+        const [mb, yb] = b.split('/').map(Number);
+        if (ya !== yb) return ya - yb;
+        return ma - mb;
+    });
+    
+    // Preencher meses intermediários (limitado a um período razoável)
+    if (mesesOrdenados.length > 0) {
+        const [primeiroMesRaw, primeiroAnoRaw] = mesesOrdenados[0].split('/');
+        const [ultimoMesRaw, ultimoAnoRaw] = mesesOrdenados[mesesOrdenados.length - 1].split('/');
+        const primeiroMes = parseInt(primeiroMesRaw);
+        const primeiroAno = parseInt(primeiroAnoRaw);
+        const ultimoMes = parseInt(ultimoMesRaw);
+        const ultimoAno = parseInt(ultimoAnoRaw);
+        
+        // Limitar a um período máximo de 24 meses (2 anos) para evitar gráficos muito longos
+        const dataAtual = new Date();
+        const anoAtual = dataAtual.getFullYear();
+        const mesAtual = dataAtual.getMonth() + 1;
+        
+        // Calcular data de início (máximo 24 meses atrás)
+        let dataInicio = new Date(anoAtual, mesAtual - 24, 1);
+        let dataFim = new Date(anoAtual, mesAtual, 0);
+        
+        // Se o primeiro mês dos dados for mais recente que o limite, usar ele
+        const primeiroData = new Date(primeiroAno, primeiroMes - 1, 1);
+        if (primeiroData > dataInicio) {
+            dataInicio = primeiroData;
+        }
+        
+        // Se o último mês dos dados for mais antigo que o limite, usar ele
+        const ultimoData = new Date(ultimoAno, ultimoMes - 1, 1);
+        if (ultimoData < dataFim) {
+            dataFim = ultimoData;
+        }
+        
+        // Limitar ainda mais: se o intervalo for maior que 24 meses, usar apenas os últimos 24 meses
+        const mesesDiferenca = (dataFim.getFullYear() - dataInicio.getFullYear()) * 12 + (dataFim.getMonth() - dataInicio.getMonth());
+        if (mesesDiferenca > 24) {
+            dataInicio = new Date(dataFim.getFullYear(), dataFim.getMonth() - 23, 1);
+        }
+        
+        const meses = [];
+        const valores = [];
+        let mesAtualLoop = dataInicio.getMonth() + 1;
+        let anoAtualLoop = dataInicio.getFullYear();
+        const mesFim = dataFim.getMonth() + 1;
+        const anoFim = dataFim.getFullYear();
+        
+        while (anoAtualLoop < anoFim || (anoAtualLoop === anoFim && mesAtualLoop <= mesFim)) {
+            const chaveMes = `${mesAtualLoop}/${anoAtualLoop}`;
+            meses.push(chaveMes);
+            valores.push(mesesCount[chaveMes] || 0);
+            mesAtualLoop++;
+            if (mesAtualLoop > 12) {
+                mesAtualLoop = 1;
+                anoAtualLoop++;
+            }
+        }
+        
+        container.innerHTML = criarGraficoLinha(meses, valores);
+        console.log(`✅ [renderizarGraficoMensalGeral] Gráfico renderizado com ${meses.length} meses`);
+    } else {
+        container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--texto-secundario);">Nenhum dado disponível</p>';
+        console.warn('⚠️ [renderizarGraficoMensalGeral] Nenhum mês encontrado para renderizar');
+    }
+}
+
+// Gráfico por Canal
+function renderizarGraficoCanalGeral(fichasBacen, fichasN2, fichasChatbot) {
+    const container = document.getElementById('grafico-canal-geral');
+    if (!container) return;
+    
+    const canalCount = {
+        'BACEN': fichasBacen.length,
+        'N2': fichasN2.length,
+        'Chatbot': fichasChatbot.length
+    };
+    
+    const labels = Object.keys(canalCount);
+    const values = Object.values(canalCount);
+    const cores = {
+        'BACEN': '#1634FF',
+        'N2': '#1DFDB9',
+        'Chatbot': '#FF8400'
+    };
+    
+    container.innerHTML = criarGraficoBarras(labels, values, cores);
+}
+
+// Gráfico Status por Canal
+function renderizarGraficoStatusCanalGeral(fichasBacen, fichasN2, fichasChatbot) {
+    const container = document.getElementById('grafico-status-canal-geral');
+    if (!container) return;
+    
+    const statusPorCanal = {
+        'BACEN': {},
+        'N2': {},
+        'Chatbot': {}
+    };
+    
+    [fichasBacen, fichasN2, fichasChatbot].forEach((fichas, index) => {
+        const canal = ['BACEN', 'N2', 'Chatbot'][index];
+        fichas.forEach(f => {
+            const status = f.status || 'sem-status';
+            const statusNormalizado = status.toLowerCase().trim().replace('í', 'i').replace('é', 'e');
+            statusPorCanal[canal][statusNormalizado] = (statusPorCanal[canal][statusNormalizado] || 0) + 1;
+        });
+    });
+    
+    // Criar gráfico de barras agrupadas
+    const statuses = ['nao-iniciado', 'em-tratativa', 'concluido', 'concluído', 'respondido'];
+    const labels = ['BACEN', 'N2', 'Chatbot'];
+    const datasets = statuses.map(status => ({
+        label: status === 'nao-iniciado' ? 'Não Iniciado' : 
+               status === 'em-tratativa' ? 'Em Tratativa' :
+               status === 'concluido' || status === 'concluído' ? 'Concluído' :
+               status === 'respondido' ? 'Respondido' : status,
+        values: labels.map(canal => statusPorCanal[canal][status] || 0)
+    }));
+    
+    container.innerHTML = criarGraficoBarrasAgrupadas(labels, datasets);
+}
+
+// Funções auxiliares para criar gráficos
+function criarGraficoBarras(labels, values, cores) {
+    const maxValue = Math.max(...values, 1);
+    const alturaMax = 200;
+    
+    return `
+        <div class="grafico-barras" style="min-height: 300px; padding: 20px;">
+            <div class="grafico-barras-container" style="display: flex; align-items: flex-end; gap: 20px; min-height: 220px;">
+                ${labels.map((label, i) => {
+                    const altura = (values[i] / maxValue) * alturaMax;
+                    const cor = cores && cores[label] ? cores[label] : '#1634FF';
+                    return `
+                        <div class="barra-item" style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                            <div style="height: 200px; width: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center;">
+                                <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px;">${values[i]}</div>
+                                <div style="height: ${altura}px; background: ${cor}; width: 80%; border-radius: 4px 4px 0 0;"></div>
+                            </div>
+                            <div style="margin-top: 12px; font-size: 12px; text-align: center;">${label}</div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function criarGraficoLinha(meses, valores) {
+    const maxValue = Math.max(...valores, 1);
+    const alturaMax = 200;
+    const largura = Math.max(600, meses.length * 60);
+    const paddingEsq = 40;
+    const paddingDir = 20;
+    const paddingTopo = 20;
+    const paddingBase = 60;
+    const larguraUtil = largura - (paddingEsq + paddingDir);
+    
+    const pontos = valores.map((v, i) => ({
+        x: paddingEsq + (meses.length <= 1 ? 0 : (i / (meses.length - 1)) * larguraUtil),
+        y: paddingTopo + (alturaMax - (v / maxValue) * alturaMax)
+    }));
+    
+    const alturaTotal = paddingTopo + alturaMax + paddingBase;
+    const nomesMeses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    
+    return `
+        <div class="grafico-linha" style="padding: 20px; min-height: 300px; overflow-x: auto;">
+            <svg width="${largura}" height="${alturaTotal}" viewBox="0 0 ${largura} ${alturaTotal}">
+                <line x1="${paddingEsq}" y1="${paddingTopo + alturaMax}" x2="${paddingEsq + larguraUtil}" y2="${paddingTopo + alturaMax}" stroke="#444" stroke-width="2"/>
+                <polyline points="${pontos.map(p => `${p.x},${p.y}`).join(' ')}" fill="none" stroke="#1634FF" stroke-width="3"/>
+                ${pontos.map((p, i) => `
+                    <circle cx="${p.x}" cy="${p.y}" r="5" fill="#1634FF"/>
+                    <text x="${p.x}" y="${p.y - 10}" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">${valores[i]}</text>
+                    <text x="${p.x}" y="${paddingTopo + alturaMax + 30}" text-anchor="middle" font-size="11" fill="#fff">
+                        ${(() => {
+                            const [mes, ano] = meses[i].split('/');
+                            return `${nomesMeses[parseInt(mes) - 1]}/${ano.slice(-2)}`;
+                        })()}
+                    </text>
+                `).join('')}
+            </svg>
+        </div>
+    `;
+}
+
+function criarGraficoBarrasAgrupadas(labels, datasets) {
+    const maxValue = Math.max(...datasets.flatMap(d => d.values), 1);
+    const alturaMax = 200;
+    const cores = ['#1634FF', '#1DFDB9', '#FF8400', '#791DD0', '#FF00D7'];
+    
+    return `
+        <div class="grafico-barras-agrupadas" style="min-height: 300px; padding: 20px;">
+            <div class="grafico-barras-container" style="display: flex; align-items: flex-end; gap: 10px; min-height: 220px;">
+                ${labels.map((label, i) => `
+                    <div class="barra-grupo" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                        <div style="height: 200px; width: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 2px;">
+                            ${datasets.map((dataset, j) => {
+                                const altura = (dataset.values[i] / maxValue) * alturaMax;
+                                const cor = cores[j % cores.length];
+                                return `
+                                    <div style="height: ${altura}px; background: ${cor}; width: 100%; border-radius: 2px;" title="${dataset.label}: ${dataset.values[i]}"></div>
+                                `;
+                            }).join('')}
+                        </div>
+                        <div style="margin-top: 12px; font-size: 12px; text-align: center;">${label}</div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="legenda" style="display: flex; gap: 20px; justify-content: center; margin-top: 20px; flex-wrap: wrap;">
+                ${datasets.map((dataset, j) => `
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 16px; height: 16px; background: ${cores[j % cores.length]}; border-radius: 2px;"></div>
+                        <span style="font-size: 12px;">${dataset.label}</span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
 }
 
 function atualizarElemento(id, valor) {

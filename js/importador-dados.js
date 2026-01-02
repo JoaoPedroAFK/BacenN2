@@ -397,6 +397,8 @@ class ImportadorDados {
             status: this.inferirStatus(dadoBruto, obterValor),
             dataCriacao: this.formatarData(obterValor("Data entrada") || obterValor("Data Entrada") || obterValor("Data de Entrada") || obterValor("Data") || obterValor("Data Criação") || new Date().toISOString()),
             dataRecebimento: this.formatarData(obterValor("Data entrada") || obterValor("Data Recebimento") || obterValor("Data") || obterValor("Data Criação") || new Date().toISOString()),
+            // Para Chatbot, mapear campo Data como dataClienteChatbot
+            dataClienteChatbot: tipoDemanda === 'chatbot' ? this.formatarData(obterValor("Data") || obterValor("Data Cliente") || obterValor("Data entrada") || obterValor("Data Criação") || new Date().toISOString()) : '',
             finalizadoEm: this.formatarData(obterValor("Finalizado em") || obterValor("Finalizado Em") || obterValor("Data Finalização") || obterValor("Data Fim") || ''),
             responsavel: obterValor("Responsável") || obterValor("Responsavel") || obterValor("Atendente") || '',
             motivoReduzido: obterValor("Motivo reduzido") || obterValor("Motivo Reduzido") || obterValor("Tipo") || obterValor("Categoria") || '',
@@ -434,6 +436,10 @@ class ImportadorDados {
             concluido: !!obterValor("Finalizado em"),
             dataAtualizacao: new Date().toISOString()
         };
+
+        // Mesclar campos específicos diretamente na ficha (para facilitar acesso)
+        const camposEspecificos = this.processarCamposEspecificos(dadoBruto, tipoDemanda, obterValor);
+        Object.assign(ficha, camposEspecificos);
 
         return ficha;
     }
@@ -496,7 +502,14 @@ class ImportadorDados {
         }
         
         // PRIORIDADE 3: Verifica campos específicos de Chatbot
-        if (obterValor("Canal Chatbot") || 
+        // Verificar campos da planilha CSV do Chatbot
+        if (obterValor("Resposta do Bot foi correta?") || 
+            obterValor("Resposta do Bot foi correta") ||
+            obterValor("Ticket") ||
+            obterValor("Nota") ||
+            obterValor("Avaliação") ||
+            obterValor("Produto") ||
+            obterValor("Canal Chatbot") || 
             obterValor("Resolvido Automaticamente?") || 
             obterValor("Encaminhado para Humano?") ||
             obterValor("Satisfação") ||
@@ -505,6 +518,7 @@ class ImportadorDados {
             obterValor("Canal")?.toLowerCase().includes('chat') ||
             obterValor("Canal")?.toLowerCase().includes('whatsapp') ||
             obterValor("Canal")?.toLowerCase().includes('site')) {
+            console.log(`✅ Identificado como Chatbot por campo específico`);
             return "chatbot";
         }
         
@@ -569,12 +583,30 @@ class ImportadorDados {
             case "chatbot":
                 campos.canalChatbot = obterValor("Canal Chatbot") || obterValor("Canal") || obterValor("Origem") || '';
                 campos.satisfacao = obterValor("Satisfação") || obterValor("Satisfacao") || obterValor("Nota") || obterValor("Nota Avaliação") || '';
-                campos.notaAvaliacao = obterValor("Nota Avaliação") || obterValor("Nota Avaliacao") || obterValor("Satisfação") || obterValor("Satisfacao") || '';
-                campos.resolvidoAutomaticamente = this.converterBooleano(obterValor("Resolvido Automaticamente?") || obterValor("Resolvido Automaticamente") || obterValor("Auto Resolvido") || '');
-                campos.encaminhadoParaHumano = this.converterBooleano(obterValor("Encaminhado para Humano?") || obterValor("Encaminhado para Humano") || obterValor("Encaminhado Humano") || '');
-                campos.encaminhadoHumano = this.converterBooleano(obterValor("Encaminhado para Humano?") || obterValor("Encaminhado para Humano") || obterValor("Encaminhado Humano") || '');
-                campos.prazoResposta = this.formatarData(obterValor("Prazo Resposta") || obterValor("Prazo") || '');
+                campos.notaAvaliacao = obterValor("Nota Avaliação") || obterValor("Nota Avaliacao") || obterValor("Nota") || obterValor("Satisfação") || obterValor("Satisfacao") || '';
+                // Campos específicos da planilha CSV do Chatbot
+                const respostaBot = obterValor("Resposta do Bot foi correta?") || obterValor("Resposta do Bot foi correta") || '';
+                campos.respostaBot = respostaBot; // SIM ou NÃO
+                // Inferir resolvidoAutomaticamente e encaminhadoHumano de respostaBot
+                if (respostaBot && (respostaBot.toUpperCase() === 'SIM' || respostaBot.toUpperCase() === 'S')) {
+                    campos.resolvidoAutomaticamente = true;
+                    campos.encaminhadoHumano = false;
+                } else if (respostaBot && (respostaBot.toUpperCase() === 'NÃO' || respostaBot.toUpperCase() === 'NAO' || respostaBot.toUpperCase() === 'N')) {
+                    campos.resolvidoAutomaticamente = false;
+                    campos.encaminhadoHumano = true;
+                } else {
+                    campos.resolvidoAutomaticamente = this.converterBooleano(obterValor("Resolvido Automaticamente?") || obterValor("Resolvido Automaticamente") || obterValor("Auto Resolvido") || '');
+                    campos.encaminhadoHumano = this.converterBooleano(obterValor("Encaminhado para Humano?") || obterValor("Encaminhado para Humano") || obterValor("Encaminhado Humano") || '');
+                }
+                campos.encaminhadoParaHumano = campos.encaminhadoHumano;
+                campos.ticket = obterValor("Ticket") || '';
+                campos.avaliacao = obterValor("Avaliação") || obterValor("Avaliacao") || '';
                 campos.produto = obterValor("Produto") || obterValor("Tipo Produto") || '';
+                campos.motivoChatbot = obterValor("Motivo") || obterValor("Motivo Reclamação") || '';
+                campos.finalizacao = obterValor("Finalização") || obterValor("Finalizacao") || '';
+                campos.pixLiberado = this.converterBooleano(obterValor("PIX LIBERADO?") || obterValor("PIX LIBERADO") || obterValor("Pix Liberado") || '');
+                campos.dataClienteChatbot = this.formatarData(obterValor("Data") || obterValor("Data Cliente") || obterValor("Data Criação") || '');
+                campos.prazoResposta = this.formatarData(obterValor("Prazo Resposta") || obterValor("Prazo") || '');
                 break;
         }
         
