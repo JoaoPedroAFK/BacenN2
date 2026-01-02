@@ -1,5 +1,52 @@
 # ✅ Deploy Realizado - BacenN2
 
+## 📋 Data/Hora: 2025-02-01 (Décimo Segundo Deploy - Correções Dashboard Chatbot, Gráfico Mensal e Dashboard Geral)
+
+### 1. **Commit - Correções Dashboard Chatbot, Gráfico Mensal e Dashboard Geral Consolidado**
+- ✅ Corrigido dashboard do Chatbot para inferir resolvidoAutomaticamente e encaminhadoHumano de respostaBot
+- ✅ Corrigido gráfico mensal para usar dataClienteChatbot como campo principal para chatbot
+- ✅ Criado dashboard geral consolidado com métricas de todos os canais (BACEN, N2, Chatbot)
+- ✅ Adicionada função atualizarDashboardGeral() para consolidar dados dos três canais
+- ✅ Adicionados estilos CSS para o dashboard geral com suporte a tema escuro
+- ✅ Adicionada navegação para dashboard geral na home
+- **Versão**: v2.0.0
+
+### 2. **Push para GitHub**
+- ✅ Push realizado com sucesso para `origin/main`
+- ✅ Repositório: https://github.com/JoaoPedroAFK/BacenN2.git
+- ✅ Branch: `main`
+- **Commit**: `106440e`
+- **Mensagem**: "Correções dashboard chatbot, gráfico mensal e dashboard geral consolidado - v2.0.0: Corrigir contadores dashboard chatbot, usar dataClienteChatbot no gráfico mensal, criar dashboard geral com métricas consolidadas"
+- **Status**: ✅ **CONCLUÍDO**
+
+### 2.1. **Deploy Firebase**
+- ⚠️ Deploy pendente - requer autenticação manual
+- ⚠️ Execute: `firebase login` (abrirá navegador)
+- ⚠️ Depois execute: `firebase deploy --only hosting`
+- **Status**: ⏳ **PENDENTE - REQUER AUTENTICAÇÃO**
+
+### 3. **Arquivos Modificados**
+```
+- js/chatbot-page.js (MODIFICADO - corrigir contadores dashboard)
+- js/graficos-detalhados.js (MODIFICADO - usar dataClienteChatbot no gráfico mensal)
+- js/main.js (MODIFICADO - adicionar função atualizarDashboardGeral)
+- index.html (MODIFICADO - adicionar seção dashboard geral)
+- css/components.css (MODIFICADO - adicionar estilos dashboard geral)
+```
+
+### 4. **Correções Aplicadas**
+- ✅ Dashboard do Chatbot agora conta corretamente reclamações resolvidas automaticamente e encaminhadas
+- ✅ Gráfico mensal do Chatbot agora usa dataClienteChatbot (data do cliente com o chatbot) em vez de dataCriacao
+- ✅ Dashboard geral consolidado mostra métricas de todos os três canais em uma única visualização
+- ✅ Métricas por canal (BACEN, N2, Chatbot) com links diretos para dashboards específicos
+
+### 5. **Problemas Resolvidos**
+- ✅ Reclamações de chatbot não apareciam no dashboard específico (agora aparecem corretamente)
+- ✅ Gráfico mensal mostrava todas as reclamações no mesmo mês (agora distribui corretamente por mês usando dataClienteChatbot)
+- ✅ Não havia dashboard geral consolidado (agora existe com métricas de todos os canais)
+
+---
+
 ## 📋 Data/Hora: 2025-02-01 (Décimo Primeiro Deploy - Correções Gráfico Mensal e Exclusão de Reclamações)
 
 ### 1. **Commit - Correções Gráfico Mensal e Exclusão de Reclamações**
