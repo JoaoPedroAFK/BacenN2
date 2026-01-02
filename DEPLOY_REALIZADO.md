@@ -1,5 +1,55 @@
 # ✅ Deploy Realizado - BacenN2
 
+## 📋 Data/Hora: 2025-02-01 (Décimo Terceiro Deploy - Correções Caminhos Carregamento e Erros JavaScript)
+
+### 1. **Commit - Correções Caminhos Carregamento Dados e Erros JavaScript**
+- ✅ Corrigido carregamento assíncrono de dados - funções agora aguardam corretamente
+- ✅ Removido carregamento duplicado de scripts (evita "Identifier has already been declared")
+- ✅ Corrigido erro de `await` em `setTimeout` - função agora é `async`
+- ✅ Corrigido `showSection is not defined` - adicionado stub antes de main.js carregar
+- ✅ Adicionado `armazenamento-reclamacoes.js` no index.html
+- ✅ Melhorada verificação de scripts duplicados no auth-system.js
+- ✅ Função `carregarFichas()` agora é `async` e aguarda corretamente
+- ✅ Função `updateDashboard()` agora é `async` e aguarda `carregarFichas()`
+- ✅ Adicionados logs de debug no dashboard geral para rastrear carregamento
+- **Versão**: v2.1.0
+
+### 2. **Push para GitHub**
+- ✅ Push realizado com sucesso para `origin/main`
+- ✅ Repositório: https://github.com/JoaoPedroAFK/BacenN2.git
+- ✅ Branch: `main`
+- **Commit**: `cf004a8`
+- **Mensagem**: "Correções caminhos carregamento dados e erros JavaScript - v2.1.0: Corrigir carregamento assíncrono, remover scripts duplicados, corrigir showSection e await"
+- **Status**: ✅ **CONCLUÍDO**
+
+### 2.1. **Deploy Firebase**
+- ⚠️ Deploy pendente - requer autenticação manual
+- ⚠️ Execute: `firebase login` (abrirá navegador)
+- ⚠️ Depois execute: `firebase deploy --only hosting`
+- **Status**: ⏳ **PENDENTE - REQUER AUTENTICAÇÃO**
+
+### 3. **Arquivos Modificados**
+```
+- js/main.js (MODIFICADO - corrigir carregamento assíncrono, showSection global, await em setTimeout)
+- index.html (MODIFICADO - remover scripts duplicados, adicionar armazenamento-reclamacoes.js, stub showSection)
+- js/auth-system.js (MODIFICADO - melhorar verificação scripts duplicados)
+```
+
+### 4. **Correções Aplicadas**
+- ✅ Erros de "Identifier has already been declared" resolvidos (scripts não são mais carregados duas vezes)
+- ✅ Erro de "await is only valid in async functions" resolvido (setTimeout agora é async)
+- ✅ Erro de "showSection is not defined" resolvido (stub adicionado antes de main.js)
+- ✅ Carregamento de dados agora aguarda corretamente (funções async/await)
+- ✅ Dashboard geral agora carrega dados corretamente com logs de debug
+
+### 5. **Problemas Resolvidos**
+- ✅ Scripts sendo carregados duas vezes causando erros de declaração duplicada
+- ✅ Funções assíncronas não aguardando corretamente (dados zerados no dashboard)
+- ✅ showSection não disponível quando HTML tenta chamar
+- ✅ armazenamento-reclamacoes.js não estava sendo carregado no index.html
+
+---
+
 ## 📋 Data/Hora: 2025-02-01 (Décimo Segundo Deploy - Correções Dashboard Chatbot, Gráfico Mensal e Dashboard Geral)
 
 ### 1. **Commit - Correções Dashboard Chatbot, Gráfico Mensal e Dashboard Geral Consolidado**
