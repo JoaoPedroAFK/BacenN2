@@ -1,5 +1,47 @@
 # ✅ Deploy Realizado - BacenN2
 
+## 📋 Data/Hora: 2025-02-01 (Décimo Quinto Deploy - Correção Quota Excedida localStorage)
+
+### 1. **Commit - Correção Quota Excedida localStorage**
+- ✅ Removido salvamento de logs de debug no localStorage (evita quota excedida)
+- ✅ Adicionada função `limparLogsDebugAntigos()` para limpar logs antigos automaticamente
+- ✅ Logs de debug agora são apenas no console (não ocupam espaço no localStorage)
+- ✅ Corrigido erro `QuotaExceededError` ao salvar reclamações
+- **Versão**: v2.8.0
+
+### 2. **Push para GitHub**
+- ✅ Push realizado com sucesso para `origin/main`
+- ✅ Repositório: https://github.com/JoaoPedroAFK/BacenN2.git
+- ✅ Branch: `main`
+- **Commit**: `f8b211f`
+- **Mensagem**: "Correção quota excedida localStorage - v2.8.0: Remover logs de debug do localStorage, adicionar limpeza automática de logs antigos"
+- **Status**: ✅ **CONCLUÍDO**
+
+### 2.1. **Deploy Firebase**
+- ⚠️ Deploy pendente - requer autenticação manual
+- ⚠️ Execute: `firebase login --reauth` (abrirá navegador)
+- ⚠️ Depois execute: `firebase deploy --only hosting`
+- **Status**: ⏳ **PENDENTE - REQUER AUTENTICAÇÃO**
+
+### 3. **Arquivos Modificados**
+```
+- js/armazenamento-reclamacoes.js (MODIFICADO - v2.8.0 - remover logs debug localStorage, adicionar limpeza automática)
+- js/firebase-db.js (MODIFICADO - v2.3.0 - remover logs debug localStorage)
+```
+
+### 4. **Correções Aplicadas**
+- ✅ Erro `QuotaExceededError: Failed to execute 'setItem' on 'Storage'` resolvido
+- ✅ Logs de debug não são mais salvos no localStorage (apenas no console)
+- ✅ Função automática limpa logs antigos na inicialização
+- ✅ Salvamento de reclamações agora funciona corretamente sem exceder quota
+
+### 5. **Problemas Resolvidos**
+- ✅ Quota do localStorage excedida por logs de debug excessivos
+- ✅ Erro ao salvar reclamações no Firebase devido a tentativa de salvar logs no localStorage
+- ✅ Acúmulo de logs de debug no localStorage ocupando todo o espaço disponível
+
+---
+
 ## 📋 Data/Hora: 2025-02-01 (Décimo Quarto Deploy - Correções Dashboard Chatbot e Gráficos)
 
 ### 1. **Commit - Correções Dashboard Chatbot e Gráficos**
