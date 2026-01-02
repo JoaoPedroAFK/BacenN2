@@ -5,20 +5,34 @@ let complaints = [];
 let currentFilter = 'all';
 
 // Carrega fichas usando o gerenciador ou sistema de armazenamento
-function carregarFichas() {
+async function carregarFichas() {
     if (window.gerenciadorFichas) {
         complaints = window.gerenciadorFichas.obterFichasPorPerfil();
     } else if (window.armazenamentoReclamacoes) {
-        // Usar o novo sistema de armazenamento - carregar todas as reclamações
-        const fichasBacen = window.armazenamentoReclamacoes.carregarTodos('bacen');
-        const fichasN2 = window.armazenamentoReclamacoes.carregarTodos('n2');
-        const fichasChatbot = window.armazenamentoReclamacoes.carregarTodos('chatbot');
-        complaints = [
-            ...fichasBacen,
-            ...fichasN2,
-            ...fichasChatbot
-        ];
-        console.log('📋 Reclamações carregadas para home:', complaints.length, '(BACEN:', fichasBacen.length, 'N2:', fichasN2.length, 'Chatbot:', fichasChatbot.length, ')');
+        // Usar o novo sistema de armazenamento - carregar todas as reclamações (AGUARDAR)
+        try {
+            const fichasBacen = await window.armazenamentoReclamacoes.carregarTodos('bacen') || [];
+            const fichasN2 = await window.armazenamentoReclamacoes.carregarTodos('n2') || [];
+            const fichasChatbot = await window.armazenamentoReclamacoes.carregarTodos('chatbot') || [];
+            complaints = [
+                ...fichasBacen,
+                ...fichasN2,
+                ...fichasChatbot
+            ];
+            console.log('📋 Reclamações carregadas para home:', complaints.length, '(BACEN:', fichasBacen.length, 'N2:', fichasN2.length, 'Chatbot:', fichasChatbot.length, ')');
+        } catch (error) {
+            console.error('❌ Erro ao carregar fichas do armazenamentoReclamacoes:', error);
+            // Fallback para localStorage
+            const fichasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
+            const fichasN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || localStorage.getItem('velotax_demandas_n2') || '[]');
+            const fichasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
+            complaints = [
+                ...fichasBacen,
+                ...fichasN2,
+                ...fichasChatbot
+            ];
+            console.log('📋 Reclamações carregadas (fallback localStorage):', complaints.length);
+        }
     } else {
         // Fallback: tentar chaves novas e antigas
         const fichasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
@@ -29,7 +43,7 @@ function carregarFichas() {
             ...fichasN2,
             ...fichasChatbot
         ];
-        console.log('📋 Reclamações carregadas (fallback):', complaints.length);
+        console.log('📋 Reclamações carregadas (fallback localStorage):', complaints.length);
     }
 }
 
@@ -79,11 +93,11 @@ document.addEventListener('DOMContentLoaded', function() {
     atualizarHomeStats();
     
     // Aguarda o gerenciador de fichas estar pronto
-    setTimeout(() => {
+    setTimeout(async () => {
         try {
             initializeApp();
-            carregarFichas();
-            updateDashboard();
+            await carregarFichas();
+            await updateDashboard();
             setupEventListeners();
             
             // Atualiza home stats novamente após inicialização
@@ -111,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             // Recarregar fichas de todas as fontes
             if (typeof carregarFichas === 'function') {
-                carregarFichas();
+                await carregarFichas();
             }
             
             // Aguardar um pouco para garantir que os dados foram carregados
@@ -119,6 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Atualizar dashboard (que usa os cards: total-complaints, in-progress, completed, responded)
             if (typeof updateDashboard === 'function') {
+                await carregarFichas(); // Recarregar antes de atualizar
                 updateDashboard();
                 console.log('✅ Dashboard atualizado após nova reclamação');
             }
@@ -165,6 +180,9 @@ function initializeApp() {
 // === DASHBOARD GERAL ===
 async function atualizarDashboardGeral() {
     console.log('📊 [Dashboard Geral] Atualizando dashboard consolidado...');
+    console.log('🔍 [Dashboard Geral] armazenamentoReclamacoes existe?', !!window.armazenamentoReclamacoes);
+    console.log('🔍 [Dashboard Geral] firebaseDB existe?', !!window.firebaseDB);
+    console.log('🔍 [Dashboard Geral] firebaseDB.inicializado?', window.firebaseDB?.inicializado);
     
     // Carregar dados de todos os canais
     let fichasBacen = [];
@@ -172,14 +190,33 @@ async function atualizarDashboardGeral() {
     let fichasChatbot = [];
     
     if (window.armazenamentoReclamacoes) {
-        fichasBacen = await window.armazenamentoReclamacoes.carregarTodos('bacen') || [];
-        fichasN2 = await window.armazenamentoReclamacoes.carregarTodos('n2') || [];
-        fichasChatbot = await window.armazenamentoReclamacoes.carregarTodos('chatbot') || [];
+        try {
+            console.log('📥 [Dashboard Geral] Carregando BACEN...');
+            fichasBacen = await window.armazenamentoReclamacoes.carregarTodos('bacen') || [];
+            console.log('✅ [Dashboard Geral] BACEN carregado:', fichasBacen.length);
+            
+            console.log('📥 [Dashboard Geral] Carregando N2...');
+            fichasN2 = await window.armazenamentoReclamacoes.carregarTodos('n2') || [];
+            console.log('✅ [Dashboard Geral] N2 carregado:', fichasN2.length);
+            
+            console.log('📥 [Dashboard Geral] Carregando Chatbot...');
+            fichasChatbot = await window.armazenamentoReclamacoes.carregarTodos('chatbot') || [];
+            console.log('✅ [Dashboard Geral] Chatbot carregado:', fichasChatbot.length);
+        } catch (error) {
+            console.error('❌ [Dashboard Geral] Erro ao carregar do armazenamentoReclamacoes:', error);
+            // Fallback para localStorage
+            fichasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
+            fichasN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || localStorage.getItem('velotax_demandas_n2') || '[]');
+            fichasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
+            console.log('📦 [Dashboard Geral] Usando fallback localStorage:', { bacen: fichasBacen.length, n2: fichasN2.length, chatbot: fichasChatbot.length });
+        }
     } else {
+        console.warn('⚠️ [Dashboard Geral] armazenamentoReclamacoes não existe, usando localStorage');
         // Fallback: localStorage
         fichasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
         fichasN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || localStorage.getItem('velotax_demandas_n2') || '[]');
         fichasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
+        console.log('📦 [Dashboard Geral] Dados do localStorage:', { bacen: fichasBacen.length, n2: fichasN2.length, chatbot: fichasChatbot.length });
     }
     
     // Consolidar todas as fichas
@@ -248,7 +285,8 @@ function atualizarElemento(id, valor) {
     }
 }
 
-function showSection(sectionId) {
+// Tornar showSection global imediatamente
+window.showSection = function showSection(sectionId) {
     // Esconder todas as seções
     document.querySelectorAll('.section').forEach(section => {
         section.classList.remove('active');
@@ -274,16 +312,21 @@ function showSection(sectionId) {
     
     // Atualizar dashboard geral se a seção for exibida
     if (sectionId === 'dashboard-geral') {
-        atualizarDashboardGeral();
+        // Aguardar um pouco para garantir que armazenamentoReclamacoes está pronto
+        setTimeout(() => {
+            atualizarDashboardGeral();
+        }, 500);
     }
     
     // Ações específicas por seção
     if (sectionId === 'list') {
-        carregarFichas();
-        renderComplaintsList();
+        carregarFichas().then(() => {
+            renderComplaintsList();
+        });
     } else if (sectionId === 'dashboard') {
-        carregarFichas();
-        updateDashboard();
+        carregarFichas().then(() => {
+            updateDashboard();
+        });
     } else if (sectionId === 'register') {
         loadFormData();
     } else if (sectionId === 'home') {
@@ -306,18 +349,8 @@ function atualizarHomeStats() {
             `chatbot-complaints`
         ];
         
-        // Tentar armazenamentoReclamacoes primeiro
-        if (window.armazenamentoReclamacoes) {
-            try {
-                const dados = window.armazenamentoReclamacoes.carregarTodos(tipo);
-                if (Array.isArray(dados)) {
-                    console.log(`📦 ${tipo.toUpperCase()} via armazenamentoReclamacoes:`, dados.length);
-                    return dados.length;
-                }
-            } catch (e) {
-                console.warn(`⚠️ Erro ao usar armazenamentoReclamacoes para ${tipo}:`, e);
-            }
-        }
+        // Tentar armazenamentoReclamacoes primeiro (síncrono - retorna Promise, então não pode usar aqui)
+        // Esta função é síncrona, então vamos usar localStorage como fallback
         
         // Tentar localStorage diretamente
         for (const chave of chaves) {
@@ -544,7 +577,7 @@ async function handleFormSubmit(e) {
             console.log('Usando Supabase');
             // Tentar salvar no Supabase
             await window.supabaseDB.adicionarFicha(complaint);
-            carregarFichas();
+            await carregarFichas();
         } else {
             console.log('Usando localStorage fallback');
             // Fallback para localStorage
@@ -1040,9 +1073,9 @@ function abrirBuscaAvancada() {
 }
 
 // === DASHBOARD ===
-function updateDashboard() {
-    // Recarregar dados ANTES de atualizar os cards
-    carregarFichas();
+async function updateDashboard() {
+    // Recarregar dados ANTES de atualizar os cards (AGUARDAR)
+    await carregarFichas();
     
     // Usar a variável complaints atualizada
     const total = complaints.length;

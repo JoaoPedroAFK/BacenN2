@@ -506,44 +506,26 @@
     <!-- Firebase Manager Corrigido - Aguarda inicialização completa -->
     <script src="js/firebase-init-v2.js"></script>
     <script src="js/firebase-db.js"></script>
+    <!-- Sistema de Armazenamento -->
+    <script src="js/armazenamento-reclamacoes.js"></script>
     <!-- Outros scripts -->
     <script src="js/loading.js"></script>
     <script src="js/validador-velotax.js"></script>
     <script src="js/google-sso.js"></script>
     <script src="js/auth-system.js"></script>
-    <!-- Aguardar autenticação antes de carregar o resto -->
+    <!-- Definir showSection como stub antes de main.js carregar -->
     <script>
-        // Só inicializa o app se o usuário estiver logado
-        document.addEventListener('DOMContentLoaded', function() {
-            // Aguardar um pouco para o auth-system inicializar
+        // Stub para showSection até main.js carregar
+        window.showSection = window.showSection || function(sectionId) {
+            console.warn('⚠️ showSection ainda não carregado, aguardando...');
             setTimeout(() => {
-                if (window.sistemaPerfis && window.sistemaPerfis.usuarioAtual) {
-                    // Usuário logado, carregar scripts do app
-                    const scripts = [
-                        'js/gerenciador-fichas-perfil.js',
-                        'js/sistema-alertas.js',
-                        'js/ficha-detalhada.js',
-                        'js/busca-avancada.js',
-                        'js/dashboard-avancado.js',
-                        'js/relatorios-robusto.js',
-                        'js/importador-dados.js',
-                        'js/classificacao-demandas.js',
-                        'js/theme-toggle.js',
-                        'js/main.js',
-                        'js/demo-data.js'
-                    ];
-                    
-                    scripts.forEach(src => {
-                        const script = document.createElement('script');
-                        script.src = src;
-                        document.body.appendChild(script);
-                    });
-                } else {
-                    // Usuário não logado, não carregar scripts do app
-                    console.log('Usuário não autenticado. Aguardando login...');
+                if (window.showSection && typeof window.showSection === 'function' && window.showSection.toString().includes('section.classList')) {
+                    window.showSection(sectionId);
                 }
-            }, 500);
-        });
+            }, 100);
+        };
     </script>
+    <!-- Scripts do app serão carregados pelo auth-system.js após autenticação -->
+    <!-- Não carregar aqui para evitar duplicação -->
 </body>
 </html>

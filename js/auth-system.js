@@ -438,10 +438,18 @@ class SistemaPerfis {
         ];
         
         scripts.forEach(src => {
-            if (!document.querySelector(`script[src="${src}"]`)) {
+            // Verificar se o script já foi carregado (por src ou por classe)
+            const scriptExistente = document.querySelector(`script[src="${src}"]`) || 
+                                   document.querySelector(`script[data-script="${src}"]`);
+            
+            if (!scriptExistente) {
                 const script = document.createElement('script');
                 script.src = src;
+                script.setAttribute('data-script', src); // Marcar para evitar duplicação
                 document.body.appendChild(script);
+                console.log(`✅ Script carregado: ${src}`);
+            } else {
+                console.log(`⚠️ Script já carregado, pulando: ${src}`);
             }
         });
     }
