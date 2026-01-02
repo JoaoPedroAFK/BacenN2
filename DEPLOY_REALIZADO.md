@@ -1,5 +1,61 @@
 # ✅ Deploy Realizado - BacenN2
 
+## 📋 Data/Hora: 2025-02-01 (Décimo Quarto Deploy - Correções Dashboard Chatbot e Gráficos)
+
+### 1. **Commit - Correções Dashboard Chatbot e Gráficos**
+- ✅ Corrigido erro de sintaxe no chatbot-page.js (chave faltando)
+- ✅ Aumentado espaçamento dos gráficos (margin-top: 100px, margin-bottom: 60px)
+- ✅ Gráfico mensal limitado a 24 meses (2 anos) para evitar gráficos muito longos
+- ✅ Corrigido gráficos do Chatbot para mostrar dados corretamente
+- ✅ Adicionado gráfico de resolução automática vs humana no Chatbot
+- ✅ Melhorada lógica de inferência de resolvidoAutomaticamente e encaminhadoHumano
+- ✅ Adicionados logs de debug para rastrear carregamento e renderização
+- ✅ Corrigido mapeamento de campos da planilha CSV do Chatbot
+- ✅ Corrigida identificação de tipo Chatbot na importação
+- **Versão**: v2.7.0
+
+### 2. **Push para GitHub**
+- ✅ Push realizado com sucesso para `origin/main`
+- ✅ Repositório: https://github.com/JoaoPedroAFK/BacenN2.git
+- ✅ Branch: `main`
+- **Mensagem**: "Correções dashboard Chatbot e gráficos - v2.7.0: Corrigir erro sintaxe chatbot-page.js, espaçamento gráficos, gráfico mensal limitado 24 meses, gráficos Chatbot com dados corretos"
+- **Status**: ✅ **CONCLUÍDO**
+
+### 2.1. **Deploy Firebase**
+- ⚠️ Deploy pendente - requer autenticação manual
+- ⚠️ Execute: `firebase login` (abrirá navegador)
+- ⚠️ Depois execute: `firebase deploy --only hosting`
+- **Status**: ⏳ **PENDENTE - REQUER AUTENTICAÇÃO**
+
+### 3. **Arquivos Modificados**
+```
+- js/chatbot-page.js (MODIFICADO - corrigir erro sintaxe, expor atualizarDashboardChatbot globalmente, adicionar logs debug)
+- js/graficos-detalhados.js (MODIFICADO - adicionar logs debug, corrigir gráficos Chatbot, adicionar renderizarGraficoResolucaoAuto)
+- js/main.js (MODIFICADO - limitar gráfico mensal a 24 meses, adicionar logs debug)
+- js/importador-dados.js (MODIFICADO - corrigir identificação tipo Chatbot, mapear campos CSV Chatbot)
+- css/components.css (MODIFICADO - aumentar espaçamento gráficos)
+- chatbot.html (MODIFICADO - corrigir chamada atualizarDashboardChatbot)
+- index.html (MODIFICADO - adicionar containers gráficos dashboard geral)
+```
+
+### 4. **Correções Aplicadas**
+- ✅ Erro de sintaxe "Unexpected end of input" no chatbot-page.js resolvido
+- ✅ Espaçamento dos gráficos aumentado (não se misturam mais com títulos)
+- ✅ Gráfico mensal limitado a 24 meses (não mostra mais 244 meses)
+- ✅ Gráficos do Chatbot agora mostram dados corretamente
+- ✅ Dashboard Chatbot agora atualiza corretamente os cards
+- ✅ Importação da planilha CSV do Chatbot agora identifica corretamente como tipo 'chatbot'
+- ✅ Campos específicos da planilha CSV do Chatbot mapeados corretamente
+
+### 5. **Problemas Resolvidos**
+- ✅ Gráficos muito próximos dos títulos (espaçamento aumentado)
+- ✅ Gráfico mensal mostrando 244 meses (limitado a 24 meses)
+- ✅ Gráficos do Chatbot não mostrando dados (corrigido carregamento e renderização)
+- ✅ Dashboard Chatbot não atualizando cards (função exposta globalmente)
+- ✅ Planilha CSV do Chatbot sendo importada como BACEN (corrigida identificação de tipo)
+
+---
+
 ## 📋 Data/Hora: 2025-02-01 (Décimo Terceiro Deploy - Correções Caminhos Carregamento e Erros JavaScript)
 
 ### 1. **Commit - Correções Caminhos Carregamento Dados e Erros JavaScript**
