@@ -48,6 +48,7 @@
     <!-- Navegação -->
     <nav class="nav">
         <button class="nav-btn active" onclick="showSection('home')">🏠 Home</button>
+        <button class="nav-btn" onclick="showSection('dashboard-geral')">📊 Dashboard Geral</button>
         <a href="importacao.html" class="nav-btn">📥 Importar Dados</a>
     </nav>
 
@@ -101,6 +102,100 @@
                 <div class="stat-card">
                     <h3>Respondidas</h3>
                     <span class="stat-number" id="responded">0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Geral Consolidado -->
+        <section id="dashboard-geral" class="section">
+            <div class="dashboard-header">
+                <h2>📊 Dashboard Geral</h2>
+                <p>Visão consolidada de todos os canais (BACEN, N2 e Chatbot)</p>
+            </div>
+            
+            <!-- Métricas Gerais -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Geral de Reclamações</h3>
+                    <span class="stat-number" id="total-geral">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Em Tratativa</h3>
+                    <span class="stat-number" id="em-tratativa-geral">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Concluídas</h3>
+                    <span class="stat-number" id="concluidas-geral">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Respondidas</h3>
+                    <span class="stat-number" id="respondidas-geral">0</span>
+                </div>
+            </div>
+
+            <!-- Métricas por Canal -->
+            <div class="canais-dashboard">
+                <h3>📈 Métricas por Canal</h3>
+                <div class="canais-grid">
+                    <!-- BACEN -->
+                    <div class="canal-card bacen-card">
+                        <h4>🏦 BACEN</h4>
+                        <div class="canal-stats">
+                            <div class="canal-stat">
+                                <span class="canal-label">Total:</span>
+                                <span class="canal-value" id="total-bacen">0</span>
+                            </div>
+                            <div class="canal-stat">
+                                <span class="canal-label">Em Tratativa:</span>
+                                <span class="canal-value" id="em-tratativa-bacen">0</span>
+                            </div>
+                            <div class="canal-stat">
+                                <span class="canal-label">Concluídas:</span>
+                                <span class="canal-value" id="concluidas-bacen">0</span>
+                            </div>
+                        </div>
+                        <a href="bacen.html" class="canal-link">Ver Dashboard BACEN →</a>
+                    </div>
+
+                    <!-- N2 -->
+                    <div class="canal-card n2-card">
+                        <h4>🔄 N2</h4>
+                        <div class="canal-stats">
+                            <div class="canal-stat">
+                                <span class="canal-label">Total:</span>
+                                <span class="canal-value" id="total-n2">0</span>
+                            </div>
+                            <div class="canal-stat">
+                                <span class="canal-label">Em Tratativa:</span>
+                                <span class="canal-value" id="em-tratativa-n2">0</span>
+                            </div>
+                            <div class="canal-stat">
+                                <span class="canal-label">Concluídas:</span>
+                                <span class="canal-value" id="concluidas-n2">0</span>
+                            </div>
+                        </div>
+                        <a href="n2.html" class="canal-link">Ver Dashboard N2 →</a>
+                    </div>
+
+                    <!-- Chatbot -->
+                    <div class="canal-card chatbot-card">
+                        <h4>🤖 Chatbot</h4>
+                        <div class="canal-stats">
+                            <div class="canal-stat">
+                                <span class="canal-label">Total:</span>
+                                <span class="canal-value" id="total-chatbot">0</span>
+                            </div>
+                            <div class="canal-stat">
+                                <span class="canal-label">Resolvidas Auto:</span>
+                                <span class="canal-value" id="auto-chatbot">0</span>
+                            </div>
+                            <div class="canal-stat">
+                                <span class="canal-label">Encaminhadas:</span>
+                                <span class="canal-value" id="encaminhadas-chatbot">0</span>
+                            </div>
+                        </div>
+                        <a href="chatbot.html" class="canal-link">Ver Dashboard Chatbot →</a>
+                    </div>
                 </div>
             </div>
         </section>

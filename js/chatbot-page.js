@@ -560,9 +560,31 @@ window.excluirFichaChatbot = excluirFichaChatbot;
 async function atualizarDashboardChatbot() {
     await carregarFichasChatbot();
     
+    console.log('📊 [atualizarDashboardChatbot] Total de fichas carregadas:', fichasChatbot.length);
+    console.log('📊 [atualizarDashboardChatbot] Primeiras 3 fichas:', fichasChatbot.slice(0, 3).map(f => ({
+        id: f.id,
+        nome: f.nomeCompleto || f.nomeCliente,
+        resolvidoAutomaticamente: f.resolvidoAutomaticamente,
+        encaminhadoHumano: f.encaminhadoHumano,
+        respostaBot: f.respostaBot
+    })));
+    
     const total = fichasChatbot.length;
-    const resolvidasAuto = fichasChatbot.filter(f => f.resolvidoAutomaticamente).length;
-    const encaminhadas = fichasChatbot.filter(f => f.encaminhadoHumano).length;
+    // Para chatbot, verificar respostaBot: se for "Sim", é resolvido automaticamente; se for "Não", é encaminhado para humano
+    const resolvidasAuto = fichasChatbot.filter(f => {
+        // Verificar se tem a propriedade explícita ou inferir de respostaBot
+        if (f.resolvidoAutomaticamente === true || f.resolvidoAutomaticamente === 'Sim') return true;
+        if (f.respostaBot === 'Sim' || f.respostaBot === 'sim') return true;
+        return false;
+    }).length;
+    const encaminhadas = fichasChatbot.filter(f => {
+        // Verificar se tem a propriedade explícita ou inferir de respostaBot
+        if (f.encaminhadoHumano === true || f.encaminhadoHumano === 'Sim') return true;
+        if (f.respostaBot === 'Não' || f.respostaBot === 'não' || f.respostaBot === 'Nao') return true;
+        return false;
+    }).length;
+    
+    console.log('📊 [atualizarDashboardChatbot] Total:', total, 'Resolvidas Auto:', resolvidasAuto, 'Encaminhadas:', encaminhadas);
     
     // Calcular média de satisfação - usar notaAvaliacao (campo correto)
     const fichasComNota = fichasChatbot.filter(f => {

@@ -391,13 +391,24 @@ class GraficosDetalhados {
         // Agrupar estritamente por mês/ano com base na data, ignorando datas inválidas
         const mesesCount = {};
         dados.forEach(f => {
-            // Para N2, usar dataEntradaN2 ou dataEntradaAtendimento, depois dataEntrada, dataCriacao ou dataReclamacao
-            const dataParaMes = this.tipoDemanda === 'n2' 
-                ? (f.dataEntradaN2 || f.dataEntradaAtendimento || f.dataEntrada || f.dataCriacao || f.dataReclamacao)
-                : (f.dataEntrada || f.dataCriacao || f.dataReclamacao);
+            // Para cada tipo, usar o campo de data mais apropriado
+            let dataParaMes = null;
+            if (this.tipoDemanda === 'n2') {
+                // N2: dataEntradaN2 ou dataEntradaAtendimento, depois dataEntrada, dataCriacao ou dataReclamacao
+                dataParaMes = f.dataEntradaN2 || f.dataEntradaAtendimento || f.dataEntrada || f.dataCriacao || f.dataReclamacao;
+            } else if (this.tipoDemanda === 'chatbot') {
+                // Chatbot: dataClienteChatbot (data do cliente com o chatbot) é o campo principal, depois dataCriacao
+                dataParaMes = f.dataClienteChatbot || f.dataCriacao || f.dataEntrada || f.dataReclamacao;
+            } else {
+                // BACEN: dataEntrada, depois dataCriacao ou dataReclamacao
+                dataParaMes = f.dataEntrada || f.dataCriacao || f.dataReclamacao;
+            }
+            
             const mes = this.extrairMes(dataParaMes);
             if (mes) {
                 mesesCount[mes] = (mesesCount[mes] || 0) + 1;
+            } else {
+                console.warn('⚠️ [graficos-detalhados] Data inválida para ficha:', f.id, 'Data:', dataParaMes, 'Tipo:', this.tipoDemanda);
             }
         });
 

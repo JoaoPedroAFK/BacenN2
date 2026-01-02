@@ -162,6 +162,92 @@ function initializeApp() {
 }
 
 // === NAVEGAÇÃO ===
+// === DASHBOARD GERAL ===
+async function atualizarDashboardGeral() {
+    console.log('📊 [Dashboard Geral] Atualizando dashboard consolidado...');
+    
+    // Carregar dados de todos os canais
+    let fichasBacen = [];
+    let fichasN2 = [];
+    let fichasChatbot = [];
+    
+    if (window.armazenamentoReclamacoes) {
+        fichasBacen = await window.armazenamentoReclamacoes.carregarTodos('bacen') || [];
+        fichasN2 = await window.armazenamentoReclamacoes.carregarTodos('n2') || [];
+        fichasChatbot = await window.armazenamentoReclamacoes.carregarTodos('chatbot') || [];
+    } else {
+        // Fallback: localStorage
+        fichasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
+        fichasN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || localStorage.getItem('velotax_demandas_n2') || '[]');
+        fichasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
+    }
+    
+    // Consolidar todas as fichas
+    const todasFichas = [...fichasBacen, ...fichasN2, ...fichasChatbot];
+    
+    // Calcular métricas gerais
+    const totalGeral = todasFichas.length;
+    const emTratativaGeral = todasFichas.filter(f => f.status === 'em-tratativa').length;
+    const concluidasGeral = todasFichas.filter(f => f.status === 'concluido' || f.status === 'concluído').length;
+    const respondidasGeral = todasFichas.filter(f => f.status === 'respondido').length;
+    
+    // Métricas BACEN
+    const totalBacen = fichasBacen.length;
+    const emTratativaBacen = fichasBacen.filter(f => f.status === 'em-tratativa').length;
+    const concluidasBacen = fichasBacen.filter(f => f.status === 'concluido' || f.status === 'concluído').length;
+    
+    // Métricas N2
+    const totalN2 = fichasN2.length;
+    const emTratativaN2 = fichasN2.filter(f => f.status === 'em-tratativa').length;
+    const concluidasN2 = fichasN2.filter(f => f.status === 'concluido' || f.status === 'concluído').length;
+    
+    // Métricas Chatbot
+    const totalChatbot = fichasChatbot.length;
+    const autoChatbot = fichasChatbot.filter(f => {
+        if (f.resolvidoAutomaticamente === true || f.resolvidoAutomaticamente === 'Sim') return true;
+        if (f.respostaBot === 'Sim' || f.respostaBot === 'sim') return true;
+        return false;
+    }).length;
+    const encaminhadasChatbot = fichasChatbot.filter(f => {
+        if (f.encaminhadoHumano === true || f.encaminhadoHumano === 'Sim') return true;
+        if (f.respostaBot === 'Não' || f.respostaBot === 'não' || f.respostaBot === 'Nao') return true;
+        return false;
+    }).length;
+    
+    // Atualizar elementos HTML
+    atualizarElemento('total-geral', totalGeral);
+    atualizarElemento('em-tratativa-geral', emTratativaGeral);
+    atualizarElemento('concluidas-geral', concluidasGeral);
+    atualizarElemento('respondidas-geral', respondidasGeral);
+    
+    // Atualizar por canal
+    atualizarElemento('total-bacen', totalBacen);
+    atualizarElemento('em-tratativa-bacen', emTratativaBacen);
+    atualizarElemento('concluidas-bacen', concluidasBacen);
+    
+    atualizarElemento('total-n2', totalN2);
+    atualizarElemento('em-tratativa-n2', emTratativaN2);
+    atualizarElemento('concluidas-n2', concluidasN2);
+    
+    atualizarElemento('total-chatbot', totalChatbot);
+    atualizarElemento('auto-chatbot', autoChatbot);
+    atualizarElemento('encaminhadas-chatbot', encaminhadasChatbot);
+    
+    console.log('✅ [Dashboard Geral] Atualizado:', {
+        totalGeral,
+        bacen: { total: totalBacen, emTratativa: emTratativaBacen },
+        n2: { total: totalN2, emTratativa: emTratativaN2 },
+        chatbot: { total: totalChatbot, auto: autoChatbot, encaminhadas: encaminhadasChatbot }
+    });
+}
+
+function atualizarElemento(id, valor) {
+    const elemento = document.getElementById(id);
+    if (elemento) {
+        elemento.textContent = valor;
+    }
+}
+
 function showSection(sectionId) {
     // Esconder todas as seções
     document.querySelectorAll('.section').forEach(section => {
@@ -185,6 +271,11 @@ function showSection(sectionId) {
             btn.classList.add('active');
         }
     });
+    
+    // Atualizar dashboard geral se a seção for exibida
+    if (sectionId === 'dashboard-geral') {
+        atualizarDashboardGeral();
+    }
     
     // Ações específicas por seção
     if (sectionId === 'list') {
