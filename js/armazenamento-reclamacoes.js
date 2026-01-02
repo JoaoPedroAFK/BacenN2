@@ -1,4 +1,5 @@
 /* === SISTEMA DE ARMAZENAMENTO DE RECLAMAÇÕES === */
+/* VERSÃO: v2.8.0 | DATA: 2025-02-01 | ALTERAÇÕES: Removido salvamento de logs de debug no localStorage para evitar quota excedida */
 /* Usa Firebase Realtime Database quando disponível, fallback para localStorage */
 
 class ArmazenamentoReclamacoes {
@@ -31,7 +32,41 @@ class ArmazenamentoReclamacoes {
         
         // Também manter a verificação periódica como fallback
         this.inicializarFirebase();
+        
+        // Limpar logs de debug antigos do localStorage para evitar quota excedida
+        this.limparLogsDebugAntigos();
+        
         console.log('✅ Sistema de armazenamento inicializado');
+    }
+    
+    /**
+     * Limpa logs de debug antigos do localStorage para evitar quota excedida
+     * Remove todas as chaves que começam com 'velotax_debug_firebase_'
+     */
+    limparLogsDebugAntigos() {
+        try {
+            const chavesParaRemover = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const chave = localStorage.key(i);
+                if (chave && chave.startsWith('velotax_debug_firebase_')) {
+                    chavesParaRemover.push(chave);
+                }
+            }
+            
+            if (chavesParaRemover.length > 0) {
+                console.log(`🧹 Limpando ${chavesParaRemover.length} logs de debug antigos do localStorage...`);
+                chavesParaRemover.forEach(chave => {
+                    try {
+                        localStorage.removeItem(chave);
+                    } catch (e) {
+                        console.warn(`⚠️ Erro ao remover chave ${chave}:`, e);
+                    }
+                });
+                console.log(`✅ Logs de debug antigos removidos`);
+            }
+        } catch (error) {
+            console.warn('⚠️ Erro ao limpar logs de debug antigos:', error);
+        }
     }
     
     inicializarFirebase() {
@@ -289,28 +324,11 @@ class ArmazenamentoReclamacoes {
                 console.log(`🔍 [armazenamento] DEBUG - this.firebaseDB:`, this.firebaseDB);
                 console.log(`🔍 [armazenamento] DEBUG - typeof this.firebaseDB.salvar:`, typeof this.firebaseDB.salvar);
                 
-                // Log persistente
-                const logKey = 'velotax_debug_firebase_salvar_' + Date.now();
-                localStorage.setItem(logKey, JSON.stringify({
-                    timestamp: new Date().toISOString(),
-                    acao: 'chamando_firebase_salvar',
-                    tipo: tipo,
-                    id: reclamacao.id,
-                    firebaseDB_existe: !!this.firebaseDB,
-                    firebaseDB_inicializado: this.firebaseDB?.inicializado,
-                    tem_metodo_salvar: typeof this.firebaseDB.salvar === 'function'
-                }));
-                
                 // Verificar se o método salvar existe
                 if (typeof this.firebaseDB.salvar !== 'function') {
                     console.error(`❌ [armazenamento] this.firebaseDB.salvar não é uma função!`);
                     console.error(`   this.firebaseDB:`, this.firebaseDB);
                     console.error(`   Métodos disponíveis:`, Object.keys(this.firebaseDB));
-                    localStorage.setItem(logKey + '_erro', JSON.stringify({
-                        timestamp: new Date().toISOString(),
-                        erro: 'metodo_salvar_nao_encontrado',
-                        metodos_disponiveis: Object.keys(this.firebaseDB)
-                    }));
                     throw new Error('Método salvar não encontrado no firebaseDB');
                 }
                 
@@ -319,14 +337,6 @@ class ArmazenamentoReclamacoes {
                 console.log(`📤 [armazenamento] Chamando this.firebaseDB.salvar(${tipo}, reclamacao)...`);
                 const sucesso = await this.firebaseDB.salvar(tipo, reclamacao);
                 console.log(`📥 [armazenamento] Resultado do salvar:`, sucesso);
-                
-                // Log persistente do resultado
-                localStorage.setItem(logKey + '_resultado', JSON.stringify({
-                    timestamp: new Date().toISOString(),
-                    sucesso: sucesso,
-                    tipo: tipo,
-                    id: reclamacao.id
-                }));
                 
                 if (sucesso) {
                     if (!reclamacao._debugLogado) {

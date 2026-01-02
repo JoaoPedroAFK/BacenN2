@@ -1,4 +1,5 @@
 /* === FIREBASE REALTIME DATABASE - SUBSTITUIÇÃO DO SUPABASE === */
+/* VERSÃO: v2.3.0 | DATA: 2025-02-01 | ALTERAÇÕES: Removido salvamento de logs de debug no localStorage para evitar quota excedida */
 
 class FirebaseDB {
     constructor() {
@@ -93,28 +94,8 @@ class FirebaseDB {
             console.log(`📤 [FirebaseDB.salvar] Salvando em: ${caminho}`);
             console.log(`📦 [FirebaseDB.salvar] Dados:`, JSON.stringify(ficha).substring(0, 200) + '...');
             
-            // Log persistente antes de salvar
-            const logKey = 'velotax_debug_firebase_salvar_' + Date.now();
-            localStorage.setItem(logKey, JSON.stringify({
-                timestamp: new Date().toISOString(),
-                acao: 'antes_de_set',
-                caminho: caminho,
-                tipo: tipo,
-                id: ficha.id
-            }));
-            
             await this.database.ref(caminho).set(ficha);
             console.log(`✅ [FirebaseDB.salvar] Ficha ${tipo} salva no Firebase: ${ficha.id}`);
-            
-            // Log persistente após salvar com sucesso
-            localStorage.setItem(logKey + '_sucesso', JSON.stringify({
-                timestamp: new Date().toISOString(),
-                acao: 'apos_set_sucesso',
-                caminho: caminho,
-                tipo: tipo,
-                id: ficha.id,
-                sucesso: true
-            }));
             
             return true;
         } catch (error) {
@@ -122,19 +103,6 @@ class FirebaseDB {
             console.error(`   Caminho: fichas_${tipo}/${ficha.id}`);
             console.error(`   Erro:`, error.message);
             console.error(`   Stack:`, error.stack);
-            
-            // Log persistente do erro
-            const logKey = 'velotax_debug_firebase_salvar_' + Date.now();
-            localStorage.setItem(logKey + '_erro', JSON.stringify({
-                timestamp: new Date().toISOString(),
-                acao: 'erro_ao_salvar',
-                caminho: `fichas_${tipo}/${ficha.id}`,
-                tipo: tipo,
-                id: ficha.id,
-                erro: error.message,
-                codigo: error.code,
-                stack: error.stack
-            }));
             
             if (error.code === 'PERMISSION_DENIED') {
                 console.error(`🚨 ERRO DE PERMISSÃO! Verifique as regras de segurança no Firebase Console!`);
