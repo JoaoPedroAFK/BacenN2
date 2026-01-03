@@ -1,5 +1,5 @@
 /* === SISTEMA DE RECLAMAÇÕES BACEN - JAVASCRIPT PRINCIPAL === */
-/* VERSÃO: v2.7.0 | DATA: 2025-02-01 | ALTERAÇÕES: Corrigir gráfico mensal geral N2 para usar dataEntradaN2/dataEntradaAtendimento em vez de dataCriacao */
+/* VERSÃO: v2.8.0 | DATA: 2025-02-01 | ALTERAÇÕES: Corrigir gráfico mensal geral para usar dataEntrada da planilha em vez de dataCriacao */
 
 // === VARIÁVEIS GLOBAIS ===
 let complaints = [];
