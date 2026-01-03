@@ -1,5 +1,5 @@
 /* === SISTEMA DE GRÁFICOS DETALHADOS E FILTRÁVEIS === */
-/* VERSÃO: v2.11.0 | DATA: 2025-02-01 | ALTERAÇÕES: Melhorar extração de datas no gráfico mensal N2, adicionar logs detalhados para debug */
+/* VERSÃO: v2.12.0 | DATA: 2025-02-01 | ALTERAÇÕES: Verificar camposEspecificos para datas N2, adicionar fallback para dataCriacao */
 
 class GraficosDetalhados {
     constructor(tipoDemanda) {
