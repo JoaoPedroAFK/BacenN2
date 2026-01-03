@@ -359,9 +359,13 @@ function renderizarGraficoMensalGeral(todasFichas) {
                        dataParaMes = f.data;
                    }
                }
-        // Para BACEN, usar dataEntrada ou dataRecebimento
+        // Para BACEN, usar dataEntrada (da planilha) primeiro, não dataCriacao (data de importação)
         else {
-            dataParaMes = f.dataEntrada || f.dataRecebimento || f.dataCriacao || f.dataReclamacao;
+            dataParaMes = f.dataEntrada || f.dataRecebimento || f.dataReclamacao;
+            // Só usar dataCriacao como último recurso se não houver dataEntrada
+            if (!dataParaMes) {
+                dataParaMes = f.dataCriacao;
+            }
         }
         
         if (dataParaMes) {

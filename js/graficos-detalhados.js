@@ -415,9 +415,9 @@ class GraficosDetalhados {
             // Para cada tipo, usar o campo de data mais apropriado
             let dataParaMes = null;
             if (this.tipoDemanda === 'n2') {
-                // N2: dataEntradaN2 ou dataEntradaAtendimento são os campos principais da planilha
-                // dataEntrada também é da planilha (não é dataCriacao que é a data de importação)
-                // NÃO usar dataCriacao como fallback pois é a data de inserção na plataforma, não a data do caso
+                // N2: usar a mesma lógica de BACEN - dataEntrada é da planilha (não dataCriacao)
+                // Priorizar dataEntradaN2 ou dataEntradaAtendimento se existirem, senão usar dataEntrada
+                // dataEntrada agora é mapeado da planilha separadamente de dataCriacao
                 dataParaMes = f.dataEntradaN2 || f.dataEntradaAtendimento || f.dataEntrada || f.dataReclamacao;
                 // Se não tiver nenhuma das datas acima, tentar extrair da planilha (campo Data)
                 if (!dataParaMes && f.data) {
@@ -432,8 +432,13 @@ class GraficosDetalhados {
                     dataParaMes = f.data;
                 }
             } else {
-                // BACEN: dataEntrada, depois dataCriacao ou dataReclamacao
-                dataParaMes = f.dataEntrada || f.dataCriacao || f.dataReclamacao;
+                // BACEN: dataEntrada é da planilha (mapeado separadamente de dataCriacao)
+                // Usar dataEntrada primeiro, que vem da planilha, não dataCriacao que é data de importação
+                dataParaMes = f.dataEntrada || f.dataReclamacao;
+                // Só usar dataCriacao como último recurso se não houver dataEntrada
+                if (!dataParaMes) {
+                    dataParaMes = f.dataCriacao;
+                }
             }
             
             const mes = this.extrairMes(dataParaMes);
