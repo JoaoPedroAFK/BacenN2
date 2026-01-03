@@ -1,5 +1,5 @@
 /* === SCRIPT DE IMPORTAÇÃO DE DADOS - PLANILHA VELOTAX === */
-/* VERSÃO: v2.1.0 | DATA: 2025-02-01 | ALTERAÇÕES: Processar apenas Base Bacen e Base Ouvidoria, mapear apenas colunas existentes nas fichas */
+/* VERSÃO: v2.2.0 | DATA: 2025-02-01 | ALTERAÇÕES: Mapear dataEntradaN2 e dataEntradaAtendimento na importação de N2 */
 
 class ImportadorDados {
     constructor() {
@@ -578,6 +578,9 @@ class ImportadorDados {
                 campos.bancoDestino = obterValor("Banco Destino") || obterValor("Banco de Destino") || obterValor("Destino Banco") || '';
                 campos.statusPortabilidade = obterValor("Status Portabilidade") || obterValor("Status") || '';
                 campos.n2Portabilidade = this.converterBooleano(obterValor("N2 Portabilidade?") || obterValor("N2") || '');
+                // Mapear datas específicas de N2 da planilha
+                campos.dataEntradaAtendimento = this.formatarData(obterValor("Data Entrada Atendimento") || obterValor("Data entrada Atendimento") || obterValor("Data Entrada") || obterValor("Data") || '');
+                campos.dataEntradaN2 = this.formatarData(obterValor("Data Entrada N2") || obterValor("Data entrada N2") || obterValor("Data N2") || obterValor("Data Entrada") || obterValor("Data") || '');
                 break;
                 
             case "chatbot":

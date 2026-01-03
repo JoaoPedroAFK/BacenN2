@@ -1,5 +1,5 @@
 /* === SISTEMA DE GRÁFICOS DETALHADOS E FILTRÁVEIS === */
-/* VERSÃO: v2.8.0 | DATA: 2025-02-01 | ALTERAÇÕES: Corrigir gráfico mensal Chatbot para usar dataClienteChatbot em vez de dataCriacao, melhorar extrairMes para formatos DD/MM/YYYY */
+/* VERSÃO: v2.9.0 | DATA: 2025-02-01 | ALTERAÇÕES: Corrigir gráfico mensal N2 para usar dataEntradaN2/dataEntradaAtendimento em vez de dataCriacao */
 
 class GraficosDetalhados {
     constructor(tipoDemanda) {
@@ -415,8 +415,13 @@ class GraficosDetalhados {
             // Para cada tipo, usar o campo de data mais apropriado
             let dataParaMes = null;
             if (this.tipoDemanda === 'n2') {
-                // N2: dataEntradaN2 ou dataEntradaAtendimento, depois dataEntrada, dataCriacao ou dataReclamacao
-                dataParaMes = f.dataEntradaN2 || f.dataEntradaAtendimento || f.dataEntrada || f.dataCriacao || f.dataReclamacao;
+                // N2: dataEntradaN2 ou dataEntradaAtendimento são os campos principais da planilha
+                // NÃO usar dataCriacao como fallback pois é a data de inserção na plataforma, não a data do caso
+                dataParaMes = f.dataEntradaN2 || f.dataEntradaAtendimento || f.dataEntrada || f.dataReclamacao;
+                // Se não tiver dataEntradaN2 ou dataEntradaAtendimento, tentar extrair da planilha (campo Data)
+                if (!dataParaMes && f.data) {
+                    dataParaMes = f.data;
+                }
             } else if (this.tipoDemanda === 'chatbot') {
                 // Chatbot: dataClienteChatbot (data do cliente com o chatbot) é o campo principal
                 // NÃO usar dataCriacao como fallback pois é a data de inserção na plataforma, não a data do caso
