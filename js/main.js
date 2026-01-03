@@ -1,4 +1,5 @@
 /* === SISTEMA DE RECLAMAÇÕES BACEN - JAVASCRIPT PRINCIPAL === */
+/* VERSÃO: v2.6.0 | DATA: 2025-02-01 | ALTERAÇÕES: Corrigir gráfico mensal geral para usar dataClienteChatbot em vez de dataCriacao */
 
 // === VARIÁVEIS GLOBAIS ===
 let complaints = [];
@@ -343,10 +344,15 @@ function renderizarGraficoMensalGeral(todasFichas) {
         if (f.tipoDemanda === 'n2') {
             dataParaMes = f.dataEntradaN2 || f.dataEntradaAtendimento || f.dataEntrada || f.dataCriacao || f.dataReclamacao;
         }
-        // Para Chatbot, priorizar dataClienteChatbot
-        else if (f.tipoDemanda === 'chatbot') {
-            dataParaMes = f.dataClienteChatbot || f.dataCriacao || f.dataReclamacao || f.dataEntrada;
-        }
+               // Para Chatbot, priorizar dataClienteChatbot
+               // NÃO usar dataCriacao como fallback pois é a data de inserção na plataforma, não a data do caso
+               else if (f.tipoDemanda === 'chatbot') {
+                   dataParaMes = f.dataClienteChatbot || f.dataEntrada || f.dataReclamacao;
+                   // Se não tiver dataClienteChatbot, tentar extrair da planilha (campo Data)
+                   if (!dataParaMes && f.data) {
+                       dataParaMes = f.data;
+                   }
+               }
         // Para BACEN, usar dataEntrada ou dataRecebimento
         else {
             dataParaMes = f.dataEntrada || f.dataRecebimento || f.dataCriacao || f.dataReclamacao;

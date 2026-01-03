@@ -1,5 +1,5 @@
 /* === SISTEMA DE GESTÃO CHATBOT - PÁGINA ESPECÍFICA === */
-/* VERSÃO: v2.2.0 | DATA: 2025-02-01 */
+/* VERSÃO: v2.3.0 | DATA: 2025-02-01 | ALTERAÇÕES: Corrigir renderizarListaChatbot para carregar fichas antes de renderizar, expor função completa globalmente */
 
 console.log('📦 [chatbot-page.js] Script carregado!');
 
@@ -690,11 +690,7 @@ function configurarCardsDashboardChatbot() {
 
 // === RENDERIZAÇÃO DE LISTAS ===
 async function renderizarListaChatbot() {
-    console.log('📋 [renderizarListaChatbot] Renderizando lista Chatbot geral com', fichasChatbot.length, 'fichas');
-    if (fichasChatbot.length > 0) {
-        console.log('📋 [renderizarListaChatbot] Primeiras 3 fichas:', fichasChatbot.slice(0, 3).map(f => ({ id: f.id, nome: f.nomeCompleto || f.nomeCliente || 'sem nome', status: f.status })));
-        console.log('📋 [renderizarListaChatbot] Primeira ficha completa:', fichasChatbot[0]);
-    }
+    console.log('📋 [renderizarListaChatbot] Iniciando renderização...');
     
     const container = document.getElementById('lista-chatbot-container');
     if (!container) {
@@ -702,10 +698,14 @@ async function renderizarListaChatbot() {
         return;
     }
     
-    // Carregar fichas se necessário
-    if (!fichasChatbot || fichasChatbot.length === 0) {
-        console.warn('⚠️ Nenhuma ficha Chatbot carregada, tentando carregar...');
-        await carregarFichasChatbot();
+    // SEMPRE carregar fichas antes de renderizar para garantir dados atualizados
+    console.log('📥 [renderizarListaChatbot] Carregando fichas Chatbot...');
+    await carregarFichasChatbot();
+    
+    console.log('📋 [renderizarListaChatbot] Renderizando lista Chatbot geral com', fichasChatbot.length, 'fichas');
+    if (fichasChatbot.length > 0) {
+        console.log('📋 [renderizarListaChatbot] Primeiras 3 fichas:', fichasChatbot.slice(0, 3).map(f => ({ id: f.id, nome: f.nomeCompleto || f.nomeCliente || 'sem nome', status: f.status })));
+        console.log('📋 [renderizarListaChatbot] Primeira ficha completa:', fichasChatbot[0]);
     }
     
     console.log('📋 Primeira ficha completa:', fichasChatbot.length > 0 ? fichasChatbot[0] : 'Nenhuma');
@@ -1299,4 +1299,7 @@ if (document.readyState === 'loading') {
 // Expor funções e variáveis globalmente
 window.carregarFichasChatbot = carregarFichasChatbot;
 window.atualizarDashboardChatbot = atualizarDashboardChatbot;
+// Substituir stub pela função completa
+window.renderizarListaChatbot = renderizarListaChatbot;
+window.renderizarMinhasReclamacoesChatbot = renderizarMinhasReclamacoesChatbot;
 // window.fichasChatbot já é atualizado pela função atualizarFichasChatbot()

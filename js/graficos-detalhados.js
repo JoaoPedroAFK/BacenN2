@@ -417,8 +417,13 @@ class GraficosDetalhados {
                 // N2: dataEntradaN2 ou dataEntradaAtendimento, depois dataEntrada, dataCriacao ou dataReclamacao
                 dataParaMes = f.dataEntradaN2 || f.dataEntradaAtendimento || f.dataEntrada || f.dataCriacao || f.dataReclamacao;
             } else if (this.tipoDemanda === 'chatbot') {
-                // Chatbot: dataClienteChatbot (data do cliente com o chatbot) é o campo principal, depois dataCriacao
-                dataParaMes = f.dataClienteChatbot || f.dataCriacao || f.dataEntrada || f.dataReclamacao;
+                // Chatbot: dataClienteChatbot (data do cliente com o chatbot) é o campo principal
+                // NÃO usar dataCriacao como fallback pois é a data de inserção na plataforma, não a data do caso
+                dataParaMes = f.dataClienteChatbot || f.dataEntrada || f.dataReclamacao;
+                // Se não tiver dataClienteChatbot, tentar extrair da planilha (campo Data)
+                if (!dataParaMes && f.data) {
+                    dataParaMes = f.data;
+                }
             } else {
                 // BACEN: dataEntrada, depois dataCriacao ou dataReclamacao
                 dataParaMes = f.dataEntrada || f.dataCriacao || f.dataReclamacao;
@@ -1298,8 +1303,33 @@ class GraficosDetalhados {
 
     extrairMes(dataString) {
         if (!dataString) return null;
-        const data = new Date(dataString);
-        if (isNaN(data.getTime())) return null;
+        
+        let data = null;
+        
+        // Tentar parsear como Date primeiro
+        if (dataString instanceof Date) {
+            data = dataString;
+        } else if (typeof dataString === 'string') {
+            // Tentar formato ISO primeiro
+            data = new Date(dataString);
+            
+            // Se falhar, tentar formato DD/MM/YYYY (comum em planilhas)
+            if (isNaN(data.getTime()) && dataString.includes('/')) {
+                const partes = dataString.split('/');
+                if (partes.length === 3) {
+                    const dia = parseInt(partes[0], 10);
+                    const mes = parseInt(partes[1], 10);
+                    const ano = parseInt(partes[2], 10);
+                    if (!isNaN(dia) && !isNaN(mes) && !isNaN(ano)) {
+                        // Se ano tem 2 dígitos, assumir 2000+
+                        const anoCompleto = ano < 100 ? 2000 + ano : ano;
+                        data = new Date(anoCompleto, mes - 1, dia);
+                    }
+                }
+            }
+        }
+        
+        if (!data || isNaN(data.getTime())) return null;
 
         const mes = data.getMonth() + 1;
         const ano = data.getFullYear();
