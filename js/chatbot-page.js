@@ -1,5 +1,5 @@
 /* === SISTEMA DE GESTÃO CHATBOT - PÁGINA ESPECÍFICA === */
-/* VERSÃO: v2.5.0 | DATA: 2025-02-01 | ALTERAÇÕES: Corrigir recursão infinita mostrarSecao, replicar funcionamento BACEN/N2 na lista Chatbot */
+/* VERSÃO: v2.6.0 | DATA: 2025-02-01 | ALTERAÇÕES: Adicionar logs detalhados para debug, corrigir lógica de filtros da lista Chatbot */
 
 console.log('📦 [chatbot-page.js] Script carregado!');
 

@@ -1,5 +1,5 @@
 /* === SISTEMA DE GRÁFICOS DETALHADOS E FILTRÁVEIS === */
-/* VERSÃO: v2.10.0 | DATA: 2025-02-01 | ALTERAÇÕES: Corrigir gráfico mensal N2 e BACEN para usar dataEntrada da planilha em vez de dataCriacao */
+/* VERSÃO: v2.11.0 | DATA: 2025-02-01 | ALTERAÇÕES: Melhorar extração de datas no gráfico mensal N2, adicionar logs detalhados para debug */
 
 class GraficosDetalhados {
     constructor(tipoDemanda) {
