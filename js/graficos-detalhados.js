@@ -411,32 +411,59 @@ class GraficosDetalhados {
 
         // Agrupar estritamente por mês/ano com base na data, ignorando datas inválidas
         const mesesCount = {};
+        let fichasSemData = 0;
+        let fichasComData = 0;
+        
         dados.forEach(f => {
             // Para cada tipo, usar o campo de data mais apropriado
             let dataParaMes = null;
             if (this.tipoDemanda === 'n2') {
-                // N2: usar a mesma lógica de BACEN - dataEntrada é da planilha (não dataCriacao)
-                // Priorizar dataEntradaN2 ou dataEntradaAtendimento se existirem, senão usar dataEntrada
-                // dataEntrada agora é mapeado da planilha separadamente de dataCriacao
-                dataParaMes = f.dataEntradaN2 || f.dataEntradaAtendimento || f.dataEntrada || f.dataReclamacao;
-                // Se não tiver nenhuma das datas acima, tentar extrair da planilha (campo Data)
-                if (!dataParaMes && f.data) {
+                // N2: Priorizar campos específicos da planilha N2
+                // Verificar se os campos existem e não são vazios
+                if (f.dataEntradaN2 && f.dataEntradaN2.trim && f.dataEntradaN2.trim() !== '') {
+                    dataParaMes = f.dataEntradaN2;
+                } else if (f.dataEntradaAtendimento && f.dataEntradaAtendimento.trim && f.dataEntradaAtendimento.trim() !== '') {
+                    dataParaMes = f.dataEntradaAtendimento;
+                } else if (f.dataEntrada && f.dataEntrada.trim && f.dataEntrada.trim() !== '') {
+                    dataParaMes = f.dataEntrada;
+                } else if (f.dataReclamacao && f.dataReclamacao.trim && f.dataReclamacao.trim() !== '') {
+                    dataParaMes = f.dataReclamacao;
+                } else if (f.data && f.data.trim && f.data.trim() !== '') {
                     dataParaMes = f.data;
+                }
+                
+                // Log para debug (apenas primeiras 5 fichas)
+                if (fichasComData < 5 && dataParaMes) {
+                    console.log('📅 [N2] Ficha', f.id, 'Data usada:', dataParaMes, 'Campos disponíveis:', {
+                        dataEntradaN2: f.dataEntradaN2,
+                        dataEntradaAtendimento: f.dataEntradaAtendimento,
+                        dataEntrada: f.dataEntrada,
+                        dataReclamacao: f.dataReclamacao,
+                        data: f.data,
+                        dataCriacao: f.dataCriacao
+                    });
                 }
             } else if (this.tipoDemanda === 'chatbot') {
                 // Chatbot: dataClienteChatbot (data do cliente com o chatbot) é o campo principal
-                // NÃO usar dataCriacao como fallback pois é a data de inserção na plataforma, não a data do caso
-                dataParaMes = f.dataClienteChatbot || f.dataEntrada || f.dataReclamacao;
-                // Se não tiver dataClienteChatbot, tentar extrair da planilha (campo Data)
-                if (!dataParaMes && f.data) {
+                if (f.dataClienteChatbot && f.dataClienteChatbot.trim && f.dataClienteChatbot.trim() !== '') {
+                    dataParaMes = f.dataClienteChatbot;
+                } else if (f.dataEntrada && f.dataEntrada.trim && f.dataEntrada.trim() !== '') {
+                    dataParaMes = f.dataEntrada;
+                } else if (f.dataReclamacao && f.dataReclamacao.trim && f.dataReclamacao.trim() !== '') {
+                    dataParaMes = f.dataReclamacao;
+                } else if (f.data && f.data.trim && f.data.trim() !== '') {
                     dataParaMes = f.data;
                 }
             } else {
                 // BACEN: dataEntrada é da planilha (mapeado separadamente de dataCriacao)
-                // Usar dataEntrada primeiro, que vem da planilha, não dataCriacao que é data de importação
-                dataParaMes = f.dataEntrada || f.dataReclamacao;
-                // Só usar dataCriacao como último recurso se não houver dataEntrada
-                if (!dataParaMes) {
+                if (f.dataEntrada && f.dataEntrada.trim && f.dataEntrada.trim() !== '') {
+                    dataParaMes = f.dataEntrada;
+                } else if (f.dataReclamacao && f.dataReclamacao.trim && f.dataReclamacao.trim() !== '') {
+                    dataParaMes = f.dataReclamacao;
+                } else if (f.dataRecebimento && f.dataRecebimento.trim && f.dataRecebimento.trim() !== '') {
+                    dataParaMes = f.dataRecebimento;
+                } else if (f.dataCriacao && f.dataCriacao.trim && f.dataCriacao.trim() !== '') {
+                    // Só usar dataCriacao como último recurso
                     dataParaMes = f.dataCriacao;
                 }
             }
@@ -444,10 +471,22 @@ class GraficosDetalhados {
             const mes = this.extrairMes(dataParaMes);
             if (mes) {
                 mesesCount[mes] = (mesesCount[mes] || 0) + 1;
+                fichasComData++;
             } else {
-                console.warn('⚠️ [graficos-detalhados] Data inválida para ficha:', f.id, 'Data:', dataParaMes, 'Tipo:', this.tipoDemanda);
+                fichasSemData++;
+                // Log apenas para primeiras 3 fichas sem data
+                if (fichasSemData <= 3) {
+                    console.warn('⚠️ [graficos-detalhados] Data inválida para ficha:', f.id, 'Data:', dataParaMes, 'Tipo:', this.tipoDemanda, 'Campos:', {
+                        dataEntradaN2: f.dataEntradaN2,
+                        dataEntradaAtendimento: f.dataEntradaAtendimento,
+                        dataEntrada: f.dataEntrada,
+                        dataCriacao: f.dataCriacao
+                    });
+                }
             }
         });
+        
+        console.log(`📊 [graficos-detalhados] Gráfico mensal ${this.tipoDemanda}: ${fichasComData} fichas com data válida, ${fichasSemData} sem data`);
 
         // Se não há dados, mostrar mensagem
         if (Object.keys(mesesCount).length === 0) {

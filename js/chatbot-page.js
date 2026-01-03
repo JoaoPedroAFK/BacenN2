@@ -717,11 +717,14 @@ renderizarListaChatbot = async function() {
     const filtroStatus = document.getElementById('filtro-status-chatbot')?.value || 'all';
     const filtroCanal = document.getElementById('filtro-canal-chatbot')?.value || 'all';
     
+    console.log('🔍 [renderizarListaChatbot] Filtros aplicados:', { busca, filtroStatus, filtroCanal });
+    console.log('🔍 [renderizarListaChatbot] Total de fichas antes dos filtros:', fichasChatbot.length);
+    
     // NÃO FILTRAR POR USUÁRIO NA LISTA GERAL - mostrar TODAS as reclamações de TODOS os agentes
     let filtradas = [...fichasChatbot]; // Criar cópia para não modificar o array original
     
     // Aplicar busca (igual BACEN)
-    if (busca) {
+    if (busca && busca.trim() !== '') {
         // Normalizar busca (remover formatação de CPF)
         const buscaNormalizada = busca.replace(/\D/g, ''); // Remove tudo que não é dígito
         const buscaLower = busca.toLowerCase();
@@ -739,28 +742,40 @@ renderizarListaChatbot = async function() {
                    motivo.includes(buscaLower) ||
                    id.includes(buscaLower);
         });
+        console.log('🔍 [renderizarListaChatbot] Após busca:', filtradas.length);
     }
     
-    // Aplicar filtro de status
-    if (filtroStatus !== 'all') {
+    // Aplicar filtro de status (só se não for 'all' e não estiver vazio)
+    if (filtroStatus && filtroStatus !== 'all' && filtroStatus.trim() !== '') {
         let filtradasStatus = [];
         switch (filtroStatus) {
             case 'resolvidas-auto':
-                filtradasStatus = filtradas.filter(f => f.resolvidoAutomaticamente);
+                filtradasStatus = filtradas.filter(f => f.resolvidoAutomaticamente === true);
+                console.log('🔍 [renderizarListaChatbot] Filtro resolvidas-auto:', filtradasStatus.length);
                 break;
             case 'encaminhadas':
-                filtradasStatus = filtradas.filter(f => f.encaminhadoHumano);
+                filtradasStatus = filtradas.filter(f => f.encaminhadoHumano === true);
+                console.log('🔍 [renderizarListaChatbot] Filtro encaminhadas:', filtradasStatus.length);
                 break;
             default:
-                filtradasStatus = filtradas.filter(f => f.status === filtroStatus);
+                filtradasStatus = filtradas.filter(f => (f.status || '').toLowerCase() === filtroStatus.toLowerCase());
+                console.log('🔍 [renderizarListaChatbot] Filtro status:', filtroStatus, 'Resultado:', filtradasStatus.length);
         }
         filtradas = filtradasStatus;
     }
     
-    // Aplicar filtro de canal
-    if (filtroCanal !== 'all') {
-        filtradas = filtradas.filter(f => (f.canalChatbot || '').toLowerCase() === filtroCanal.toLowerCase());
+    // Aplicar filtro de canal (só se não for 'all' e não estiver vazio)
+    if (filtroCanal && filtroCanal !== 'all' && filtroCanal.trim() !== '') {
+        const antesCanal = filtradas.length;
+        filtradas = filtradas.filter(f => {
+            const canal = (f.canalChatbot || '').toLowerCase().trim();
+            const filtro = filtroCanal.toLowerCase().trim();
+            return canal === filtro;
+        });
+        console.log('🔍 [renderizarListaChatbot] Filtro canal:', filtroCanal, 'Antes:', antesCanal, 'Depois:', filtradas.length);
     }
+    
+    console.log('🔍 [renderizarListaChatbot] Total de fichas após todos os filtros:', filtradas.length);
     
     // Verificar se criarCardChatbot existe (igual BACEN)
     if (typeof criarCardChatbot !== 'function' && typeof window.criarCardChatbot !== 'function') {
