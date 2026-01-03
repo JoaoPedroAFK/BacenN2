@@ -1,4 +1,5 @@
 /* === SISTEMA DE GRÁFICOS DETALHADOS E FILTRÁVEIS === */
+/* VERSÃO: v2.8.0 | DATA: 2025-02-01 | ALTERAÇÕES: Corrigir gráfico mensal Chatbot para usar dataClienteChatbot em vez de dataCriacao, melhorar extrairMes para formatos DD/MM/YYYY */
 
 class GraficosDetalhados {
     constructor(tipoDemanda) {
