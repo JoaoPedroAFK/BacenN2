@@ -1,25 +1,10 @@
 /* === SISTEMA DE GESTÃO CHATBOT - PÁGINA ESPECÍFICA === */
-/* VERSÃO: v2.3.0 | DATA: 2025-02-01 | ALTERAÇÕES: Corrigir renderizarListaChatbot para carregar fichas antes de renderizar, expor função completa globalmente */
+/* VERSÃO: v2.4.0 | DATA: 2025-02-01 | ALTERAÇÕES: Corrigir renderizarListaChatbot para funcionar corretamente, remover stubs, usar declaração antecipada */
 
 console.log('📦 [chatbot-page.js] Script carregado!');
 
-// DEFINIR FUNÇÕES GLOBAIS IMEDIATAMENTE (antes de qualquer erro de sintaxe)
-// Isso garante que as funções estejam disponíveis mesmo se houver erro mais adiante no arquivo
-window.renderizarListaChatbot = async function() {
-    console.log('🎨 [renderizarListaChatbot STUB] Função chamada (versão stub - será sobrescrita)');
-    // Esta é uma versão stub que será sobrescrita pela versão completa mais abaixo
-    // Mas pelo menos garante que a função existe
-    if (window._renderizarListaChatbotFull) {
-        return window._renderizarListaChatbotFull();
-    }
-    console.warn('⚠️ [renderizarListaChatbot STUB] Versão completa ainda não carregada');
-};
-window.renderizarMinhasReclamacoesChatbot = async function() {
-    console.log('🎨 [renderizarMinhasReclamacoesChatbot STUB] Função chamada (versão stub)');
-    if (window._renderizarMinhasReclamacoesChatbotFull) {
-        return window._renderizarMinhasReclamacoesChatbotFull();
-    }
-};
+// REMOVER STUBS - as funções completas serão definidas abaixo e atribuídas diretamente
+// Não criar stubs para evitar confusão - as funções serão definidas antes de serem chamadas
 
 // Variáveis globais
 let fichasChatbot = [];
@@ -31,6 +16,10 @@ function atualizarFichasChatbot(novasFichas) {
 }
 // Expor no window para acesso global
 window.fichasChatbot = fichasChatbot;
+
+// === DECLARAÇÃO ANTECIPADA DAS FUNÇÕES ===
+// Declarar variáveis para as funções (serão atribuídas mais abaixo)
+let renderizarListaChatbot, renderizarMinhasReclamacoesChatbot;
 
 // === NAVEGAÇÃO ===
 function mostrarSecao(secaoId) {
@@ -65,7 +54,13 @@ function mostrarSecao(secaoId) {
         return;
     }
     if (secaoId === 'lista-chatbot') {
-        renderizarListaChatbot();
+        if (typeof renderizarListaChatbot === 'function') {
+            renderizarListaChatbot();
+        } else if (typeof window.renderizarListaChatbot === 'function') {
+            window.renderizarListaChatbot();
+        } else {
+            console.error('❌ renderizarListaChatbot não está definida!');
+        }
     } else if (secaoId === 'dashboard-chatbot') {
         // Aguardar um pouco para garantir que armazenamentoReclamacoes está pronto
         setTimeout(async () => {
@@ -689,7 +684,8 @@ function configurarCardsDashboardChatbot() {
 }
 
 // === RENDERIZAÇÃO DE LISTAS ===
-async function renderizarListaChatbot() {
+// Atribuir função à variável declarada acima (não usar function declaration para evitar conflito)
+renderizarListaChatbot = async function() {
     console.log('📋 [renderizarListaChatbot] Iniciando renderização...');
     
     const container = document.getElementById('lista-chatbot-container');
@@ -800,7 +796,8 @@ async function renderizarListaChatbot() {
     console.log(`✅ Lista renderizada com ${fichasFiltradas.length} reclamações`);
 }
 
-async function renderizarMinhasReclamacoesChatbot() {
+// Atribuir função à variável declarada acima
+renderizarMinhasReclamacoesChatbot = async function() {
     console.log('📋 Total de fichas disponíveis:', fichasChatbot.length);
     
     const usuarioAtual = window.sistemaPerfis?.usuarioAtual;
@@ -1299,7 +1296,7 @@ if (document.readyState === 'loading') {
 // Expor funções e variáveis globalmente
 window.carregarFichasChatbot = carregarFichasChatbot;
 window.atualizarDashboardChatbot = atualizarDashboardChatbot;
-// Substituir stub pela função completa
+// Expor funções de renderização (já definidas acima)
 window.renderizarListaChatbot = renderizarListaChatbot;
 window.renderizarMinhasReclamacoesChatbot = renderizarMinhasReclamacoesChatbot;
 // window.fichasChatbot já é atualizado pela função atualizarFichasChatbot()

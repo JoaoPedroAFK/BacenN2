@@ -1,5 +1,5 @@
 /* === SCRIPT DE IMPORTAÇÃO DE DADOS - PLANILHA VELOTAX === */
-/* VERSÃO: v2.2.0 | DATA: 2025-02-01 | ALTERAÇÕES: Mapear dataEntradaN2 e dataEntradaAtendimento na importação de N2 */
+/* VERSÃO: v2.3.0 | DATA: 2025-02-01 | ALTERAÇÕES: Mapear dataEntrada separadamente de dataCriacao para usar data da planilha no gráfico mensal */
 
 class ImportadorDados {
     constructor() {
@@ -395,7 +395,10 @@ class ImportadorDados {
             telefone: obterValor("Telefone") || obterValor("Celular") || obterValor("Contato") || '',
             origem: this.normalizarOrigem(obterValor("Origem") || obterValor("Canal") || ''),
             status: this.inferirStatus(dadoBruto, obterValor),
+            // dataCriacao: usar apenas como fallback se não houver data na planilha (data de importação)
             dataCriacao: this.formatarData(obterValor("Data entrada") || obterValor("Data Entrada") || obterValor("Data de Entrada") || obterValor("Data") || obterValor("Data Criação") || new Date().toISOString()),
+            // dataEntrada: data real da planilha (não a data de importação)
+            dataEntrada: this.formatarData(obterValor("Data entrada") || obterValor("Data Entrada") || obterValor("Data de Entrada") || obterValor("Data") || ''),
             dataRecebimento: this.formatarData(obterValor("Data entrada") || obterValor("Data Recebimento") || obterValor("Data") || obterValor("Data Criação") || new Date().toISOString()),
             // Para Chatbot, mapear campo Data como dataClienteChatbot
             dataClienteChatbot: tipoDemanda === 'chatbot' ? this.formatarData(obterValor("Data") || obterValor("Data Cliente") || obterValor("Data entrada") || obterValor("Data Criação") || new Date().toISOString()) : '',

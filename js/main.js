@@ -341,10 +341,11 @@ function renderizarGraficoMensalGeral(todasFichas) {
         let dataParaMes = null;
         
         // Para N2, priorizar dataEntradaN2 ou dataEntradaAtendimento
+        // dataEntrada também é da planilha (não é dataCriacao que é a data de importação)
         // NÃO usar dataCriacao como fallback pois é a data de inserção na plataforma, não a data do caso
         if (f.tipoDemanda === 'n2') {
             dataParaMes = f.dataEntradaN2 || f.dataEntradaAtendimento || f.dataEntrada || f.dataReclamacao;
-            // Se não tiver dataEntradaN2 ou dataEntradaAtendimento, tentar extrair da planilha (campo Data)
+            // Se não tiver nenhuma das datas acima, tentar extrair da planilha (campo Data)
             if (!dataParaMes && f.data) {
                 dataParaMes = f.data;
             }
