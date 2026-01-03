@@ -420,27 +420,38 @@ class GraficosDetalhados {
             if (this.tipoDemanda === 'n2') {
                 // N2: Priorizar campos específicos da planilha N2
                 // Verificar se os campos existem e não são vazios
-                if (f.dataEntradaN2 && f.dataEntradaN2.trim && f.dataEntradaN2.trim() !== '') {
+                // Também verificar dentro de camposEspecificos caso não estejam no nível raiz
+                const camposEspecificos = f.camposEspecificos || {};
+                
+                if (f.dataEntradaN2 && typeof f.dataEntradaN2 === 'string' && f.dataEntradaN2.trim() !== '') {
                     dataParaMes = f.dataEntradaN2;
-                } else if (f.dataEntradaAtendimento && f.dataEntradaAtendimento.trim && f.dataEntradaAtendimento.trim() !== '') {
+                } else if (camposEspecificos.dataEntradaN2 && typeof camposEspecificos.dataEntradaN2 === 'string' && camposEspecificos.dataEntradaN2.trim() !== '') {
+                    dataParaMes = camposEspecificos.dataEntradaN2;
+                } else if (f.dataEntradaAtendimento && typeof f.dataEntradaAtendimento === 'string' && f.dataEntradaAtendimento.trim() !== '') {
                     dataParaMes = f.dataEntradaAtendimento;
-                } else if (f.dataEntrada && f.dataEntrada.trim && f.dataEntrada.trim() !== '') {
+                } else if (camposEspecificos.dataEntradaAtendimento && typeof camposEspecificos.dataEntradaAtendimento === 'string' && camposEspecificos.dataEntradaAtendimento.trim() !== '') {
+                    dataParaMes = camposEspecificos.dataEntradaAtendimento;
+                } else if (f.dataEntrada && typeof f.dataEntrada === 'string' && f.dataEntrada.trim() !== '') {
                     dataParaMes = f.dataEntrada;
-                } else if (f.dataReclamacao && f.dataReclamacao.trim && f.dataReclamacao.trim() !== '') {
+                } else if (f.dataReclamacao && typeof f.dataReclamacao === 'string' && f.dataReclamacao.trim() !== '') {
                     dataParaMes = f.dataReclamacao;
-                } else if (f.data && f.data.trim && f.data.trim() !== '') {
+                } else if (f.data && typeof f.data === 'string' && f.data.trim() !== '') {
                     dataParaMes = f.data;
+                } else if (f.dataCriacao && typeof f.dataCriacao === 'string' && f.dataCriacao.trim() !== '') {
+                    // Usar dataCriacao como último recurso (melhor que nada)
+                    dataParaMes = f.dataCriacao;
                 }
                 
                 // Log para debug (apenas primeiras 5 fichas)
                 if (fichasComData < 5 && dataParaMes) {
                     console.log('📅 [N2] Ficha', f.id, 'Data usada:', dataParaMes, 'Campos disponíveis:', {
-                        dataEntradaN2: f.dataEntradaN2,
-                        dataEntradaAtendimento: f.dataEntradaAtendimento,
+                        dataEntradaN2: f.dataEntradaN2 || camposEspecificos.dataEntradaN2,
+                        dataEntradaAtendimento: f.dataEntradaAtendimento || camposEspecificos.dataEntradaAtendimento,
                         dataEntrada: f.dataEntrada,
                         dataReclamacao: f.dataReclamacao,
                         data: f.data,
-                        dataCriacao: f.dataCriacao
+                        dataCriacao: f.dataCriacao,
+                        temCamposEspecificos: !!f.camposEspecificos
                     });
                 }
             } else if (this.tipoDemanda === 'chatbot') {
