@@ -1,5 +1,5 @@
 /* === SISTEMA DE GESTÃO CHATBOT - PÁGINA ESPECÍFICA === */
-/* VERSÃO: v2.6.0 | DATA: 2025-02-01 | ALTERAÇÕES: Adicionar logs detalhados para debug, corrigir lógica de filtros da lista Chatbot */
+/* VERSÃO: v2.6.0 | DATA: 2025-02-01 | ALTERAÇÕES: Adicionar recarregamento automático de gráficos após importação e salvamento de reclamações */
 
 console.log('📦 [chatbot-page.js] Script carregado!');
 
