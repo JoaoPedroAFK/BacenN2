@@ -476,19 +476,17 @@ class GraficosDetalhados {
                 
                 // Log para debug (apenas primeiras 10 fichas)
                 if (fichasComData < 10 && dataParaMes) {
-                    console.log('✅ [N2] Ficha', f.id, 'Data usada:', dataParaMes, 'Mês extraído:', this.extrairMes(dataParaMes), 'Fonte:', 
+                    console.log('✅ [N2] Ficha IMPORTADA', f.id, 'Data usada:', dataParaMes, 'Mês extraído:', this.extrairMes(dataParaMes), 'Fonte:', 
                         f.dataEntrada && this.extrairMes(f.dataEntrada) ? 'dataEntrada' : 
                         (f.dataEntradaN2 && this.extrairMes(f.dataEntradaN2)) ? 'dataEntradaN2' :
                         (f.dataEntradaAtendimento && this.extrairMes(f.dataEntradaAtendimento)) ? 'dataEntradaAtendimento' :
-                        f.dataReclamacao && this.extrairMes(f.dataReclamacao) ? 'dataReclamacao' : 'data');
+                        (camposEspecificos.dataEntradaN2 && this.extrairMes(camposEspecificos.dataEntradaN2)) ? 'camposEspecificos.dataEntradaN2' :
+                        'camposEspecificos.dataEntradaAtendimento');
                 } else if (!dataParaMes && fichasSemData < 10) {
-                    console.warn('⚠️ [N2] Ficha', f.id, 'SEM DATA VÁLIDA - será ignorada no gráfico. Campos disponíveis:', {
+                    console.warn('⚠️ [N2] Ficha IMPORTADA', f.id, 'SEM DATA VÁLIDA DA PLANILHA - será ignorada no gráfico. Campos disponíveis:', {
                         dataEntrada: f.dataEntrada,
                         dataEntradaN2: f.dataEntradaN2 || camposEspecificos.dataEntradaN2,
                         dataEntradaAtendimento: f.dataEntradaAtendimento || camposEspecificos.dataEntradaAtendimento,
-                        dataReclamacao: f.dataReclamacao,
-                        data: f.data,
-                        dataCriacao: f.dataCriacao,
                         temCamposEspecificos: !!f.camposEspecificos
                     });
                 }
