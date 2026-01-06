@@ -241,7 +241,7 @@ class GraficosDetalhados {
             this.renderizarGraficoStatus(dadosFiltrados);
             // Renderizar gráfico de resolução automática vs humana (usando o container do HTML)
             this.renderizarGraficoResolucaoAuto(dadosFiltrados);
-            this.renderizarGraficoCanal(dadosFiltrados);
+            this.renderizarGraficoResponsavel(dadosFiltrados); // Substituído: Canal por Agente
             this.renderizarGraficoSatisfacao(dadosFiltrados);
             this.renderizarGraficoMensal(dadosFiltrados);
             this.renderizarGraficoProduto(dadosFiltrados);
@@ -418,12 +418,15 @@ class GraficosDetalhados {
             // Para cada tipo, usar o campo de data mais apropriado
             let dataParaMes = null;
             if (this.tipoDemanda === 'n2') {
-                // N2: Priorizar campos específicos da planilha N2
+                // N2: Priorizar "Data de entrada" da planilha (dataEntrada) conforme solicitado
                 // Verificar se os campos existem e não são vazios
                 // Também verificar dentro de camposEspecificos caso não estejam no nível raiz
                 const camposEspecificos = f.camposEspecificos || {};
                 
-                if (f.dataEntradaN2 && typeof f.dataEntradaN2 === 'string' && f.dataEntradaN2.trim() !== '') {
+                // PRIORIDADE 1: Data de entrada da planilha (campo principal solicitado)
+                if (f.dataEntrada && typeof f.dataEntrada === 'string' && f.dataEntrada.trim() !== '') {
+                    dataParaMes = f.dataEntrada;
+                } else if (f.dataEntradaN2 && typeof f.dataEntradaN2 === 'string' && f.dataEntradaN2.trim() !== '') {
                     dataParaMes = f.dataEntradaN2;
                 } else if (camposEspecificos.dataEntradaN2 && typeof camposEspecificos.dataEntradaN2 === 'string' && camposEspecificos.dataEntradaN2.trim() !== '') {
                     dataParaMes = camposEspecificos.dataEntradaN2;
@@ -431,8 +434,6 @@ class GraficosDetalhados {
                     dataParaMes = f.dataEntradaAtendimento;
                 } else if (camposEspecificos.dataEntradaAtendimento && typeof camposEspecificos.dataEntradaAtendimento === 'string' && camposEspecificos.dataEntradaAtendimento.trim() !== '') {
                     dataParaMes = camposEspecificos.dataEntradaAtendimento;
-                } else if (f.dataEntrada && typeof f.dataEntrada === 'string' && f.dataEntrada.trim() !== '') {
-                    dataParaMes = f.dataEntrada;
                 } else if (f.dataReclamacao && typeof f.dataReclamacao === 'string' && f.dataReclamacao.trim() !== '') {
                     dataParaMes = f.dataReclamacao;
                 } else if (f.data && typeof f.data === 'string' && f.data.trim() !== '') {
@@ -1018,7 +1019,10 @@ class GraficosDetalhados {
 
         const responsavelCount = {};
         dados.forEach(f => {
-            let responsavel = (f.responsavel || 'Não atribuído').toString().trim();
+            // Para Chatbot, usar responsavel ou responsavelChatbot
+            let responsavel = (this.tipoDemanda === 'chatbot' 
+                ? (f.responsavel || f.responsavelChatbot || 'Não atribuído')
+                : (f.responsavel || 'Não atribuído')).toString().trim();
             
             // Normalizar "Shirley" - agregar todas as variações
             if (responsavel.toLowerCase().includes('shirley')) {
