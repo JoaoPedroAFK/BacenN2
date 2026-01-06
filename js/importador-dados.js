@@ -591,6 +591,8 @@ class ImportadorDados {
                 campos.statusPortabilidade = obterValor("Status Portabilidade") || obterValor("Status") || '';
                 campos.n2Portabilidade = this.converterBooleano(obterValor("N2 Portabilidade?") || obterValor("N2") || '');
                 // Mapear datas específicas de N2 da planilha
+                // IMPORTANTE: "Data de entrada" é o campo principal solicitado para o gráfico mensal
+                campos.dataEntrada = this.formatarData(obterValor("Data de entrada") || obterValor("Data entrada") || obterValor("Data Entrada") || obterValor("Data de Entrada") || obterValor("Data") || '');
                 campos.dataEntradaAtendimento = this.formatarData(obterValor("Data Entrada Atendimento") || obterValor("Data entrada Atendimento") || obterValor("Data Entrada") || obterValor("Data") || '');
                 campos.dataEntradaN2 = this.formatarData(obterValor("Data Entrada N2") || obterValor("Data entrada N2") || obterValor("Data N2") || obterValor("Data Entrada") || obterValor("Data") || '');
                 break;
