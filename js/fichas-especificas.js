@@ -1067,6 +1067,7 @@ class FichasEspecificas {
     <div class="secao">
         <h3><strong>🎯 DETALHES DA RECLAMAÇÃO</strong></h3>
         <div class="destaque">
+            <div class="campo"><span class="label">RDR:</span> <span class="valor"><strong>${dados.rdr || 'Não informado'}</strong></span></div>
             <div class="campo"><span class="label">Motivo Reduzido:</span> <span class="valor"><strong>${dados.motivoReduzido || 'Não informado'}</strong></span></div>
             <div class="campo"><span class="label">Motivo da Reclamação:</span> <span class="valor">${dados.motivoDetalhado || dados.motivoReclamacao || 'Não informado'}</span></div>
             <div class="campo"><span class="label">Prazo BACEN:</span> <span class="valor"><strong>${this.formatarData(dados.prazoBacen || dados.prazoRetorno)}</strong></span></div>
