@@ -418,103 +418,85 @@ class GraficosDetalhados {
             // Para cada tipo, usar o campo de data mais apropriado
             let dataParaMes = null;
             if (this.tipoDemanda === 'n2') {
-                // N2: APENAS casos importados (que têm data da planilha)
-                // Filtrar casos inseridos manualmente
+                // N2: Usar data da planilha diretamente
+                // A planilha tem o campo "Data de entrada" que é mapeado para dataEntrada
                 const camposEspecificos = f.camposEspecificos || {};
                 
-                // Verificar se é caso importado usando múltiplos critérios:
-                // 1. Tem campos processados da planilha (tentativas, protocolos, cpfTratado)
-                // 2. Tem dataEntrada preenchida E diferença significativa entre dataCriacao e dataEntrada
-                //    (casos importados têm dataEntrada antiga da planilha, dataCriacao é data de importação)
-                const temCamposImportacao = (
-                    (Array.isArray(f.tentativas) && f.tentativas.length > 0) ||
-                    (Array.isArray(f.protocolos) && f.protocolos.length > 0) ||
-                    (f.cpfTratado && typeof f.cpfTratado === 'string' && f.cpfTratado.trim() !== '')
-                );
-                
-                // Verificar se tem data da planilha E se é caso importado
-                const temDataPlanilha = (
-                    (f.dataEntrada && typeof f.dataEntrada === 'string' && f.dataEntrada.trim() !== '' && f.dataEntrada !== 'Invalid Date') ||
-                    (f.dataEntradaN2 && typeof f.dataEntradaN2 === 'string' && f.dataEntradaN2.trim() !== '' && f.dataEntradaN2 !== 'Invalid Date') ||
-                    (camposEspecificos.dataEntradaN2 && typeof camposEspecificos.dataEntradaN2 === 'string' && camposEspecificos.dataEntradaN2.trim() !== '' && camposEspecificos.dataEntradaN2 !== 'Invalid Date') ||
-                    (f.dataEntradaAtendimento && typeof f.dataEntradaAtendimento === 'string' && f.dataEntradaAtendimento.trim() !== '' && f.dataEntradaAtendimento !== 'Invalid Date') ||
-                    (camposEspecificos.dataEntradaAtendimento && typeof camposEspecificos.dataEntradaAtendimento === 'string' && camposEspecificos.dataEntradaAtendimento.trim() !== '' && camposEspecificos.dataEntradaAtendimento !== 'Invalid Date')
-                );
-                
-                // Verificar diferença entre dataCriacao e dataEntrada (casos importados têm dataEntrada antiga)
-                let temDataAntiga = false;
-                if (f.dataEntrada && f.dataCriacao) {
-                    try {
-                        const dataEntrada = new Date(f.dataEntrada);
-                        const dataCriacao = new Date(f.dataCriacao);
-                        // Se dataEntrada é pelo menos 1 dia anterior a dataCriacao, é caso importado
-                        const diffDias = (dataCriacao - dataEntrada) / (1000 * 60 * 60 * 24);
-                        temDataAntiga = diffDias >= 1;
-                    } catch (e) {
-                        // Ignorar erro de parsing
-                    }
+                // Log detalhado para as primeiras 5 fichas para debug
+                if (fichasComData + fichasSemData < 5) {
+                    console.log('🔍 [N2] Analisando ficha', f.id, {
+                        dataEntrada: f.dataEntrada,
+                        dataEntradaN2: f.dataEntradaN2,
+                        dataEntradaAtendimento: f.dataEntradaAtendimento,
+                        dataCriacao: f.dataCriacao,
+                        camposEspecificos: camposEspecificos,
+                        temCamposEspecificos: !!f.camposEspecificos
+                    });
                 }
                 
-                // É caso importado se: tem campos de importação OU (tem data da planilha E data antiga)
-                const ehCasoImportado = temCamposImportacao || (temDataPlanilha && temDataAntiga);
-                
-                // Se não é caso importado, IGNORAR
-                if (!ehCasoImportado) {
-                    fichasSemData++;
-                    return; // Pular este caso
-                }
-                
-                // PRIORIDADE 1: Data de entrada da planilha (campo principal solicitado)
-                // IMPORTANTE: Verificar se não é uma data inválida ou vazia
+                // PRIORIDADE 1: dataEntrada (mapeado de "Data de entrada" da planilha)
+                // Este é o campo principal que vem da coluna "Data de entrada" da planilha
                 if (f.dataEntrada && typeof f.dataEntrada === 'string' && f.dataEntrada.trim() !== '' && f.dataEntrada !== 'Invalid Date') {
                     const dataTeste = this.extrairMes(f.dataEntrada);
                     if (dataTeste) {
                         dataParaMes = f.dataEntrada;
+                        if (fichasComData < 5) {
+                            console.log('✅ [N2] Usando dataEntrada:', f.dataEntrada, 'Mês:', dataTeste);
+                        }
                     }
                 }
                 
-                // Se dataEntrada não funcionou, tentar outros campos da planilha
+                // PRIORIDADE 2: dataEntradaN2 (se dataEntrada não funcionou)
                 if (!dataParaMes) {
                     if (f.dataEntradaN2 && typeof f.dataEntradaN2 === 'string' && f.dataEntradaN2.trim() !== '' && f.dataEntradaN2 !== 'Invalid Date') {
                         const dataTeste = this.extrairMes(f.dataEntradaN2);
                         if (dataTeste) {
                             dataParaMes = f.dataEntradaN2;
+                            if (fichasComData < 5) {
+                                console.log('✅ [N2] Usando dataEntradaN2:', f.dataEntradaN2, 'Mês:', dataTeste);
+                            }
                         }
                     } else if (camposEspecificos.dataEntradaN2 && typeof camposEspecificos.dataEntradaN2 === 'string' && camposEspecificos.dataEntradaN2.trim() !== '' && camposEspecificos.dataEntradaN2 !== 'Invalid Date') {
                         const dataTeste = this.extrairMes(camposEspecificos.dataEntradaN2);
                         if (dataTeste) {
                             dataParaMes = camposEspecificos.dataEntradaN2;
+                            if (fichasComData < 5) {
+                                console.log('✅ [N2] Usando camposEspecificos.dataEntradaN2:', camposEspecificos.dataEntradaN2, 'Mês:', dataTeste);
+                            }
                         }
-                    } else if (f.dataEntradaAtendimento && typeof f.dataEntradaAtendimento === 'string' && f.dataEntradaAtendimento.trim() !== '' && f.dataEntradaAtendimento !== 'Invalid Date') {
+                    }
+                }
+                
+                // PRIORIDADE 3: dataEntradaAtendimento (se ainda não encontrou)
+                if (!dataParaMes) {
+                    if (f.dataEntradaAtendimento && typeof f.dataEntradaAtendimento === 'string' && f.dataEntradaAtendimento.trim() !== '' && f.dataEntradaAtendimento !== 'Invalid Date') {
                         const dataTeste = this.extrairMes(f.dataEntradaAtendimento);
                         if (dataTeste) {
                             dataParaMes = f.dataEntradaAtendimento;
+                            if (fichasComData < 5) {
+                                console.log('✅ [N2] Usando dataEntradaAtendimento:', f.dataEntradaAtendimento, 'Mês:', dataTeste);
+                            }
                         }
                     } else if (camposEspecificos.dataEntradaAtendimento && typeof camposEspecificos.dataEntradaAtendimento === 'string' && camposEspecificos.dataEntradaAtendimento.trim() !== '' && camposEspecificos.dataEntradaAtendimento !== 'Invalid Date') {
                         const dataTeste = this.extrairMes(camposEspecificos.dataEntradaAtendimento);
                         if (dataTeste) {
                             dataParaMes = camposEspecificos.dataEntradaAtendimento;
+                            if (fichasComData < 5) {
+                                console.log('✅ [N2] Usando camposEspecificos.dataEntradaAtendimento:', camposEspecificos.dataEntradaAtendimento, 'Mês:', dataTeste);
+                            }
                         }
                     }
                 }
                 
-                // NÃO usar dataReclamacao, data ou dataCriacao - apenas datas da planilha
-                // Se não tiver nenhuma data válida da planilha, a ficha será ignorada no gráfico
-                
-                // Log para debug (apenas primeiras 10 fichas)
-                if (fichasComData < 10 && dataParaMes) {
-                    console.log('✅ [N2] Ficha IMPORTADA', f.id, 'Data usada:', dataParaMes, 'Mês extraído:', this.extrairMes(dataParaMes), 'Fonte:', 
-                        f.dataEntrada && this.extrairMes(f.dataEntrada) ? 'dataEntrada' : 
-                        (f.dataEntradaN2 && this.extrairMes(f.dataEntradaN2)) ? 'dataEntradaN2' :
-                        (f.dataEntradaAtendimento && this.extrairMes(f.dataEntradaAtendimento)) ? 'dataEntradaAtendimento' :
-                        (camposEspecificos.dataEntradaN2 && this.extrairMes(camposEspecificos.dataEntradaN2)) ? 'camposEspecificos.dataEntradaN2' :
-                        'camposEspecificos.dataEntradaAtendimento');
-                } else if (!dataParaMes && fichasSemData < 10) {
-                    console.warn('⚠️ [N2] Ficha IMPORTADA', f.id, 'SEM DATA VÁLIDA DA PLANILHA - será ignorada no gráfico. Campos disponíveis:', {
+                // Se não encontrou nenhuma data válida, logar para debug
+                if (!dataParaMes && fichasSemData < 10) {
+                    console.warn('⚠️ [N2] Ficha', f.id, 'SEM DATA VÁLIDA DA PLANILHA. Todos os campos testados:', {
                         dataEntrada: f.dataEntrada,
-                        dataEntradaN2: f.dataEntradaN2 || camposEspecificos.dataEntradaN2,
-                        dataEntradaAtendimento: f.dataEntradaAtendimento || camposEspecificos.dataEntradaAtendimento,
-                        temCamposEspecificos: !!f.camposEspecificos
+                        dataEntradaN2: f.dataEntradaN2,
+                        dataEntradaAtendimento: f.dataEntradaAtendimento,
+                        camposEspecificos_dataEntradaN2: camposEspecificos.dataEntradaN2,
+                        camposEspecificos_dataEntradaAtendimento: camposEspecificos.dataEntradaAtendimento,
+                        dataCriacao: f.dataCriacao
                     });
                 }
             } else if (this.tipoDemanda === 'chatbot') {
