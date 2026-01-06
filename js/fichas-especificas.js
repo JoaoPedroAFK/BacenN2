@@ -1,5 +1,5 @@
 /* === FICHAS ESPECÍFICAS POR TIPO DE DEMANDA === */
-/* VERSÃO: v2.6.0 | DATA: 2025-02-01 | ALTERAÇÕES: Remover campos bancoOrigem, bancoDestino e statusPortabilidade da ficha N2, adicionar validação de data nos campos de data */
+/* VERSÃO: v2.7.0 | DATA: 2025-02-01 | ALTERAÇÕES: Adicionar campo RDR na edição, listas e email das fichas BACEN */
 
 class FichasEspecificas {
     constructor() {
@@ -67,6 +67,10 @@ class FichasEspecificas {
                     <div class="ficha-secao">
                         <h3>🎯 Detalhes da Reclamação</h3>
                         <div class="ficha-grid">
+                            <div class="ficha-item">
+                                <label>RDR:</label>
+                                <span class="ficha-valor editavel" data-campo="rdr">${dados.rdr || 'Não informado'}</span>
+                            </div>
                             <div class="ficha-item">
                                 <label>Motivo Reduzido:</label>
                                 <span class="ficha-valor editavel" data-campo="motivoReduzido">${dados.motivoReduzido || 'Não informado'}</span>

@@ -920,6 +920,7 @@ function criarCardBacen(ficha) {
             </div>
             <div class="complaint-summary">
                 <div class="complaint-detail"><strong>CPF:</strong> ${ficha.cpf}</div>
+                ${ficha.rdr ? `<div class="complaint-detail"><strong>RDR:</strong> ${ficha.rdr}</div>` : ''}
                 <div class="complaint-detail"><strong>Motivo:</strong> ${ficha.motivoReduzido}</div>
                 <div class="complaint-detail"><strong>Prazo BACEN:</strong> ${formatarData(ficha.prazoBacen)}</div>
                 <div class="complaint-detail"><strong>Responsável:</strong> ${ficha.responsavel}</div>
