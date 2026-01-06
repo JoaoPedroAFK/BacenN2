@@ -419,41 +419,49 @@ class GraficosDetalhados {
             let dataParaMes = null;
             if (this.tipoDemanda === 'n2') {
                 // N2: Priorizar "Data de entrada" da planilha (dataEntrada) conforme solicitado
-                // Verificar se os campos existem e não são vazios
-                // Também verificar dentro de camposEspecificos caso não estejam no nível raiz
+                // IMPORTANTE: NÃO usar dataCriacao pois é a data de importação, não a data do caso
                 const camposEspecificos = f.camposEspecificos || {};
                 
                 // PRIORIDADE 1: Data de entrada da planilha (campo principal solicitado)
-                if (f.dataEntrada && typeof f.dataEntrada === 'string' && f.dataEntrada.trim() !== '') {
+                // Verificar se existe e não está vazio
+                if (f.dataEntrada && typeof f.dataEntrada === 'string' && f.dataEntrada.trim() !== '' && f.dataEntrada !== 'Invalid Date') {
                     dataParaMes = f.dataEntrada;
-                } else if (f.dataEntradaN2 && typeof f.dataEntradaN2 === 'string' && f.dataEntradaN2.trim() !== '') {
+                } 
+                // PRIORIDADE 2: Campos específicos de N2 (podem estar em camposEspecificos ou no nível raiz)
+                else if (f.dataEntradaN2 && typeof f.dataEntradaN2 === 'string' && f.dataEntradaN2.trim() !== '' && f.dataEntradaN2 !== 'Invalid Date') {
                     dataParaMes = f.dataEntradaN2;
-                } else if (camposEspecificos.dataEntradaN2 && typeof camposEspecificos.dataEntradaN2 === 'string' && camposEspecificos.dataEntradaN2.trim() !== '') {
+                } else if (camposEspecificos.dataEntradaN2 && typeof camposEspecificos.dataEntradaN2 === 'string' && camposEspecificos.dataEntradaN2.trim() !== '' && camposEspecificos.dataEntradaN2 !== 'Invalid Date') {
                     dataParaMes = camposEspecificos.dataEntradaN2;
-                } else if (f.dataEntradaAtendimento && typeof f.dataEntradaAtendimento === 'string' && f.dataEntradaAtendimento.trim() !== '') {
+                } else if (f.dataEntradaAtendimento && typeof f.dataEntradaAtendimento === 'string' && f.dataEntradaAtendimento.trim() !== '' && f.dataEntradaAtendimento !== 'Invalid Date') {
                     dataParaMes = f.dataEntradaAtendimento;
-                } else if (camposEspecificos.dataEntradaAtendimento && typeof camposEspecificos.dataEntradaAtendimento === 'string' && camposEspecificos.dataEntradaAtendimento.trim() !== '') {
+                } else if (camposEspecificos.dataEntradaAtendimento && typeof camposEspecificos.dataEntradaAtendimento === 'string' && camposEspecificos.dataEntradaAtendimento.trim() !== '' && camposEspecificos.dataEntradaAtendimento !== 'Invalid Date') {
                     dataParaMes = camposEspecificos.dataEntradaAtendimento;
-                } else if (f.dataReclamacao && typeof f.dataReclamacao === 'string' && f.dataReclamacao.trim() !== '') {
+                } 
+                // PRIORIDADE 3: Outros campos de data da planilha
+                else if (f.dataReclamacao && typeof f.dataReclamacao === 'string' && f.dataReclamacao.trim() !== '' && f.dataReclamacao !== 'Invalid Date') {
                     dataParaMes = f.dataReclamacao;
-                } else if (f.data && typeof f.data === 'string' && f.data.trim() !== '') {
+                } else if (f.data && typeof f.data === 'string' && f.data.trim() !== '' && f.data !== 'Invalid Date') {
                     dataParaMes = f.data;
-                } else if (f.dataCriacao && typeof f.dataCriacao === 'string' && f.dataCriacao.trim() !== '') {
-                    // Usar dataCriacao como último recurso (melhor que nada)
-                    dataParaMes = f.dataCriacao;
                 }
+                // NÃO usar dataCriacao - é a data de importação, não a data do caso
                 
-                // Log para debug (apenas primeiras 5 fichas)
-                if (fichasComData < 5 && dataParaMes) {
-                    console.log('📅 [N2] Ficha', f.id, 'Data usada:', dataParaMes, 'Campos disponíveis:', {
+                // Log para debug (apenas primeiras 10 fichas sem data válida)
+                if (!dataParaMes && fichasSemData < 10) {
+                    console.warn('⚠️ [N2] Ficha sem data válida:', f.id, 'Campos disponíveis:', {
+                        dataEntrada: f.dataEntrada,
                         dataEntradaN2: f.dataEntradaN2 || camposEspecificos.dataEntradaN2,
                         dataEntradaAtendimento: f.dataEntradaAtendimento || camposEspecificos.dataEntradaAtendimento,
-                        dataEntrada: f.dataEntrada,
                         dataReclamacao: f.dataReclamacao,
                         data: f.data,
                         dataCriacao: f.dataCriacao,
                         temCamposEspecificos: !!f.camposEspecificos
                     });
+                } else if (fichasComData < 5 && dataParaMes) {
+                    console.log('✅ [N2] Ficha', f.id, 'Data usada:', dataParaMes, 'Fonte:', 
+                        f.dataEntrada ? 'dataEntrada' : 
+                        (f.dataEntradaN2 || camposEspecificos.dataEntradaN2) ? 'dataEntradaN2' :
+                        (f.dataEntradaAtendimento || camposEspecificos.dataEntradaAtendimento) ? 'dataEntradaAtendimento' :
+                        f.dataReclamacao ? 'dataReclamacao' : 'data');
                 }
             } else if (this.tipoDemanda === 'chatbot') {
                 // Chatbot: dataClienteChatbot (data do cliente com o chatbot) é o campo principal
@@ -499,6 +507,9 @@ class GraficosDetalhados {
         });
         
         console.log(`📊 [graficos-detalhados] Gráfico mensal ${this.tipoDemanda}: ${fichasComData} fichas com data válida, ${fichasSemData} sem data`);
+        if (this.tipoDemanda === 'n2' && fichasSemData > 0) {
+            console.warn(`⚠️ [N2] ${fichasSemData} fichas N2 sem data válida serão ignoradas. Verifique se o campo "Data de entrada" está sendo mapeado corretamente na importação.`);
+        }
 
         // Se não há dados, mostrar mensagem
         if (Object.keys(mesesCount).length === 0) {
