@@ -1,5 +1,5 @@
 /* === SISTEMA DE GRÁFICOS DETALHADOS E FILTRÁVEIS === */
-/* VERSÃO: v2.14.0 | DATA: 2025-02-01 | ALTERAÇÕES: Validar datas antes de usar no gráfico mensal N2, não usar dataCriacao como fallback, adicionar logs detalhados */
+/* VERSÃO: v2.15.0 | DATA: 2025-02-01 | ALTERAÇÕES: Priorizar campo Data da planilha no gráfico mensal Chatbot, validar datas antes de usar */
 
 class GraficosDetalhados {
     constructor(tipoDemanda) {
