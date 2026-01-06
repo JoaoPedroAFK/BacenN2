@@ -1,5 +1,5 @@
 /* === FIREBASE REALTIME DATABASE - SUBSTITUIÇÃO DO SUPABASE === */
-/* VERSÃO: v2.3.0 | DATA: 2025-02-01 | ALTERAÇÕES: Removido salvamento de logs de debug no localStorage para evitar quota excedida */
+/* VERSÃO: v2.4.0 | DATA: 2025-02-01 | ALTERAÇÕES: Adicionada função excluirTodasFichas que mantém estrutura dos caminhos, função global resetarBasesBacenEChatbot */
 
 class FirebaseDB {
     constructor() {
@@ -239,6 +239,82 @@ class FirebaseDB {
             return false;
         }
     }
+
+    /**
+     * Exclui TODAS as fichas de um tipo específico do Firebase, mas MANTÉM a estrutura do caminho
+     * ⚠️ AÇÃO DESTRUTIVA - Use com cuidado!
+     * Isso garante que a próxima importação funcione normalmente, pois o caminho permanece válido
+     * @param {String} tipo - Tipo da ficha: 'bacen', 'n2', ou 'chatbot'
+     * @returns {Promise<Object>} { sucesso: boolean, quantidadeExcluida: number, erro?: string }
+     */
+    async excluirTodasFichas(tipo = 'bacen') {
+        if (!this.inicializado || this.usarLocalStorage) {
+            console.warn('⚠️ Firebase não inicializado ou usando localStorage. Não é possível excluir do Firebase.');
+            return { sucesso: false, quantidadeExcluida: 0, erro: 'Firebase não inicializado' };
+        }
+
+        if (!['bacen', 'n2', 'chatbot'].includes(tipo)) {
+            return { sucesso: false, quantidadeExcluida: 0, erro: 'Tipo inválido. Use: bacen, n2 ou chatbot' };
+        }
+
+        try {
+            const caminho = `fichas_${tipo}`;
+            
+            // Primeiro, contar quantas fichas existem
+            const snapshot = await this.database.ref(caminho).once('value');
+            const dados = snapshot.val() || {};
+            const quantidade = Object.keys(dados).length;
+            
+            if (quantidade === 0) {
+                console.log(`ℹ️ Nenhuma ficha ${tipo} encontrada para excluir.`);
+                // Mesmo sem fichas, garantir que o caminho existe (estrutura preservada)
+                await this.database.ref(caminho).set({});
+                return { sucesso: true, quantidadeExcluida: 0 };
+            }
+
+            console.log(`⚠️ ATENÇÃO: Excluindo ${quantidade} fichas do tipo '${tipo}' do Firebase...`);
+            
+            // IMPORTANTE: Excluir todas as fichas, mas MANTER o caminho com objeto vazio
+            // Isso preserva a estrutura para que a próxima importação funcione normalmente
+            await this.database.ref(caminho).set({});
+            
+            console.log(`✅ ${quantidade} fichas ${tipo} excluídas com sucesso do Firebase!`);
+            console.log(`✅ Estrutura do caminho '${caminho}' preservada (vazia, mas pronta para receber novos dados).`);
+            
+            // Também limpar localStorage relacionado
+            const chavesLocalStorage = [
+                `velotax_reclamacoes_${tipo}`,
+                `velotax_demandas_${tipo}`,
+                `${tipo}-complaints`,
+                `${tipo}-form-draft`
+            ];
+            
+            let limpasLocalStorage = 0;
+            chavesLocalStorage.forEach(chave => {
+                if (localStorage.getItem(chave)) {
+                    localStorage.removeItem(chave);
+                    limpasLocalStorage++;
+                }
+            });
+            
+            if (limpasLocalStorage > 0) {
+                console.log(`✅ ${limpasLocalStorage} chaves do localStorage relacionadas a ${tipo} foram limpas.`);
+            }
+            
+            return { 
+                sucesso: true, 
+                quantidadeExcluida: quantidade,
+                limpasLocalStorage: limpasLocalStorage
+            };
+        } catch (error) {
+            console.error(`❌ Erro ao excluir todas as fichas ${tipo} do Firebase:`, error);
+            return { 
+                sucesso: false, 
+                quantidadeExcluida: 0, 
+                erro: error.message 
+            };
+        }
+    }
 }
 
 // Criar instância global do FirebaseDB
@@ -247,6 +323,66 @@ if (!window.firebaseDB) {
     window.firebaseDB = new FirebaseDB();
     console.log('✅ Instância global do FirebaseDB criada');
 }
+
+// Função global para resetar bases (excluir dados mas manter estrutura)
+/**
+ * Reseta as bases BACEN e Chatbot no Firebase
+ * Exclui todos os dados mas mantém a estrutura dos caminhos para que a próxima importação funcione
+ * 
+ * Uso no console do navegador:
+ *   await resetarBasesBacenEChatbot()
+ * 
+ * Ou para resetar apenas uma:
+ *   await window.firebaseDB.excluirTodasFichas('bacen')
+ *   await window.firebaseDB.excluirTodasFichas('chatbot')
+ */
+window.resetarBasesBacenEChatbot = async function() {
+    console.log('🔄 Iniciando reset das bases BACEN e Chatbot...');
+    console.log('⚠️ ATENÇÃO: Esta operação excluirá TODOS os dados, mas manterá a estrutura dos caminhos.');
+    
+    if (!window.firebaseDB || !window.firebaseDB.inicializado) {
+        console.error('❌ Firebase não está inicializado. Aguarde alguns segundos e tente novamente.');
+        return { sucesso: false, erro: 'Firebase não inicializado' };
+    }
+
+    const resultados = {
+        bacen: null,
+        chatbot: null
+    };
+
+    try {
+        // Resetar BACEN
+        console.log('\n📋 Resetando base BACEN...');
+        resultados.bacen = await window.firebaseDB.excluirTodasFichas('bacen');
+        
+        // Resetar Chatbot
+        console.log('\n📋 Resetando base Chatbot...');
+        resultados.chatbot = await window.firebaseDB.excluirTodasFichas('chatbot');
+        
+        const totalExcluido = (resultados.bacen?.quantidadeExcluida || 0) + (resultados.chatbot?.quantidadeExcluida || 0);
+        
+        if (resultados.bacen?.sucesso && resultados.chatbot?.sucesso) {
+            console.log('\n✅ Reset concluído com sucesso!');
+            console.log(`   - BACEN: ${resultados.bacen.quantidadeExcluida} fichas excluídas`);
+            console.log(`   - Chatbot: ${resultados.chatbot.quantidadeExcluida} fichas excluídas`);
+            console.log(`   - Total: ${totalExcluido} fichas excluídas`);
+            console.log('✅ Estruturas dos caminhos preservadas. Pronto para nova importação!');
+        } else {
+            console.error('\n❌ Erro durante o reset:');
+            if (!resultados.bacen?.sucesso) {
+                console.error('   - BACEN:', resultados.bacen?.erro || 'Erro desconhecido');
+            }
+            if (!resultados.chatbot?.sucesso) {
+                console.error('   - Chatbot:', resultados.chatbot?.erro || 'Erro desconhecido');
+            }
+        }
+        
+        return resultados;
+    } catch (error) {
+        console.error('❌ Erro ao resetar bases:', error);
+        return { sucesso: false, erro: error.message, resultados };
+    }
+};
 
 // Aguardar Firebase carregar e inicializar
 document.addEventListener('DOMContentLoaded', async () => {
@@ -258,6 +394,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const sucesso = await window.firebaseDB.inicializar();
             if (sucesso) {
                 console.log('🎉 Firebase pronto para uso!');
+                console.log('💡 Para resetar bases BACEN e Chatbot, execute: await resetarBasesBacenEChatbot()');
             } else {
                 console.error('❌ Falha na inicialização do Firebase. Usando localStorage.');
             }
