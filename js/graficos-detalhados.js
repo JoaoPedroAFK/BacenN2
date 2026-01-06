@@ -489,15 +489,52 @@ class GraficosDetalhados {
                     });
                 }
             } else if (this.tipoDemanda === 'chatbot') {
-                // Chatbot: dataClienteChatbot (data do cliente com o chatbot) é o campo principal
-                if (f.dataClienteChatbot && f.dataClienteChatbot.trim && f.dataClienteChatbot.trim() !== '') {
-                    dataParaMes = f.dataClienteChatbot;
-                } else if (f.dataEntrada && f.dataEntrada.trim && f.dataEntrada.trim() !== '') {
-                    dataParaMes = f.dataEntrada;
-                } else if (f.dataReclamacao && f.dataReclamacao.trim && f.dataReclamacao.trim() !== '') {
-                    dataParaMes = f.dataReclamacao;
-                } else if (f.data && f.data.trim && f.data.trim() !== '') {
-                    dataParaMes = f.data;
+                // Chatbot: Priorizar campo "Data" da planilha (dataClienteChatbot ou data)
+                // IMPORTANTE: Validar se a data é válida antes de usar
+                if (f.dataClienteChatbot && typeof f.dataClienteChatbot === 'string' && f.dataClienteChatbot.trim() !== '' && f.dataClienteChatbot !== 'Invalid Date') {
+                    const dataTeste = this.extrairMes(f.dataClienteChatbot);
+                    if (dataTeste) {
+                        dataParaMes = f.dataClienteChatbot;
+                    }
+                }
+                
+                // Se dataClienteChatbot não funcionou, tentar campo "Data" direto
+                if (!dataParaMes && f.data && typeof f.data === 'string' && f.data.trim() !== '' && f.data !== 'Invalid Date') {
+                    const dataTeste = this.extrairMes(f.data);
+                    if (dataTeste) {
+                        dataParaMes = f.data;
+                    }
+                }
+                
+                // Outros campos como fallback
+                if (!dataParaMes) {
+                    if (f.dataEntrada && typeof f.dataEntrada === 'string' && f.dataEntrada.trim() !== '' && f.dataEntrada !== 'Invalid Date') {
+                        const dataTeste = this.extrairMes(f.dataEntrada);
+                        if (dataTeste) {
+                            dataParaMes = f.dataEntrada;
+                        }
+                    } else if (f.dataReclamacao && typeof f.dataReclamacao === 'string' && f.dataReclamacao.trim() !== '' && f.dataReclamacao !== 'Invalid Date') {
+                        const dataTeste = this.extrairMes(f.dataReclamacao);
+                        if (dataTeste) {
+                            dataParaMes = f.dataReclamacao;
+                        }
+                    }
+                }
+                
+                // Log para debug (apenas primeiras 10 fichas)
+                if (fichasComData < 10 && dataParaMes) {
+                    console.log('✅ [Chatbot] Ficha', f.id, 'Data usada:', dataParaMes, 'Mês extraído:', this.extrairMes(dataParaMes), 'Fonte:', 
+                        f.dataClienteChatbot && this.extrairMes(f.dataClienteChatbot) ? 'dataClienteChatbot' : 
+                        f.data && this.extrairMes(f.data) ? 'data' :
+                        f.dataEntrada && this.extrairMes(f.dataEntrada) ? 'dataEntrada' : 'dataReclamacao');
+                } else if (!dataParaMes && fichasSemData < 10) {
+                    console.warn('⚠️ [Chatbot] Ficha', f.id, 'SEM DATA VÁLIDA - será ignorada no gráfico. Campos disponíveis:', {
+                        dataClienteChatbot: f.dataClienteChatbot,
+                        data: f.data,
+                        dataEntrada: f.dataEntrada,
+                        dataReclamacao: f.dataReclamacao,
+                        dataCriacao: f.dataCriacao
+                    });
                 }
             } else {
                 // BACEN: dataEntrada é da planilha (mapeado separadamente de dataCriacao)

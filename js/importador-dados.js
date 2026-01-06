@@ -622,7 +622,11 @@ class ImportadorDados {
                 campos.motivoChatbot = obterValor("Motivo") || obterValor("Motivo Reclamação") || '';
                 campos.finalizacao = obterValor("Finalização") || obterValor("Finalizacao") || '';
                 campos.pixLiberado = this.converterBooleano(obterValor("PIX LIBERADO?") || obterValor("PIX LIBERADO") || obterValor("Pix Liberado") || '');
-                campos.dataClienteChatbot = this.formatarData(obterValor("Data") || obterValor("Data Cliente") || obterValor("Data Criação") || '');
+                // IMPORTANTE: Campo "Data" da planilha é o principal para o gráfico mensal
+                // Mapear explicitamente para garantir que seja usado
+                campos.dataClienteChatbot = this.formatarData(obterValor("Data") || obterValor("Data Cliente") || obterValor("Data entrada") || obterValor("Data Criação") || '');
+                // Também mapear para campo "data" genérico para garantir compatibilidade
+                campos.data = this.formatarData(obterValor("Data") || obterValor("Data Cliente") || obterValor("Data entrada") || '');
                 campos.prazoResposta = this.formatarData(obterValor("Prazo Resposta") || obterValor("Prazo") || '');
                 break;
         }
