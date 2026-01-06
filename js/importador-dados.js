@@ -451,7 +451,31 @@ class ImportadorDados {
 
         // Mesclar campos específicos diretamente na ficha (para facilitar acesso)
         const camposEspecificos = this.processarCamposEspecificos(dadoBruto, tipoDemanda, obterValor);
-        Object.assign(ficha, camposEspecificos);
+        
+        // Mesclar campos específicos, mas NÃO sobrescrever campos principais se estiverem vazios
+        // IMPORTANTE: Para N2, garantir que dataEntrada não seja sobrescrita por valor vazio
+        Object.keys(camposEspecificos).forEach(key => {
+            const valorEspecifico = camposEspecificos[key];
+            const valorPrincipal = ficha[key];
+            
+            // Para campos de data em N2, lógica especial
+            if ((key === 'dataEntrada' || key === 'dataEntradaN2' || key === 'dataEntradaAtendimento') && tipoDemanda === 'n2') {
+                // Se o específico tem valor válido, usar ele
+                if (valorEspecifico && valorEspecifico !== '' && valorEspecifico !== 'Invalid Date') {
+                    ficha[key] = valorEspecifico;
+                }
+                // Se o específico está vazio mas o principal tem valor, manter o principal
+                // (não fazer nada, já está correto)
+            } else {
+                // Para outros campos, mesclar normalmente
+                // Mas não sobrescrever se o principal já tem valor e o específico está vazio
+                if (valorPrincipal && valorPrincipal !== '' && (!valorEspecifico || valorEspecifico === '')) {
+                    // Manter valor principal, não sobrescrever
+                    return;
+                }
+                ficha[key] = valorEspecifico;
+            }
+        });
 
         return ficha;
     }
