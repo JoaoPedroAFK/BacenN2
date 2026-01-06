@@ -1,5 +1,5 @@
 /* === FICHAS ESPECÍFICAS POR TIPO DE DEMANDA === */
-/* VERSÃO: v2.5.0 | DATA: 2025-02-01 | ALTERAÇÕES: Corrigir erro de sintaxe - tornar salvarFicha() async para permitir uso de await */
+/* VERSÃO: v2.6.0 | DATA: 2025-02-01 | ALTERAÇÕES: Remover campos bancoOrigem, bancoDestino e statusPortabilidade da ficha N2, adicionar validação de data nos campos de data */
 
 class FichasEspecificas {
     constructor() {
@@ -249,18 +249,6 @@ class FichasEspecificas {
                             <div class="ficha-item">
                                 <label>Acionou a central?</label>
                                 <span class="ficha-valor editavel" data-campo="acionouCentral">${dados.acionouCentral ? 'Sim' : 'Não'}</span>
-                            </div>
-                            <div class="ficha-item">
-                                <label>Banco Origem:</label>
-                                <span class="ficha-valor editavel" data-campo="bancoOrigem">${dados.bancoOrigem || 'Não informado'}</span>
-                            </div>
-                            <div class="ficha-item">
-                                <label>Banco Destino:</label>
-                                <span class="ficha-valor editavel" data-campo="bancoDestino">${dados.bancoDestino || 'Não informado'}</span>
-                            </div>
-                            <div class="ficha-item">
-                                <label>Status Portabilidade:</label>
-                                <span class="ficha-valor editavel" data-campo="statusPortabilidade">${dados.statusPortabilidade || 'Não informado'}</span>
                             </div>
                             <div class="ficha-item">
                                 <label>PIX liberado ou excluído?</label>
@@ -602,8 +590,8 @@ class FichasEspecificas {
                     }).join('');
                     elemento.innerHTML = `<select class="velohub-input" style="width: 100%; padding: 8px; border: 1px solid var(--azul-royal); border-radius: 4px; font-family: 'Poppins', sans-serif;">${optionsHTML}</select>`;
                 }
-                // Campos de data
-                else if (campo && (campo.includes('data') || campo.includes('Data') || campo.includes('prazo') || campo.includes('Prazo'))) {
+                // Campos de data (incluindo finalizadoEm)
+                else if (campo && (campo.includes('data') || campo.includes('Data') || campo.includes('prazo') || campo.includes('Prazo') || campo === 'finalizadoEm')) {
                     const valorAtual = elemento.textContent.trim();
                     let dataISO = '';
                     if (valorAtual && valorAtual !== 'Não informada' && valorAtual !== 'Não informado') {
@@ -614,7 +602,18 @@ class FichasEspecificas {
                             dataISO = valorAtual.split('T')[0]; // Se já estiver em formato ISO
                         }
                     }
-                    elemento.innerHTML = `<input type="date" class="velohub-input" value="${dataISO}" style="width: 100%; padding: 8px; border: 1px solid var(--azul-royal); border-radius: 4px;">`;
+                    const inputId = `ficha-input-${campo}-${this.fichaAtual?.id || 'temp'}`;
+                    elemento.innerHTML = `<input type="date" id="${inputId}" class="velohub-input" value="${dataISO}" style="width: 100%; padding: 8px; border: 1px solid var(--azul-royal); border-radius: 4px;" onchange="fichasEspecificas.validarDataInput(this, '${campo}')">`;
+                    
+                    // Adicionar validação em tempo real
+                    setTimeout(() => {
+                        const input = document.getElementById(inputId);
+                        if (input) {
+                            input.addEventListener('blur', function() {
+                                fichasEspecificas.validarDataInput(this, campo);
+                            });
+                        }
+                    }, 100);
                 }
                 // Campo observações - textarea
                 else if (campo === 'observacoes') {
@@ -695,6 +694,66 @@ class FichasEspecificas {
         div.textContent = text;
         return div.innerHTML;
     }
+    
+    // === VALIDAR DATA ===
+    validarDataInput(input, campo) {
+        if (!input || !input.value) {
+            // Data vazia é válida (opcional)
+            input.style.borderColor = 'var(--azul-royal)';
+            input.style.backgroundColor = '';
+            return true;
+        }
+        
+        const dataISO = input.value;
+        const [ano, mes, dia] = dataISO.split('-').map(Number);
+        
+        // Validar se a data é válida
+        const data = new Date(ano, mes - 1, dia);
+        const dataValida = data.getFullYear() === ano && 
+                          data.getMonth() === mes - 1 && 
+                          data.getDate() === dia;
+        
+        // Validar se não é muito antiga (antes de 1900)
+        const dataMinima = new Date(1900, 0, 1);
+        const naoMuitoAntiga = data >= dataMinima;
+        
+        // Validar se não é muito futura (até 1 ano no futuro permitido)
+        const hoje = new Date();
+        const limiteFuturo = new Date();
+        limiteFuturo.setFullYear(limiteFuturo.getFullYear() + 1);
+        const naoMuitoFutura = data <= limiteFuturo;
+        
+        if (!dataValida) {
+            input.style.borderColor = '#FF0000';
+            input.style.backgroundColor = '#FFE5E5';
+            this.mostrarNotificacao('Data inválida. Verifique o formato.', 'erro');
+            return false;
+        }
+        
+        if (!naoMuitoAntiga) {
+            input.style.borderColor = '#FF8800';
+            input.style.backgroundColor = '#FFF5E5';
+            this.mostrarNotificacao('Data muito antiga. Use uma data a partir de 1900.', 'erro');
+            return false;
+        }
+        
+        if (!naoMuitoFutura) {
+            input.style.borderColor = '#FF8800';
+            input.style.backgroundColor = '#FFF5E5';
+            this.mostrarNotificacao('Data muito distante no futuro. Use uma data até 1 ano à frente.', 'erro');
+            return false;
+        }
+        
+        // Data válida
+        input.style.borderColor = '#00AA00';
+        input.style.backgroundColor = '#E5FFE5';
+        setTimeout(() => {
+            input.style.borderColor = 'var(--azul-royal)';
+            input.style.backgroundColor = '';
+        }, 2000);
+        
+        return true;
+    }
 
     // === SALVAR FICHA ===
     async salvarFicha() {
@@ -720,12 +779,17 @@ class FichasEspecificas {
                     valorNovo = select.value;
                     // Para status, o valor já está no formato correto (nao-iniciado, em-tratativa, etc)
                 }
-                // Input date
-                else {
-                    const inputDate = elemento.querySelector('input[type="date"]');
-                    if (inputDate) {
-                        valorNovo = inputDate.value || null;
-                    }
+                    // Input date (incluindo finalizadoEm)
+                    else {
+                        const inputDate = elemento.querySelector('input[type="date"]');
+                        if (inputDate) {
+                            // Validar data antes de salvar
+                            if (inputDate.value && !this.validarDataInput(inputDate, campo)) {
+                                // Se a validação falhar, não salvar
+                                return;
+                            }
+                            valorNovo = inputDate.value || null;
+                        }
                     // Textarea (observações)
                     else {
                         const textarea = elemento.querySelector('textarea');
@@ -750,8 +814,8 @@ class FichasEspecificas {
                 this.fichaAtual.pixLiberado = valorNovo === 'Liberado';
             }
             
-            // Converte datas de formato BR para ISO se necessário
-            if (campo && (campo.includes('data') || campo.includes('Data') || campo.includes('prazo') || campo.includes('Prazo'))) {
+            // Converte datas de formato BR para ISO se necessário (incluindo finalizadoEm)
+            if (campo && (campo.includes('data') || campo.includes('Data') || campo.includes('prazo') || campo.includes('Prazo') || campo === 'finalizadoEm')) {
                 if (valorNovo && !valorNovo.includes('-') && valorNovo.includes('/')) {
                     const [dia, mes, ano] = valorNovo.split('/');
                     if (dia && mes && ano) {
@@ -1071,9 +1135,6 @@ class FichasEspecificas {
         <h3><strong>🔄 CAMPOS ESPECÍFICOS N2</strong></h3>
         <div class="campo"><span class="label">N2 Portabilidade?</span> <span class="valor"><strong>${dados.n2Portabilidade ? 'Sim' : 'Não'}</strong></span></div>
         <div class="campo"><span class="label">Acionou a central?</span> <span class="valor"><strong>${dados.acionouCentral ? 'Sim' : 'Não'}</strong></span></div>
-        <div class="campo"><span class="label">Banco Origem:</span> <span class="valor"><strong>${dados.bancoOrigem || 'Não informado'}</strong></span></div>
-        <div class="campo"><span class="label">Banco Destino:</span> <span class="valor"><strong>${dados.bancoDestino || 'Não informado'}</strong></span></div>
-        <div class="campo"><span class="label">Status Portabilidade:</span> <span class="valor"><strong>${dados.statusPortabilidade || 'Não informado'}</strong></span></div>
         <div class="campo"><span class="label">PIX liberado ou excluído?</span> <span class="valor"><strong>${dados.pixLiberado ? 'Sim' : 'Não'}</strong></span></div>
         <div class="campo"><span class="label">Enviar para cobrança?</span> <span class="valor"><strong>${dados.enviarCobranca ? 'Sim' : 'Não'}</strong></span></div>
     </div>
