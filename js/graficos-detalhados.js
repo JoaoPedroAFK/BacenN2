@@ -1,5 +1,5 @@
 /* === SISTEMA DE GRÁFICOS DETALHADOS E FILTRÁVEIS === */
-/* VERSÃO: v2.13.0 | DATA: 2025-02-01 | ALTERAÇÕES: Substituir gráfico Canal por Agente no Chatbot, priorizar Data de entrada no gráfico mensal N2 */
+/* VERSÃO: v2.14.0 | DATA: 2025-02-01 | ALTERAÇÕES: Remover fallback para dataCriacao no gráfico mensal N2, melhorar logs de debug */
 
 class GraficosDetalhados {
     constructor(tipoDemanda) {
