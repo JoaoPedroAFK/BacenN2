@@ -1275,6 +1275,13 @@ function inicializarChatbotPage() {
             if (secaoLista && secaoLista.classList.contains('active')) {
                 renderizarListaChatbot();
             }
+            // Recarregar gráficos do Chatbot
+            if (window.graficosDetalhadosChatbot) {
+                console.log('🔄 [CHATBOT] Recarregando gráficos após salvar reclamação...');
+                await window.graficosDetalhadosChatbot.carregarDados();
+                window.graficosDetalhadosChatbot.renderizarGraficos();
+                console.log('✅ [CHATBOT] Gráficos recarregados após salvar reclamação');
+            }
         }
     });
     
@@ -1289,6 +1296,15 @@ function inicializarChatbotPage() {
             const secaoLista = document.getElementById('lista-chatbot');
             if (secaoLista && secaoLista.classList.contains('active')) {
                 renderizarListaChatbot();
+            }
+            // Recarregar gráficos do Chatbot
+            if (window.graficosDetalhadosChatbot) {
+                console.log('🔄 [CHATBOT] Recarregando gráficos após importação...');
+                await window.graficosDetalhadosChatbot.carregarDados();
+                window.graficosDetalhadosChatbot.renderizarGraficos();
+                console.log('✅ [CHATBOT] Gráficos recarregados após importação');
+            } else {
+                console.warn('⚠️ [CHATBOT] window.graficosDetalhadosChatbot não está disponível');
             }
         }
     });
