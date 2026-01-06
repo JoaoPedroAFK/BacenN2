@@ -1,5 +1,5 @@
 /* === SISTEMA DE GRÁFICOS DETALHADOS E FILTRÁVEIS === */
-/* VERSÃO: v2.16.0 | DATA: 2025-02-01 | ALTERAÇÕES: Filtrar gráfico mensal N2 para mostrar apenas casos importados (com data da planilha), ignorar casos inseridos manualmente */
+/* VERSÃO: v2.17.0 | DATA: 2025-02-01 | ALTERAÇÕES: Melhorar filtro do gráfico mensal N2 para identificar casos importados usando campos processados da planilha (tentativas, protocolos, cpfTratado) e diferença entre dataCriacao e dataEntrada */
 
 class GraficosDetalhados {
     constructor(tipoDemanda) {
