@@ -945,7 +945,7 @@ window.criarCardN2 = function criarCardN2(ficha) {
                     <span class="n2-badge">🔄 N2</span>
                 </div>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <div class="complaint-status ${statusClass}">${statusLabel}</div>
+                <div class="complaint-status ${statusClass}">${statusLabel}</div>
                     <button class="btn-excluir-ficha" onclick="event.stopPropagation(); excluirFichaN2('${ficha.id}')" title="Excluir reclamação">
                         🗑️
                     </button>
@@ -974,17 +974,20 @@ function abrirFichaN2(id) {
     if (window.fichasEspecificas) {
         window.fichasEspecificas.abrirFicha(ficha);
     } else if (window.FichasEspecificas) {
-        window.fichasEspecificas = new FichasEspecificas();
+        // Criar instância se não existir
+        window.fichasEspecificas = new window.FichasEspecificas();
         window.fichasEspecificas.abrirFicha(ficha);
     } else {
+        // Aguardar um pouco mais e tentar novamente
         setTimeout(() => {
             if (window.FichasEspecificas) {
-                window.fichasEspecificas = new FichasEspecificas();
+                window.fichasEspecificas = new window.FichasEspecificas();
                 window.fichasEspecificas.abrirFicha(ficha);
             } else {
-                mostrarAlerta('Sistema de fichas não disponível. Recarregue a página.', 'error');
+                console.error('❌ FichasEspecificas não disponível. Verifique se js/fichas-especificas.js está carregado.');
+                mostrarAlerta('Sistema de fichas não disponível. Verifique o console para mais detalhes.', 'error');
             }
-        }, 200);
+        }, 500);
     }
 }
 

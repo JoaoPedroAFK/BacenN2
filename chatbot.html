@@ -88,11 +88,11 @@
                 } else if (secaoId === 'dashboard-chatbot') {
                     // Aguardar um pouco para garantir que armazenamentoReclamacoes está pronto
                     setTimeout(async () => {
-                        if (typeof window.atualizarDashboardChatbot === 'function') {
+                    if (typeof window.atualizarDashboardChatbot === 'function') {
                             await window.atualizarDashboardChatbot();
-                        } else if (typeof atualizarDashboardChatbot === 'function') {
+                    } else if (typeof atualizarDashboardChatbot === 'function') {
                             await atualizarDashboardChatbot();
-                        }
+                    }
                     }, 500);
                 }
             };
@@ -655,8 +655,38 @@
                 } else {
                     console.error('❌ armazenamentoReclamacoes não disponível');
                 }
+            } else if (window.FichasEspecificas) {
+                // Criar instância se não existir
+                window.fichasEspecificas = new window.FichasEspecificas();
+                if (window.armazenamentoReclamacoes) {
+                    window.armazenamentoReclamacoes.obterPorId('chatbot', id).then(ficha => {
+                        if (ficha) {
+                            window.fichasEspecificas.abrirFicha(ficha);
+                        } else {
+                            console.error('❌ Ficha não encontrada:', id);
+                        }
+                    });
+                } else {
+                    console.error('❌ armazenamentoReclamacoes não disponível');
+                }
             } else {
-                console.warn('⚠️ Nenhum sistema de abertura de ficha disponível');
+                // Aguardar um pouco e tentar novamente
+                setTimeout(() => {
+                    if (window.FichasEspecificas) {
+                        window.fichasEspecificas = new window.FichasEspecificas();
+                        if (window.armazenamentoReclamacoes) {
+                            window.armazenamentoReclamacoes.obterPorId('chatbot', id).then(ficha => {
+                                if (ficha) {
+                                    window.fichasEspecificas.abrirFicha(ficha);
+                                } else {
+                                    console.error('❌ Ficha não encontrada:', id);
+                                }
+                            });
+                        }
+                    } else {
+                        console.error('❌ FichasEspecificas não disponível. Verifique se js/fichas-especificas.js está carregado.');
+                    }
+                }, 500);
             }
         };
         

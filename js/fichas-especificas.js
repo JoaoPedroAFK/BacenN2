@@ -1,5 +1,5 @@
 /* === FICHAS ESPECÍFICAS POR TIPO DE DEMANDA === */
-/* VERSÃO: v2.2.0 | DATA: 2025-02-01 | ALTERAÇÕES: Reescrever toggleEdicao() para usar mesmo formato dos formulários de criação (radio buttons, selects, checkboxes, textareas) */
+/* VERSÃO: v2.3.0 | DATA: 2025-02-01 | ALTERAÇÕES: Garantir que classe FichasEspecificas esteja disponível globalmente imediatamente após carregar script */
 
 class FichasEspecificas {
     constructor() {
@@ -1485,11 +1485,24 @@ class FichasEspecificas {
     }
 }
 
-// Inicializa
+// Expor a classe globalmente IMEDIATAMENTE (antes do DOMContentLoaded)
+window.FichasEspecificas = FichasEspecificas;
+
+// Inicializa instância quando DOM estiver pronto
 let fichasEspecificas;
-document.addEventListener('DOMContentLoaded', () => {
-    fichasEspecificas = new FichasEspecificas();
-    window.fichasEspecificas = fichasEspecificas;
-    window.FichasEspecificas = FichasEspecificas;
-});
+function inicializarFichasEspecificas() {
+    if (!fichasEspecificas) {
+        fichasEspecificas = new FichasEspecificas();
+        window.fichasEspecificas = fichasEspecificas;
+    }
+    return fichasEspecificas;
+}
+
+// Inicializar quando DOM estiver pronto
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarFichasEspecificas);
+} else {
+    // DOM já está pronto, inicializar imediatamente
+    inicializarFichasEspecificas();
+}
 
