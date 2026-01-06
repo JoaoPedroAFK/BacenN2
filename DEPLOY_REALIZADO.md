@@ -1,5 +1,51 @@
 # ✅ Deploy Realizado - BacenN2
 
+## 📋 Data/Hora: 2025-02-01 (Deploy - Correção Disponibilidade Sistema de Fichas)
+
+### 1. **Commit - Correção Disponibilidade Sistema de Fichas**
+- ✅ Classe `FichasEspecificas` agora exposta globalmente imediatamente após carregar script
+- ✅ Corrigido erro "Sistema de fichas não disponível. Recarregue a página."
+- ✅ Melhorada lógica de criação de instância nas funções de abertura de fichas
+- ✅ Timeout aumentado de 200ms para 500ms para aguardar carregamento
+- ✅ Mensagens de erro mais informativas com logs no console
+- ✅ Correção aplicada em bacen-page.js, n2-page.js e chatbot.html
+- **Versão**: v2.3.0
+
+### 2. **Push para GitHub**
+- ✅ Push realizado com sucesso para `origin/main`
+- ✅ Repositório: https://github.com/JoaoPedroAFK/BacenN2.git
+- ✅ Branch: `main`
+- **Commit**: `e908438`
+- **Mensagem**: "Corrigir disponibilidade do sistema de fichas: expor classe FichasEspecificas imediatamente após carregar script - v2.3.0"
+- **Status**: ✅ **CONCLUÍDO**
+
+### 2.1. **Deploy Firebase**
+- ⚠️ Deploy pendente - requer autenticação manual
+- ⚠️ Execute: `firebase login --reauth` (abrirá navegador)
+- ⚠️ Depois execute: `firebase deploy --only hosting`
+- **Status**: ⏳ **PENDENTE - REQUER AUTENTICAÇÃO**
+
+### 3. **Arquivos Modificados**
+```
+- js/fichas-especificas.js (MODIFICADO - v2.3.0 - expor classe globalmente imediatamente)
+- js/bacen-page.js (MODIFICADO - melhorar lógica de criação de instância)
+- js/n2-page.js (MODIFICADO - melhorar lógica de criação de instância)
+- chatbot.html (MODIFICADO - melhorar lógica de criação de instância)
+```
+
+### 4. **Correções Aplicadas**
+- ✅ Classe `FichasEspecificas` disponível imediatamente após script carregar
+- ✅ Instância criada automaticamente quando necessário
+- ✅ Fichas abrem corretamente mesmo se DOM ainda não estiver pronto
+- ✅ Mensagens de erro mais claras e informativas
+
+### 5. **Problemas Resolvidos**
+- ✅ Erro "Sistema de fichas não disponível. Recarregue a página." ao clicar em fichas
+- ✅ Problema de timing na inicialização do sistema de fichas
+- ✅ Classe não disponível quando usuário clicava em ficha antes do DOM estar pronto
+
+---
+
 ## 📋 Data/Hora: 2025-02-01 (Décimo Quinto Deploy - Correção Quota Excedida localStorage)
 
 ### 1. **Commit - Correção Quota Excedida localStorage**
