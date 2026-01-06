@@ -1,5 +1,5 @@
 /* === SISTEMA DE GRÁFICOS DETALHADOS E FILTRÁVEIS === */
-/* VERSÃO: v2.14.0 | DATA: 2025-02-01 | ALTERAÇÕES: Remover fallback para dataCriacao no gráfico mensal N2, melhorar logs de debug */
+/* VERSÃO: v2.13.0 | DATA: 2025-02-01 | ALTERAÇÕES: Substituir gráfico Canal por Agente no Chatbot, priorizar Data de entrada no gráfico mensal N2 */
 
 class GraficosDetalhados {
     constructor(tipoDemanda) {
@@ -419,35 +419,66 @@ class GraficosDetalhados {
             let dataParaMes = null;
             if (this.tipoDemanda === 'n2') {
                 // N2: Priorizar "Data de entrada" da planilha (dataEntrada) conforme solicitado
-                // IMPORTANTE: NÃO usar dataCriacao pois é a data de importação, não a data do caso
+                // Verificar se os campos existem e não são vazios
+                // Também verificar dentro de camposEspecificos caso não estejam no nível raiz
                 const camposEspecificos = f.camposEspecificos || {};
                 
                 // PRIORIDADE 1: Data de entrada da planilha (campo principal solicitado)
-                // Verificar se existe e não está vazio
+                // IMPORTANTE: Verificar se não é uma data inválida ou vazia
                 if (f.dataEntrada && typeof f.dataEntrada === 'string' && f.dataEntrada.trim() !== '' && f.dataEntrada !== 'Invalid Date') {
-                    dataParaMes = f.dataEntrada;
-                } 
-                // PRIORIDADE 2: Campos específicos de N2 (podem estar em camposEspecificos ou no nível raiz)
-                else if (f.dataEntradaN2 && typeof f.dataEntradaN2 === 'string' && f.dataEntradaN2.trim() !== '' && f.dataEntradaN2 !== 'Invalid Date') {
-                    dataParaMes = f.dataEntradaN2;
-                } else if (camposEspecificos.dataEntradaN2 && typeof camposEspecificos.dataEntradaN2 === 'string' && camposEspecificos.dataEntradaN2.trim() !== '' && camposEspecificos.dataEntradaN2 !== 'Invalid Date') {
-                    dataParaMes = camposEspecificos.dataEntradaN2;
-                } else if (f.dataEntradaAtendimento && typeof f.dataEntradaAtendimento === 'string' && f.dataEntradaAtendimento.trim() !== '' && f.dataEntradaAtendimento !== 'Invalid Date') {
-                    dataParaMes = f.dataEntradaAtendimento;
-                } else if (camposEspecificos.dataEntradaAtendimento && typeof camposEspecificos.dataEntradaAtendimento === 'string' && camposEspecificos.dataEntradaAtendimento.trim() !== '' && camposEspecificos.dataEntradaAtendimento !== 'Invalid Date') {
-                    dataParaMes = camposEspecificos.dataEntradaAtendimento;
-                } 
-                // PRIORIDADE 3: Outros campos de data da planilha
-                else if (f.dataReclamacao && typeof f.dataReclamacao === 'string' && f.dataReclamacao.trim() !== '' && f.dataReclamacao !== 'Invalid Date') {
-                    dataParaMes = f.dataReclamacao;
-                } else if (f.data && typeof f.data === 'string' && f.data.trim() !== '' && f.data !== 'Invalid Date') {
-                    dataParaMes = f.data;
+                    const dataTeste = this.extrairMes(f.dataEntrada);
+                    if (dataTeste) {
+                        dataParaMes = f.dataEntrada;
+                    }
                 }
-                // NÃO usar dataCriacao - é a data de importação, não a data do caso
                 
-                // Log para debug (apenas primeiras 10 fichas sem data válida)
-                if (!dataParaMes && fichasSemData < 10) {
-                    console.warn('⚠️ [N2] Ficha sem data válida:', f.id, 'Campos disponíveis:', {
+                // Se dataEntrada não funcionou, tentar outros campos
+                if (!dataParaMes) {
+                    if (f.dataEntradaN2 && typeof f.dataEntradaN2 === 'string' && f.dataEntradaN2.trim() !== '' && f.dataEntradaN2 !== 'Invalid Date') {
+                        const dataTeste = this.extrairMes(f.dataEntradaN2);
+                        if (dataTeste) {
+                            dataParaMes = f.dataEntradaN2;
+                        }
+                    } else if (camposEspecificos.dataEntradaN2 && typeof camposEspecificos.dataEntradaN2 === 'string' && camposEspecificos.dataEntradaN2.trim() !== '' && camposEspecificos.dataEntradaN2 !== 'Invalid Date') {
+                        const dataTeste = this.extrairMes(camposEspecificos.dataEntradaN2);
+                        if (dataTeste) {
+                            dataParaMes = camposEspecificos.dataEntradaN2;
+                        }
+                    } else if (f.dataEntradaAtendimento && typeof f.dataEntradaAtendimento === 'string' && f.dataEntradaAtendimento.trim() !== '' && f.dataEntradaAtendimento !== 'Invalid Date') {
+                        const dataTeste = this.extrairMes(f.dataEntradaAtendimento);
+                        if (dataTeste) {
+                            dataParaMes = f.dataEntradaAtendimento;
+                        }
+                    } else if (camposEspecificos.dataEntradaAtendimento && typeof camposEspecificos.dataEntradaAtendimento === 'string' && camposEspecificos.dataEntradaAtendimento.trim() !== '' && camposEspecificos.dataEntradaAtendimento !== 'Invalid Date') {
+                        const dataTeste = this.extrairMes(camposEspecificos.dataEntradaAtendimento);
+                        if (dataTeste) {
+                            dataParaMes = camposEspecificos.dataEntradaAtendimento;
+                        }
+                    } else if (f.dataReclamacao && typeof f.dataReclamacao === 'string' && f.dataReclamacao.trim() !== '' && f.dataReclamacao !== 'Invalid Date') {
+                        const dataTeste = this.extrairMes(f.dataReclamacao);
+                        if (dataTeste) {
+                            dataParaMes = f.dataReclamacao;
+                        }
+                    } else if (f.data && typeof f.data === 'string' && f.data.trim() !== '' && f.data !== 'Invalid Date') {
+                        const dataTeste = this.extrairMes(f.data);
+                        if (dataTeste) {
+                            dataParaMes = f.data;
+                        }
+                    }
+                }
+                
+                // NÃO usar dataCriacao - é a data de importação, não a data do caso
+                // Se não tiver nenhuma data válida, a ficha será ignorada no gráfico
+                
+                // Log para debug (apenas primeiras 10 fichas)
+                if (fichasComData < 10 && dataParaMes) {
+                    console.log('✅ [N2] Ficha', f.id, 'Data usada:', dataParaMes, 'Mês extraído:', this.extrairMes(dataParaMes), 'Fonte:', 
+                        f.dataEntrada && this.extrairMes(f.dataEntrada) ? 'dataEntrada' : 
+                        (f.dataEntradaN2 && this.extrairMes(f.dataEntradaN2)) ? 'dataEntradaN2' :
+                        (f.dataEntradaAtendimento && this.extrairMes(f.dataEntradaAtendimento)) ? 'dataEntradaAtendimento' :
+                        f.dataReclamacao && this.extrairMes(f.dataReclamacao) ? 'dataReclamacao' : 'data');
+                } else if (!dataParaMes && fichasSemData < 10) {
+                    console.warn('⚠️ [N2] Ficha', f.id, 'SEM DATA VÁLIDA - será ignorada no gráfico. Campos disponíveis:', {
                         dataEntrada: f.dataEntrada,
                         dataEntradaN2: f.dataEntradaN2 || camposEspecificos.dataEntradaN2,
                         dataEntradaAtendimento: f.dataEntradaAtendimento || camposEspecificos.dataEntradaAtendimento,
@@ -456,12 +487,6 @@ class GraficosDetalhados {
                         dataCriacao: f.dataCriacao,
                         temCamposEspecificos: !!f.camposEspecificos
                     });
-                } else if (fichasComData < 5 && dataParaMes) {
-                    console.log('✅ [N2] Ficha', f.id, 'Data usada:', dataParaMes, 'Fonte:', 
-                        f.dataEntrada ? 'dataEntrada' : 
-                        (f.dataEntradaN2 || camposEspecificos.dataEntradaN2) ? 'dataEntradaN2' :
-                        (f.dataEntradaAtendimento || camposEspecificos.dataEntradaAtendimento) ? 'dataEntradaAtendimento' :
-                        f.dataReclamacao ? 'dataReclamacao' : 'data');
                 }
             } else if (this.tipoDemanda === 'chatbot') {
                 // Chatbot: dataClienteChatbot (data do cliente com o chatbot) é o campo principal
