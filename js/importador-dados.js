@@ -1,5 +1,5 @@
 /* === SCRIPT DE IMPORTAÇÃO DE DADOS - PLANILHA VELOTAX === */
-/* VERSÃO: v2.3.0 | DATA: 2025-02-01 | ALTERAÇÕES: Mapear dataEntrada separadamente de dataCriacao para usar data da planilha no gráfico mensal */
+/* VERSÃO: v2.4.0 | DATA: 2025-02-01 | ALTERAÇÕES: Adicionar suporte para aba "Planilha Chatbot" no filtro de abas permitidas */
 
 class ImportadorDados {
     constructor() {
