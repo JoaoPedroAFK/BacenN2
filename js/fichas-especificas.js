@@ -1,5 +1,5 @@
 /* === FICHAS ESPECÍFICAS POR TIPO DE DEMANDA === */
-/* VERSÃO: v2.4.0 | DATA: 2025-02-01 | ALTERAÇÕES: Adicionar logs de debug e verificação robusta de disponibilidade da classe, tentativas múltiplas de carregamento */
+/* VERSÃO: v2.5.0 | DATA: 2025-02-01 | ALTERAÇÕES: Corrigir erro de sintaxe - tornar salvarFicha() async para permitir uso de await */
 
 class FichasEspecificas {
     constructor() {
@@ -697,7 +697,7 @@ class FichasEspecificas {
     }
 
     // === SALVAR FICHA ===
-    salvarFicha() {
+    async salvarFicha() {
         if (!this.fichaAtual) return;
         
         const valores = document.querySelectorAll('.ficha-valor.editavel');
