@@ -1,5 +1,5 @@
 /* === FIREBASE REALTIME DATABASE - SUBSTITUIÇÃO DO SUPABASE === */
-/* VERSÃO: v2.4.0 | DATA: 2025-02-01 | ALTERAÇÕES: Adicionada função excluirTodasFichas que mantém estrutura dos caminhos, função global resetarBasesBacenEChatbot */
+/* VERSÃO: v2.5.0 | DATA: 2025-02-01 | ALTERAÇÕES: Adicionado método excluir() para remover fichas individuais do Firebase */
 
 class FirebaseDB {
     constructor() {
@@ -107,6 +107,43 @@ class FirebaseDB {
             if (error.code === 'PERMISSION_DENIED') {
                 console.error(`🚨 ERRO DE PERMISSÃO! Verifique as regras de segurança no Firebase Console!`);
                 console.error(`   Caminho tentado: fichas_${tipo}/${ficha.id}`);
+            }
+            return false;
+        }
+    }
+
+    // Excluir uma ficha
+    async excluir(tipo, id) {
+        console.log(`🗑️ [FirebaseDB.excluir] Chamado - tipo: ${tipo}, ID: ${id}`);
+        console.log(`🔍 [FirebaseDB.excluir] Estado: inicializado=${this.inicializado}, usarLocalStorage=${this.usarLocalStorage}`);
+        
+        if (!this.inicializado || this.usarLocalStorage) {
+            console.warn(`⚠️ Firebase não inicializado ou usando localStorage. Tipo: ${tipo}, ID: ${id}`);
+            return false;
+        }
+
+        if (!this.database) {
+            console.error(`❌ this.database não está disponível!`);
+            return false;
+        }
+
+        try {
+            const caminho = `fichas_${tipo}/${id}`;
+            console.log(`🗑️ [FirebaseDB.excluir] Excluindo em: ${caminho}`);
+            
+            await this.database.ref(caminho).remove();
+            console.log(`✅ [FirebaseDB.excluir] Ficha ${tipo} excluída do Firebase: ${id}`);
+            
+            return true;
+        } catch (error) {
+            console.error(`❌ [FirebaseDB.excluir] Erro ao excluir ficha ${tipo} no Firebase:`, error);
+            console.error(`   Caminho: fichas_${tipo}/${id}`);
+            console.error(`   Erro:`, error.message);
+            console.error(`   Stack:`, error.stack);
+            
+            if (error.code === 'PERMISSION_DENIED') {
+                console.error(`🚨 ERRO DE PERMISSÃO! Verifique as regras de segurança no Firebase Console!`);
+                console.error(`   Caminho tentado: fichas_${tipo}/${id}`);
             }
             return false;
         }

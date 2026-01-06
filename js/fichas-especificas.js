@@ -1,4 +1,5 @@
 /* === FICHAS ESPECÍFICAS POR TIPO DE DEMANDA === */
+/* VERSÃO: v2.2.0 | DATA: 2025-02-01 | ALTERAÇÕES: Reescrever toggleEdicao() para usar mesmo formato dos formulários de criação (radio buttons, selects, checkboxes, textareas) */
 
 class FichasEspecificas {
     constructor() {
@@ -110,12 +111,12 @@ class FichasEspecificas {
                                 <label>Status do contrato</label>
                                 <div style="display: flex; gap: 16px; margin-top: 8px;">
                                     <label class="checkbox-label">
-                                        <input type="checkbox" ${dados.statusContratoQuitado ? 'checked' : ''} disabled>
+                                        <input type="checkbox" id="ficha-status-contrato-quitado-${dados.id}" data-campo="statusContratoQuitado" ${dados.statusContratoQuitado ? 'checked' : ''} disabled>
                                         <span class="checkmark"></span>
                                         Quitado
                                     </label>
                                     <label class="checkbox-label">
-                                        <input type="checkbox" ${dados.statusContratoAberto ? 'checked' : ''} disabled>
+                                        <input type="checkbox" id="ficha-status-contrato-aberto-${dados.id}" data-campo="statusContratoAberto" ${dados.statusContratoAberto ? 'checked' : ''} disabled>
                                         <span class="checkmark"></span>
                                         Em aberto
                                     </label>
@@ -137,7 +138,7 @@ class FichasEspecificas {
                         <div class="ficha-grid">
                             <div class="ficha-item">
                                 <label>Status:</label>
-                                <span class="ficha-valor editavel" data-campo="status">${this.formatarStatus(dados.status)}</span>
+                                <span class="ficha-valor editavel" data-campo="status" data-tipo="select" data-opcoes='["nao-iniciado","em-tratativa","concluido","respondido"]'>${this.formatarStatus(dados.status)}</span>
                             </div>
                             <div class="ficha-item">
                             </div>
@@ -158,6 +159,9 @@ class FichasEspecificas {
                     </button>
                     <button class="velohub-btn" style="background: #1DFDB9; color: #000058;" onclick="fichasEspecificas.copiarParaEmail()">
                         📧 Copiar para Email
+                    </button>
+                    <button class="velohub-btn" style="background: #FF00D7; color: white;" onclick="fichasEspecificas.excluirFicha()">
+                        🗑️ Excluir Ficha
                     </button>
                 </div>
             </div>
@@ -266,12 +270,12 @@ class FichasEspecificas {
                                 <label>Status do contrato</label>
                                 <div style="display: flex; gap: 16px; margin-top: 8px;">
                                     <label class="checkbox-label">
-                                        <input type="checkbox" ${dados.statusContratoQuitado ? 'checked' : ''} disabled>
+                                        <input type="checkbox" id="ficha-status-contrato-quitado-${dados.id}" data-campo="statusContratoQuitado" ${dados.statusContratoQuitado ? 'checked' : ''} disabled>
                                         <span class="checkmark"></span>
                                         Quitado
                                     </label>
                                     <label class="checkbox-label">
-                                        <input type="checkbox" ${dados.statusContratoAberto ? 'checked' : ''} disabled>
+                                        <input type="checkbox" id="ficha-status-contrato-aberto-${dados.id}" data-campo="statusContratoAberto" ${dados.statusContratoAberto ? 'checked' : ''} disabled>
                                         <span class="checkmark"></span>
                                         Em aberto
                                     </label>
@@ -289,7 +293,7 @@ class FichasEspecificas {
                         <div class="ficha-grid">
                             <div class="ficha-item">
                                 <label>Status:</label>
-                                <span class="ficha-valor editavel" data-campo="status">${this.formatarStatus(dados.status)}</span>
+                                <span class="ficha-valor editavel" data-campo="status" data-tipo="select" data-opcoes='["nao-iniciado","em-tratativa","concluido","respondido"]'>${this.formatarStatus(dados.status)}</span>
                             </div>
                             <div class="ficha-item">
                             </div>
@@ -310,6 +314,9 @@ class FichasEspecificas {
                     </button>
                     <button class="velohub-btn" style="background: #1DFDB9; color: #000058;" onclick="fichasEspecificas.copiarParaEmail()">
                         📧 Copiar para Email
+                    </button>
+                    <button class="velohub-btn" style="background: #FF00D7; color: white;" onclick="fichasEspecificas.excluirFicha()">
+                        🗑️ Excluir Ficha
                     </button>
                 </div>
             </div>
@@ -449,7 +456,7 @@ class FichasEspecificas {
                         <div class="ficha-grid">
                             <div class="ficha-item">
                                 <label>Status:</label>
-                                <span class="ficha-valor editavel" data-campo="status">${this.formatarStatus(dados.status)}</span>
+                                <span class="ficha-valor editavel" data-campo="status" data-tipo="select" data-opcoes='["nao-iniciado","em-tratativa","concluido","respondido"]'>${this.formatarStatus(dados.status)}</span>
                             </div>
                             <div class="ficha-item">
                             </div>
@@ -470,6 +477,9 @@ class FichasEspecificas {
                     </button>
                     <button class="velohub-btn" style="background: #1DFDB9; color: #000058;" onclick="fichasEspecificas.copiarParaEmail()">
                         📧 Copiar para Email
+                    </button>
+                    <button class="velohub-btn" style="background: #FF00D7; color: white;" onclick="fichasEspecificas.excluirFicha()">
+                        🗑️ Excluir Ficha
                     </button>
                 </div>
             </div>
@@ -532,64 +542,158 @@ class FichasEspecificas {
         const valores = document.querySelectorAll('.ficha-valor.editavel');
         
         valores.forEach(elemento => {
+            const campo = elemento.dataset.campo;
+            const tipo = elemento.dataset.tipo;
+            
             if (this.modoEdicao) {
-                elemento.contentEditable = 'true';
                 elemento.classList.add('editando');
-                elemento.setAttribute('tabindex', '0');
                 
-                // Para campos de data, converte para input
-                const campo = elemento.dataset.campo;
-                const tipo = elemento.dataset.tipo;
+                // Campos booleanos (Sim/Não) - converter para radio buttons
+                const camposBooleanos = ['acionouCentral', 'bacen', 'procon', 'liquidacaoAntecipada', 
+                                         'enviarCobranca', 'n2Portabilidade', 'resolvidoAutomaticamente', 
+                                         'encaminhadoHumano'];
                 
-                // Campo PIX com select
-                if (campo === 'pixStatus' && tipo === 'select') {
+                if (camposBooleanos.includes(campo)) {
                     const valorAtual = elemento.textContent.trim();
-                    const opcoes = JSON.parse(elemento.dataset.opcoes || '["Liberado","Excluído","Liberado para Retirada","Não Aplicável"]');
-                    let optionsHTML = opcoes.map(op => {
-                        const selected = valorAtual === op ? 'selected' : '';
-                        return `<option value="${op}" ${selected}>${op}</option>`;
+                    const valorBoolean = valorAtual === 'Sim' || valorAtual === 'true' || valorAtual === true;
+                    const nomeRadio = `ficha-${campo}-${this.fichaAtual.id}`;
+                    
+                    elemento.innerHTML = `
+                        <div style="display: flex; gap: 16px;">
+                            <label class="radio-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="${nomeRadio}" value="Sim" ${valorBoolean ? 'checked' : ''} style="cursor: pointer;">
+                                <span>Sim</span>
+                            </label>
+                            <label class="radio-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="${nomeRadio}" value="Não" ${!valorBoolean ? 'checked' : ''} style="cursor: pointer;">
+                                <span>Não</span>
+                            </label>
+                        </div>
+                    `;
+                }
+                // Campos com select (PIX Status, Status)
+                else if (tipo === 'select') {
+                    const valorAtual = elemento.textContent.trim();
+                    let valorParaComparar = valorAtual;
+                    
+                    // Para status, comparar com valores formatados e não formatados
+                    if (campo === 'status') {
+                        const statusMap = {
+                            'Não Iniciado': 'nao-iniciado',
+                            'Em Tratativa': 'em-tratativa',
+                            'Concluído': 'concluido',
+                            'Respondido': 'respondido',
+                            'Não definido': 'nao-iniciado'
+                        };
+                        valorParaComparar = statusMap[valorAtual] || valorAtual.toLowerCase().replace(/\s+/g, '-');
+                    }
+                    
+                    const opcoes = JSON.parse(elemento.dataset.opcoes || '[]');
+                    let optionsHTML = '<option value="">Selecione...</option>';
+                    optionsHTML += opcoes.map(op => {
+                        let selected = '';
+                        if (campo === 'status') {
+                            const opFormatado = this.formatarStatus(op);
+                            selected = (valorParaComparar === op || valorAtual === opFormatado || valorParaComparar === op.toLowerCase()) ? 'selected' : '';
+                        } else {
+                            selected = valorAtual === op ? 'selected' : '';
+                        }
+                        return `<option value="${op}" ${selected}>${campo === 'status' ? this.formatarStatus(op) : op}</option>`;
                     }).join('');
-                    elemento.innerHTML = `<select style="width: 100%; padding: 4px; border: 1px solid var(--azul-royal); border-radius: 4px; font-family: 'Poppins', sans-serif;">${optionsHTML}</select>`;
-                } else if (campo && (campo.includes('data') || campo.includes('Data') || campo.includes('prazo') || campo.includes('Prazo'))) {
+                    elemento.innerHTML = `<select class="velohub-input" style="width: 100%; padding: 8px; border: 1px solid var(--azul-royal); border-radius: 4px; font-family: 'Poppins', sans-serif;">${optionsHTML}</select>`;
+                }
+                // Campos de data
+                else if (campo && (campo.includes('data') || campo.includes('Data') || campo.includes('prazo') || campo.includes('Prazo'))) {
                     const valorAtual = elemento.textContent.trim();
+                    let dataISO = '';
                     if (valorAtual && valorAtual !== 'Não informada' && valorAtual !== 'Não informado') {
-                        // Tenta converter data BR para formato input
                         const dataBR = valorAtual.split('/');
                         if (dataBR.length === 3) {
-                            const dataISO = `${dataBR[2]}-${dataBR[1].padStart(2, '0')}-${dataBR[0].padStart(2, '0')}`;
-                            elemento.innerHTML = `<input type="date" value="${dataISO}" style="width: 100%; padding: 4px; border: 1px solid var(--azul-royal); border-radius: 4px;">`;
+                            dataISO = `${dataBR[2]}-${dataBR[1].padStart(2, '0')}-${dataBR[0].padStart(2, '0')}`;
+                        } else if (valorAtual.includes('-')) {
+                            dataISO = valorAtual.split('T')[0]; // Se já estiver em formato ISO
                         }
-                    } else {
-                        elemento.innerHTML = `<input type="date" style="width: 100%; padding: 4px; border: 1px solid var(--azul-royal); border-radius: 4px;">`;
                     }
+                    elemento.innerHTML = `<input type="date" class="velohub-input" value="${dataISO}" style="width: 100%; padding: 8px; border: 1px solid var(--azul-royal); border-radius: 4px;">`;
+                }
+                // Campo observações - textarea
+                else if (campo === 'observacoes') {
+                    const valorAtual = elemento.textContent.trim();
+                    elemento.innerHTML = `<textarea class="velohub-input" rows="4" style="width: 100%; padding: 8px; border: 1px solid var(--azul-royal); border-radius: 4px; font-family: 'Poppins', sans-serif; resize: vertical;">${this.escapeHtml(valorAtual === 'Nenhuma observação' ? '' : valorAtual)}</textarea>`;
+                }
+                // Campos de texto normais
+                else {
+                    const valorAtual = elemento.textContent.trim();
+                    elemento.innerHTML = `<input type="text" class="velohub-input" value="${this.escapeHtml(valorAtual)}" style="width: 100%; padding: 8px; border: 1px solid var(--azul-royal); border-radius: 4px; font-family: 'Poppins', sans-serif;">`;
                 }
             } else {
-                elemento.contentEditable = 'false';
+                // Sair do modo edição - restaurar valores
                 elemento.classList.remove('editando');
-                elemento.removeAttribute('tabindex');
                 
-                // Restaura texto de inputs de data ou select
-                const input = elemento.querySelector('input[type="date"]');
-                const select = elemento.querySelector('select');
-                
-                if (select) {
-                    elemento.textContent = select.value;
-                } else if (input) {
-                    const dataISO = input.value;
-                    if (dataISO) {
-                        const [ano, mes, dia] = dataISO.split('-');
-                        elemento.textContent = `${dia}/${mes}/${ano}`;
-                    } else {
-                        elemento.textContent = 'Não informada';
+                // Radio buttons
+                const radio = elemento.querySelector('input[type="radio"]:checked');
+                if (radio) {
+                    elemento.textContent = radio.value;
+                }
+                // Select
+                else {
+                    const select = elemento.querySelector('select');
+                    if (select) {
+                        if (campo === 'status') {
+                            elemento.textContent = this.formatarStatus(select.value);
+                        } else {
+                            elemento.textContent = select.value || 'Não informado';
+                        }
+                    }
+                    // Input date
+                    else {
+                        const inputDate = elemento.querySelector('input[type="date"]');
+                        if (inputDate) {
+                            const dataISO = inputDate.value;
+                            if (dataISO) {
+                                const [ano, mes, dia] = dataISO.split('-');
+                                elemento.textContent = `${dia}/${mes}/${ano}`;
+                            } else {
+                                elemento.textContent = 'Não informada';
+                            }
+                        }
+                        // Textarea
+                        else {
+                            const textarea = elemento.querySelector('textarea');
+                            if (textarea) {
+                                const valor = textarea.value.trim();
+                                elemento.textContent = valor || 'Nenhuma observação';
+                            }
+                            // Input text
+                            else {
+                                const input = elemento.querySelector('input[type="text"]');
+                                if (input) {
+                                    elemento.textContent = input.value.trim() || 'Não informado';
+                                }
+                            }
+                        }
                     }
                 }
             }
         });
         
+        // Atualizar checkboxes de status do contrato
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][data-campo]');
+        checkboxes.forEach(checkbox => {
+            checkbox.disabled = !this.modoEdicao;
+        });
+        
         const btnEditar = document.querySelector('.ficha-rodape .btn-primary');
         if (btnEditar) {
-            btnEditar.textContent = this.modoEdicao ? '✏️ Cancelar Edição' : '✏️ Editar Ficha';
+            btnEditar.textContent = this.modoEdicao ? '✏️ Cancelar Edição' : '✏️ Editar Reclamação';
         }
+    }
+    
+    // Função auxiliar para escapar HTML
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     // === SALVAR FICHA ===
@@ -604,27 +708,41 @@ class FichasEspecificas {
             const valorAntigo = this.fichaAtual[campo];
             let valorNovo;
             
-            // Verifica se é um input de data ou select
-            const input = elemento.querySelector('input[type="date"]');
-            const select = elemento.querySelector('select');
-            
-            if (select) {
-                valorNovo = select.value;
-            } else if (input) {
-                const dataISO = input.value;
-                if (dataISO) {
-                    valorNovo = dataISO; // Mantém formato ISO para salvar
-                } else {
-                    valorNovo = null;
-                }
-            } else {
-                valorNovo = elemento.textContent.trim();
+            // Radio buttons (campos booleanos Sim/Não)
+            const radio = elemento.querySelector('input[type="radio"]:checked');
+            if (radio) {
+                valorNovo = radio.value === 'Sim';
             }
-            
-            // Converte valores booleanos (exceto pixStatus que agora é string)
-            if (campo !== 'pixStatus' && ['acionouCentral', 'bacen', 'procon', 'pixLiberado', 'liquidacaoAntecipada', 
-                 'enviarCobranca', 'n2Portabilidade', 'resolvidoAutomaticamente', 'encaminhadoHumano'].includes(campo)) {
-                valorNovo = valorNovo.toLowerCase() === 'sim' || valorNovo === true || valorNovo === 'true';
+            // Select (Status, PIX Status)
+            else {
+                const select = elemento.querySelector('select');
+                if (select) {
+                    valorNovo = select.value;
+                    // Para status, o valor já está no formato correto (nao-iniciado, em-tratativa, etc)
+                }
+                // Input date
+                else {
+                    const inputDate = elemento.querySelector('input[type="date"]');
+                    if (inputDate) {
+                        valorNovo = inputDate.value || null;
+                    }
+                    // Textarea (observações)
+                    else {
+                        const textarea = elemento.querySelector('textarea');
+                        if (textarea) {
+                            valorNovo = textarea.value.trim();
+                        }
+                        // Input text
+                        else {
+                            const input = elemento.querySelector('input[type="text"]');
+                            if (input) {
+                                valorNovo = input.value.trim();
+                            } else {
+                                valorNovo = elemento.textContent.trim();
+                            }
+                        }
+                    }
+                }
             }
             
             // Para pixStatus, mantém como string e também atualiza pixLiberado para compatibilidade
@@ -648,13 +766,45 @@ class FichasEspecificas {
             }
         });
         
+        // Capturar checkboxes de status do contrato
+        const checkboxQuitado = document.getElementById(`ficha-status-contrato-quitado-${this.fichaAtual.id}`);
+        const checkboxAberto = document.getElementById(`ficha-status-contrato-aberto-${this.fichaAtual.id}`);
+        
+        if (checkboxQuitado && checkboxQuitado.checked !== this.fichaAtual.statusContratoQuitado) {
+            alteracoes.statusContratoQuitado = checkboxQuitado.checked;
+            this.fichaAtual.statusContratoQuitado = checkboxQuitado.checked;
+        }
+        if (checkboxAberto && checkboxAberto.checked !== this.fichaAtual.statusContratoAberto) {
+            alteracoes.statusContratoAberto = checkboxAberto.checked;
+            this.fichaAtual.statusContratoAberto = checkboxAberto.checked;
+        }
+        
         if (Object.keys(alteracoes).length > 0) {
-            // Salva via gerenciador
-            if (window.gerenciadorFichas) {
-                window.gerenciadorFichas.adicionarFicha(this.fichaAtual);
+            // Salvar diretamente no Firebase via armazenamentoReclamacoes
+            const tipo = this.fichaAtual.tipoDemanda || 'bacen';
+            
+            try {
+                if (window.armazenamentoReclamacoes) {
+                    // Atualizar ficha completa com as alterações
+                    const fichaAtualizada = { ...this.fichaAtual, ...alteracoes };
+                    await window.armazenamentoReclamacoes.salvar(tipo, fichaAtualizada);
+                    this.fichaAtual = fichaAtualizada;
+                    
+                    // Disparar evento para atualizar dashboards
+                    window.dispatchEvent(new CustomEvent('reclamacaoSalva', {
+                        detail: { tipo: tipo, reclamacao: fichaAtualizada, origem: 'edicao' }
+                    }));
+                    
+                    this.mostrarNotificacao('Ficha salva com sucesso!', 'sucesso');
+                } else {
+                    console.error('❌ armazenamentoReclamacoes não disponível');
+                    this.mostrarNotificacao('Erro: Sistema de armazenamento não disponível', 'erro');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao salvar ficha:', error);
+                this.mostrarNotificacao('Erro ao salvar: ' + error.message, 'erro');
             }
             
-            this.mostrarNotificacao('Ficha salva com sucesso!', 'sucesso');
             this.toggleEdicao();
             
             // Recarrega a lista se estiver em uma página específica
@@ -665,6 +815,90 @@ class FichasEspecificas {
             }, 500);
         } else {
             this.mostrarNotificacao('Nenhuma alteração detectada', 'info');
+        }
+    }
+
+    // === EXCLUIR FICHA ===
+    async excluirFicha() {
+        if (!this.fichaAtual) return;
+        
+        const tipo = this.fichaAtual.tipoDemanda || 'bacen';
+        const nomeCliente = this.fichaAtual.nomeCompleto || this.fichaAtual.nomeCliente || 'esta ficha';
+        
+        if (!confirm(`Tem certeza que deseja excluir a ficha de ${nomeCliente}?\n\nEsta ação não pode ser desfeita!`)) {
+            return;
+        }
+        
+        try {
+            // Excluir do Firebase
+            if (window.firebaseDB && window.firebaseDB.inicializado && !window.firebaseDB.usarLocalStorage) {
+                const sucesso = await window.firebaseDB.excluir(tipo, this.fichaAtual.id);
+                if (sucesso) {
+                    console.log(`✅ Ficha ${this.fichaAtual.id} excluída do Firebase`);
+                } else {
+                    throw new Error('Falha ao excluir do Firebase');
+                }
+            } else if (window.armazenamentoReclamacoes && window.armazenamentoReclamacoes.firebaseDB) {
+                // Tentar via armazenamentoReclamacoes se disponível
+                if (window.armazenamentoReclamacoes.firebaseDB.excluir) {
+                    const sucesso = await window.armazenamentoReclamacoes.firebaseDB.excluir(tipo, this.fichaAtual.id);
+                    if (sucesso) {
+                        console.log(`✅ Ficha ${this.fichaAtual.id} excluída do Firebase via armazenamentoReclamacoes`);
+                    } else {
+                        throw new Error('Falha ao excluir do Firebase via armazenamentoReclamacoes');
+                    }
+                } else {
+                    // Fallback: usar diretamente
+                    const caminho = `fichas_${tipo}/${this.fichaAtual.id}`;
+                    if (window.armazenamentoReclamacoes.firebaseDB.database) {
+                        await window.armazenamentoReclamacoes.firebaseDB.database.ref(caminho).remove();
+                        console.log(`✅ Ficha ${this.fichaAtual.id} excluída do Firebase via armazenamentoReclamacoes (fallback)`);
+                    }
+                }
+            } else {
+                console.warn('⚠️ Firebase não disponível para exclusão');
+            }
+            
+            // Também remover do localStorage se existir
+            const chaves = [
+                `velotax_reclamacoes_${tipo}`,
+                `velotax_demandas_${tipo}`,
+                `${tipo}-complaints`
+            ];
+            
+            chaves.forEach(chave => {
+                const dados = localStorage.getItem(chave);
+                if (dados) {
+                    try {
+                        const fichas = JSON.parse(dados);
+                        if (Array.isArray(fichas)) {
+                            const fichasFiltradas = fichas.filter(f => f.id !== this.fichaAtual.id);
+                            localStorage.setItem(chave, JSON.stringify(fichasFiltradas));
+                        }
+                    } catch (e) {
+                        console.warn(`⚠️ Erro ao remover do localStorage ${chave}:`, e);
+                    }
+                }
+            });
+            
+            // Disparar evento para atualizar dashboards
+            window.dispatchEvent(new CustomEvent('reclamacaoSalva', {
+                detail: { tipo: tipo, acao: 'exclusao', id: this.fichaAtual.id }
+            }));
+            
+            this.mostrarNotificacao('Ficha excluída com sucesso!', 'sucesso');
+            
+            // Fechar modal e recarregar listas
+            this.fecharFicha();
+            
+            setTimeout(() => {
+                if (typeof renderizarListaBacen === 'function') renderizarListaBacen();
+                if (typeof renderizarListaN2 === 'function') renderizarListaN2();
+                if (typeof renderizarListaChatbot === 'function') renderizarListaChatbot();
+            }, 500);
+        } catch (error) {
+            console.error('❌ Erro ao excluir ficha:', error);
+            this.mostrarNotificacao('Erro ao excluir: ' + error.message, 'erro');
         }
     }
 
