@@ -849,39 +849,122 @@ async function renderizarMinhasReclamacoesN2() {
         fichasN2 = [];
     }
     
-    const usuarioAtual = window.sistemaPerfis?.usuarioAtual;
+    // Verificar usuário atual - múltiplas fontes
+    let usuarioAtual = window.sistemaPerfis?.usuarioAtual;
+    
+    // Fallback: tentar obter do localStorage
     if (!usuarioAtual) {
-        console.warn('⚠️ Usuário não logado');
+        try {
+            const usuarioSalvo = localStorage.getItem('velotax_usuario_atual');
+            if (usuarioSalvo) {
+                usuarioAtual = JSON.parse(usuarioSalvo);
+                console.log('✅ [N2] Usuário carregado do localStorage:', usuarioAtual);
+            }
+        } catch (e) {
+            console.warn('⚠️ [N2] Erro ao carregar usuário do localStorage:', e);
+        }
+    }
+    
+    // Fallback: tentar obter da sessão do Google/VeloHub
+    if (!usuarioAtual) {
+        try {
+            const sessionData = localStorage.getItem('velohub_user_session');
+            if (sessionData) {
+                const session = JSON.parse(sessionData);
+                if (session?.user) {
+                    usuarioAtual = {
+                        nome: session.user.name,
+                        email: session.user.email,
+                        foto: session.user.picture
+                    };
+                    console.log('✅ [N2] Usuário carregado da sessão VeloHub:', usuarioAtual);
+                }
+            }
+        } catch (e) {
+            console.warn('⚠️ [N2] Erro ao carregar usuário da sessão:', e);
+        }
+    }
+    
+    if (!usuarioAtual) {
+        console.warn('⚠️ [N2] Usuário não logado');
         container.innerHTML = '<div class="no-results">Você precisa estar logado para ver suas reclamações</div>';
         return;
     }
     
-    console.log('👤 Usuário atual:', usuarioAtual);
-    console.log('📋 Total de fichas N2 disponíveis:', fichasN2.length);
+    console.log('👤 [N2] Usuário atual identificado:', usuarioAtual);
+    console.log('📋 [N2] Total de fichas disponíveis:', fichasN2.length);
     
-    const responsavelAtual = usuarioAtual.nome || usuarioAtual.email;
-    const emailAtual = usuarioAtual.email || '';
+    // Normalizar nome do usuário atual
+    const nomeAtual = (usuarioAtual.nome || '').toString().trim();
+    const emailAtual = (usuarioAtual.email || '').toString().trim();
     
-    // Filtrar apenas reclamações do usuário logado
+    // Normalizar variações de nomes conhecidos
+    const normalizarNome = (nome) => {
+        if (!nome) return '';
+        const nomeLower = nome.toLowerCase().trim();
+        // Normalizar "Shirley" - todas as variações
+        if (nomeLower.includes('shirley')) {
+            return 'shirley';
+        }
+        // Normalizar "Venssa" - todas as variações
+        if (nomeLower.includes('venssa') || nomeLower.includes('venessa') || nomeLower.includes('venesa')) {
+            return 'venssa';
+        }
+        return nomeLower;
+    };
+    
+    const nomeAtualNormalizado = normalizarNome(nomeAtual);
+    const emailAtualLower = emailAtual.toLowerCase().trim();
+    
+    console.log('🔍 [N2] Buscando fichas para:', {
+        nomeOriginal: nomeAtual,
+        nomeNormalizado: nomeAtualNormalizado,
+        email: emailAtualLower
+    });
+    
+    // Filtrar apenas reclamações do usuário logado - comparação mais robusta
     const minhasFichas = fichasN2.filter(f => {
-        const responsavelFicha = (f.responsavel || '').toString().toLowerCase().trim();
-        const nomeAtual = (responsavelAtual || '').toString().toLowerCase().trim();
-        const emailAtualLower = (emailAtual || '').toString().toLowerCase().trim();
+        const responsavelFicha = (f.responsavel || '').toString().trim();
+        const responsavelFichaLower = responsavelFicha.toLowerCase();
+        const responsavelFichaNormalizado = normalizarNome(responsavelFicha);
         
-        const match = responsavelFicha === nomeAtual || 
-                      responsavelFicha === emailAtualLower ||
-                      responsavelFicha === (usuarioAtual.nome || '').toString().toLowerCase().trim() ||
-                      responsavelFicha.includes(nomeAtual) ||
-                      responsavelFicha.includes(emailAtualLower);
+        // Múltiplas estratégias de comparação
+        const match = 
+            // Comparação exata (case-insensitive)
+            responsavelFichaLower === nomeAtualNormalizado ||
+            responsavelFichaLower === emailAtualLower ||
+            // Comparação normalizada (para Shirley, Venssa, etc)
+            responsavelFichaNormalizado === nomeAtualNormalizado ||
+            // Comparação parcial (inclui)
+            (nomeAtualNormalizado && responsavelFichaLower.includes(nomeAtualNormalizado)) ||
+            (emailAtualLower && responsavelFichaLower.includes(emailAtualLower)) ||
+            // Comparação reversa (nome do usuário inclui responsável)
+            (nomeAtualNormalizado && nomeAtualNormalizado.includes(responsavelFichaNormalizado));
         
         if (match) {
-            console.log('✅ Match encontrado:', f.id, 'Responsável:', f.responsavel, 'vs', nomeAtual);
+            console.log('✅ [N2] Match encontrado:', {
+                fichaId: f.id,
+                responsavelFicha: responsavelFicha,
+                nomeAtual: nomeAtual,
+                matchType: responsavelFichaLower === nomeAtualNormalizado ? 'exato' :
+                          responsavelFichaNormalizado === nomeAtualNormalizado ? 'normalizado' :
+                          'parcial'
+            });
         }
         
         return match;
     });
     
-    console.log('📋 Minhas fichas N2 encontradas:', minhasFichas.length);
+    console.log('📋 [N2] Minhas fichas encontradas:', minhasFichas.length);
+    if (minhasFichas.length === 0) {
+        console.warn('⚠️ [N2] Nenhuma ficha encontrada. Verificando responsáveis disponíveis...');
+        const responsaveisUnicos = [...new Set(fichasN2.map(f => f.responsavel).filter(Boolean))];
+        console.log('📋 [N2] Responsáveis únicos nas fichas:', responsaveisUnicos);
+        console.log('📋 [N2] Comparação:', {
+            buscando: nomeAtualNormalizado || emailAtualLower,
+            disponiveis: responsaveisUnicos.map(r => ({ original: r, normalizado: normalizarNome(r) }))
+        });
+    }
     
     if (minhasFichas.length === 0) {
         container.innerHTML = '<div class="no-results">Você não possui reclamações atribuídas</div>';

@@ -51,7 +51,7 @@ function mostrarSecao(secaoId) {
     // Ações específicas por seção
     if (secaoId === 'lista-chatbot') {
         if (typeof renderizarListaChatbot === 'function') {
-            renderizarListaChatbot();
+        renderizarListaChatbot();
         } else if (typeof window.renderizarListaChatbot === 'function') {
             window.renderizarListaChatbot();
         } else {
@@ -89,41 +89,41 @@ async function carregarFichasChatbot() {
     console.log('📥 [chatbot-page] carregarFichasChatbot chamado');
     
     // Aguardar armazenamentoReclamacoes estar disponível
-    let tentativas = 0;
-    while (!window.armazenamentoReclamacoes && tentativas < 10) {
+        let tentativas = 0;
+        while (!window.armazenamentoReclamacoes && tentativas < 10) {
         console.log(`⏳ [chatbot-page] Aguardando armazenamentoReclamacoes... (tentativa ${tentativas + 1}/10)`);
-        await new Promise(resolve => setTimeout(resolve, 100));
-        tentativas++;
-    }
+            await new Promise(resolve => setTimeout(resolve, 100));
+            tentativas++;
+        }
     
     if (window.armazenamentoReclamacoes) {
-        console.log('✅ armazenamentoReclamacoes encontrado após espera!');
-    }
+            console.log('✅ armazenamentoReclamacoes encontrado após espera!');
+        }
     
     // Verificar se Firebase está disponível e ativá-lo se necessário
     if (window.armazenamentoReclamacoes && window.armazenamentoReclamacoes.verificarEAtivarFirebase) {
         try {
-            window.armazenamentoReclamacoes.verificarEAtivarFirebase();
+                    window.armazenamentoReclamacoes.verificarEAtivarFirebase();
         } catch (error) {
             console.error('❌ Erro ao verificar Firebase:', error);
-        }
-    }
-    
+                }
+            }
+            
     if (window.armazenamentoReclamacoes) {
         try {
             console.log('📦 [chatbot-page] Carregando fichas via armazenamentoReclamacoes...');
             const dados = await window.armazenamentoReclamacoes.carregarTodos('chatbot');
             if (Array.isArray(dados)) {
                 atualizarFichasChatbot(dados);
-                console.log('✅ Fichas carregadas via sistema:', fichasChatbot.length);
-                if (fichasChatbot.length > 0) {
-                    console.log('📋 IDs:', fichasChatbot.slice(0, 5).map(f => f.id).join(', '));
-                    console.log('📋 Primeira ficha:', fichasChatbot[0]);
-                }
+            console.log('✅ Fichas carregadas via sistema:', fichasChatbot.length);
+            if (fichasChatbot.length > 0) {
+                console.log('📋 IDs:', fichasChatbot.slice(0, 5).map(f => f.id).join(', '));
+                console.log('📋 Primeira ficha:', fichasChatbot[0]);
+            }
             } else {
                 console.warn('⚠️ Dados retornados não são um array:', dados);
-                atualizarFichasChatbot([]);
-            }
+            atualizarFichasChatbot([]);
+        }
         } catch (error) {
             console.error('❌ Erro ao carregar via armazenamentoReclamacoes:', error);
             // Fallback para localStorage
@@ -133,9 +133,9 @@ async function carregarFichasChatbot() {
                     const parsed = JSON.parse(dados);
                     if (Array.isArray(parsed)) {
                         atualizarFichasChatbot(parsed);
-                        console.log('✅ Carregado do localStorage (fallback):', fichasChatbot.length);
-                    } else {
-                        atualizarFichasChatbot([]);
+                console.log('✅ Carregado do localStorage (fallback):', fichasChatbot.length);
+            } else {
+                atualizarFichasChatbot([]);
                     }
                 } catch (e) {
                     console.error('❌ Erro ao parsear localStorage:', e);
@@ -145,7 +145,7 @@ async function carregarFichasChatbot() {
                 console.log('📦 Nenhum dado encontrado no localStorage');
                 atualizarFichasChatbot([]);
             }
-        }
+            }
     } else {
         console.warn('⚠️ armazenamentoReclamacoes não disponível, usando localStorage...');
         const dados = localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot');
@@ -155,21 +155,21 @@ async function carregarFichasChatbot() {
                 if (Array.isArray(parsed)) {
                     atualizarFichasChatbot(parsed);
                 } else {
-                    atualizarFichasChatbot([]);
-                }
+            atualizarFichasChatbot([]);
+        }
             } catch (e) {
                 console.error('❌ Erro ao parsear localStorage:', e);
                 atualizarFichasChatbot([]);
-            }
+    }
         } else {
-            atualizarFichasChatbot([]);
-        }
+        atualizarFichasChatbot([]);
+    }
     }
     
     // Sincronizar com localStorage se necessário
     const dadosFinais = fichasChatbot;
     if (dadosFinais.length > 0) {
-        if (dadosFinais.length !== fichasChatbot.length) {
+            if (dadosFinais.length !== fichasChatbot.length) {
             console.warn('⚠️ DISCREPÂNCIA: localStorage tem', dadosFinais.length, 'mas fichasChatbot tem', fichasChatbot.length);
             // Sincronizar
             atualizarFichasChatbot(dadosFinais);
@@ -463,12 +463,12 @@ async function handleSubmitChatbot(e) {
 function validarFichaChatbot(ficha) {
     if (!ficha.nomeCompleto || ficha.nomeCompleto.trim() === '') {
         mostrarAlerta('Por favor, preencha o nome completo', 'error');
-        return false;
-    }
+                return false;
+            }
     if (!ficha.cpf || ficha.cpf.trim() === '') {
         mostrarAlerta('Por favor, preencha o CPF', 'error');
-        return false;
-    }
+                return false;
+            }
     if (ficha.cpf && !validarCPF(ficha.cpf)) {
         mostrarAlerta('CPF inválido', 'error');
         return false;
@@ -676,8 +676,8 @@ function configurarCardsDashboardChatbot() {
                 renderizarListaChatbot();
             }
         };
-    }
-}
+            }
+        }
 
 // === RENDERIZAÇÃO DE LISTAS ===
 // Replicar exatamente o funcionamento de BACEN e N2
@@ -693,7 +693,7 @@ renderizarListaChatbot = async function() {
         console.warn('⚠️ fichasChatbot não é um array válido, inicializando...');
         fichasChatbot = [];
     }
-    
+
     console.log('📋 Renderizando lista geral com', fichasChatbot.length, 'fichas');
     console.log('📋 Primeiras 3 fichas:', fichasChatbot.slice(0, 3).map(f => ({ id: f.id, nome: f.nomeCompleto })));
     
@@ -707,7 +707,7 @@ renderizarListaChatbot = async function() {
         if (containerAlt) {
             console.log('✅ Container alternativo encontrado:', containerAlt.id || containerAlt.className);
             container = containerAlt;
-        } else {
+    } else {
             console.error('❌ Nenhum container encontrado!');
             return;
         }
@@ -737,8 +737,8 @@ renderizarListaChatbot = async function() {
             const id = (f.id || '').toLowerCase();
             
             return nome.includes(buscaLower) || 
-                   cpfFormatado.includes(buscaLower) || 
-                   cpfSemFormatacao.includes(buscaNormalizada) ||
+                cpfFormatado.includes(buscaLower) || 
+                cpfSemFormatacao.includes(buscaNormalizada) ||
                    motivo.includes(buscaLower) ||
                    id.includes(buscaLower);
         });
@@ -760,7 +760,7 @@ renderizarListaChatbot = async function() {
             default:
                 filtradasStatus = filtradas.filter(f => (f.status || '').toLowerCase() === filtroStatus.toLowerCase());
                 console.log('🔍 [renderizarListaChatbot] Filtro status:', filtroStatus, 'Resultado:', filtradasStatus.length);
-        }
+    }
         filtradas = filtradasStatus;
     }
     
@@ -803,13 +803,13 @@ renderizarListaChatbot = async function() {
     
     // Usar criarCardChatbot do window se disponível, senão usar função local (igual BACEN e N2)
     const criarCard = window.criarCardChatbot || criarCardChatbot;
-    const html = filtradas.map(f => {
+        const html = filtradas.map(f => {
         try {
             return criarCard(f);
-        } catch (error) {
+    } catch (error) {
             console.error('❌ Erro ao criar card para ficha', f.id, ':', error);
             return `<div class="ficha-card">Erro ao renderizar ficha ${f.id}</div>`;
-        }
+    }
     }).join('');
     
     container.innerHTML = html;
@@ -820,25 +820,125 @@ renderizarListaChatbot = async function() {
 renderizarMinhasReclamacoesChatbot = async function() {
     console.log('📋 Total de fichas disponíveis:', fichasChatbot.length);
     
-    const usuarioAtual = window.sistemaPerfis?.usuarioAtual;
+    // Verificar usuário atual - múltiplas fontes
+    let usuarioAtual = window.sistemaPerfis?.usuarioAtual;
+    
+    // Fallback: tentar obter do localStorage
     if (!usuarioAtual) {
-        console.warn('⚠️ Usuário não autenticado');
+        try {
+            const usuarioSalvo = localStorage.getItem('velotax_usuario_atual');
+            if (usuarioSalvo) {
+                usuarioAtual = JSON.parse(usuarioSalvo);
+                console.log('✅ [Chatbot] Usuário carregado do localStorage:', usuarioAtual);
+            }
+        } catch (e) {
+            console.warn('⚠️ [Chatbot] Erro ao carregar usuário do localStorage:', e);
+        }
+    }
+    
+    // Fallback: tentar obter da sessão do Google/VeloHub
+    if (!usuarioAtual) {
+        try {
+            const sessionData = localStorage.getItem('velohub_user_session');
+            if (sessionData) {
+                const session = JSON.parse(sessionData);
+                if (session?.user) {
+                    usuarioAtual = {
+                        nome: session.user.name,
+                        email: session.user.email,
+                        foto: session.user.picture
+                    };
+                    console.log('✅ [Chatbot] Usuário carregado da sessão VeloHub:', usuarioAtual);
+                }
+            }
+        } catch (e) {
+            console.warn('⚠️ [Chatbot] Erro ao carregar usuário da sessão:', e);
+        }
+    }
+    
+    if (!usuarioAtual) {
+        console.warn('⚠️ [Chatbot] Usuário não autenticado');
+        const container = document.getElementById('minhas-reclamacoes-chatbot-container');
+        if (container) {
+            container.innerHTML = '<div class="no-results">Você precisa estar logado para ver suas reclamações</div>';
+        }
         return;
     }
     
-    console.log('📋 Total de fichas Chatbot disponíveis:', fichasChatbot.length);
+    console.log('👤 [Chatbot] Usuário atual identificado:', usuarioAtual);
+    console.log('📋 [Chatbot] Total de fichas disponíveis:', fichasChatbot.length);
     
-    const responsavelAtual = usuarioAtual.nome || usuarioAtual.email;
-    console.log('👤 Responsável atual:', responsavelAtual);
+    // Normalizar nome do usuário atual
+    const nomeAtual = (usuarioAtual.nome || '').toString().trim();
+    const emailAtual = (usuarioAtual.email || '').toString().trim();
     
-    // Filtrar apenas fichas do responsável atual
-    const minhasFichas = fichasChatbot.filter(f => {
-        const responsavelFicha = (f.responsavel || f.responsavelChatbot || '').toString().toLowerCase().trim();
-        const nomeAtual = (responsavelAtual || '').toString().toLowerCase().trim();
-        return responsavelFicha === nomeAtual;
+    // Normalizar variações de nomes conhecidos
+    const normalizarNome = (nome) => {
+        if (!nome) return '';
+        const nomeLower = nome.toLowerCase().trim();
+        // Normalizar "Shirley" - todas as variações
+        if (nomeLower.includes('shirley')) {
+            return 'shirley';
+        }
+        // Normalizar "Venssa" - todas as variações
+        if (nomeLower.includes('venssa') || nomeLower.includes('venessa') || nomeLower.includes('venesa')) {
+            return 'venssa';
+        }
+        return nomeLower;
+    };
+    
+    const nomeAtualNormalizado = normalizarNome(nomeAtual);
+    const emailAtualLower = emailAtual.toLowerCase().trim();
+    
+    console.log('🔍 [Chatbot] Buscando fichas para:', {
+        nomeOriginal: nomeAtual,
+        nomeNormalizado: nomeAtualNormalizado,
+        email: emailAtualLower
     });
     
-    console.log('📋 Minhas fichas Chatbot:', minhasFichas.length);
+    // Filtrar apenas fichas do responsável atual - comparação mais robusta
+    const minhasFichas = fichasChatbot.filter(f => {
+        const responsavelFicha = (f.responsavel || f.responsavelChatbot || '').toString().trim();
+        const responsavelFichaLower = responsavelFicha.toLowerCase();
+        const responsavelFichaNormalizado = normalizarNome(responsavelFicha);
+        
+        // Múltiplas estratégias de comparação
+        const match = 
+            // Comparação exata (case-insensitive)
+            responsavelFichaLower === nomeAtualNormalizado ||
+            responsavelFichaLower === emailAtualLower ||
+            // Comparação normalizada (para Shirley, Venssa, etc)
+            responsavelFichaNormalizado === nomeAtualNormalizado ||
+            // Comparação parcial (inclui)
+            (nomeAtualNormalizado && responsavelFichaLower.includes(nomeAtualNormalizado)) ||
+            (emailAtualLower && responsavelFichaLower.includes(emailAtualLower)) ||
+            // Comparação reversa (nome do usuário inclui responsável)
+            (nomeAtualNormalizado && nomeAtualNormalizado.includes(responsavelFichaNormalizado));
+        
+        if (match) {
+            console.log('✅ [Chatbot] Match encontrado:', {
+                fichaId: f.id,
+                responsavelFicha: responsavelFicha,
+                nomeAtual: nomeAtual,
+                matchType: responsavelFichaLower === nomeAtualNormalizado ? 'exato' :
+                          responsavelFichaNormalizado === nomeAtualNormalizado ? 'normalizado' :
+                          'parcial'
+            });
+        }
+        
+        return match;
+    });
+    
+    console.log('📋 [Chatbot] Minhas fichas encontradas:', minhasFichas.length);
+    if (minhasFichas.length === 0) {
+        console.warn('⚠️ [Chatbot] Nenhuma ficha encontrada. Verificando responsáveis disponíveis...');
+        const responsaveisUnicos = [...new Set(fichasChatbot.map(f => f.responsavel || f.responsavelChatbot).filter(Boolean))];
+        console.log('📋 [Chatbot] Responsáveis únicos nas fichas:', responsaveisUnicos);
+        console.log('📋 [Chatbot] Comparação:', {
+            buscando: nomeAtualNormalizado || emailAtualLower,
+            disponiveis: responsaveisUnicos.map(r => ({ original: r, normalizado: normalizarNome(r) }))
+        });
+    }
     
     const container = document.getElementById('minhas-reclamacoes-chatbot-container');
     if (!container) {
@@ -866,35 +966,35 @@ renderizarMinhasReclamacoesChatbot = async function() {
         container.innerHTML = minhasFichas.map(f => {
             const statusClass = f.status || 'nao-iniciado';
             const statusLabel = {
-                'nao-iniciado': 'Não Iniciado',
-                'em-tratativa': 'Em Tratativa',
-                'concluido': 'Concluído',
+        'nao-iniciado': 'Não Iniciado',
+        'em-tratativa': 'Em Tratativa',
+        'concluido': 'Concluído',
                 'concluído': 'Concluído',
-                'respondido': 'Respondido'
+        'respondido': 'Respondido'
             }[statusClass] || statusClass;
-            
-            return `
+    
+    return `
                 <div class="complaint-item chatbot-item" onclick="toggleComplaintDetails(this)">
-                    <div class="complaint-header">
+            <div class="complaint-header">
                         <div class="complaint-info">
                             <h4>${f.nomeCompleto || f.nomeCliente || 'Sem nome'}</h4>
                             <span class="complaint-status status-${statusClass}">${statusLabel}</span>
-                        </div>
+                </div>
                         <button class="btn-excluir-ficha" onclick="event.stopPropagation(); excluirFichaChatbot('${f.id}')" title="Excluir">×</button>
-                    </div>
+            </div>
                     <div class="complaint-details" style="display: none;">
                         <p><strong>CPF:</strong> ${f.cpf || 'Não informado'}</p>
                         <p><strong>Telefone:</strong> ${f.telefone || 'Não informado'}</p>
                         <p><strong>Data:</strong> ${f.dataClienteChatbot ? new Date(f.dataClienteChatbot).toLocaleDateString('pt-BR') : 'Não informada'}</p>
                         <p><strong>Nota:</strong> ${f.notaAvaliacao || f.satisfacao || 'Não informada'}</p>
                         <p><strong>Resposta Bot:</strong> ${f.respostaBot || 'Não informado'}</p>
-                    </div>
-                </div>
-            `;
+            </div>
+        </div>
+    `;
         }).join('');
+        }
     }
-}
-
+    
 // === EXPORTAÇÃO ===
 function exportarRelatorioSatisfacaoChatbot(dados) {
     if (!dados || dados.length === 0) {
