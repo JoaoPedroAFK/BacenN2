@@ -182,16 +182,25 @@ class ImportadorDados {
                     
                     this.adicionarLog(`📋 Planilha carregada. Encontradas ${workbook.SheetNames.length} abas: ${workbook.SheetNames.join(', ')}`);
                     
-                    // Filtrar apenas as abas que queremos processar (APENAS Base Bacen e Base Ouvidoria)
-                    const abasPermitidas = ['Base Bacen', 'Base Ouvidoria'];
+                    // Filtrar apenas as abas que queremos processar (Base Bacen, Base Ouvidoria e Planilha Chatbot)
+                    const abasPermitidas = ['Base Bacen', 'Base Ouvidoria', 'Planilha Chatbot'];
                     const abasParaProcessar = workbook.SheetNames.filter(nomeAba => {
                         const nomeNormalizado = nomeAba.trim().toLowerCase();
                         return abasPermitidas.some(permitida => {
                             const permitidaLower = permitida.toLowerCase();
+                            // Verificação para Base Bacen e Base Ouvidoria
+                            if (permitidaLower.includes('base') && (permitidaLower.includes('bacen') || permitidaLower.includes('ouvidoria'))) {
+                                return nomeNormalizado.includes('base') && (nomeNormalizado.includes('bacen') || nomeNormalizado.includes('ouvidoria'));
+                            }
+                            // Verificação para Planilha Chatbot
+                            if (permitidaLower.includes('planilha') && permitidaLower.includes('chatbot')) {
+                                return nomeNormalizado.includes('planilha') && nomeNormalizado.includes('chatbot') ||
+                                       nomeNormalizado.includes('chatbot');
+                            }
+                            // Verificação genérica (match parcial ou completo)
                             return nomeNormalizado.includes(permitidaLower) || 
                                    permitidaLower.includes(nomeNormalizado) ||
-                                   nomeNormalizado === permitidaLower ||
-                                   (permitidaLower.includes('base') && nomeNormalizado.includes('base') && (nomeNormalizado.includes('bacen') || nomeNormalizado.includes('ouvidoria')));
+                                   nomeNormalizado === permitidaLower;
                         });
                     });
                     
