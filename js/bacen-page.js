@@ -1005,20 +1005,50 @@ function abrirFichaBacen(id) {
     }
     
     // Usa o sistema de fichas específicas
-    if (window.fichasEspecificas) {
+    console.log('🔍 [bacen-page] abrirFichaBacen - Verificando disponibilidade:', {
+        fichasEspecificas: !!window.fichasEspecificas,
+        FichasEspecificas: !!window.FichasEspecificas,
+        tipo: typeof window.FichasEspecificas
+    });
+    
+    if (window.fichasEspecificas && typeof window.fichasEspecificas.abrirFicha === 'function') {
+        console.log('✅ [bacen-page] Usando instância existente');
         window.fichasEspecificas.abrirFicha(ficha);
-    } else if (window.FichasEspecificas) {
+    } else if (window.FichasEspecificas && typeof window.FichasEspecificas === 'function') {
         // Criar instância se não existir
-        window.fichasEspecificas = new window.FichasEspecificas();
-        window.fichasEspecificas.abrirFicha(ficha);
+        console.log('✅ [bacen-page] Criando nova instância de FichasEspecificas');
+        try {
+            window.fichasEspecificas = new window.FichasEspecificas();
+            window.fichasEspecificas.abrirFicha(ficha);
+        } catch (error) {
+            console.error('❌ [bacen-page] Erro ao criar instância:', error);
+            mostrarAlerta('Erro ao abrir ficha: ' + error.message, 'error');
+        }
     } else {
-        // Aguardar um pouco mais e tentar novamente
-        setTimeout(() => {
-            if (window.FichasEspecificas) {
-                window.fichasEspecificas = new window.FichasEspecificas();
-                window.fichasEspecificas.abrirFicha(ficha);
-            } else {
-                console.error('❌ FichasEspecificas não disponível. Verifique se js/fichas-especificas.js está carregado.');
+        // Aguardar mais tempo e tentar novamente (pode ser carregamento assíncrono)
+        console.warn('⚠️ [bacen-page] FichasEspecificas não disponível imediatamente, aguardando...');
+        let tentativas = 0;
+        const maxTentativas = 10; // 5 segundos total
+        
+        const tentarAbrir = setInterval(() => {
+            tentativas++;
+            console.log(`🔄 [bacen-page] Tentativa ${tentativas}/${maxTentativas} de abrir ficha`);
+            
+            if (window.FichasEspecificas && typeof window.FichasEspecificas === 'function') {
+                clearInterval(tentarAbrir);
+                console.log('✅ [bacen-page] FichasEspecificas disponível após aguardar');
+                try {
+                    window.fichasEspecificas = new window.FichasEspecificas();
+                    window.fichasEspecificas.abrirFicha(ficha);
+                } catch (error) {
+                    console.error('❌ [bacen-page] Erro ao criar instância após aguardar:', error);
+                    mostrarAlerta('Erro ao abrir ficha: ' + error.message, 'error');
+                }
+            } else if (tentativas >= maxTentativas) {
+                clearInterval(tentarAbrir);
+                console.error('❌ [bacen-page] FichasEspecificas não disponível após', maxTentativas * 500, 'ms');
+                console.error('   Verifique se js/fichas-especificas.js está sendo carregado corretamente');
+                console.error('   window.FichasEspecificas:', window.FichasEspecificas);
                 mostrarAlerta('Sistema de fichas não disponível. Verifique o console para mais detalhes.', 'error');
             }
         }, 500);

@@ -1486,14 +1486,23 @@ class FichasEspecificas {
 }
 
 // Expor a classe globalmente IMEDIATAMENTE (antes do DOMContentLoaded)
+// Garantir que está disponível mesmo se houver problemas de timing
 window.FichasEspecificas = FichasEspecificas;
+
+// Log para debug
+console.log('✅ [fichas-especificas] Classe FichasEspecificas exposta globalmente:', typeof window.FichasEspecificas);
 
 // Inicializa instância quando DOM estiver pronto
 let fichasEspecificas;
 function inicializarFichasEspecificas() {
     if (!fichasEspecificas) {
-        fichasEspecificas = new FichasEspecificas();
-        window.fichasEspecificas = fichasEspecificas;
+        try {
+            fichasEspecificas = new FichasEspecificas();
+            window.fichasEspecificas = fichasEspecificas;
+            console.log('✅ [fichas-especificas] Instância criada e exposta globalmente');
+        } catch (error) {
+            console.error('❌ [fichas-especificas] Erro ao criar instância:', error);
+        }
     }
     return fichasEspecificas;
 }
@@ -1505,4 +1514,13 @@ if (document.readyState === 'loading') {
     // DOM já está pronto, inicializar imediatamente
     inicializarFichasEspecificas();
 }
+
+// Garantir disponibilidade mesmo após carregamento assíncrono
+setTimeout(() => {
+    if (!window.FichasEspecificas) {
+        console.error('❌ [fichas-especificas] ATENÇÃO: Classe não está disponível após 1 segundo!');
+    } else {
+        console.log('✅ [fichas-especificas] Classe confirmada disponível após 1 segundo');
+    }
+}, 1000);
 
