@@ -1,5 +1,5 @@
 /* === FICHAS ESPECÍFICAS POR TIPO DE DEMANDA === */
-/* VERSÃO: v2.3.0 | DATA: 2025-02-01 | ALTERAÇÕES: Garantir que classe FichasEspecificas esteja disponível globalmente imediatamente após carregar script */
+/* VERSÃO: v2.4.0 | DATA: 2025-02-01 | ALTERAÇÕES: Adicionar logs de debug e verificação robusta de disponibilidade da classe, tentativas múltiplas de carregamento */
 
 class FichasEspecificas {
     constructor() {
