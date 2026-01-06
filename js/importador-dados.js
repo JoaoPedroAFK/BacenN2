@@ -1,5 +1,5 @@
 /* === SCRIPT DE IMPORTAÇÃO DE DADOS - PLANILHA VELOTAX === */
-/* VERSÃO: v2.6.0 | DATA: 2025-02-01 | ALTERAÇÕES: Garantir mapeamento explícito de campo Data para Chatbot, mapear também para campo data genérico */
+/* VERSÃO: v2.7.0 | DATA: 2025-02-01 | ALTERAÇÕES: Corrigir mesclagem de camposEspecificos para não sobrescrever dataEntrada principal com valor vazio em N2 */
 
 class ImportadorDados {
     constructor() {
