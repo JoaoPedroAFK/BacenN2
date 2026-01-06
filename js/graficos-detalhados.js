@@ -1,5 +1,5 @@
 /* === SISTEMA DE GRÁFICOS DETALHADOS E FILTRÁVEIS === */
-/* VERSÃO: v2.15.0 | DATA: 2025-02-01 | ALTERAÇÕES: Priorizar campo Data da planilha no gráfico mensal Chatbot, validar datas antes de usar */
+/* VERSÃO: v2.16.0 | DATA: 2025-02-01 | ALTERAÇÕES: Filtrar gráfico mensal N2 para mostrar apenas casos importados (com data da planilha), ignorar casos inseridos manualmente */
 
 class GraficosDetalhados {
     constructor(tipoDemanda) {
@@ -418,10 +418,24 @@ class GraficosDetalhados {
             // Para cada tipo, usar o campo de data mais apropriado
             let dataParaMes = null;
             if (this.tipoDemanda === 'n2') {
-                // N2: Priorizar "Data de entrada" da planilha (dataEntrada) conforme solicitado
-                // Verificar se os campos existem e não são vazios
-                // Também verificar dentro de camposEspecificos caso não estejam no nível raiz
+                // N2: APENAS casos importados (que têm data da planilha)
+                // Filtrar casos inseridos manualmente (que não têm dataEntrada, dataEntradaN2 ou dataEntradaAtendimento da planilha)
                 const camposEspecificos = f.camposEspecificos || {};
+                
+                // Verificar se é caso importado: deve ter pelo menos uma das datas da planilha preenchida
+                const temDataPlanilha = (
+                    (f.dataEntrada && typeof f.dataEntrada === 'string' && f.dataEntrada.trim() !== '' && f.dataEntrada !== 'Invalid Date') ||
+                    (f.dataEntradaN2 && typeof f.dataEntradaN2 === 'string' && f.dataEntradaN2.trim() !== '' && f.dataEntradaN2 !== 'Invalid Date') ||
+                    (camposEspecificos.dataEntradaN2 && typeof camposEspecificos.dataEntradaN2 === 'string' && camposEspecificos.dataEntradaN2.trim() !== '' && camposEspecificos.dataEntradaN2 !== 'Invalid Date') ||
+                    (f.dataEntradaAtendimento && typeof f.dataEntradaAtendimento === 'string' && f.dataEntradaAtendimento.trim() !== '' && f.dataEntradaAtendimento !== 'Invalid Date') ||
+                    (camposEspecificos.dataEntradaAtendimento && typeof camposEspecificos.dataEntradaAtendimento === 'string' && camposEspecificos.dataEntradaAtendimento.trim() !== '' && camposEspecificos.dataEntradaAtendimento !== 'Invalid Date')
+                );
+                
+                // Se não tem data da planilha, é caso manual - IGNORAR
+                if (!temDataPlanilha) {
+                    fichasSemData++;
+                    return; // Pular este caso
+                }
                 
                 // PRIORIDADE 1: Data de entrada da planilha (campo principal solicitado)
                 // IMPORTANTE: Verificar se não é uma data inválida ou vazia
@@ -432,7 +446,7 @@ class GraficosDetalhados {
                     }
                 }
                 
-                // Se dataEntrada não funcionou, tentar outros campos
+                // Se dataEntrada não funcionou, tentar outros campos da planilha
                 if (!dataParaMes) {
                     if (f.dataEntradaN2 && typeof f.dataEntradaN2 === 'string' && f.dataEntradaN2.trim() !== '' && f.dataEntradaN2 !== 'Invalid Date') {
                         const dataTeste = this.extrairMes(f.dataEntradaN2);
@@ -454,21 +468,11 @@ class GraficosDetalhados {
                         if (dataTeste) {
                             dataParaMes = camposEspecificos.dataEntradaAtendimento;
                         }
-                    } else if (f.dataReclamacao && typeof f.dataReclamacao === 'string' && f.dataReclamacao.trim() !== '' && f.dataReclamacao !== 'Invalid Date') {
-                        const dataTeste = this.extrairMes(f.dataReclamacao);
-                        if (dataTeste) {
-                            dataParaMes = f.dataReclamacao;
-                        }
-                    } else if (f.data && typeof f.data === 'string' && f.data.trim() !== '' && f.data !== 'Invalid Date') {
-                        const dataTeste = this.extrairMes(f.data);
-                        if (dataTeste) {
-                            dataParaMes = f.data;
-                        }
                     }
                 }
                 
-                // NÃO usar dataCriacao - é a data de importação, não a data do caso
-                // Se não tiver nenhuma data válida, a ficha será ignorada no gráfico
+                // NÃO usar dataReclamacao, data ou dataCriacao - apenas datas da planilha
+                // Se não tiver nenhuma data válida da planilha, a ficha será ignorada no gráfico
                 
                 // Log para debug (apenas primeiras 10 fichas)
                 if (fichasComData < 10 && dataParaMes) {
