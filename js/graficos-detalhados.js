@@ -419,10 +419,20 @@ class GraficosDetalhados {
             let dataParaMes = null;
             if (this.tipoDemanda === 'n2') {
                 // N2: APENAS casos importados (que têm data da planilha)
-                // Filtrar casos inseridos manualmente (que não têm dataEntrada, dataEntradaN2 ou dataEntradaAtendimento da planilha)
+                // Filtrar casos inseridos manualmente
                 const camposEspecificos = f.camposEspecificos || {};
                 
-                // Verificar se é caso importado: deve ter pelo menos uma das datas da planilha preenchida
+                // Verificar se é caso importado usando múltiplos critérios:
+                // 1. Tem campos processados da planilha (tentativas, protocolos, cpfTratado)
+                // 2. Tem dataEntrada preenchida E diferença significativa entre dataCriacao e dataEntrada
+                //    (casos importados têm dataEntrada antiga da planilha, dataCriacao é data de importação)
+                const temCamposImportacao = (
+                    (Array.isArray(f.tentativas) && f.tentativas.length > 0) ||
+                    (Array.isArray(f.protocolos) && f.protocolos.length > 0) ||
+                    (f.cpfTratado && typeof f.cpfTratado === 'string' && f.cpfTratado.trim() !== '')
+                );
+                
+                // Verificar se tem data da planilha E se é caso importado
                 const temDataPlanilha = (
                     (f.dataEntrada && typeof f.dataEntrada === 'string' && f.dataEntrada.trim() !== '' && f.dataEntrada !== 'Invalid Date') ||
                     (f.dataEntradaN2 && typeof f.dataEntradaN2 === 'string' && f.dataEntradaN2.trim() !== '' && f.dataEntradaN2 !== 'Invalid Date') ||
@@ -431,8 +441,25 @@ class GraficosDetalhados {
                     (camposEspecificos.dataEntradaAtendimento && typeof camposEspecificos.dataEntradaAtendimento === 'string' && camposEspecificos.dataEntradaAtendimento.trim() !== '' && camposEspecificos.dataEntradaAtendimento !== 'Invalid Date')
                 );
                 
-                // Se não tem data da planilha, é caso manual - IGNORAR
-                if (!temDataPlanilha) {
+                // Verificar diferença entre dataCriacao e dataEntrada (casos importados têm dataEntrada antiga)
+                let temDataAntiga = false;
+                if (f.dataEntrada && f.dataCriacao) {
+                    try {
+                        const dataEntrada = new Date(f.dataEntrada);
+                        const dataCriacao = new Date(f.dataCriacao);
+                        // Se dataEntrada é pelo menos 1 dia anterior a dataCriacao, é caso importado
+                        const diffDias = (dataCriacao - dataEntrada) / (1000 * 60 * 60 * 24);
+                        temDataAntiga = diffDias >= 1;
+                    } catch (e) {
+                        // Ignorar erro de parsing
+                    }
+                }
+                
+                // É caso importado se: tem campos de importação OU (tem data da planilha E data antiga)
+                const ehCasoImportado = temCamposImportacao || (temDataPlanilha && temDataAntiga);
+                
+                // Se não é caso importado, IGNORAR
+                if (!ehCasoImportado) {
                     fichasSemData++;
                     return; // Pular este caso
                 }
