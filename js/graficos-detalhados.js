@@ -429,8 +429,12 @@ class GraficosDetalhados {
                         dataEntradaN2: f.dataEntradaN2,
                         dataEntradaAtendimento: f.dataEntradaAtendimento,
                         dataCriacao: f.dataCriacao,
+                        data: f.data,
+                        dataReclamacao: f.dataReclamacao,
                         camposEspecificos: camposEspecificos,
-                        temCamposEspecificos: !!f.camposEspecificos
+                        temCamposEspecificos: !!f.camposEspecificos,
+                        // Verificar TODOS os campos que podem conter data
+                        todasChaves: Object.keys(f).filter(k => k.toLowerCase().includes('data'))
                     });
                 }
                 
@@ -488,16 +492,24 @@ class GraficosDetalhados {
                     }
                 }
                 
-                // Se não encontrou nenhuma data válida, logar para debug
+                // Se não encontrou nenhuma data válida, logar para debug com TODOS os campos
                 if (!dataParaMes && fichasSemData < 10) {
-                    console.warn('⚠️ [N2] Ficha', f.id, 'SEM DATA VÁLIDA DA PLANILHA. Todos os campos testados:', {
-                        dataEntrada: f.dataEntrada,
-                        dataEntradaN2: f.dataEntradaN2,
-                        dataEntradaAtendimento: f.dataEntradaAtendimento,
-                        camposEspecificos_dataEntradaN2: camposEspecificos.dataEntradaN2,
-                        camposEspecificos_dataEntradaAtendimento: camposEspecificos.dataEntradaAtendimento,
-                        dataCriacao: f.dataCriacao
+                    // Buscar TODOS os campos que podem conter data
+                    const todosCamposData = {};
+                    Object.keys(f).forEach(k => {
+                        if (k.toLowerCase().includes('data') || k.toLowerCase().includes('entrada')) {
+                            todosCamposData[k] = f[k];
+                        }
                     });
+                    if (f.camposEspecificos) {
+                        Object.keys(f.camposEspecificos).forEach(k => {
+                            if (k.toLowerCase().includes('data') || k.toLowerCase().includes('entrada')) {
+                                todosCamposData[`camposEspecificos.${k}`] = f.camposEspecificos[k];
+                            }
+                        });
+                    }
+                    console.warn('⚠️ [N2] Ficha', f.id, 'SEM DATA VÁLIDA DA PLANILHA. Todos os campos de data encontrados:', todosCamposData);
+                    console.warn('   📋 Estrutura completa da ficha (primeiros 20 campos):', Object.keys(f).slice(0, 20));
                 }
             } else if (this.tipoDemanda === 'chatbot') {
                 // Chatbot: Priorizar campo "Data" da planilha (dataClienteChatbot ou data)
