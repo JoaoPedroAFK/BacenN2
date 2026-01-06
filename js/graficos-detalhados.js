@@ -1002,14 +1002,26 @@ class GraficosDetalhados {
 
     renderizarGraficoResponsavel(dados) {
         const containerId = `grafico-responsavel-${this.tipoDemanda}`;
+        // Para Chatbot, usar o ID do container de canal se existir (para substituir o gráfico de canal)
         let container = document.getElementById(containerId);
+        
+        // Se não encontrar e for Chatbot, tentar usar o container do gráfico de canal
+        if (!container && this.tipoDemanda === 'chatbot') {
+            container = document.getElementById(`grafico-canais-${this.tipoDemanda}`) || 
+                       document.getElementById(`grafico-canal-${this.tipoDemanda}`);
+            if (container) {
+                // Atualizar o ID do container para manter consistência
+                container.id = containerId;
+            }
+        }
         
         if (!container) {
             const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
             if (graficosContainer) {
                 const novoContainer = document.createElement('div');
                 novoContainer.className = 'grafico-card';
-                novoContainer.innerHTML = this.criarCardGraficoHTML('Por Responsável', containerId);
+                const titulo = this.tipoDemanda === 'chatbot' ? 'Por Agente' : 'Por Responsável';
+                novoContainer.innerHTML = this.criarCardGraficoHTML(titulo, containerId);
                 graficosContainer.appendChild(novoContainer);
                 container = document.getElementById(containerId);
             } else {
