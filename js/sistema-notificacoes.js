@@ -62,96 +62,140 @@ class SistemaNotificacoes {
         
         document.body.appendChild(caixa);
         
-        // Event listeners
-        document.getElementById('btn-fechar-notificacoes').onclick = () => {
-            this.fecharCaixaNotificacoes();
-        };
+        // Event listeners - usar setTimeout para garantir que o DOM foi atualizado
+        setTimeout(() => {
+            const btnFechar = document.getElementById('btn-fechar-notificacoes');
+            if (btnFechar) {
+                btnFechar.onclick = (e) => {
+                    e.stopPropagation();
+                    this.fecharCaixaNotificacoes();
+                };
+            }
+        }, 100);
         
         // Fechar ao clicar fora
-        document.addEventListener('click', (e) => {
-            if (!caixa.contains(e.target) && !e.target.closest('#icone-notificacoes')) {
-                this.fecharCaixaNotificacoes();
-            }
-        });
+        setTimeout(() => {
+            document.addEventListener('click', (e) => {
+                const caixaEl = document.getElementById('caixa-notificacoes');
+                const icone = document.getElementById('icone-notificacoes');
+                if (caixaEl && caixaEl.style.display === 'flex') {
+                    if (!caixaEl.contains(e.target) && !(icone && icone.contains(e.target))) {
+                        this.fecharCaixaNotificacoes();
+                    }
+                }
+            });
+        }, 200);
     }
     
     criarIconeSino() {
         // Remover ícone existente se houver
         const existente = document.getElementById('icone-notificacoes');
-        if (existente) existente.remove();
+        if (existente) {
+            console.log('🔄 [Notificações] Removendo ícone existente');
+            existente.remove();
+        }
         
-        // Procurar header-actions - tentar múltiplas vezes
-        let headerActions = document.querySelector('.velohub-header .header-actions') || 
-                           document.querySelector('.header-actions');
-        
-        // Se não encontrar, tentar criar ou aguardar
-        if (!headerActions) {
-            // Tentar encontrar o header e criar header-actions se necessário
-            const header = document.querySelector('.velohub-header');
-            if (header) {
-                const headerContent = header.querySelector('.header-content');
-                if (headerContent) {
-                    headerActions = document.createElement('div');
-                    headerActions.className = 'header-actions';
-                    headerContent.appendChild(headerActions);
+        // Função auxiliar para tentar criar o ícone
+        const tentarCriarIcone = () => {
+            // Procurar header-actions - tentar múltiplas vezes
+            let headerActions = document.querySelector('.velohub-header .header-actions') || 
+                               document.querySelector('.header-actions') ||
+                               document.querySelector('header .header-actions');
+            
+            // Se não encontrar, tentar criar ou aguardar
+            if (!headerActions) {
+                // Tentar encontrar o header e criar header-actions se necessário
+                const header = document.querySelector('.velohub-header') || 
+                              document.querySelector('header') ||
+                              document.querySelector('.header');
+                if (header) {
+                    const headerContent = header.querySelector('.header-content') || header;
+                    if (headerContent) {
+                        headerActions = document.createElement('div');
+                        headerActions.className = 'header-actions';
+                        headerContent.appendChild(headerActions);
+                        console.log('✅ [Notificações] Criado header-actions');
+                    }
                 }
             }
+            
+            if (!headerActions) {
+                console.warn('⚠️ [Notificações] Header actions não encontrado, tentando novamente...');
+                return false;
+            }
+            
+            // Verificar se já existe um ícone
+            if (document.getElementById('icone-notificacoes')) {
+                console.log('✅ [Notificações] Ícone já existe');
+                return true;
+            }
+            
+            const icone = document.createElement('button');
+            icone.id = 'icone-notificacoes';
+            icone.innerHTML = '🔔';
+            icone.style.cssText = `
+                background: transparent;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                position: relative;
+                padding: 8px;
+                border-radius: 50%;
+                transition: background 0.2s;
+            `;
+            
+            icone.onmouseover = () => {
+                icone.style.background = 'rgba(255,255,255,0.1)';
+            };
+            icone.onmouseout = () => {
+                icone.style.background = 'transparent';
+            };
+            
+            icone.onclick = (e) => {
+                e.stopPropagation();
+                console.log('🔔 [Notificações] Ícone clicado');
+                this.toggleCaixaNotificacoes();
+            };
+            
+            // Badge de contador
+            const badge = document.createElement('span');
+            badge.id = 'badge-contador-notificacoes';
+            badge.style.cssText = `
+                position: absolute;
+                top: 4px;
+                right: 4px;
+                background: #FF0000;
+                color: white;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                font-size: 11px;
+                font-weight: bold;
+            `;
+            badge.textContent = '0';
+            icone.appendChild(badge);
+            
+            headerActions.appendChild(icone);
+            console.log('✅ [Notificações] Ícone de sino criado e adicionado ao header');
+            return true;
+        };
+        
+        // Tentar criar imediatamente
+        if (!tentarCriarIcone()) {
+            // Se não conseguir, tentar novamente após 500ms, 1s, 2s
+            setTimeout(() => {
+                if (!tentarCriarIcone()) {
+                    setTimeout(() => {
+                        if (!tentarCriarIcone()) {
+                            setTimeout(() => tentarCriarIcone(), 2000);
+                        }
+                    }, 1000);
+                }
+            }, 500);
         }
-        
-        if (!headerActions) {
-            console.warn('⚠️ Header actions não encontrado, tentando novamente em 1 segundo...');
-            setTimeout(() => this.criarIconeSino(), 1000);
-            return;
-        }
-        
-        const icone = document.createElement('button');
-        icone.id = 'icone-notificacoes';
-        icone.innerHTML = '🔔';
-        icone.style.cssText = `
-            background: transparent;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            position: relative;
-            padding: 8px;
-            border-radius: 50%;
-            transition: background 0.2s;
-        `;
-        
-        icone.onmouseover = () => {
-            icone.style.background = 'rgba(255,255,255,0.1)';
-        };
-        icone.onmouseout = () => {
-            icone.style.background = 'transparent';
-        };
-        
-        icone.onclick = (e) => {
-            e.stopPropagation();
-            this.toggleCaixaNotificacoes();
-        };
-        
-        // Badge de contador
-        const badge = document.createElement('span');
-        badge.id = 'badge-contador-notificacoes';
-        badge.style.cssText = `
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            background: #FF0000;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: bold;
-        `;
-        badge.textContent = '0';
-        icone.appendChild(badge);
-        
-        headerActions.appendChild(icone);
     }
     
     toggleCaixaNotificacoes() {
@@ -463,9 +507,10 @@ class SistemaNotificacoes {
     }
     
     abrirFichaAposCarregamento(ficha) {
-        console.log('🔍 [Notificações] Tentando abrir ficha:', ficha.id, ficha.tipoDemanda);
+        console.log('🔍 [Notificações] Tentando abrir ficha:', ficha.id, ficha.tipoDemanda, ficha);
         
-        // Aguardar até que FichasEspecificas esteja disponível
+        // Primeiro, tentar usar o método direto de abrirFicha do FichasEspecificas
+        // que aceita o objeto completo da ficha
         let tentativas = 0;
         const maxTentativas = 50;
         
@@ -479,50 +524,73 @@ class SistemaNotificacoes {
                 try {
                     // Criar instância se não existir
                     if (!window.fichasEspecificas) {
-                        console.log('✅ Criando nova instância de FichasEspecificas');
+                        console.log('✅ [Notificações] Criando nova instância de FichasEspecificas');
                         window.fichasEspecificas = new window.FichasEspecificas();
                     }
                     
                     // Verificar se o método abrirFicha existe
                     if (typeof window.fichasEspecificas.abrirFicha === 'function') {
-                        console.log('✅ Abrindo ficha usando fichasEspecificas.abrirFicha');
+                        console.log('✅ [Notificações] Abrindo ficha usando fichasEspecificas.abrirFicha com objeto completo');
+                        // Passar o objeto completo da ficha
                         window.fichasEspecificas.abrirFicha(ficha);
+                        return;
                     } else {
                         throw new Error('Método abrirFicha não encontrado na instância');
                     }
                 } catch (error) {
-                    console.error('❌ Erro ao abrir ficha:', error);
+                    console.error('❌ [Notificações] Erro ao abrir ficha:', error);
                     // Tentar método alternativo por ID
-                    const fichaId = ficha.id;
-                    console.log('🔄 Tentando método alternativo por ID:', fichaId);
-                    
-                    if (ficha.tipoDemanda === 'bacen' && typeof abrirFichaBacen === 'function') {
-                        abrirFichaBacen(fichaId);
-                    } else if (ficha.tipoDemanda === 'n2' && typeof abrirFichaN2 === 'function') {
-                        abrirFichaN2(fichaId);
-                    } else if (ficha.tipoDemanda === 'chatbot' && typeof abrirFichaChatbotHTML === 'function') {
-                        abrirFichaChatbotHTML(fichaId);
-                    } else {
-                        console.error('❌ Nenhum método de abertura encontrado para tipo:', ficha.tipoDemanda);
-                    }
+                    this.tentarAbrirPorId(ficha);
                 }
             } else if (tentativas >= maxTentativas) {
                 clearInterval(tentarAbrir);
-                console.error('❌ FichasEspecificas não disponível após', maxTentativas * 100, 'ms');
+                console.error('❌ [Notificações] FichasEspecificas não disponível após', maxTentativas * 100, 'ms');
                 // Tentar método alternativo como último recurso
-                const fichaId = ficha.id;
-                if (ficha.tipoDemanda === 'bacen' && typeof abrirFichaBacen === 'function') {
-                    console.log('🔄 Último recurso: abrirFichaBacen');
-                    abrirFichaBacen(fichaId);
-                } else if (ficha.tipoDemanda === 'n2' && typeof abrirFichaN2 === 'function') {
-                    console.log('🔄 Último recurso: abrirFichaN2');
-                    abrirFichaN2(fichaId);
-                } else if (ficha.tipoDemanda === 'chatbot' && typeof abrirFichaChatbotHTML === 'function') {
-                    console.log('🔄 Último recurso: abrirFichaChatbotHTML');
-                    abrirFichaChatbotHTML(fichaId);
-                }
+                this.tentarAbrirPorId(ficha);
             }
         }, 100);
+    }
+    
+    tentarAbrirPorId(ficha) {
+        const fichaId = ficha.id;
+        console.log('🔄 [Notificações] Tentando método alternativo por ID:', fichaId);
+        
+        // Aguardar um pouco para garantir que as funções estejam disponíveis
+        setTimeout(() => {
+            if (ficha.tipoDemanda === 'bacen') {
+                if (typeof abrirFichaBacen === 'function') {
+                    console.log('🔄 [Notificações] Usando abrirFichaBacen');
+                    abrirFichaBacen(fichaId);
+                } else if (window.abrirFichaBacen) {
+                    console.log('🔄 [Notificações] Usando window.abrirFichaBacen');
+                    window.abrirFichaBacen(fichaId);
+                } else {
+                    console.error('❌ [Notificações] abrirFichaBacen não encontrado');
+                }
+            } else if (ficha.tipoDemanda === 'n2') {
+                if (typeof abrirFichaN2 === 'function') {
+                    console.log('🔄 [Notificações] Usando abrirFichaN2');
+                    abrirFichaN2(fichaId);
+                } else if (window.abrirFichaN2) {
+                    console.log('🔄 [Notificações] Usando window.abrirFichaN2');
+                    window.abrirFichaN2(fichaId);
+                } else {
+                    console.error('❌ [Notificações] abrirFichaN2 não encontrado');
+                }
+            } else if (ficha.tipoDemanda === 'chatbot') {
+                if (typeof abrirFichaChatbotHTML === 'function') {
+                    console.log('🔄 [Notificações] Usando abrirFichaChatbotHTML');
+                    abrirFichaChatbotHTML(fichaId);
+                } else if (window.abrirFichaChatbotHTML) {
+                    console.log('🔄 [Notificações] Usando window.abrirFichaChatbotHTML');
+                    window.abrirFichaChatbotHTML(fichaId);
+                } else {
+                    console.error('❌ [Notificações] abrirFichaChatbotHTML não encontrado');
+                }
+            } else {
+                console.error('❌ [Notificações] Nenhum método de abertura encontrado para tipo:', ficha.tipoDemanda);
+            }
+        }, 200);
     }
     
     atualizarContadorNotificacoes(count) {
