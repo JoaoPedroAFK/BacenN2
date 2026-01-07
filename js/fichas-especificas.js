@@ -247,6 +247,10 @@ class FichasEspecificas {
                         <h3>🔄 Campos Específicos N2</h3>
                         <div class="ficha-grid">
                             <div class="ficha-item">
+                                <label>Status Portabilidade:</label>
+                                <span class="ficha-valor editavel" data-campo="statusPortabilidade" data-tipo="select" data-opcoes='["em-andamento","concluida","pendente","cancelada","em-analise"]'>${dados.statusPortabilidade || 'Não informado'}</span>
+                            </div>
+                            <div class="ficha-item">
                                 <label>N2 Portabilidade?</label>
                                 <span class="ficha-valor editavel" data-campo="n2Portabilidade">${dados.n2Portabilidade ? 'Sim' : 'Não'}</span>
                             </div>
@@ -644,6 +648,8 @@ class FichasEspecificas {
                     if (select) {
                         if (campo === 'status') {
                             elemento.textContent = this.formatarStatus(select.value);
+                        } else if (campo === 'statusPortabilidade') {
+                            elemento.textContent = this.formatarStatusPortabilidade(select.value);
                         } else {
                             elemento.textContent = select.value || 'Não informado';
                         }
@@ -776,12 +782,12 @@ class FichasEspecificas {
             if (radio) {
                 valorNovo = radio.value === 'Sim';
             }
-            // Select (Status, PIX Status)
+            // Select (Status, PIX Status, Status Portabilidade)
             else {
                 const select = elemento.querySelector('select');
                 if (select) {
                     valorNovo = select.value;
-                    // Para status, o valor já está no formato correto (nao-iniciado, em-tratativa, etc)
+                    // Para status e statusPortabilidade, o valor já está no formato correto (nao-iniciado, em-tratativa, em-andamento, etc)
                 }
                     // Input date (incluindo finalizadoEm)
                     else {
@@ -1282,6 +1288,18 @@ class FichasEspecificas {
             'finalizado': 'Finalizado'
         };
         return statusMap[status] || status || 'Não definido';
+    }
+
+    formatarStatusPortabilidade(status) {
+        const portabilidadeMap = {
+            'solicitada': 'Solicitada',
+            'em-andamento': 'Em Andamento',
+            'concluida': 'Concluída',
+            'cancelada': 'Cancelada',
+            'pendente': 'Pendente',
+            'em-analise': 'Em Análise'
+        };
+        return portabilidadeMap[status] || status || 'Não informado';
     }
 
     mostrarNotificacao(mensagem, tipo) {
