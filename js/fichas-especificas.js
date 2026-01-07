@@ -247,18 +247,6 @@ class FichasEspecificas {
                         <h3>🔄 Campos Específicos N2</h3>
                         <div class="ficha-grid">
                             <div class="ficha-item">
-                                <label>Banco Origem:</label>
-                                <span class="ficha-valor editavel" data-campo="bancoOrigem">${dados.bancoOrigem || 'Não informado'}</span>
-                            </div>
-                            <div class="ficha-item">
-                                <label>Banco Destino:</label>
-                                <span class="ficha-valor editavel" data-campo="bancoDestino">${dados.bancoDestino || 'Não informado'}</span>
-                            </div>
-                            <div class="ficha-item">
-                                <label>Status Portabilidade:</label>
-                                <span class="ficha-valor editavel" data-campo="statusPortabilidade" data-tipo="select" data-opcoes='["Em análise","Aprovada","Rejeitada","Concluída","Pendente"]'>${dados.statusPortabilidade || 'Não informado'}</span>
-                            </div>
-                            <div class="ficha-item">
                                 <label>N2 Portabilidade?</label>
                                 <span class="ficha-valor editavel" data-campo="n2Portabilidade">${dados.n2Portabilidade ? 'Sim' : 'Não'}</span>
                             </div>
@@ -1150,9 +1138,6 @@ class FichasEspecificas {
     
     <div class="secao">
         <h3><strong>🔄 CAMPOS ESPECÍFICOS N2</strong></h3>
-        <div class="campo"><span class="label">Banco Origem:</span> <span class="valor"><strong>${dados.bancoOrigem || 'Não informado'}</strong></span></div>
-        <div class="campo"><span class="label">Banco Destino:</span> <span class="valor"><strong>${dados.bancoDestino || 'Não informado'}</strong></span></div>
-        <div class="campo"><span class="label">Status Portabilidade:</span> <span class="valor"><strong>${dados.statusPortabilidade || 'Não informado'}</strong></span></div>
         <div class="campo"><span class="label">N2 Portabilidade?</span> <span class="valor"><strong>${dados.n2Portabilidade ? 'Sim' : 'Não'}</strong></span></div>
         <div class="campo"><span class="label">Acionou a central?</span> <span class="valor"><strong>${dados.acionouCentral ? 'Sim' : 'Não'}</strong></span></div>
         <div class="campo"><span class="label">PIX liberado ou excluído?</span> <span class="valor"><strong>${dados.pixLiberado ? 'Sim' : 'Não'}</strong></span></div>

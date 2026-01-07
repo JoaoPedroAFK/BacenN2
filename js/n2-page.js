@@ -334,9 +334,6 @@ async function handleSubmitN2(e) {
         nomeCompleto: obterValorCampoN2('n2-nome'),
         cpf: obterValorCampoN2('n2-cpf'),
         telefone: obterValorCampoN2('n2-telefone'),
-        bancoOrigem: obterValorCampoN2('n2-banco-origem'),
-        bancoDestino: obterValorCampoN2('n2-banco-destino'),
-        statusPortabilidade: obterValorCampoN2('n2-status-portabilidade'),
         motivoReduzido: obterValorCampoN2('n2-motivo-reduzido'),
         // Removido: motivoDetalhado e prazoN2 (prazo Bacen)
         tentativasContato: obterTentativasN2(), // Coletar todas as tentativas
@@ -541,17 +538,7 @@ async function atualizarDashboardN2() {
     const taxaPortabilidade = total > 0 ? ((portabilidadesConcluidas / total) * 100).toFixed(1) : 0;
     atualizarElemento('taxa-portabilidade-n2', `${taxaPortabilidade}%`);
     
-    // Banco mais solicitado
-    const bancosDestino = {};
-    fichasN2.forEach(f => {
-        if (f.bancoDestino) {
-            bancosDestino[f.bancoDestino] = (bancosDestino[f.bancoDestino] || 0) + 1;
-        }
-    });
-    const bancoMaisSolicitado = Object.keys(bancosDestino).length > 0 
-        ? Object.keys(bancosDestino).reduce((a, b) => bancosDestino[a] > bancosDestino[b] ? a : b, 'N/A')
-        : 'N/A';
-    atualizarElemento('banco-mais-solicitado', bancoMaisSolicitado);
+    // Removido: estatística de banco mais solicitado (campo bancoDestino removido)
     
     const pixLiberado = fichasN2.filter(f => f.pixLiberado).length;
     atualizarElemento('pix-liberado-n2', pixLiberado);
@@ -1041,8 +1028,6 @@ window.criarCardN2 = function criarCardN2(ficha) {
             <div class="complaint-summary">
                 <div class="complaint-detail"><strong>CPF:</strong> ${ficha.cpf}</div>
                 <div class="complaint-detail"><strong>Motivo:</strong> ${ficha.motivoReduzido}</div>
-                ${ficha.bancoOrigem ? `<div class="complaint-detail"><strong>Banco Origem:</strong> ${ficha.bancoOrigem}</div>` : ''}
-                ${ficha.bancoDestino ? `<div class="complaint-detail"><strong>Banco Destino:</strong> ${ficha.bancoDestino}</div>` : ''}
                 <div class="complaint-detail"><strong>Status Portabilidade:</strong> ${portabilidadeLabel}</div>
                 <div class="complaint-detail"><strong>Responsável:</strong> ${ficha.responsavel}</div>
             </div>
@@ -1136,20 +1121,9 @@ function gerarRelatorioPeriodoN2() {
 }
 
 function gerarRelatorioBancosN2() {
-    const bancos = {};
-    fichasN2.forEach(f => {
-        const origem = f.bancoOrigem || 'Não informado';
-        const destino = f.bancoDestino || 'Não informado';
-        const chave = `${origem} → ${destino}`;
-        bancos[chave] = (bancos[chave] || 0) + 1;
-    });
-    
-    const dados = Object.entries(bancos).map(([rota, count]) => ({
-        rota,
-        count
-    })).sort((a, b) => b.count - a.count);
-    
-    mostrarRelatorioBancos('Relatório por Bancos - N2', dados);
+    // Removido: relatório de bancos origem/destino (campos bancoOrigem e bancoDestino removidos)
+    console.warn('⚠️ Relatório de bancos desativado - campos bancoOrigem e bancoDestino foram removidos');
+    mostrarAlerta('Relatório de bancos não está mais disponível. Os campos Banco Origem e Banco Destino foram removidos.', 'info');
 }
 
 function gerarRelatorioCompletoN2() {
@@ -1170,8 +1144,6 @@ function mostrarRelatorioN2(titulo, dados, subtitulo) {
                     <tr>
                         <th>Cliente</th>
                         <th>CPF</th>
-                        <th>Banco Origem</th>
-                        <th>Banco Destino</th>
                         <th>Status Portabilidade</th>
                         <th>Status</th>
                         <th>Valor</th>
@@ -1182,8 +1154,6 @@ function mostrarRelatorioN2(titulo, dados, subtitulo) {
                         <tr>
                             <td>${f.nomeCompleto || f.nomeCliente || '-'}</td>
                             <td>${f.cpf || '-'}</td>
-                            <td>${f.bancoOrigem || '-'}</td>
-                            <td>${f.bancoDestino || '-'}</td>
                             <td>${f.statusPortabilidade || '-'}</td>
                             <td>${f.status || '-'}</td>
                         </tr>
@@ -1209,12 +1179,10 @@ function exportarRelatorioN2Dados(dados) {
         return;
     }
     
-    const headers = ['Cliente', 'CPF', 'Banco Origem', 'Banco Destino', 'Status Portabilidade', 'Status'];
+    const headers = ['Cliente', 'CPF', 'Status Portabilidade', 'Status'];
     const rows = dados.map(f => [
         f.nomeCompleto || f.nomeCliente || '',
         f.cpf || '',
-        f.bancoOrigem || '',
-        f.bancoDestino || '',
         f.statusPortabilidade || '',
         f.status || '',
     ]);
