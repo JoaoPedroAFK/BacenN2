@@ -476,9 +476,26 @@ class SistemaNotificacoes {
 // Inicializar sistema de notificações
 let sistemaNotificacoes = null;
 
-document.addEventListener('DOMContentLoaded', function() {
-    sistemaNotificacoes = new SistemaNotificacoes();
-    window.sistemaNotificacoes = sistemaNotificacoes;
+function inicializarSistemaNotificacoes() {
+    if (sistemaNotificacoes) return; // Já inicializado
+    
+    // Aguardar um pouco para garantir que o header esteja carregado
+    setTimeout(() => {
+        sistemaNotificacoes = new SistemaNotificacoes();
+        window.sistemaNotificacoes = sistemaNotificacoes;
+    }, 500);
+}
+
+// Tentar inicializar quando DOM estiver pronto
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarSistemaNotificacoes);
+} else {
+    // DOM já está pronto
+    inicializarSistemaNotificacoes();
+}
+
+// Também tentar após um delay adicional (caso o header seja carregado dinamicamente)
+setTimeout(inicializarSistemaNotificacoes, 1000);
     
     // Adicionar estilos CSS para animações
     if (!document.getElementById('estilos-notificacoes')) {
