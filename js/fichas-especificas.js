@@ -247,6 +247,18 @@ class FichasEspecificas {
                         <h3>🔄 Campos Específicos N2</h3>
                         <div class="ficha-grid">
                             <div class="ficha-item">
+                                <label>Banco Origem:</label>
+                                <span class="ficha-valor editavel" data-campo="bancoOrigem">${dados.bancoOrigem || 'Não informado'}</span>
+                            </div>
+                            <div class="ficha-item">
+                                <label>Banco Destino:</label>
+                                <span class="ficha-valor editavel" data-campo="bancoDestino">${dados.bancoDestino || 'Não informado'}</span>
+                            </div>
+                            <div class="ficha-item">
+                                <label>Status Portabilidade:</label>
+                                <span class="ficha-valor editavel" data-campo="statusPortabilidade" data-tipo="select" data-opcoes='["Em análise","Aprovada","Rejeitada","Concluída","Pendente"]'>${dados.statusPortabilidade || 'Não informado'}</span>
+                            </div>
+                            <div class="ficha-item">
                                 <label>N2 Portabilidade?</label>
                                 <span class="ficha-valor editavel" data-campo="n2Portabilidade">${dados.n2Portabilidade ? 'Sim' : 'Não'}</span>
                             </div>

@@ -86,7 +86,7 @@ class ExportacaoRelatorios {
         if (tipoDemanda === 'bacen') {
             return [...colunasBase, 'Prazo BACEN', 'Procon', 'PIX Status'];
         } else if (tipoDemanda === 'n2') {
-            return [...colunasBase, 'Status Portabilidade', 'PIX Status'];
+            return [...colunasBase, 'Banco Origem', 'Banco Destino', 'Status Portabilidade', 'PIX Status'];
         } else {
             return [...colunasBase, 'Canal', 'Resolvido Auto', 'Satisfação'];
         }
@@ -113,6 +113,8 @@ class ExportacaoRelatorios {
         } else if (tipoDemanda === 'n2') {
             return [
                 ...valoresBase,
+                ficha.bancoOrigem || '-',
+                ficha.bancoDestino || '-',
                 ficha.statusPortabilidade || '-',
                 ficha.pixStatus || '-'
             ];

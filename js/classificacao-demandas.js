@@ -13,7 +13,7 @@ class SistemaClassificacaoDemandas {
                 nome: 'N2',
                 descricao: 'Demandas de portabilidade e transferência',
                 cor: '#1DFDB9',
-                campos: ['Data entrada', 'Finalizado em', 'Responsável', 'Nome completo', 'CPF', 'Origem', 'Motivo reduzido', 'Motivo Reclamação', 'Prazo N2', 'Telefone', 'N2 Portabilidade?', 'Acionou a central?', 'Status Portabilidade', 'PIX liberado ou excluído?', 'Enviar para cobrança?', 'Observações']
+                campos: ['Data entrada', 'Finalizado em', 'Responsável', 'Nome completo', 'CPF', 'Origem', 'Motivo reduzido', 'Motivo Reclamação', 'Prazo N2', 'Telefone', 'N2 Portabilidade?', 'Acionou a central?', 'Banco Origem', 'Banco Destino', 'Status Portabilidade', 'PIX liberado ou excluído?', 'Enviar para cobrança?', 'Observações']
             },
             chatbot: {
                 nome: 'Chatbot',
@@ -312,6 +312,8 @@ class SistemaClassificacaoDemandas {
                 case 'n2':
                     campos = `
                         <span class="campo-especifico">🔄 Portabilidade: ${demanda.camposEspecificos.n2Portabilidade ? '✅' : '❌'}</span>
+                        <span class="campo-especifico">🏦 Origem: ${demanda.camposEspecificos.bancoOrigem || 'N/A'}</span>
+                        <span class="campo-especifico">🏦 Destino: ${demanda.camposEspecificos.bancoDestino || 'N/A'}</span>
                         <span class="campo-especifico">📊 Status: ${demanda.camposEspecificos.statusPortabilidade || 'N/A'}</span>
                     `;
                     break;
@@ -339,7 +341,8 @@ class SistemaClassificacaoDemandas {
                 case 'n2':
                     campos = `
                         <span class="campo-especifico">🔄 Portabilidade: ${demanda.n2Portabilidade ? '✅' : '❌'}</span>
-                        <!-- Removido: Banco Origem e Banco Destino (campos removidos das fichas) -->
+                        <span class="campo-especifico">🏦 Banco Origem: ${demanda.bancoOrigem || 'N/A'}</span>
+                        <span class="campo-especifico">🏦 Banco Destino: ${demanda.bancoDestino || 'N/A'}</span>
                     `;
                     break;
                     
@@ -415,7 +418,8 @@ class SistemaClassificacaoDemandas {
                 dataCriacao: '2024-01-10',
                 motivoReduzido: 'Portabilidade',
                 n2Portabilidade: true,
-                // Removido: bancoOrigem e bancoDestino (campos removidos das fichas)
+                bancoOrigem: 'Banco A',
+                bancoDestino: 'Banco B',
             },
             // Demanda Chatbot
             {

@@ -334,6 +334,9 @@ async function handleSubmitN2(e) {
         nomeCompleto: obterValorCampoN2('n2-nome'),
         cpf: obterValorCampoN2('n2-cpf'),
         telefone: obterValorCampoN2('n2-telefone'),
+        bancoOrigem: obterValorCampoN2('n2-banco-origem'),
+        bancoDestino: obterValorCampoN2('n2-banco-destino'),
+        statusPortabilidade: obterValorCampoN2('n2-status-portabilidade'),
         motivoReduzido: obterValorCampoN2('n2-motivo-reduzido'),
         // Removido: motivoDetalhado e prazoN2 (prazo Bacen)
         tentativasContato: obterTentativasN2(), // Coletar todas as tentativas
@@ -1156,6 +1159,8 @@ function mostrarRelatorioN2(titulo, dados, subtitulo) {
                         <tr>
                             <td>${f.nomeCompleto || f.nomeCliente || '-'}</td>
                             <td>${f.cpf || '-'}</td>
+                            <td>${f.bancoOrigem || '-'}</td>
+                            <td>${f.bancoDestino || '-'}</td>
                             <td>${f.statusPortabilidade || '-'}</td>
                             <td>${f.status || '-'}</td>
                         </tr>
