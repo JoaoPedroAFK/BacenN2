@@ -299,16 +299,24 @@ class SistemaNotificacoes {
             return;
         }
         
-        lista.innerHTML = this.notificacoesAtivas.map(notif => {
-            return this.criarElementoNotificacao(notif);
+        lista.innerHTML = this.notificacoesAtivas.map((notif, index) => {
+            return this.criarElementoNotificacao(notif, index);
         }).join('');
+        
+        // Adicionar event listeners após renderizar
+        lista.querySelectorAll('.notificacao-item').forEach((item, index) => {
+            item.onclick = () => {
+                this.abrirFicha(this.notificacoesAtivas[index].ficha);
+            };
+        });
     }
     
-    criarElementoNotificacao(notif) {
+    criarElementoNotificacao(notif, index) {
         const corFundo = notif.prioridade === 'critica' ? '#FF0000' : notif.prioridade === 'alta' ? '#FF8400' : '#1634FF';
         const protocolos = this.obterProtocolosFicha(notif.ficha) || 'N/A';
         const tipoDemanda = notif.ficha.tipoDemanda || 'bacen';
         const tipoLabel = tipoDemanda === 'bacen' ? 'BACEN' : tipoDemanda === 'n2' ? 'N2' : tipoDemanda === 'chatbot' ? 'Chatbot' : 'RA/Procon';
+        const fichaId = notif.ficha.id || '';
         
         return `
             <div class="notificacao-item" style="
@@ -319,7 +327,7 @@ class SistemaNotificacoes {
                 border-radius: 8px;
                 cursor: pointer;
                 transition: transform 0.2s, box-shadow 0.2s;
-            " onclick="sistemaNotificacoes.abrirFicha(${JSON.stringify(notif.ficha).replace(/"/g, '&quot;')})" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
+            " data-ficha-id="${fichaId}" data-tipo-demanda="${tipoDemanda}" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
                 <div style="display: flex; justify-content: space-between; align-items: start;">
                     <div style="flex: 1;">
                         <div style="font-weight: 600; margin-bottom: 6px; font-size: 14px;">${notif.mensagem}</div>
