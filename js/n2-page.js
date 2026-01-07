@@ -334,6 +334,7 @@ async function handleSubmitN2(e) {
         nomeCompleto: obterValorCampoN2('n2-nome'),
         cpf: obterValorCampoN2('n2-cpf'),
         telefone: obterValorCampoN2('n2-telefone'),
+        origemTipo: document.querySelector('input[name="n2-origem-tipo"]:checked')?.value || '',
         motivoReduzido: obterValorCampoN2('n2-motivo-reduzido'),
         // Removido: motivoDetalhado e prazoN2 (prazo Bacen)
         tentativasContato: obterTentativasN2(), // Coletar todas as tentativas

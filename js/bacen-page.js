@@ -313,6 +313,7 @@ async function handleSubmitBacen(e) {
         cpf: obterValorCampo('bacen-cpf'),
         telefone: obterValorCampo('bacen-telefone'),
         origem: obterValorCampo('bacen-origem'),
+        origemTipo: document.querySelector('input[name="bacen-origem-tipo"]:checked')?.value || '',
         rdr: obterValorCampo('bacen-rdr'),
         motivoReduzido: obterValorCampo('bacen-motivo-reduzido'),
         motivoDetalhado: obterValorCampo('bacen-motivo-detalhado'),

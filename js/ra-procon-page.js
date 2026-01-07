@@ -242,7 +242,7 @@ function renderizarGraficosRAPROCON() {
                 labels: ['ReclameAqui', 'Procon'],
                 datasets: [{
                     data: [ra, procon],
-                    backgroundColor: ['#FF00D7', '#791DD0']
+                    backgroundColor: ['#1694FF', '#000058']
                 }]
             },
             options: {

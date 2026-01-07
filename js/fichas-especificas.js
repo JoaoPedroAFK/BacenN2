@@ -557,7 +557,7 @@ class FichasEspecificas {
                 // Campos booleanos (Sim/Não) - converter para radio buttons
                 const camposBooleanos = ['acionouCentral', 'bacen', 'procon', 'liquidacaoAntecipada', 
                                          'enviarCobranca', 'n2Portabilidade', 'resolvidoAutomaticamente', 
-                                         'encaminhadoHumano'];
+                                         'encaminhadoHumano', 'formalizadoCliente'];
                 
                 if (camposBooleanos.includes(campo)) {
                     const valorAtual = elemento.textContent.trim();
