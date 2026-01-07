@@ -4,6 +4,7 @@
 class SistemaNotificacoes {
     constructor() {
         this.notificacoes = [];
+        this.notificacoesAtivas = [];
         this.audioContext = null;
         this.intervaloVerificacao = null;
         this.inicializar();
@@ -23,23 +24,147 @@ class SistemaNotificacoes {
     }
     
     criarContainerNotificacoes() {
-        // Remover container existente se houver
-        const existente = document.getElementById('container-notificacoes');
+        // Criar ícone de sino no header
+        this.criarIconeSino();
+        
+        // Criar caixa de notificações (inicialmente oculta)
+        const existente = document.getElementById('caixa-notificacoes');
         if (existente) existente.remove();
         
-        const container = document.createElement('div');
-        container.id = 'container-notificacoes';
-        container.style.cssText = `
+        const caixa = document.createElement('div');
+        caixa.id = 'caixa-notificacoes';
+        caixa.style.cssText = `
             position: fixed;
-            top: 80px;
+            top: 70px;
             right: 20px;
             z-index: 10000;
-            max-width: 400px;
-            max-height: 80vh;
-            overflow-y: auto;
+            width: 400px;
+            max-height: 600px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
         `;
         
-        document.body.appendChild(container);
+        caixa.innerHTML = `
+            <div style="padding: 16px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #1634FF; color: white;">
+                <h3 style="margin: 0; font-size: 18px; font-weight: 600;">🔔 Notificações</h3>
+                <button id="btn-fechar-notificacoes" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 18px;">✕</button>
+            </div>
+            <div id="lista-notificacoes" style="overflow-y: auto; max-height: 540px; padding: 8px;">
+                <div style="padding: 20px; text-align: center; color: #666;">
+                    Nenhuma notificação no momento
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(caixa);
+        
+        // Event listeners
+        document.getElementById('btn-fechar-notificacoes').onclick = () => {
+            this.fecharCaixaNotificacoes();
+        };
+        
+        // Fechar ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (!caixa.contains(e.target) && !e.target.closest('#icone-notificacoes')) {
+                this.fecharCaixaNotificacoes();
+            }
+        });
+    }
+    
+    criarIconeSino() {
+        // Remover ícone existente se houver
+        const existente = document.getElementById('icone-notificacoes');
+        if (existente) existente.remove();
+        
+        // Procurar header-actions
+        const headerActions = document.querySelector('.velohub-header .header-actions') || 
+                             document.querySelector('.header-actions') ||
+                             document.querySelector('.velohub-header');
+        
+        if (!headerActions) {
+            console.warn('⚠️ Header actions não encontrado, tentando criar...');
+            return;
+        }
+        
+        const icone = document.createElement('button');
+        icone.id = 'icone-notificacoes';
+        icone.innerHTML = '🔔';
+        icone.style.cssText = `
+            background: transparent;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            position: relative;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.2s;
+        `;
+        
+        icone.onmouseover = () => {
+            icone.style.background = 'rgba(255,255,255,0.1)';
+        };
+        icone.onmouseout = () => {
+            icone.style.background = 'transparent';
+        };
+        
+        icone.onclick = (e) => {
+            e.stopPropagation();
+            this.toggleCaixaNotificacoes();
+        };
+        
+        // Badge de contador
+        const badge = document.createElement('span');
+        badge.id = 'badge-contador-notificacoes';
+        badge.style.cssText = `
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: #FF0000;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+        `;
+        badge.textContent = '0';
+        icone.appendChild(badge);
+        
+        headerActions.appendChild(icone);
+    }
+    
+    toggleCaixaNotificacoes() {
+        const caixa = document.getElementById('caixa-notificacoes');
+        if (!caixa) return;
+        
+        if (caixa.style.display === 'flex') {
+            this.fecharCaixaNotificacoes();
+        } else {
+            this.abrirCaixaNotificacoes();
+        }
+    }
+    
+    abrirCaixaNotificacoes() {
+        const caixa = document.getElementById('caixa-notificacoes');
+        if (caixa) {
+            caixa.style.display = 'flex';
+            // Atualizar lista ao abrir
+            this.atualizarListaNotificacoes();
+        }
+    }
+    
+    fecharCaixaNotificacoes() {
+        const caixa = document.getElementById('caixa-notificacoes');
+        if (caixa) {
+            caixa.style.display = 'none';
+        }
     }
     
     iniciarVerificacaoPeriodica() {
@@ -141,76 +266,73 @@ class SistemaNotificacoes {
     }
     
     exibirNotificacoes(notificacoes) {
-        const container = document.getElementById('container-notificacoes');
-        if (!container) return;
+        // Armazenar notificações ativas
+        this.notificacoesAtivas = notificacoes;
         
-        // Filtrar notificações já exibidas (evitar duplicatas)
-        const notificacoesNovas = notificacoes.filter(n => {
-            const chave = `${n.tipo}-${n.ficha.id}`;
-            return !this.notificacoes.includes(chave);
-        });
+        // Atualizar lista na caixa
+        this.atualizarListaNotificacoes();
         
-        if (notificacoesNovas.length === 0) {
-            if (notificacoes.length === 0) {
-                container.innerHTML = '';
-            }
+        // Atualizar contador no badge
+        this.atualizarContadorNotificacoes(notificacoes.length);
+        
+        // Tocar alerta para novas notificações críticas
+        const novasCriticas = notificacoes.filter(n => 
+            n.prioridade === 'critica' || 
+            (n.tipo === 'pix-solicitada' && n.prioridade === 'alta')
+        );
+        
+        if (novasCriticas.length > 0) {
+            this.tocarAlerta();
+        }
+    }
+    
+    atualizarListaNotificacoes() {
+        const lista = document.getElementById('lista-notificacoes');
+        if (!lista) return;
+        
+        if (!this.notificacoesAtivas || this.notificacoesAtivas.length === 0) {
+            lista.innerHTML = `
+                <div style="padding: 20px; text-align: center; color: #666;">
+                    Nenhuma notificação no momento
+                </div>
+            `;
             return;
         }
         
-        // Adicionar novas notificações
-        notificacoesNovas.forEach(notif => {
-            const chave = `${notif.tipo}-${notif.ficha.id}`;
-            this.notificacoes.push(chave);
-            
-            const elemento = this.criarElementoNotificacao(notif);
-            container.appendChild(elemento);
-            
-            // Notificação sonora e visual para PIX Solicitada após 1 dia útil
-            if (notif.tipo === 'pix-solicitada') {
-                this.tocarAlerta();
-                this.animarNotificacao(elemento);
-            }
-            
-            // Notificação sonora para prazos críticos
-            if (notif.prioridade === 'critica') {
-                this.tocarAlerta();
-                this.animarNotificacao(elemento);
-            }
-        });
-        
-        // Atualizar contador no header se existir
-        this.atualizarContadorNotificacoes(notificacoes.length);
+        lista.innerHTML = this.notificacoesAtivas.map(notif => {
+            return this.criarElementoNotificacao(notif);
+        }).join('');
     }
     
     criarElementoNotificacao(notif) {
-        const elemento = document.createElement('div');
-        elemento.className = 'notificacao-item';
-        elemento.style.cssText = `
-            background: ${notif.prioridade === 'critica' ? '#FF0000' : notif.prioridade === 'alta' ? '#FF8400' : '#1634FF'};
-            color: white;
-            padding: 12px 16px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            cursor: pointer;
-            animation: slideInRight 0.3s ease-out;
-        `;
+        const corFundo = notif.prioridade === 'critica' ? '#FF0000' : notif.prioridade === 'alta' ? '#FF8400' : '#1634FF';
+        const protocolos = this.obterProtocolosFicha(notif.ficha) || 'N/A';
+        const tipoDemanda = notif.ficha.tipoDemanda || 'bacen';
+        const tipoLabel = tipoDemanda === 'bacen' ? 'BACEN' : tipoDemanda === 'n2' ? 'N2' : tipoDemanda === 'chatbot' ? 'Chatbot' : 'RA/Procon';
         
-        elemento.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: start;">
-                <div style="flex: 1;">
-                    <div style="font-weight: 600; margin-bottom: 4px;">${notif.mensagem}</div>
-                    <div style="font-size: 0.85em; opacity: 0.9;">Protocolo: ${this.obterProtocolosFicha(notif.ficha) || 'N/A'}</div>
+        return `
+            <div class="notificacao-item" style="
+                background: ${corFundo};
+                color: white;
+                padding: 12px 16px;
+                margin: 8px;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: transform 0.2s, box-shadow 0.2s;
+            " onclick="sistemaNotificacoes.abrirFicha(${JSON.stringify(notif.ficha).replace(/"/g, '&quot;')})" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; margin-bottom: 6px; font-size: 14px;">${notif.mensagem}</div>
+                        <div style="font-size: 0.85em; opacity: 0.9; margin-bottom: 4px;">
+                            <strong>Tipo:</strong> ${tipoLabel} | <strong>Cliente:</strong> ${notif.ficha.nomeCompleto || notif.ficha.nomeCliente || 'N/A'}
+                        </div>
+                        <div style="font-size: 0.85em; opacity: 0.9;">
+                            <strong>Protocolo(s):</strong> ${protocolos}
+                        </div>
+                    </div>
                 </div>
-                <button onclick="sistemaNotificacoes.fecharNotificacao(this)" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 10px;">✕</button>
             </div>
         `;
-        
-        elemento.onclick = () => {
-            this.abrirFicha(notif.ficha);
-        };
-        
-        return elemento;
     }
     
     obterProtocolosFicha(ficha) {
@@ -266,69 +388,79 @@ class SistemaNotificacoes {
         elemento.style.animation = 'pulse 0.5s ease-in-out 3';
     }
     
-    fecharNotificacao(btn) {
-        const elemento = btn.closest('.notificacao-item');
-        if (elemento) {
-            elemento.style.animation = 'slideOutRight 0.3s ease-out';
+    abrirFicha(ficha) {
+        // Fechar caixa de notificações
+        this.fecharCaixaNotificacoes();
+        
+        // Navegar para a página correta se necessário
+        const tipoDemanda = ficha.tipoDemanda || 'bacen';
+        const paginaAtual = window.location.pathname.split('/').pop();
+        
+        if (tipoDemanda === 'bacen' && !paginaAtual.includes('bacen.html')) {
+            window.location.href = 'bacen.html';
+            // Aguardar carregamento e então abrir ficha
             setTimeout(() => {
-                elemento.remove();
-                this.atualizarContadorNotificacoes();
-            }, 300);
+                this.abrirFichaAposCarregamento(ficha);
+            }, 1000);
+        } else if (tipoDemanda === 'n2' && !paginaAtual.includes('n2.html')) {
+            window.location.href = 'n2.html';
+            setTimeout(() => {
+                this.abrirFichaAposCarregamento(ficha);
+            }, 1000);
+        } else if (tipoDemanda === 'chatbot' && !paginaAtual.includes('chatbot.html')) {
+            window.location.href = 'chatbot.html';
+            setTimeout(() => {
+                this.abrirFichaAposCarregamento(ficha);
+            }, 1000);
+        } else {
+            // Já está na página correta, abrir ficha diretamente
+            this.abrirFichaAposCarregamento(ficha);
         }
     }
     
-    abrirFicha(ficha) {
-        if (window.FichasEspecificas) {
-            const fichasEspecificas = new window.FichasEspecificas();
-            fichasEspecificas.abrirFicha(ficha.tipoDemanda || 'bacen', ficha);
-        }
+    abrirFichaAposCarregamento(ficha) {
+        // Aguardar até que FichasEspecificas esteja disponível
+        let tentativas = 0;
+        const maxTentativas = 20;
+        
+        const tentarAbrir = setInterval(() => {
+            tentativas++;
+            
+            if (window.FichasEspecificas && typeof window.FichasEspecificas === 'function') {
+                clearInterval(tentarAbrir);
+                
+                try {
+                    if (!window.fichasEspecificas) {
+                        window.fichasEspecificas = new window.FichasEspecificas();
+                    }
+                    window.fichasEspecificas.abrirFicha(ficha);
+                } catch (error) {
+                    console.error('❌ Erro ao abrir ficha:', error);
+                    // Tentar método alternativo
+                    if (ficha.tipoDemanda === 'bacen' && typeof abrirFichaBacen === 'function') {
+                        abrirFichaBacen(ficha.id);
+                    } else if (ficha.tipoDemanda === 'n2' && typeof abrirFichaN2 === 'function') {
+                        abrirFichaN2(ficha.id);
+                    }
+                }
+            } else if (tentativas >= maxTentativas) {
+                clearInterval(tentarAbrir);
+                console.error('❌ FichasEspecificas não disponível após', maxTentativas * 100, 'ms');
+            }
+        }, 100);
     }
     
     atualizarContadorNotificacoes(count) {
-        const container = document.getElementById('container-notificacoes');
-        if (!container) return;
+        const badge = document.getElementById('badge-contador-notificacoes');
+        if (!badge) return;
         
-        const countAtual = container.querySelectorAll('.notificacao-item').length;
-        const countFinal = count !== undefined ? count : countAtual;
+        const countFinal = count !== undefined ? count : (this.notificacoesAtivas?.length || 0);
         
-        // Adicionar badge no header se não existir
-        let badge = document.getElementById('badge-notificacoes');
-        if (!badge && countFinal > 0) {
-            const header = document.querySelector('.velohub-header .header-actions');
-            if (header) {
-                badge = document.createElement('div');
-                badge.id = 'badge-notificacoes';
-                badge.style.cssText = `
-                    position: absolute;
-                    top: 10px;
-                    right: 10px;
-                    background: #FF0000;
-                    color: white;
-                    border-radius: 50%;
-                    width: 24px;
-                    height: 24px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 12px;
-                    font-weight: bold;
-                    cursor: pointer;
-                    z-index: 10001;
-                `;
-                badge.textContent = countFinal > 99 ? '99+' : countFinal;
-                badge.onclick = () => {
-                    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                };
-                header.style.position = 'relative';
-                header.appendChild(badge);
-            }
-        } else if (badge) {
-            if (countFinal > 0) {
-                badge.textContent = countFinal > 99 ? '99+' : countFinal;
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
+        if (countFinal > 0) {
+            badge.textContent = countFinal > 99 ? '99+' : countFinal;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
         }
     }
 }
