@@ -60,7 +60,10 @@ class FichasEspecificas {
                                 <label>Telefone:</label>
                                 <span class="ficha-valor editavel" data-campo="telefone">${dados.telefone || 'Não informado'}</span>
                             </div>
-                            <!-- Removido: Origem (não existe mais em chatbot) -->
+                            <div class="ficha-item">
+                                <label>Origem da Reclamação:</label>
+                                <span class="ficha-valor editavel" data-campo="origemTipo" data-tipo="select" data-opcoes='["Ligação","Ticket"]'>${dados.origemTipo || 'Não informado'}</span>
+                            </div>
                         </div>
                     </div>
 
