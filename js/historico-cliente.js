@@ -36,14 +36,53 @@ class HistoricoCliente {
         this.clienteAtual = null;
     }
 
-    buscarPorCPF(cpf) {
+    async buscarPorCPF(cpf) {
         // Remove formatação do CPF
         const cpfLimpo = cpf.replace(/\D/g, '');
+        
+        if (!cpfLimpo || cpfLimpo.length < 11) {
+            return {
+                encontrado: false,
+                fichas: [],
+                cliente: null
+            };
+        }
 
-        // Buscar em todas as demandas (usando chaves novas e antigas para compatibilidade)
-        const fichasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
-        const fichasN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || localStorage.getItem('velotax_demandas_n2') || '[]');
-        const fichasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
+        console.log('🔍 Buscando CPF:', cpfLimpo);
+
+        // Buscar em todas as demandas - PRIORIDADE: Firebase, depois localStorage
+        let fichasBacen = [];
+        let fichasN2 = [];
+        let fichasChatbot = [];
+
+        // Tentar buscar do Firebase primeiro (se disponível)
+        if (window.armazenamentoReclamacoes) {
+            try {
+                console.log('📥 Buscando do Firebase...');
+                const [bacen, n2, chatbot] = await Promise.all([
+                    window.armazenamentoReclamacoes.carregarTodos('bacen').catch(() => []),
+                    window.armazenamentoReclamacoes.carregarTodos('n2').catch(() => []),
+                    window.armazenamentoReclamacoes.carregarTodos('chatbot').catch(() => [])
+                ]);
+                
+                fichasBacen = Array.isArray(bacen) ? bacen : [];
+                fichasN2 = Array.isArray(n2) ? n2 : [];
+                fichasChatbot = Array.isArray(chatbot) ? chatbot : [];
+                
+                console.log(`✅ Firebase: ${fichasBacen.length} BACEN, ${fichasN2.length} N2, ${fichasChatbot.length} Chatbot`);
+            } catch (error) {
+                console.warn('⚠️ Erro ao buscar do Firebase, usando localStorage:', error);
+            }
+        }
+
+        // Fallback: buscar do localStorage se Firebase não retornou dados
+        if (fichasBacen.length === 0 && fichasN2.length === 0 && fichasChatbot.length === 0) {
+            console.log('📦 Buscando do localStorage...');
+            fichasBacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || localStorage.getItem('velotax_demandas_bacen') || '[]');
+            fichasN2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || localStorage.getItem('velotax_demandas_n2') || '[]');
+            fichasChatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || localStorage.getItem('velotax_demandas_chatbot') || '[]');
+            console.log(`✅ localStorage: ${fichasBacen.length} BACEN, ${fichasN2.length} N2, ${fichasChatbot.length} Chatbot`);
+        }
 
         const todasFichas = [
             ...fichasBacen.map(f => ({ ...f, tipoDemanda: 'bacen' })),
@@ -51,11 +90,19 @@ class HistoricoCliente {
             ...fichasChatbot.map(f => ({ ...f, tipoDemanda: 'chatbot' }))
         ];
 
+        console.log(`📋 Total de fichas carregadas: ${todasFichas.length}`);
+
         // Filtrar por CPF
         const fichasCliente = todasFichas.filter(ficha => {
             const cpfFicha = (ficha.cpf || '').replace(/\D/g, '');
-            return cpfFicha === cpfLimpo;
+            const match = cpfFicha === cpfLimpo;
+            if (match) {
+                console.log('✅ Match encontrado:', ficha.id, ficha.tipoDemanda);
+            }
+            return match;
         });
+
+        console.log(`📋 Fichas encontradas para CPF ${cpfLimpo}: ${fichasCliente.length}`);
 
         if (fichasCliente.length === 0) {
             return {
@@ -90,13 +137,32 @@ class HistoricoCliente {
         };
     }
 
-    mostrarHistorico(cpf) {
-        const resultado = this.buscarPorCPF(cpf);
+    async mostrarHistorico(cpf) {
+        // Mostrar loading
+        const loadingModal = document.createElement('div');
+        loadingModal.className = 'modal-historico';
+        loadingModal.innerHTML = `
+            <div class="modal-historico-content">
+                <div class="modal-historico-header">
+                    <h2>🔍 Buscando...</h2>
+                </div>
+                <div style="padding: 20px; text-align: center;">
+                    <p>Buscando fichas para o CPF informado...</p>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(loadingModal);
 
-        if (!resultado.encontrado) {
-            alert('Nenhuma ficha encontrada para este CPF.');
-            return;
-        }
+        try {
+            const resultado = await this.buscarPorCPF(cpf);
+
+            // Remover loading
+            loadingModal.remove();
+
+            if (!resultado.encontrado) {
+                mostrarAlerta('Nenhuma ficha encontrada para este CPF.', 'info');
+                return;
+            }
 
         // Remover modal existente se houver
         const modalExistente = document.querySelector('.modal-historico');
@@ -141,6 +207,12 @@ class HistoricoCliente {
                 clienteSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }, 100);
+        } catch (error) {
+            // Remover loading em caso de erro
+            loadingModal.remove();
+            console.error('❌ Erro ao buscar histórico:', error);
+            mostrarAlerta('Erro ao buscar histórico do cliente: ' + error.message, 'error');
+        }
     }
 
     criarCardFicha(ficha, numero) {
@@ -208,11 +280,17 @@ class HistoricoCliente {
 
     adicionarBotaoBusca() {
         // Função global para buscar cliente por CPF
-        window.buscarClientePorCPF = () => {
+        window.buscarClientePorCPF = async () => {
             const input = document.getElementById('busca-cliente-cpf');
             const cpf = input ? input.value.trim() : '';
             if (cpf) {
-                this.mostrarHistorico(cpf);
+                // Validar CPF básico (11 dígitos)
+                const cpfLimpo = cpf.replace(/\D/g, '');
+                if (cpfLimpo.length < 11) {
+                    mostrarAlerta('CPF inválido. Digite os 11 dígitos.', 'warning');
+                    return;
+                }
+                await this.mostrarHistorico(cpf);
                 if (input) input.value = ''; // Limpar campo após busca
             } else {
                 mostrarAlerta('Digite um CPF para buscar', 'info');
