@@ -343,7 +343,7 @@ function renderizarListaRAPROCON() {
 // === CRIAR CARD ===
 function criarCardRAPROCON(ficha) {
     const tipoLabel = ficha.tipo === 'reclame-aqui' ? 'ReclameAqui' : 'Procon';
-    const tipoCor = ficha.tipo === 'reclame-aqui' ? '#FF00D7' : '#791DD0';
+    const tipoCor = ficha.tipo === 'reclame-aqui' ? '#1694FF' : '#000058';
     const statusLabels = {
         'nao-iniciado': 'Não Iniciado',
         'em-tratativa': 'Em Tratativa',

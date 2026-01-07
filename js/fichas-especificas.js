@@ -168,7 +168,7 @@ class FichasEspecificas {
                     <button class="velohub-btn" style="background: #1DFDB9; color: #000058;" onclick="fichasEspecificas.copiarParaEmail()">
                         📧 Copiar para Email
                     </button>
-                    <button class="velohub-btn" style="background: #FF00D7; color: white;" onclick="fichasEspecificas.excluirFicha()">
+                    <button class="velohub-btn" style="background: #1634FF; color: white;" onclick="fichasEspecificas.excluirFicha()">
                         🗑️ Excluir Ficha
                     </button>
                 </div>
@@ -319,7 +319,7 @@ class FichasEspecificas {
                     <button class="velohub-btn" style="background: #1DFDB9; color: #000058;" onclick="fichasEspecificas.copiarParaEmail()">
                         📧 Copiar para Email
                     </button>
-                    <button class="velohub-btn" style="background: #FF00D7; color: white;" onclick="fichasEspecificas.excluirFicha()">
+                    <button class="velohub-btn" style="background: #1634FF; color: white;" onclick="fichasEspecificas.excluirFicha()">
                         🗑️ Excluir Ficha
                     </button>
                 </div>
@@ -482,7 +482,7 @@ class FichasEspecificas {
                     <button class="velohub-btn" style="background: #1DFDB9; color: #000058;" onclick="fichasEspecificas.copiarParaEmail()">
                         📧 Copiar para Email
                     </button>
-                    <button class="velohub-btn" style="background: #FF00D7; color: white;" onclick="fichasEspecificas.excluirFicha()">
+                    <button class="velohub-btn" style="background: #1634FF; color: white;" onclick="fichasEspecificas.excluirFicha()">
                         🗑️ Excluir Ficha
                     </button>
                 </div>
@@ -1257,7 +1257,7 @@ class FichasEspecificas {
 
     formatarEmailRAPROCON(dados) {
         const tipoLabel = dados.tipo === 'reclame-aqui' ? 'ReclameAqui' : 'Procon';
-        const tipoCor = dados.tipo === 'reclame-aqui' ? '#FF00D7' : '#791DD0';
+        const tipoCor = dados.tipo === 'reclame-aqui' ? '#1694FF' : '#000058';
         const camposEspecificos = dados.camposEspecificos || {};
         
         return `<html>
