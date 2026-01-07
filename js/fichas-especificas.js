@@ -248,7 +248,7 @@ class FichasEspecificas {
                         <div class="ficha-grid">
                             <div class="ficha-item">
                                 <label>Status Portabilidade:</label>
-                                <span class="ficha-valor editavel" data-campo="statusPortabilidade" data-tipo="select" data-opcoes='["em-andamento","concluida","pendente","cancelada","em-analise"]'>${dados.statusPortabilidade || 'Não informado'}</span>
+                                <span class="ficha-valor editavel" data-campo="statusPortabilidade" data-tipo="select" data-opcoes='["em-andamento","concluida","pendente","cancelada","em-analise","solicitada"]'>${this.formatarStatusPortabilidade(dados.statusPortabilidade) || 'Não informado'}</span>
                             </div>
                             <div class="ficha-item">
                                 <label>N2 Portabilidade?</label>
