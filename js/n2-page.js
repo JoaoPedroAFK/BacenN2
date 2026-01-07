@@ -1209,10 +1209,12 @@ function exportarRelatorioN2Dados(dados) {
         return;
     }
     
-    const headers = ['Cliente', 'CPF', 'Status Portabilidade', 'Status'];
+    const headers = ['Cliente', 'CPF', 'Banco Origem', 'Banco Destino', 'Status Portabilidade', 'Status'];
     const rows = dados.map(f => [
         f.nomeCompleto || f.nomeCliente || '',
         f.cpf || '',
+        f.bancoOrigem || '',
+        f.bancoDestino || '',
         f.statusPortabilidade || '',
         f.status || '',
     ]);
