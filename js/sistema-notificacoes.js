@@ -168,9 +168,16 @@ class SistemaNotificacoes {
     abrirCaixaNotificacoes() {
         const caixa = document.getElementById('caixa-notificacoes');
         if (caixa) {
-            caixa.style.display = 'flex';
-            // Atualizar lista ao abrir
-            this.atualizarListaNotificacoes();
+            // Verificar notificações antes de abrir (atualizar lista)
+            this.verificarNotificacoes().then(() => {
+                caixa.style.display = 'flex';
+                // Atualizar lista ao abrir
+                this.atualizarListaNotificacoes();
+            }).catch(() => {
+                // Se der erro, apenas abrir a caixa com as notificações já carregadas
+                caixa.style.display = 'flex';
+                this.atualizarListaNotificacoes();
+            });
         }
     }
     
