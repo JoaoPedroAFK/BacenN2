@@ -134,6 +134,10 @@ class FichasEspecificas {
                                 <label>Enviar para cobrança?</label>
                                 <span class="ficha-valor editavel" data-campo="enviarCobranca">${dados.enviarCobranca ? 'Sim' : 'Não'}</span>
                             </div>
+                            <div class="ficha-item">
+                                <label>Formalizado com o cliente?</label>
+                                <span class="ficha-valor editavel" data-campo="formalizadoCliente">${dados.formalizadoCliente ? 'Sim' : 'Não'}</span>
+                            </div>
                         </div>
                     </div>
 
