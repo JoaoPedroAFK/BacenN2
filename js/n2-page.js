@@ -1028,6 +1028,7 @@ window.criarCardN2 = function criarCardN2(ficha) {
                 </div>
             </div>
             <div class="complaint-summary">
+                ${obterProtocolosFichaN2(ficha) ? `<div class="complaint-detail"><strong>Protocolo(s):</strong> ${obterProtocolosFichaN2(ficha)}</div>` : ''}
                 <div class="complaint-detail"><strong>CPF:</strong> ${ficha.cpf}</div>
                 <div class="complaint-detail"><strong>Motivo:</strong> ${ficha.motivoReduzido}</div>
                 <div class="complaint-detail"><strong>Status Portabilidade:</strong> ${portabilidadeLabel}</div>
