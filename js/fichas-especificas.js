@@ -1015,6 +1015,8 @@ class FichasEspecificas {
             emailHTML = this.formatarEmailN2(this.fichaAtual);
         } else if (tipo === 'chatbot') {
             emailHTML = this.formatarEmailChatbot(this.fichaAtual);
+        } else if (tipo === 'ra-procon') {
+            emailHTML = this.formatarEmailRAPROCON(this.fichaAtual);
         }
         
         // Copia para clipboard usando API moderna ou fallback
