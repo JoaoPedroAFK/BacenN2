@@ -95,12 +95,7 @@ class BuscaAvancada {
                                 </select>
                                 </div>
                             <div class="filtro-group">
-                                <label>Banco Destino</label>
-                                <input type="text" 
-                                       id="filtro-banco-${tipoDemanda}" 
-                                       placeholder="Nome do banco"
-                                       onkeyup="buscaAvancada.buscar('${tipoDemanda}')">
-                                </div>
+                                <!-- Removido: Filtro Banco Destino (campo removido das fichas) -->
                         ` : ''}
 
                         ${tipoDemanda === 'chatbot' ? `
@@ -213,7 +208,7 @@ class BuscaAvancada {
                 if (portabilidade && ficha.statusPortabilidade !== portabilidade) return false;
 
                 const banco = document.getElementById(`filtro-banco-${tipoDemanda}`)?.value.toLowerCase();
-                if (banco && !(ficha.bancoDestino || '').toLowerCase().includes(banco)) return false;
+                // Removido: filtro por bancoDestino (campo removido das fichas)
             }
 
             // Filtros específicos Chatbot

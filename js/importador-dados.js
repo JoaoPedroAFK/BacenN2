@@ -610,8 +610,7 @@ class ImportadorDados {
                 
             case "n2":
                 // Removido: prazoN2 (prazo Bacen não existe mais em N2)
-                campos.bancoOrigem = obterValor("Banco Origem") || obterValor("Banco de Origem") || obterValor("Origem Banco") || '';
-                campos.bancoDestino = obterValor("Banco Destino") || obterValor("Banco de Destino") || obterValor("Destino Banco") || '';
+                // Removido: bancoOrigem e bancoDestino (campos removidos das fichas)
                 campos.statusPortabilidade = obterValor("Status Portabilidade") || obterValor("Status") || '';
                 campos.n2Portabilidade = this.converterBooleano(obterValor("N2 Portabilidade?") || obterValor("N2") || '');
                 // Mapear datas específicas de N2 da planilha

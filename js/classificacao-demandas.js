@@ -13,7 +13,7 @@ class SistemaClassificacaoDemandas {
                 nome: 'N2',
                 descricao: 'Demandas de portabilidade e transferência',
                 cor: '#1DFDB9',
-                campos: ['Data entrada', 'Finalizado em', 'Responsável', 'Nome completo', 'CPF', 'Origem', 'Motivo reduzido', 'Motivo Reclamação', 'Prazo N2', 'Telefone', 'N2 Portabilidade?', 'Acionou a central?', 'Banco Origem', 'Banco Destino', 'Status Portabilidade', 'PIX liberado ou excluído?', 'Enviar para cobrança?', 'Observações']
+                campos: ['Data entrada', 'Finalizado em', 'Responsável', 'Nome completo', 'CPF', 'Origem', 'Motivo reduzido', 'Motivo Reclamação', 'Prazo N2', 'Telefone', 'N2 Portabilidade?', 'Acionou a central?', 'Status Portabilidade', 'PIX liberado ou excluído?', 'Enviar para cobrança?', 'Observações']
             },
             chatbot: {
                 nome: 'Chatbot',

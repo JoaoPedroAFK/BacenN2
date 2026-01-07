@@ -1037,8 +1037,6 @@ window.criarCardN2 = function criarCardN2(ficha) {
             <div class="complaint-summary">
                 <div class="complaint-detail"><strong>CPF:</strong> ${ficha.cpf}</div>
                 <div class="complaint-detail"><strong>Motivo:</strong> ${ficha.motivoReduzido}</div>
-                <div class="complaint-detail"><strong>Banco Origem:</strong> ${ficha.bancoOrigem || '-'}</div>
-                <div class="complaint-detail"><strong>Banco Destino:</strong> ${ficha.bancoDestino || '-'}</div>
                 <div class="complaint-detail"><strong>Status Portabilidade:</strong> ${portabilidadeLabel}</div>
                 <div class="complaint-detail"><strong>Responsável:</strong> ${ficha.responsavel}</div>
             </div>
@@ -1178,8 +1176,6 @@ function mostrarRelatorioN2(titulo, dados, subtitulo) {
                         <tr>
                             <td>${f.nomeCompleto || f.nomeCliente || '-'}</td>
                             <td>${f.cpf || '-'}</td>
-                            <td>${f.bancoOrigem || '-'}</td>
-                            <td>${f.bancoDestino || '-'}</td>
                             <td>${f.statusPortabilidade || '-'}</td>
                             <td>${f.status || '-'}</td>
                         </tr>
