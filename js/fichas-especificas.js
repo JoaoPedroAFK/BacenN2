@@ -567,7 +567,7 @@ class FichasEspecificas {
                         </div>
                     `;
                 }
-                // Campos com select (PIX Status, Status)
+                // Campos com select (PIX Status, Status, Status Portabilidade)
                 else if (tipo === 'select') {
                     const valorAtual = elemento.textContent.trim();
                     let valorParaComparar = valorAtual;
@@ -583,6 +583,19 @@ class FichasEspecificas {
                         };
                         valorParaComparar = statusMap[valorAtual] || valorAtual.toLowerCase().replace(/\s+/g, '-');
                     }
+                    // Para statusPortabilidade, comparar com valores formatados e não formatados
+                    else if (campo === 'statusPortabilidade') {
+                        const portabilidadeMap = {
+                            'Em Andamento': 'em-andamento',
+                            'Concluída': 'concluida',
+                            'Pendente': 'pendente',
+                            'Cancelada': 'cancelada',
+                            'Em Análise': 'em-analise',
+                            'Solicitada': 'solicitada',
+                            'Não informado': ''
+                        };
+                        valorParaComparar = portabilidadeMap[valorAtual] || valorAtual.toLowerCase().replace(/\s+/g, '-');
+                    }
                     
                     const opcoes = JSON.parse(elemento.dataset.opcoes || '[]');
                     let optionsHTML = '<option value="">Selecione...</option>';
@@ -591,10 +604,13 @@ class FichasEspecificas {
                         if (campo === 'status') {
                             const opFormatado = this.formatarStatus(op);
                             selected = (valorParaComparar === op || valorAtual === opFormatado || valorParaComparar === op.toLowerCase()) ? 'selected' : '';
+                        } else if (campo === 'statusPortabilidade') {
+                            const opFormatado = this.formatarStatusPortabilidade(op);
+                            selected = (valorParaComparar === op || valorAtual === opFormatado || valorParaComparar === op.toLowerCase()) ? 'selected' : '';
                         } else {
                             selected = valorAtual === op ? 'selected' : '';
                         }
-                        return `<option value="${op}" ${selected}>${campo === 'status' ? this.formatarStatus(op) : op}</option>`;
+                        return `<option value="${op}" ${selected}>${campo === 'status' ? this.formatarStatus(op) : campo === 'statusPortabilidade' ? this.formatarStatusPortabilidade(op) : op}</option>`;
                     }).join('');
                     elemento.innerHTML = `<select class="velohub-input" style="width: 100%; padding: 8px; border: 1px solid var(--azul-royal); border-radius: 4px; font-family: 'Poppins', sans-serif;">${optionsHTML}</select>`;
                 }
