@@ -541,7 +541,17 @@ async function atualizarDashboardN2() {
     const taxaPortabilidade = total > 0 ? ((portabilidadesConcluidas / total) * 100).toFixed(1) : 0;
     atualizarElemento('taxa-portabilidade-n2', `${taxaPortabilidade}%`);
     
-    // Removido: estatística de banco mais solicitado (campo bancoDestino removido)
+    // Banco mais solicitado
+    const bancosDestino = {};
+    fichasN2.forEach(f => {
+        if (f.bancoDestino) {
+            bancosDestino[f.bancoDestino] = (bancosDestino[f.bancoDestino] || 0) + 1;
+        }
+    });
+    const bancoMaisSolicitado = Object.keys(bancosDestino).length > 0 
+        ? Object.keys(bancosDestino).reduce((a, b) => bancosDestino[a] > bancosDestino[b] ? a : b, 'N/A')
+        : 'N/A';
+    atualizarElemento('banco-mais-solicitado', bancoMaisSolicitado);
     
     const pixLiberado = fichasN2.filter(f => f.pixLiberado).length;
     atualizarElemento('pix-liberado-n2', pixLiberado);
@@ -1031,6 +1041,8 @@ window.criarCardN2 = function criarCardN2(ficha) {
             <div class="complaint-summary">
                 <div class="complaint-detail"><strong>CPF:</strong> ${ficha.cpf}</div>
                 <div class="complaint-detail"><strong>Motivo:</strong> ${ficha.motivoReduzido}</div>
+                ${ficha.bancoOrigem ? `<div class="complaint-detail"><strong>Banco Origem:</strong> ${ficha.bancoOrigem}</div>` : ''}
+                ${ficha.bancoDestino ? `<div class="complaint-detail"><strong>Banco Destino:</strong> ${ficha.bancoDestino}</div>` : ''}
                 <div class="complaint-detail"><strong>Status Portabilidade:</strong> ${portabilidadeLabel}</div>
                 <div class="complaint-detail"><strong>Responsável:</strong> ${ficha.responsavel}</div>
             </div>
@@ -1124,9 +1136,20 @@ function gerarRelatorioPeriodoN2() {
 }
 
 function gerarRelatorioBancosN2() {
-    // Removido: relatório de bancos origem/destino (campos bancoOrigem e bancoDestino removidos)
-    console.warn('⚠️ Relatório de bancos desativado - campos bancoOrigem e bancoDestino foram removidos');
-    mostrarAlerta('Relatório de bancos não está mais disponível. Os campos Banco Origem e Banco Destino foram removidos.', 'info');
+    const bancos = {};
+    fichasN2.forEach(f => {
+        const origem = f.bancoOrigem || 'Não informado';
+        const destino = f.bancoDestino || 'Não informado';
+        const chave = `${origem} → ${destino}`;
+        bancos[chave] = (bancos[chave] || 0) + 1;
+    });
+    
+    const dados = Object.entries(bancos).map(([rota, count]) => ({
+        rota,
+        count
+    })).sort((a, b) => b.count - a.count);
+    
+    mostrarRelatorioBancos('Relatório por Bancos - N2', dados);
 }
 
 function gerarRelatorioCompletoN2() {
