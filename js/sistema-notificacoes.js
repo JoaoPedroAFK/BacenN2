@@ -448,33 +448,64 @@ class SistemaNotificacoes {
     }
     
     abrirFichaAposCarregamento(ficha) {
+        console.log('🔍 [Notificações] Tentando abrir ficha:', ficha.id, ficha.tipoDemanda);
+        
         // Aguardar até que FichasEspecificas esteja disponível
         let tentativas = 0;
-        const maxTentativas = 20;
+        const maxTentativas = 50;
         
         const tentarAbrir = setInterval(() => {
             tentativas++;
             
+            // Verificar se FichasEspecificas está disponível
             if (window.FichasEspecificas && typeof window.FichasEspecificas === 'function') {
                 clearInterval(tentarAbrir);
                 
                 try {
+                    // Criar instância se não existir
                     if (!window.fichasEspecificas) {
+                        console.log('✅ Criando nova instância de FichasEspecificas');
                         window.fichasEspecificas = new window.FichasEspecificas();
                     }
-                    window.fichasEspecificas.abrirFicha(ficha);
+                    
+                    // Verificar se o método abrirFicha existe
+                    if (typeof window.fichasEspecificas.abrirFicha === 'function') {
+                        console.log('✅ Abrindo ficha usando fichasEspecificas.abrirFicha');
+                        window.fichasEspecificas.abrirFicha(ficha);
+                    } else {
+                        throw new Error('Método abrirFicha não encontrado na instância');
+                    }
                 } catch (error) {
                     console.error('❌ Erro ao abrir ficha:', error);
-                    // Tentar método alternativo
+                    // Tentar método alternativo por ID
+                    const fichaId = ficha.id;
+                    console.log('🔄 Tentando método alternativo por ID:', fichaId);
+                    
                     if (ficha.tipoDemanda === 'bacen' && typeof abrirFichaBacen === 'function') {
-                        abrirFichaBacen(ficha.id);
+                        abrirFichaBacen(fichaId);
                     } else if (ficha.tipoDemanda === 'n2' && typeof abrirFichaN2 === 'function') {
-                        abrirFichaN2(ficha.id);
+                        abrirFichaN2(fichaId);
+                    } else if (ficha.tipoDemanda === 'chatbot' && typeof abrirFichaChatbotHTML === 'function') {
+                        abrirFichaChatbotHTML(fichaId);
+                    } else {
+                        console.error('❌ Nenhum método de abertura encontrado para tipo:', ficha.tipoDemanda);
                     }
                 }
             } else if (tentativas >= maxTentativas) {
                 clearInterval(tentarAbrir);
                 console.error('❌ FichasEspecificas não disponível após', maxTentativas * 100, 'ms');
+                // Tentar método alternativo como último recurso
+                const fichaId = ficha.id;
+                if (ficha.tipoDemanda === 'bacen' && typeof abrirFichaBacen === 'function') {
+                    console.log('🔄 Último recurso: abrirFichaBacen');
+                    abrirFichaBacen(fichaId);
+                } else if (ficha.tipoDemanda === 'n2' && typeof abrirFichaN2 === 'function') {
+                    console.log('🔄 Último recurso: abrirFichaN2');
+                    abrirFichaN2(fichaId);
+                } else if (ficha.tipoDemanda === 'chatbot' && typeof abrirFichaChatbotHTML === 'function') {
+                    console.log('🔄 Último recurso: abrirFichaChatbotHTML');
+                    abrirFichaChatbotHTML(fichaId);
+                }
             }
         }, 100);
     }
