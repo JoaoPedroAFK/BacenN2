@@ -80,13 +80,27 @@ class SistemaNotificacoes {
         const existente = document.getElementById('icone-notificacoes');
         if (existente) existente.remove();
         
-        // Procurar header-actions
-        const headerActions = document.querySelector('.velohub-header .header-actions') || 
-                             document.querySelector('.header-actions') ||
-                             document.querySelector('.velohub-header');
+        // Procurar header-actions - tentar múltiplas vezes
+        let headerActions = document.querySelector('.velohub-header .header-actions') || 
+                           document.querySelector('.header-actions');
+        
+        // Se não encontrar, tentar criar ou aguardar
+        if (!headerActions) {
+            // Tentar encontrar o header e criar header-actions se necessário
+            const header = document.querySelector('.velohub-header');
+            if (header) {
+                const headerContent = header.querySelector('.header-content');
+                if (headerContent) {
+                    headerActions = document.createElement('div');
+                    headerActions.className = 'header-actions';
+                    headerContent.appendChild(headerActions);
+                }
+            }
+        }
         
         if (!headerActions) {
-            console.warn('⚠️ Header actions não encontrado, tentando criar...');
+            console.warn('⚠️ Header actions não encontrado, tentando novamente em 1 segundo...');
+            setTimeout(() => this.criarIconeSino(), 1000);
             return;
         }
         
