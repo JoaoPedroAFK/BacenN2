@@ -312,8 +312,6 @@ class SistemaClassificacaoDemandas {
                 case 'n2':
                     campos = `
                         <span class="campo-especifico">🔄 Portabilidade: ${demanda.camposEspecificos.n2Portabilidade ? '✅' : '❌'}</span>
-                        <span class="campo-especifico">🏦 Origem: ${demanda.camposEspecificos.bancoOrigem || 'N/A'}</span>
-                        <span class="campo-especifico">🏦 Destino: ${demanda.camposEspecificos.bancoDestino || 'N/A'}</span>
                         <span class="campo-especifico">📊 Status: ${demanda.camposEspecificos.statusPortabilidade || 'N/A'}</span>
                     `;
                     break;
@@ -417,8 +415,7 @@ class SistemaClassificacaoDemandas {
                 dataCriacao: '2024-01-10',
                 motivoReduzido: 'Portabilidade',
                 n2Portabilidade: true,
-                bancoOrigem: 'Banco A',
-                bancoDestino: 'Banco B',
+                // Removido: bancoOrigem e bancoDestino (campos removidos das fichas)
             },
             // Demanda Chatbot
             {

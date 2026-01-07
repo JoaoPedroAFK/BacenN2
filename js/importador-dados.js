@@ -523,11 +523,7 @@ class ImportadorDados {
         // PRIORIDADE 2: Verifica campos específicos de N2
         if (obterValor("N2 Portabilidade?") || 
             obterValor("Prazo N2") || 
-            obterValor("Banco Origem") || 
-            obterValor("Banco Destino") ||
-            obterValor("Status Portabilidade") ||
-            obterValor("Banco de Origem") ||
-            obterValor("Banco de Destino")) {
+            obterValor("Status Portabilidade")) {
             return "n2";
         }
         

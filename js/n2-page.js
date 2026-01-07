@@ -1121,20 +1121,9 @@ function gerarRelatorioPeriodoN2() {
 }
 
 function gerarRelatorioBancosN2() {
-    const bancos = {};
-    fichasN2.forEach(f => {
-        const origem = f.bancoOrigem || 'Não informado';
-        const destino = f.bancoDestino || 'Não informado';
-        const chave = `${origem} → ${destino}`;
-        bancos[chave] = (bancos[chave] || 0) + 1;
-    });
-    
-    const dados = Object.entries(bancos).map(([rota, count]) => ({
-        rota,
-        count
-    })).sort((a, b) => b.count - a.count);
-    
-    mostrarRelatorioBancos('Relatório por Bancos - N2', dados);
+    // Removido: relatório de bancos origem/destino (campos bancoOrigem e bancoDestino removidos)
+    console.warn('⚠️ Relatório de bancos desativado - campos bancoOrigem e bancoDestino foram removidos');
+    mostrarAlerta('Relatório de bancos não está mais disponível. Os campos Banco Origem e Banco Destino foram removidos.', 'info');
 }
 
 function gerarRelatorioCompletoN2() {
@@ -1192,12 +1181,10 @@ function exportarRelatorioN2Dados(dados) {
         return;
     }
     
-    const headers = ['Cliente', 'CPF', 'Banco Origem', 'Banco Destino', 'Status Portabilidade', 'Status'];
+    const headers = ['Cliente', 'CPF', 'Status Portabilidade', 'Status'];
     const rows = dados.map(f => [
         f.nomeCompleto || f.nomeCliente || '',
         f.cpf || '',
-        f.bancoOrigem || '',
-        f.bancoDestino || '',
         f.statusPortabilidade || '',
         f.status || '',
     ]);
