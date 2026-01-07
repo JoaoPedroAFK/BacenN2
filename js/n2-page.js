@@ -1548,3 +1548,64 @@ function validarCPF(cpf) {
     return remainder === parseInt(cpf.charAt(10));
 }
 
+// Função auxiliar para obter protocolos de uma ficha (mesma do bacen-page.js)
+function obterProtocolosFichaN2(ficha) {
+    const protocolos = [];
+    
+    if (ficha.protocoloCentral && Array.isArray(ficha.protocoloCentral) && ficha.protocoloCentral.length > 0) {
+        protocolos.push(...ficha.protocoloCentral.filter(p => p && p.trim()));
+    }
+    if (ficha.protocoloN2 && Array.isArray(ficha.protocoloN2) && ficha.protocoloN2.length > 0) {
+        protocolos.push(...ficha.protocoloN2.filter(p => p && p.trim()));
+    }
+    if (ficha.protocoloReclameAqui && Array.isArray(ficha.protocoloReclameAqui) && ficha.protocoloReclameAqui.length > 0) {
+        protocolos.push(...ficha.protocoloReclameAqui.filter(p => p && p.trim()));
+    }
+    if (ficha.protocoloProcon && Array.isArray(ficha.protocoloProcon) && ficha.protocoloProcon.length > 0) {
+        protocolos.push(...ficha.protocoloProcon.filter(p => p && p.trim()));
+    }
+    if (ficha.protocolosSemAcionamento && ficha.protocolosSemAcionamento.trim()) {
+        protocolos.push(ficha.protocolosSemAcionamento.trim());
+    }
+    
+    return protocolos.length > 0 ? protocolos.join(', ') : null;
+}
+
+// Função para criar card N2 (se não existir)
+if (typeof criarCardN2 === 'undefined' && typeof window.criarCardN2 === 'undefined') {
+    window.criarCardN2 = function criarCardN2(ficha) {
+        const statusLabels = {
+            'nao-iniciado': 'Não Iniciado',
+            'em-tratativa': 'Em Tratativa',
+            'concluido': 'Concluído',
+            'respondido': 'Respondido'
+        };
+        
+        const statusClass = `status-${ficha.status}`;
+        const statusLabel = statusLabels[ficha.status] || ficha.status;
+        
+        return `
+            <div class="complaint-item" onclick="abrirFichaN2('${ficha.id}')">
+                <div class="complaint-header">
+                    <div class="complaint-title">
+                        ${ficha.nomeCompleto || ficha.nomeCliente || 'Nome não informado'}
+                        <span class="n2-badge">🔄 N2</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <div class="complaint-status ${statusClass}">${statusLabel}</div>
+                        <button class="btn-excluir-ficha" onclick="event.stopPropagation(); excluirFichaN2('${ficha.id}')" title="Excluir reclamação">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+                <div class="complaint-summary">
+                    <div class="complaint-detail"><strong>CPF:</strong> ${ficha.cpf}</div>
+                    ${obterProtocolosFichaN2(ficha) ? `<div class="complaint-detail"><strong>Protocolo(s):</strong> ${obterProtocolosFichaN2(ficha)}</div>` : ''}
+                    <div class="complaint-detail"><strong>Motivo:</strong> ${ficha.motivoReduzido}</div>
+                    <div class="complaint-detail"><strong>Responsável:</strong> ${ficha.responsavel}</div>
+                </div>
+            </div>
+        `;
+    };
+}
+

@@ -98,6 +98,10 @@ class FichasEspecificas {
                     <div class="ficha-secao">
                         <h3>🏦 Campos Específicos BACEN</h3>
                         <div class="ficha-grid">
+                            <div class="ficha-item full-width">
+                                <label>Protocolo(s):</label>
+                                <span class="ficha-valor">${obterProtocolosFicha(dados) || 'Nenhum protocolo informado'}</span>
+                            </div>
                             <div class="ficha-item">
                                 <label>Acionou a central?</label>
                                 <span class="ficha-valor editavel" data-campo="acionouCentral">${dados.acionouCentral ? 'Sim' : 'Não'}</span>
@@ -112,7 +116,7 @@ class FichasEspecificas {
                             </div>
                             <div class="ficha-item">
                                 <label>PIX liberado ou excluído?</label>
-                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído","Liberado para Retirada","Não Aplicável"]'>${dados.pixStatus || (dados.pixLiberado ? 'Liberado' : 'Excluído')}</span>
+                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído","Solicitada"]'>${dados.pixStatus || (dados.pixLiberado ? 'Liberado' : 'Excluído')}</span>
                             </div>
                             <div class="ficha-item">
                                 <label>Status do contrato</label>
@@ -253,6 +257,10 @@ class FichasEspecificas {
                     <div class="ficha-secao">
                         <h3>🔄 Campos Específicos N2</h3>
                         <div class="ficha-grid">
+                            <div class="ficha-item full-width">
+                                <label>Protocolo(s):</label>
+                                <span class="ficha-valor">${this.obterProtocolosFicha(dados) || 'Nenhum protocolo informado'}</span>
+                            </div>
                             <div class="ficha-item">
                                 <label>Status Portabilidade:</label>
                                 <span class="ficha-valor editavel" data-campo="statusPortabilidade" data-tipo="select" data-opcoes='["em-andamento","concluida","pendente","cancelada","em-analise","solicitada"]'>${this.formatarStatusPortabilidade(dados.statusPortabilidade) || 'Não informado'}</span>
@@ -267,7 +275,7 @@ class FichasEspecificas {
                             </div>
                             <div class="ficha-item">
                                 <label>PIX liberado ou excluído?</label>
-                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído","Liberado para Retirada","Não Aplicável"]'>${dados.pixStatus || (dados.pixLiberado ? 'Liberado' : 'Excluído')}</span>
+                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído","Solicitada"]'>${dados.pixStatus || (dados.pixLiberado ? 'Liberado' : 'Excluído')}</span>
                             </div>
                             <div class="ficha-item">
                                 <label>Status do contrato</label>
@@ -449,7 +457,7 @@ class FichasEspecificas {
                             </div>
                             <div class="ficha-item">
                                 <label>PIX liberado ou excluído?</label>
-                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído","Liberado para Retirada","Não Aplicável"]'>${dados.pixStatus || (dados.pixLiberado ? 'Liberado' : 'Excluído')}</span>
+                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído","Solicitada"]'>${dados.pixStatus || (dados.pixLiberado ? 'Liberado' : 'Excluído')}</span>
                             </div>
                             <div class="ficha-item">
                                 <label>Enviar para cobrança?</label>

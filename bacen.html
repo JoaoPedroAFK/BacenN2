@@ -48,6 +48,20 @@
             });
         };
         console.log('✅ mostrarSecao definido globalmente no <head> (bacen.html)');
+        
+        // Função para auto-marcar "Enviar para cobrança" quando PIX liberado e contrato em aberto
+        function verificarAutoCobrancaBacen() {
+            const pixStatus = document.getElementById('bacen-pix-status')?.value;
+            const contratoAberto = document.getElementById('bacen-status-contrato-aberto')?.checked;
+            
+            if (pixStatus === 'Liberado' && contratoAberto) {
+                const radioSim = document.querySelector('input[name="bacen-enviar-cobranca"][value="Sim"]');
+                if (radioSim) {
+                    radioSim.checked = true;
+                    console.log('✅ Auto-marcado "Enviar para cobrança" como Sim (PIX Liberado + Contrato em Aberto)');
+                }
+            }
+        }
     </script>
     
     <style>
@@ -424,39 +438,12 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="bacen-pix-status">PIX liberado ou excluído?</label>
-                            <select id="bacen-pix-status" class="velohub-input">
+                            <select id="bacen-pix-status" class="velohub-input" onchange="verificarAutoCobrancaBacen()">
                                 <option value="">Selecione...</option>
                                 <option value="Liberado">Liberado</option>
                                 <option value="Excluído">Excluído</option>
-                                <option value="Liberado para Retirada">Liberado para Retirada</option>
-                                <option value="Não Aplicável">Não Aplicável</option>
+                                <option value="Solicitada">Solicitada</option>
                             </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Enviar para cobrança? *</label>
-                            <div style="display: flex; gap: 16px; margin-top: 8px;">
-                                <label class="radio-label">
-                                    <input type="radio" name="bacen-enviar-cobranca" value="Sim" required>
-                                    <span>Sim</span>
-                                </label>
-                                <label class="radio-label">
-                                    <input type="radio" name="bacen-enviar-cobranca" value="Não" required>
-                                    <span>Não</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Formalizado com o cliente? *</label>
-                            <div style="display: flex; gap: 16px; margin-top: 8px;">
-                                <label class="radio-label">
-                                    <input type="radio" name="bacen-formalizado-cliente" value="Sim" required>
-                                    <span>Sim</span>
-                                </label>
-                                <label class="radio-label">
-                                    <input type="radio" name="bacen-formalizado-cliente" value="Não" required>
-                                    <span>Não</span>
-                                </label>
-                            </div>
                         </div>
                     </div>
                     <div class="form-row">
@@ -464,12 +451,12 @@
                             <label>Status do contrato</label>
                             <div style="display: flex; gap: 16px; margin-top: 8px;">
                                 <label class="checkbox-label">
-                                    <input type="checkbox" id="bacen-status-contrato-quitado">
+                                    <input type="checkbox" id="bacen-status-contrato-quitado" onchange="verificarAutoCobrancaBacen()">
                                     <span class="checkmark"></span>
                                     Quitado
                                 </label>
                                 <label class="checkbox-label">
-                                    <input type="checkbox" id="bacen-status-contrato-aberto">
+                                    <input type="checkbox" id="bacen-status-contrato-aberto" onchange="verificarAutoCobrancaBacen()">
                                     <span class="checkmark"></span>
                                     Em aberto
                                 </label>
@@ -490,12 +477,27 @@
                 <!-- Casos Críticos (Blacklist) -->
                 <div class="form-section">
                     <h3>Casos Críticos (Blacklist)</h3>
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="bacen-casos-criticos">
-                            <span class="checkmark"></span>
-                            Blacklist
-                        </label>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="bacen-casos-criticos">
+                                <span class="checkmark"></span>
+                                Blacklist
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Enviar para cobrança? *</label>
+                            <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                <label class="radio-label">
+                                    <input type="radio" name="bacen-enviar-cobranca" value="Sim" required>
+                                    <span>Sim</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="bacen-enviar-cobranca" value="Não" required>
+                                    <span>Não</span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

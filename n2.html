@@ -379,39 +379,12 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="n2-pix-status">PIX liberado ou excluído?</label>
-                            <select id="n2-pix-status" class="velohub-input">
+                            <select id="n2-pix-status" class="velohub-input" onchange="verificarAutoCobrancaN2()">
                                 <option value="">Selecione...</option>
                                 <option value="Liberado">Liberado</option>
                                 <option value="Excluído">Excluído</option>
-                                <option value="Liberado para Retirada">Liberado para Retirada</option>
-                                <option value="Não Aplicável">Não Aplicável</option>
+                                <option value="Solicitada">Solicitada</option>
                             </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Enviar para cobrança? *</label>
-                            <div style="display: flex; gap: 16px; margin-top: 8px;">
-                                <label class="radio-label">
-                                    <input type="radio" name="n2-enviar-cobranca" value="Sim" required>
-                                    <span>Sim</span>
-                                </label>
-                                <label class="radio-label">
-                                    <input type="radio" name="n2-enviar-cobranca" value="Não" required>
-                                    <span>Não</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Formalizado com o cliente? *</label>
-                            <div style="display: flex; gap: 16px; margin-top: 8px;">
-                                <label class="radio-label">
-                                    <input type="radio" name="n2-formalizado-cliente" value="Sim" required>
-                                    <span>Sim</span>
-                                </label>
-                                <label class="radio-label">
-                                    <input type="radio" name="n2-formalizado-cliente" value="Não" required>
-                                    <span>Não</span>
-                                </label>
-                            </div>
                         </div>
                     </div>
                     <div class="form-row">
@@ -419,12 +392,12 @@
                             <label>Status do contrato</label>
                             <div style="display: flex; gap: 16px; margin-top: 8px;">
                                 <label class="checkbox-label">
-                                    <input type="checkbox" id="n2-status-contrato-quitado">
+                                    <input type="checkbox" id="n2-status-contrato-quitado" onchange="verificarAutoCobrancaN2()">
                                     <span class="checkmark"></span>
                                     Quitado
                                 </label>
                                 <label class="checkbox-label">
-                                    <input type="checkbox" id="n2-status-contrato-aberto">
+                                    <input type="checkbox" id="n2-status-contrato-aberto" onchange="verificarAutoCobrancaN2()">
                                     <span class="checkmark"></span>
                                     Em aberto
                                 </label>
@@ -445,12 +418,27 @@
                 <!-- Casos Críticos (Blacklist) -->
                 <div class="form-section">
                     <h3>Casos Críticos (Blacklist)</h3>
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="n2-casos-criticos">
-                            <span class="checkmark"></span>
-                            Blacklist
-                        </label>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="n2-casos-criticos">
+                                <span class="checkmark"></span>
+                                Blacklist
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Enviar para cobrança? *</label>
+                            <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                <label class="radio-label">
+                                    <input type="radio" name="n2-enviar-cobranca" value="Sim" required>
+                                    <span>Sim</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="n2-enviar-cobranca" value="Não" required>
+                                    <span>Não</span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

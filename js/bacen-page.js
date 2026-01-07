@@ -1005,6 +1005,7 @@ function criarCardBacen(ficha) {
             <div class="complaint-summary">
                 <div class="complaint-detail"><strong>CPF:</strong> ${ficha.cpf}</div>
                 ${ficha.rdr ? `<div class="complaint-detail"><strong>RDR:</strong> ${ficha.rdr}</div>` : ''}
+                ${obterProtocolosFicha(ficha) ? `<div class="complaint-detail"><strong>Protocolo(s):</strong> ${obterProtocolosFicha(ficha)}</div>` : ''}
                 <div class="complaint-detail"><strong>Motivo:</strong> ${ficha.motivoReduzido}</div>
                 <div class="complaint-detail"><strong>Prazo BACEN:</strong> ${formatarData(ficha.prazoBacen)}</div>
                 <div class="complaint-detail"><strong>Responsável:</strong> ${ficha.responsavel}</div>
@@ -1012,6 +1013,29 @@ function criarCardBacen(ficha) {
             </div>
         </div>
     `;
+}
+
+// Função auxiliar para obter protocolos de uma ficha
+function obterProtocolosFicha(ficha) {
+    const protocolos = [];
+    
+    if (ficha.protocoloCentral && Array.isArray(ficha.protocoloCentral) && ficha.protocoloCentral.length > 0) {
+        protocolos.push(...ficha.protocoloCentral.filter(p => p && p.trim()));
+    }
+    if (ficha.protocoloN2 && Array.isArray(ficha.protocoloN2) && ficha.protocoloN2.length > 0) {
+        protocolos.push(...ficha.protocoloN2.filter(p => p && p.trim()));
+    }
+    if (ficha.protocoloReclameAqui && Array.isArray(ficha.protocoloReclameAqui) && ficha.protocoloReclameAqui.length > 0) {
+        protocolos.push(...ficha.protocoloReclameAqui.filter(p => p && p.trim()));
+    }
+    if (ficha.protocoloProcon && Array.isArray(ficha.protocoloProcon) && ficha.protocoloProcon.length > 0) {
+        protocolos.push(...ficha.protocoloProcon.filter(p => p && p.trim()));
+    }
+    if (ficha.protocolosSemAcionamento && ficha.protocolosSemAcionamento.trim()) {
+        protocolos.push(ficha.protocolosSemAcionamento.trim());
+    }
+    
+    return protocolos.length > 0 ? protocolos.join(', ') : null;
 }
 
 // Criar sidebar para exibir casos do dashboard (função global)
