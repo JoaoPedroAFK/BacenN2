@@ -331,6 +331,7 @@ async function handleSubmitBacen(e) {
         statusContratoQuitado: document.getElementById('bacen-status-contrato-quitado')?.checked || false,
         statusContratoAberto: document.getElementById('bacen-status-contrato-aberto')?.checked || false,
         enviarCobranca: document.querySelector('input[name="bacen-enviar-cobranca"]:checked')?.value || 'Não',
+        formalizadoCliente: document.querySelector('input[name="bacen-formalizado-cliente"]:checked')?.value === 'Sim',
         casosCriticos: obterCheckbox('bacen-casos-criticos'),
         status: obterValorCampo('bacen-status'),
         finalizadoEm: obterValorCampo('bacen-finalizado-em'),

@@ -1104,6 +1104,7 @@ class FichasEspecificas {
         <div class="campo"><span class="label">PIX liberado ou excluído?</span> <span class="valor"><strong>${dados.pixLiberado ? 'Sim' : 'Não'}</strong></span></div>
         <div class="campo"><span class="label">Aceitou liquidação Antecipada?</span> <span class="valor"><strong>${dados.liquidacaoAntecipada ? 'Sim' : 'Não'}</strong></span></div>
         <div class="campo"><span class="label">Enviar para cobrança?</span> <span class="valor"><strong>${dados.enviarCobranca ? 'Sim' : 'Não'}</strong></span></div>
+        <div class="campo"><span class="label">Formalizado com o cliente?</span> <span class="valor"><strong>${dados.formalizadoCliente ? 'Sim' : 'Não'}</strong></span></div>
     </div>
     
     <div class="secao">
@@ -1164,6 +1165,7 @@ class FichasEspecificas {
         <div class="campo"><span class="label">Acionou a central?</span> <span class="valor"><strong>${dados.acionouCentral ? 'Sim' : 'Não'}</strong></span></div>
         <div class="campo"><span class="label">PIX liberado ou excluído?</span> <span class="valor"><strong>${dados.pixLiberado ? 'Sim' : 'Não'}</strong></span></div>
         <div class="campo"><span class="label">Enviar para cobrança?</span> <span class="valor"><strong>${dados.enviarCobranca ? 'Sim' : 'Não'}</strong></span></div>
+        <div class="campo"><span class="label">Formalizado com o cliente?</span> <span class="valor"><strong>${dados.formalizadoCliente ? 'Sim' : 'Não'}</strong></span></div>
     </div>
     
     <div class="secao">

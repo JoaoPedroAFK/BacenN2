@@ -350,6 +350,7 @@ async function handleSubmitN2(e) {
         statusContratoQuitado: document.getElementById('n2-status-contrato-quitado')?.checked || false,
         statusContratoAberto: document.getElementById('n2-status-contrato-aberto')?.checked || false,
         enviarCobranca: document.querySelector('input[name="n2-enviar-cobranca"]:checked')?.value || 'Não',
+        formalizadoCliente: document.querySelector('input[name="n2-formalizado-cliente"]:checked')?.value === 'Sim',
         casosCriticos: obterCheckboxN2('n2-casos-criticos'),
         status: obterValorCampoN2('n2-status'),
         finalizadoEm: obterValorCampoN2('n2-finalizado-em'),
