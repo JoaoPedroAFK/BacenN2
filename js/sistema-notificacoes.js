@@ -318,9 +318,17 @@ class SistemaNotificacoes {
         }).join('');
         
         // Adicionar event listeners após renderizar
-        lista.querySelectorAll('.notificacao-item').forEach((item, index) => {
-            item.onclick = () => {
-                this.abrirFicha(this.notificacoesAtivas[index].ficha);
+        lista.querySelectorAll('.notificacao-item').forEach((item) => {
+            const index = parseInt(item.getAttribute('data-index') || '0');
+            item.onclick = (e) => {
+                e.stopPropagation();
+                if (this.notificacoesAtivas && this.notificacoesAtivas[index]) {
+                    console.log('🔍 [Notificações] Clicou na notificação, índice:', index);
+                    console.log('🔍 [Notificações] Ficha:', this.notificacoesAtivas[index].ficha);
+                    this.abrirFicha(this.notificacoesAtivas[index].ficha);
+                } else {
+                    console.error('❌ [Notificações] Índice inválido ou ficha não encontrada:', index);
+                }
             };
         });
     }
