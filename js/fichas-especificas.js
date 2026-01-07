@@ -1253,6 +1253,86 @@ class FichasEspecificas {
 </html>`;
     }
 
+    formatarEmailRAPROCON(dados) {
+        const tipoLabel = dados.tipo === 'reclame-aqui' ? 'ReclameAqui' : 'Procon';
+        const tipoCor = dados.tipo === 'reclame-aqui' ? '#FF00D7' : '#791DD0';
+        const camposEspecificos = dados.camposEspecificos || {};
+        
+        return `<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        h2 { color: ${tipoCor}; border-bottom: 2px solid ${tipoCor}; padding-bottom: 10px; }
+        .secao { margin: 20px 0; }
+        .campo { margin: 10px 0; }
+        .label { font-weight: bold; color: #000058; }
+        .valor { margin-left: 10px; }
+        .destaque { background: #f0f0f0; padding: 15px; border-left: 4px solid ${tipoCor}; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h2>${tipoLabel} - ${dados.nomeCompleto || 'Não informado'}</h2>
+    
+    <div class="secao">
+        <h3><strong>📋 DADOS BÁSICOS</strong></h3>
+        <div class="campo"><span class="label">Protocolo:</span> <span class="valor"><strong>${dados.protocolo || 'Não informado'}</strong></span></div>
+        <div class="campo"><span class="label">Mês:</span> <span class="valor">${dados.mes || 'Não informado'}</span></div>
+        <div class="campo"><span class="label">Data de Entrada:</span> <span class="valor">${this.formatarData(dados.dataEntrada || dados.dataCriacao)}</span></div>
+        <div class="campo"><span class="label">Data de Resolução:</span> <span class="valor">${this.formatarData(dados.dataResolucao)}</span></div>
+        <div class="campo"><span class="label">Responsável:</span> <span class="valor"><strong>${dados.responsavel || 'Não atribuído'}</strong></span></div>
+        <div class="campo"><span class="label">Prioridade:</span> <span class="valor"><strong>${dados.prioridade || 'Não definida'}</strong></span></div>
+    </div>
+    
+    <div class="secao">
+        <h3><strong>👤 DADOS DO CLIENTE</strong></h3>
+        <div class="campo"><span class="label">Nome Completo:</span> <span class="valor"><strong>${dados.nomeCompleto || 'Não informado'}</strong></span></div>
+        <div class="campo"><span class="label">CPF:</span> <span class="valor"><strong>${dados.cpf || 'Não informado'}</strong></span></div>
+        <div class="campo"><span class="label">Telefone:</span> <span class="valor">${dados.telefone || 'Não informado'}</span></div>
+        <div class="campo"><span class="label">E-mail:</span> <span class="valor">${dados.email || 'Não informado'}</span></div>
+    </div>
+    
+    <div class="secao">
+        <h3><strong>🎯 DETALHES DA RECLAMAÇÃO</strong></h3>
+        <div class="destaque">
+            <div class="campo"><span class="label">Motivo:</span> <span class="valor"><strong>${dados.motivo || 'Não informado'}</strong></span></div>
+            <div class="campo"><span class="label">Detalhamento:</span> <span class="valor">${dados.detalhamento || 'Não informado'}</span></div>
+        </div>
+    </div>
+    
+    ${dados.tipo === 'reclame-aqui' ? `
+    <div class="secao">
+        <h3><strong>📝 DADOS ESPECÍFICOS - RECLAMEAQUI</strong></h3>
+        <div class="campo"><span class="label">Nota da Avaliação:</span> <span class="valor"><strong>${camposEspecificos.nota ? '⭐'.repeat(parseInt(camposEspecificos.nota)) + ' (' + camposEspecificos.nota + ')' : 'Não informado'}</strong></span></div>
+        <div class="campo"><span class="label">Data de Publicação:</span> <span class="valor">${this.formatarData(camposEspecificos.dataPublicacao)}</span></div>
+        <div class="campo"><span class="label">Link:</span> <span class="valor">${camposEspecificos.link || 'Não informado'}</span></div>
+        <div class="campo"><span class="label">Comentário:</span> <span class="valor">${camposEspecificos.comentario || 'Não informado'}</span></div>
+    </div>
+    ` : ''}
+    
+    ${dados.tipo === 'procon' ? `
+    <div class="secao">
+        <h3><strong>⚖️ DADOS ESPECÍFICOS - PROCON</strong></h3>
+        <div class="campo"><span class="label">Órgão Procon:</span> <span class="valor"><strong>${camposEspecificos.orgao || 'Não informado'}</strong></span></div>
+        <div class="campo"><span class="label">Data de Recebimento:</span> <span class="valor">${this.formatarData(camposEspecificos.dataRecebimento)}</span></div>
+        <div class="campo"><span class="label">Prazo para Resposta:</span> <span class="valor"><strong>${this.formatarData(camposEspecificos.prazoResposta)}</strong></span></div>
+        <div class="campo"><span class="label">Valor Reclamado:</span> <span class="valor"><strong>${camposEspecificos.valorReclamado ? 'R$ ' + parseFloat(camposEspecificos.valorReclamado).toLocaleString('pt-BR', {minimumFractionDigits: 2}) : 'Não informado'}</strong></span></div>
+        <div class="campo"><span class="label">Descrição:</span> <span class="valor">${camposEspecificos.descricao || 'Não informado'}</span></div>
+    </div>
+    ` : ''}
+    
+    <div class="secao">
+        <h3><strong>✅ RESOLUÇÃO</strong></h3>
+        <div class="campo"><span class="label">Status:</span> <span class="valor"><strong>${this.formatarStatus(dados.status)}</strong></span></div>
+        <div class="campo"><span class="label">Observações:</span> <span class="valor">${dados.observacoes || 'Nenhuma observação'}</span></div>
+    </div>
+    
+    <hr>
+    <p style="font-size: 0.9em; color: #666;">Sistema Velotax - Gestão de Demandas ${tipoLabel}</p>
+</body>
+</html>`;
+    }
+
     // === UTILITÁRIOS ===
     formatarData(dataString) {
         if (!dataString) return 'Não informada';
