@@ -504,6 +504,8 @@ class FichasEspecificas {
             conteudo = this.criarFichaN2(dados);
         } else if (tipo === 'chatbot') {
             conteudo = this.criarFichaChatbot(dados);
+        } else if (tipo === 'ra-procon') {
+            conteudo = this.criarFichaRAPROCON(dados);
         } else {
             conteudo = this.criarFichaBacen(dados); // Fallback
         }

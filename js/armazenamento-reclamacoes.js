@@ -7,7 +7,8 @@ class ArmazenamentoReclamacoes {
         this.chaves = {
             bacen: 'velotax_reclamacoes_bacen',
             n2: 'velotax_reclamacoes_n2',
-            chatbot: 'velotax_reclamacoes_chatbot'
+            chatbot: 'velotax_reclamacoes_chatbot',
+            'ra-procon': 'velotax_reclamacoes_ra_procon'
         };
         this.usarFirebase = false; // Começa como falso
         this.firebaseDB = null; // A instância será atribuída quando Firebase estiver pronto
