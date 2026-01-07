@@ -538,16 +538,7 @@ async function atualizarDashboardN2() {
     const taxaPortabilidade = total > 0 ? ((portabilidadesConcluidas / total) * 100).toFixed(1) : 0;
     atualizarElemento('taxa-portabilidade-n2', `${taxaPortabilidade}%`);
     
-    // Banco mais solicitado
-    const bancosDestino = {};
-    fichasN2.forEach(f => {
-        if (f.bancoDestino) {
-            bancosDestino[f.bancoDestino] = (bancosDestino[f.bancoDestino] || 0) + 1;
-        }
-    });
-    const bancoMaisSolicitado = Object.keys(bancosDestino).reduce((a, b) => 
-        bancosDestino[a] > bancosDestino[b] ? a : b, 'N/A');
-    atualizarElemento('banco-mais-solicitado', bancoMaisSolicitado);
+    // Removido: estatística de banco mais solicitado (campo bancoDestino removido)
     
     const pixLiberado = fichasN2.filter(f => f.pixLiberado).length;
     atualizarElemento('pix-liberado-n2', pixLiberado);

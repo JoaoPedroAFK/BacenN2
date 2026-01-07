@@ -341,8 +341,7 @@ class SistemaClassificacaoDemandas {
                 case 'n2':
                     campos = `
                         <span class="campo-especifico">🔄 Portabilidade: ${demanda.n2Portabilidade ? '✅' : '❌'}</span>
-                        <span class="campo-especifico">🏦 Banco Origem: ${demanda.bancoOrigem || 'N/A'}</span>
-                        <span class="campo-especifico">🏦 Banco Destino: ${demanda.bancoDestino || 'N/A'}</span>
+                        <!-- Removido: Banco Origem e Banco Destino (campos removidos das fichas) -->
                     `;
                     break;
                     
