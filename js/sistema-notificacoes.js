@@ -14,10 +14,10 @@ class SistemaNotificacoes {
         // Criar container de notificações
         this.criarContainerNotificacoes();
         
-        // Iniciar verificação periódica
+        // Iniciar verificação periódica (mas não exibir automaticamente)
         this.iniciarVerificacaoPeriodica();
         
-        // Verificar imediatamente
+        // Verificar notificações em background (sem exibir)
         this.verificarNotificacoes();
         
         console.log('✅ Sistema de Notificações inicializado');
@@ -189,7 +189,7 @@ class SistemaNotificacoes {
     }
     
     async verificarNotificacoes() {
-        console.log('🔔 Verificando notificações...');
+        console.log('🔔 Verificando notificações em background...');
         
         try {
             // Carregar todas as reclamações
@@ -330,7 +330,8 @@ class SistemaNotificacoes {
         const protocolos = this.obterProtocolosFicha(notif.ficha) || 'N/A';
         const tipoDemanda = notif.ficha.tipoDemanda || 'bacen';
         const tipoLabel = tipoDemanda === 'bacen' ? 'BACEN' : tipoDemanda === 'n2' ? 'N2' : tipoDemanda === 'chatbot' ? 'Chatbot' : 'RA/Procon';
-        const fichaId = notif.ficha.id || '';
+        const nomeCliente = notif.ficha.nomeCompleto || notif.ficha.nomeCliente || 'Não informado';
+        const cpfCliente = notif.ficha.cpf || 'Não informado';
         
         return `
             <div class="notificacao-item" style="
@@ -341,12 +342,18 @@ class SistemaNotificacoes {
                 border-radius: 8px;
                 cursor: pointer;
                 transition: transform 0.2s, box-shadow 0.2s;
-            " data-ficha-id="${fichaId}" data-tipo-demanda="${tipoDemanda}" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
+            " data-ficha-id="${notif.ficha.id || ''}" data-tipo-demanda="${tipoDemanda}" data-index="${index}" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
                 <div style="display: flex; justify-content: space-between; align-items: start;">
                     <div style="flex: 1;">
                         <div style="font-weight: 600; margin-bottom: 6px; font-size: 14px;">${notif.mensagem}</div>
                         <div style="font-size: 0.85em; opacity: 0.9; margin-bottom: 4px;">
-                            <strong>Tipo:</strong> ${tipoLabel} | <strong>Cliente:</strong> ${notif.ficha.nomeCompleto || notif.ficha.nomeCliente || 'N/A'}
+                            <strong>Tipo:</strong> ${tipoLabel}
+                        </div>
+                        <div style="font-size: 0.85em; opacity: 0.9; margin-bottom: 4px;">
+                            <strong>Cliente:</strong> ${nomeCliente}
+                        </div>
+                        <div style="font-size: 0.85em; opacity: 0.9; margin-bottom: 4px;">
+                            <strong>CPF:</strong> ${cpfCliente}
                         </div>
                         <div style="font-size: 0.85em; opacity: 0.9;">
                             <strong>Protocolo(s):</strong> ${protocolos}
