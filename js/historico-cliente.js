@@ -305,9 +305,42 @@ class HistoricoCliente {
 if (typeof window !== 'undefined') {
     window.historicoCliente = new HistoricoCliente();
     
+    // Garantir que buscarClientePorCPF esteja disponível imediatamente (antes do DOMContentLoaded)
+    window.buscarClientePorCPF = async () => {
+        if (window.historicoCliente) {
+            const input = document.getElementById('busca-cliente-cpf');
+            const cpf = input ? input.value.trim() : '';
+            if (cpf) {
+                const cpfLimpo = cpf.replace(/\D/g, '');
+                if (cpfLimpo.length < 11) {
+                    if (typeof mostrarAlerta === 'function') {
+                        mostrarAlerta('CPF inválido. Digite os 11 dígitos.', 'warning');
+                    } else {
+                        alert('CPF inválido. Digite os 11 dígitos.');
+                    }
+                    return;
+                }
+                await window.historicoCliente.mostrarHistorico(cpf);
+                if (input) input.value = '';
+            } else {
+                if (typeof mostrarAlerta === 'function') {
+                    mostrarAlerta('Digite um CPF para buscar', 'info');
+                } else {
+                    alert('Digite um CPF para buscar');
+                }
+            }
+        } else {
+            console.error('❌ historicoCliente não está disponível');
+        }
+    };
+    
     // Adicionar botão após carregar a página
     document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => window.historicoCliente.adicionarBotaoBusca(), 500);
+        setTimeout(() => {
+            if (window.historicoCliente) {
+                window.historicoCliente.adicionarBotaoBusca();
+            }
+        }, 500);
     });
 }
 
