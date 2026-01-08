@@ -280,12 +280,14 @@ class HistoricoCliente {
 
     adicionarBotaoBusca() {
         // Função global para buscar cliente por CPF
-        window.buscarClientePorCPF = async () => {
-            const input = document.getElementById('busca-cliente-cpf');
-            const cpf = input ? input.value.trim() : '';
-            if (cpf) {
-                // Validar CPF básico (11 dígitos)
-                const cpfLimpo = cpf.replace(/\D/g, '');
+        // Garantir que a função esteja disponível globalmente
+        if (!window.buscarClientePorCPF) {
+            window.buscarClientePorCPF = async () => {
+                const input = document.getElementById('busca-cliente-cpf');
+                const cpf = input ? input.value.trim() : '';
+                if (cpf) {
+                    // Validar CPF básico (11 dígitos)
+                    const cpfLimpo = cpf.replace(/\D/g, '');
                 if (cpfLimpo.length < 11) {
                     mostrarAlerta('CPF inválido. Digite os 11 dígitos.', 'warning');
                     return;

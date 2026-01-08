@@ -1,5 +1,5 @@
 /* === SISTEMA DE NOTIFICAÇÕES PARA RECLAMAÇÕES === */
-/* VERSÃO: v1.0.0 | DATA: 2026-01-XX | ALTERAÇÕES: Sistema de notificações para reclamações expiradas e PIX Solicitada */
+/* VERSÃO: v2.0.0 | DATA: 2026-01-XX | ALTERAÇÕES: Sistema completo refeito conforme instruções */
 
 class SistemaNotificacoes {
     constructor() {
@@ -11,23 +11,10 @@ class SistemaNotificacoes {
     }
     
     inicializar() {
-        // Criar container de notificações (com retry para garantir que o header esteja pronto)
+        console.log('🔔 [Notificações] Inicializando sistema...');
+        
+        // Criar container de notificações
         this.criarContainerNotificacoes();
-        
-        // Tentar criar o ícone novamente após alguns segundos (caso o header seja carregado dinamicamente)
-        setTimeout(() => {
-            if (!document.getElementById('icone-notificacoes')) {
-                console.log('🔄 [Notificações] Tentando criar ícone novamente após delay...');
-                this.criarIconeSino();
-            }
-        }, 2000);
-        
-        setTimeout(() => {
-            if (!document.getElementById('icone-notificacoes')) {
-                console.log('🔄 [Notificações] Tentando criar ícone novamente após delay 2...');
-                this.criarIconeSino();
-            }
-        }, 4000);
         
         // Iniciar verificação periódica (mas não exibir automaticamente)
         this.iniciarVerificacaoPeriodica();
@@ -35,7 +22,24 @@ class SistemaNotificacoes {
         // Verificar notificações em background (sem exibir)
         this.verificarNotificacoes();
         
+        // Tentar criar o ícone múltiplas vezes para garantir que apareça
+        this.tentarCriarIconeComRetry();
+        
         console.log('✅ Sistema de Notificações inicializado');
+    }
+    
+    tentarCriarIconeComRetry() {
+        const tentativas = [500, 1000, 2000, 3000, 5000];
+        tentativas.forEach((delay, index) => {
+            setTimeout(() => {
+                if (!document.getElementById('icone-notificacoes')) {
+                    console.log(`🔄 [Notificações] Tentativa ${index + 1}/${tentativas.length} de criar ícone após ${delay}ms...`);
+                    this.criarIconeSino();
+                } else {
+                    console.log('✅ [Notificações] Ícone já existe');
+                }
+            }, delay);
+        });
     }
     
     criarContainerNotificacoes() {
@@ -77,7 +81,7 @@ class SistemaNotificacoes {
         
         document.body.appendChild(caixa);
         
-        // Event listeners - usar setTimeout para garantir que o DOM foi atualizado
+        // Event listeners
         setTimeout(() => {
             const btnFechar = document.getElementById('btn-fechar-notificacoes');
             if (btnFechar) {
@@ -110,107 +114,90 @@ class SistemaNotificacoes {
             existente.remove();
         }
         
-        // Função auxiliar para tentar criar o ícone
-        const tentarCriarIcone = () => {
-            // Procurar header-actions - tentar múltiplas vezes
-            let headerActions = document.querySelector('.velohub-header .header-actions') || 
-                               document.querySelector('.header-actions') ||
-                               document.querySelector('header .header-actions');
-            
-            // Se não encontrar, tentar criar ou aguardar
-            if (!headerActions) {
-                // Tentar encontrar o header e criar header-actions se necessário
-                const header = document.querySelector('.velohub-header') || 
-                              document.querySelector('header') ||
-                              document.querySelector('.header');
-                if (header) {
-                    const headerContent = header.querySelector('.header-content') || header;
-                    if (headerContent) {
-                        headerActions = document.createElement('div');
-                        headerActions.className = 'header-actions';
-                        headerContent.appendChild(headerActions);
-                        console.log('✅ [Notificações] Criado header-actions');
-                    }
+        // Procurar header-actions - tentar múltiplas estratégias
+        let headerActions = document.querySelector('.velohub-header .header-actions') || 
+                           document.querySelector('.header-actions') ||
+                           document.querySelector('header .header-actions') ||
+                           document.querySelector('.header-content .header-actions');
+        
+        // Se não encontrar, tentar criar
+        if (!headerActions) {
+            const header = document.querySelector('.velohub-header') || 
+                          document.querySelector('header') ||
+                          document.querySelector('.header');
+            if (header) {
+                const headerContent = header.querySelector('.header-content') || header;
+                if (headerContent) {
+                    headerActions = document.createElement('div');
+                    headerActions.className = 'header-actions';
+                    headerContent.appendChild(headerActions);
+                    console.log('✅ [Notificações] Criado header-actions');
                 }
             }
-            
-            if (!headerActions) {
-                console.warn('⚠️ [Notificações] Header actions não encontrado, tentando novamente...');
-                return false;
-            }
-            
-            // Verificar se já existe um ícone
-            if (document.getElementById('icone-notificacoes')) {
-                console.log('✅ [Notificações] Ícone já existe');
-                return true;
-            }
-            
-            const icone = document.createElement('button');
-            icone.id = 'icone-notificacoes';
-            icone.innerHTML = '🔔';
-            icone.style.cssText = `
-                background: transparent;
-                border: none;
-                font-size: 24px;
-                cursor: pointer;
-                position: relative;
-                padding: 8px;
-                border-radius: 50%;
-                transition: background 0.2s;
-            `;
-            
-            icone.onmouseover = () => {
-                icone.style.background = 'rgba(255,255,255,0.1)';
-            };
-            icone.onmouseout = () => {
-                icone.style.background = 'transparent';
-            };
-            
-            icone.onclick = (e) => {
-                e.stopPropagation();
-                console.log('🔔 [Notificações] Ícone clicado');
-                this.toggleCaixaNotificacoes();
-            };
-            
-            // Badge de contador
-            const badge = document.createElement('span');
-            badge.id = 'badge-contador-notificacoes';
-            badge.style.cssText = `
-                position: absolute;
-                top: 4px;
-                right: 4px;
-                background: #FF0000;
-                color: white;
-                border-radius: 50%;
-                width: 20px;
-                height: 20px;
-                display: none;
-                align-items: center;
-                justify-content: center;
-                font-size: 11px;
-                font-weight: bold;
-            `;
-            badge.textContent = '0';
-            icone.appendChild(badge);
-            
-            headerActions.appendChild(icone);
-            console.log('✅ [Notificações] Ícone de sino criado e adicionado ao header');
+        }
+        
+        if (!headerActions) {
+            console.warn('⚠️ [Notificações] Header actions não encontrado');
+            return false;
+        }
+        
+        // Verificar se já existe um ícone
+        if (document.getElementById('icone-notificacoes')) {
+            console.log('✅ [Notificações] Ícone já existe');
             return true;
+        }
+        
+        const icone = document.createElement('button');
+        icone.id = 'icone-notificacoes';
+        icone.innerHTML = '🔔';
+        icone.style.cssText = `
+            background: transparent;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            position: relative;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.2s;
+        `;
+        
+        icone.onmouseover = () => {
+            icone.style.background = 'rgba(255,255,255,0.1)';
+        };
+        icone.onmouseout = () => {
+            icone.style.background = 'transparent';
         };
         
-        // Tentar criar imediatamente
-        if (!tentarCriarIcone()) {
-            // Se não conseguir, tentar novamente após 500ms, 1s, 2s
-            setTimeout(() => {
-                if (!tentarCriarIcone()) {
-                    setTimeout(() => {
-                        if (!tentarCriarIcone()) {
-                            setTimeout(() => tentarCriarIcone(), 2000);
-                        }
-                    }, 1000);
-                }
-            }, 500);
-        }
+        icone.onclick = (e) => {
+            e.stopPropagation();
+            console.log('🔔 [Notificações] Ícone clicado');
+            this.toggleCaixaNotificacoes();
+        };
+        
+        // Badge de contador
+        const badge = document.createElement('span');
+        badge.id = 'badge-contador-notificacoes';
+        badge.style.cssText = `
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: #FF0000;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+        `;
+        badge.textContent = '0';
+        icone.appendChild(badge);
+        
+        headerActions.appendChild(icone);
+        console.log('✅ [Notificações] Ícone de sino criado e adicionado ao header');
+        return true;
     }
     
     toggleCaixaNotificacoes() {
@@ -255,115 +242,117 @@ class SistemaNotificacoes {
     }
     
     async verificarNotificacoes() {
-        console.log('🔔 Verificando notificações em background...');
+        console.log('🔔 [Notificações] Verificando notificações em background...');
         
         try {
-            // Carregar todas as reclamações
-            let todasFichas = [];
+            // Carregar todas as fichas
+            const todasFichas = [];
             
             if (window.armazenamentoReclamacoes) {
-                const fichasBacen = await window.armazenamentoReclamacoes.carregarTodos('bacen') || [];
-                const fichasN2 = await window.armazenamentoReclamacoes.carregarTodos('n2') || [];
-                const fichasChatbot = await window.armazenamentoReclamacoes.carregarTodos('chatbot') || [];
-                todasFichas = [...fichasBacen, ...fichasN2, ...fichasChatbot];
-            } else {
-                // Fallback localStorage
-                const dadosBacen = localStorage.getItem('velotax_reclamacoes_bacen');
-                const dadosN2 = localStorage.getItem('velotax_reclamacoes_n2');
-                const dadosChatbot = localStorage.getItem('velotax_reclamacoes_chatbot');
-                
-                if (dadosBacen) todasFichas.push(...JSON.parse(dadosBacen));
-                if (dadosN2) todasFichas.push(...JSON.parse(dadosN2));
-                if (dadosChatbot) todasFichas.push(...JSON.parse(dadosChatbot));
+                try {
+                    const [bacen, n2, chatbot] = await Promise.all([
+                        window.armazenamentoReclamacoes.carregarTodos('bacen').catch(() => []),
+                        window.armazenamentoReclamacoes.carregarTodos('n2').catch(() => []),
+                        window.armazenamentoReclamacoes.carregarTodos('chatbot').catch(() => [])
+                    ]);
+                    
+                    todasFichas.push(
+                        ...(Array.isArray(bacen) ? bacen : []).map(f => ({ ...f, tipoDemanda: 'bacen' })),
+                        ...(Array.isArray(n2) ? n2 : []).map(f => ({ ...f, tipoDemanda: 'n2' })),
+                        ...(Array.isArray(chatbot) ? chatbot : []).map(f => ({ ...f, tipoDemanda: 'chatbot' }))
+                    );
+                } catch (error) {
+                    console.warn('⚠️ [Notificações] Erro ao carregar do Firebase:', error);
+                }
             }
             
-            const notificacoes = [];
+            // Fallback para localStorage
+            if (todasFichas.length === 0) {
+                const bacen = JSON.parse(localStorage.getItem('velotax_reclamacoes_bacen') || '[]');
+                const n2 = JSON.parse(localStorage.getItem('velotax_reclamacoes_n2') || '[]');
+                const chatbot = JSON.parse(localStorage.getItem('velotax_reclamacoes_chatbot') || '[]');
+                
+                todasFichas.push(
+                    ...bacen.map(f => ({ ...f, tipoDemanda: 'bacen' })),
+                    ...n2.map(f => ({ ...f, tipoDemanda: 'n2' })),
+                    ...chatbot.map(f => ({ ...f, tipoDemanda: 'chatbot' }))
+                );
+            }
+            
             const hoje = new Date();
             hoje.setHours(0, 0, 0, 0);
+            const notificacoes = [];
             
             todasFichas.forEach(ficha => {
-                // Verificar PIX Solicitada após 1 dia útil
+                // Verificar PIX Solicitada após 1 dia útil (mas não mais de 20 dias)
                 if (ficha.pixStatus === 'Solicitada' && ficha.dataCriacao) {
                     const dataCriacao = new Date(ficha.dataCriacao);
                     const diasUteis = this.calcularDiasUteis(dataCriacao, hoje);
+                    const diasTotais = Math.ceil((hoje - dataCriacao) / (1000 * 60 * 60 * 24));
                     
-                    if (diasUteis >= 1) {
+                    if (diasUteis >= 1 && diasTotais <= 20) {
                         notificacoes.push({
                             tipo: 'pix-solicitada',
                             ficha: ficha,
-                            mensagem: `PIX Solicitada há ${diasUteis} dia(s) útil(is) - ${ficha.nomeCompleto || 'Cliente'}`,
-                            prioridade: 'alta'
+                            mensagem: `PIX Solicitada há ${diasUteis} dia(s) útil(is)`,
+                            prioridade: 'alta',
+                            dataCriacao: ficha.dataCriacao
                         });
                     }
                 }
                 
-                // Verificar prazos expirados ou a 2 dias de expirar
+                // Verificar prazos expirados ou a 2 dias de expirar (mas não mais de 20 dias)
                 if (ficha.prazoBacen) {
                     const prazo = new Date(ficha.prazoBacen);
                     prazo.setHours(0, 0, 0, 0);
                     const diffDias = Math.ceil((prazo - hoje) / (1000 * 60 * 60 * 24));
+                    const diasDesdePrazo = Math.abs(diffDias);
                     
-                    if (diffDias < 0) {
-                        notificacoes.push({
-                            tipo: 'prazo-expirado',
-                            ficha: ficha,
-                            mensagem: `⚠️ Prazo expirado há ${Math.abs(diffDias)} dia(s) - ${ficha.nomeCompleto || 'Cliente'}`,
-                            prioridade: 'critica'
-                        });
-                    } else if (diffDias <= 2) {
-                        notificacoes.push({
-                            tipo: 'prazo-proximo',
-                            ficha: ficha,
-                            mensagem: `⏰ Prazo vence em ${diffDias} dia(s) - ${ficha.nomeCompleto || 'Cliente'}`,
-                            prioridade: diffDias === 0 ? 'critica' : 'alta'
-                        });
+                    // Só notificar se não exceder 20 dias
+                    if (diasDesdePrazo <= 20) {
+                        if (diffDias < 0) {
+                            notificacoes.push({
+                                tipo: 'prazo-expirado',
+                                ficha: ficha,
+                                mensagem: `⚠️ Prazo expirado há ${Math.abs(diffDias)} dia(s)`,
+                                prioridade: 'critica',
+                                dataPrazo: ficha.prazoBacen
+                            });
+                        } else if (diffDias <= 2) {
+                            notificacoes.push({
+                                tipo: 'prazo-proximo',
+                                ficha: ficha,
+                                mensagem: `⏰ Prazo vence em ${diffDias} dia(s)`,
+                                prioridade: diffDias === 0 ? 'critica' : 'alta',
+                                dataPrazo: ficha.prazoBacen
+                            });
+                        }
                     }
                 }
             });
             
-            // Exibir notificações
-            this.exibirNotificacoes(notificacoes);
+            this.notificacoesAtivas = notificacoes;
+            this.atualizarContadorNotificacoes(notificacoes.length);
             
+            console.log(`✅ [Notificações] ${notificacoes.length} notificação(ões) encontrada(s)`);
         } catch (error) {
-            console.error('❌ Erro ao verificar notificações:', error);
+            console.error('❌ [Notificações] Erro ao verificar notificações:', error);
         }
     }
     
     calcularDiasUteis(dataInicio, dataFim) {
         let dias = 0;
-        const data = new Date(dataInicio);
+        const atual = new Date(dataInicio);
         
-        while (data <= dataFim) {
-            const diaSemana = data.getDay();
-            // 0 = Domingo, 6 = Sábado
-            if (diaSemana !== 0 && diaSemana !== 6) {
+        while (atual <= dataFim) {
+            const diaSemana = atual.getDay();
+            if (diaSemana !== 0 && diaSemana !== 6) { // Não contar sábado e domingo
                 dias++;
             }
-            data.setDate(data.getDate() + 1);
+            atual.setDate(atual.getDate() + 1);
         }
         
         return dias;
-    }
-    
-    exibirNotificacoes(notificacoes) {
-        // Armazenar notificações ativas
-        this.notificacoesAtivas = notificacoes;
-        
-        // Atualizar lista na caixa
-        this.atualizarListaNotificacoes();
-        
-        // Atualizar contador no badge
-        this.atualizarContadorNotificacoes(notificacoes.length);
-        
-        // Tocar alerta para novas notificações críticas
-        const novasCriticas = notificacoes.filter(n => 
-            n.prioridade === 'critica' || 
-            (n.tipo === 'pix-solicitada' && n.prioridade === 'alta')
-        );
-        
-        if (novasCriticas.length > 0) {
-            this.tocarAlerta();
-        }
     }
     
     atualizarListaNotificacoes() {
@@ -460,38 +449,23 @@ class SistemaNotificacoes {
         return protocolos.length > 0 ? protocolos.join(', ') : null;
     }
     
-    tocarAlerta() {
-        try {
-            // Criar contexto de áudio se não existir
-            if (!this.audioContext) {
-                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            
-            // Criar oscilador para som de alerta
-            const oscillator = this.audioContext.createOscillator();
-            const gainNode = this.audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(this.audioContext.destination);
-            
-            oscillator.frequency.value = 800;
-            oscillator.type = 'sine';
-            
-            gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
-            
-            oscillator.start(this.audioContext.currentTime);
-            oscillator.stop(this.audioContext.currentTime + 0.5);
-        } catch (error) {
-            console.warn('⚠️ Não foi possível tocar alerta sonoro:', error);
+    atualizarContadorNotificacoes(count) {
+        const badge = document.getElementById('badge-contador-notificacoes');
+        if (!badge) return;
+        
+        const countFinal = count !== undefined ? count : (this.notificacoesAtivas?.length || 0);
+        
+        if (countFinal > 0) {
+            badge.textContent = countFinal > 99 ? '99+' : countFinal;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
         }
     }
     
-    animarNotificacao(elemento) {
-        elemento.style.animation = 'pulse 0.5s ease-in-out 3';
-    }
-    
     abrirFicha(ficha) {
+        console.log('🔍 [Notificações] Abrindo ficha:', ficha.id, ficha.tipoDemanda);
+        
         // Fechar caixa de notificações
         this.fecharCaixaNotificacoes();
         
@@ -522,45 +496,36 @@ class SistemaNotificacoes {
     }
     
     abrirFichaAposCarregamento(ficha) {
-        console.log('🔍 [Notificações] Tentando abrir ficha:', ficha.id, ficha.tipoDemanda, ficha);
+        console.log('🔍 [Notificações] Tentando abrir ficha após carregamento:', ficha.id, ficha.tipoDemanda);
         
-        // Primeiro, tentar usar o método direto de abrirFicha do FichasEspecificas
-        // que aceita o objeto completo da ficha
         let tentativas = 0;
         const maxTentativas = 50;
         
         const tentarAbrir = setInterval(() => {
             tentativas++;
             
-            // Verificar se FichasEspecificas está disponível
             if (window.FichasEspecificas && typeof window.FichasEspecificas === 'function') {
                 clearInterval(tentarAbrir);
                 
                 try {
-                    // Criar instância se não existir
                     if (!window.fichasEspecificas) {
                         console.log('✅ [Notificações] Criando nova instância de FichasEspecificas');
                         window.fichasEspecificas = new window.FichasEspecificas();
                     }
                     
-                    // Verificar se o método abrirFicha existe
                     if (typeof window.fichasEspecificas.abrirFicha === 'function') {
-                        console.log('✅ [Notificações] Abrindo ficha usando fichasEspecificas.abrirFicha com objeto completo');
-                        // Passar o objeto completo da ficha
+                        console.log('✅ [Notificações] Abrindo ficha usando fichasEspecificas.abrirFicha');
                         window.fichasEspecificas.abrirFicha(ficha);
-                        return;
                     } else {
                         throw new Error('Método abrirFicha não encontrado na instância');
                     }
                 } catch (error) {
                     console.error('❌ [Notificações] Erro ao abrir ficha:', error);
-                    // Tentar método alternativo por ID
                     this.tentarAbrirPorId(ficha);
                 }
             } else if (tentativas >= maxTentativas) {
                 clearInterval(tentarAbrir);
                 console.error('❌ [Notificações] FichasEspecificas não disponível após', maxTentativas * 100, 'ms');
-                // Tentar método alternativo como último recurso
                 this.tentarAbrirPorId(ficha);
             }
         }, 100);
@@ -570,7 +535,6 @@ class SistemaNotificacoes {
         const fichaId = ficha.id;
         console.log('🔄 [Notificações] Tentando método alternativo por ID:', fichaId);
         
-        // Aguardar um pouco para garantir que as funções estejam disponíveis
         setTimeout(() => {
             if (ficha.tipoDemanda === 'bacen') {
                 if (typeof abrirFichaBacen === 'function') {
@@ -579,8 +543,6 @@ class SistemaNotificacoes {
                 } else if (window.abrirFichaBacen) {
                     console.log('🔄 [Notificações] Usando window.abrirFichaBacen');
                     window.abrirFichaBacen(fichaId);
-                } else {
-                    console.error('❌ [Notificações] abrirFichaBacen não encontrado');
                 }
             } else if (ficha.tipoDemanda === 'n2') {
                 if (typeof abrirFichaN2 === 'function') {
@@ -589,8 +551,6 @@ class SistemaNotificacoes {
                 } else if (window.abrirFichaN2) {
                     console.log('🔄 [Notificações] Usando window.abrirFichaN2');
                     window.abrirFichaN2(fichaId);
-                } else {
-                    console.error('❌ [Notificações] abrirFichaN2 não encontrado');
                 }
             } else if (ficha.tipoDemanda === 'chatbot') {
                 if (typeof abrirFichaChatbotHTML === 'function') {
@@ -599,27 +559,9 @@ class SistemaNotificacoes {
                 } else if (window.abrirFichaChatbotHTML) {
                     console.log('🔄 [Notificações] Usando window.abrirFichaChatbotHTML');
                     window.abrirFichaChatbotHTML(fichaId);
-                } else {
-                    console.error('❌ [Notificações] abrirFichaChatbotHTML não encontrado');
                 }
-            } else {
-                console.error('❌ [Notificações] Nenhum método de abertura encontrado para tipo:', ficha.tipoDemanda);
             }
         }, 200);
-    }
-    
-    atualizarContadorNotificacoes(count) {
-        const badge = document.getElementById('badge-contador-notificacoes');
-        if (!badge) return;
-        
-        const countFinal = count !== undefined ? count : (this.notificacoesAtivas?.length || 0);
-        
-        if (countFinal > 0) {
-            badge.textContent = countFinal > 99 ? '99+' : countFinal;
-            badge.style.display = 'flex';
-        } else {
-            badge.style.display = 'none';
-        }
     }
 }
 
@@ -629,18 +571,14 @@ let sistemaNotificacoes = null;
 function inicializarSistemaNotificacoes() {
     if (sistemaNotificacoes) return; // Já inicializado
     
-    // Aguardar um pouco para garantir que o header esteja carregado
-    setTimeout(() => {
-        sistemaNotificacoes = new SistemaNotificacoes();
-        window.sistemaNotificacoes = sistemaNotificacoes;
-    }, 500);
+    sistemaNotificacoes = new SistemaNotificacoes();
+    window.sistemaNotificacoes = sistemaNotificacoes;
 }
 
 // Tentar inicializar quando DOM estiver pronto
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', inicializarSistemaNotificacoes);
 } else {
-    // DOM já está pronto
     inicializarSistemaNotificacoes();
 }
 
@@ -649,45 +587,42 @@ setTimeout(inicializarSistemaNotificacoes, 500);
 setTimeout(inicializarSistemaNotificacoes, 1000);
 setTimeout(inicializarSistemaNotificacoes, 2000);
 setTimeout(inicializarSistemaNotificacoes, 3000);
-    
-    // Adicionar estilos CSS para animações
-    if (!document.getElementById('estilos-notificacoes')) {
-        const style = document.createElement('style');
-        style.id = 'estilos-notificacoes';
-        style.textContent = `
-            @keyframes slideInRight {
-                from {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-            }
-            @keyframes slideOutRight {
-                from {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-                to {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-            }
-            @keyframes pulse {
-                0%, 100% {
-                    transform: scale(1);
-                }
-                50% {
-                    transform: scale(1.05);
-                }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-});
 
-// Expor globalmente
-window.SistemaNotificacoes = SistemaNotificacoes;
-
+// Adicionar estilos CSS para animações
+if (!document.getElementById('estilos-notificacoes')) {
+    const style = document.createElement('style');
+    style.id = 'estilos-notificacoes';
+    style.textContent = `
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
