@@ -76,7 +76,7 @@ class FichasEspecificas {
                             </div>
                             <div class="ficha-item">
                                 <label>Motivo Reduzido:</label>
-                                <span class="ficha-valor editavel" data-campo="motivoReduzido">${dados.motivoReduzido || 'Não informado'}</span>
+                                <span class="ficha-valor editavel" data-campo="motivoReduzido" data-tipo="select" data-opcoes='["Abatimento Juros","Abatimento Juros/Chave PIX","Cancelamento Conta","Chave PIX","PIX/Abatimento Juros/Encerramento de conta","Chave PIX/Abatimento Juros/Prob. App","Chave PIX/Acesso ao App","Chave PIX/Exclusão de Conta","Conta","Contestação de Valores","Credito do Trabalhador","Credito Pessoal","Cupons Velotax","Devolução à Celcoin","Fraude","Liquidação Antecipada","Liquidação Antecipada/Abatimento Juros","Não recebeu restituição","Não recebeu restituição/Abatimento Juros","Não recebeu restituição/Abatimento Juros/Chave PIX","Não recebeu restituição/Chave PIX","Probl. App/Gov","Seguro Celular","Seguro Divida Zero","Seguro Prestamista","Seguro Saude","Superendividamento"]'>${dados.motivoReduzido || 'Não informado'}</span>
                             </div>
                             <div class="ficha-item">
                                 <label>Motivo da Reclamação:</label>
@@ -246,7 +246,7 @@ class FichasEspecificas {
                         <div class="ficha-grid">
                             <div class="ficha-item">
                                 <label>Motivo Reduzido:</label>
-                                <span class="ficha-valor editavel" data-campo="motivoReduzido">${dados.motivoReduzido || 'Não informado'}</span>
+                                <span class="ficha-valor editavel" data-campo="motivoReduzido" data-tipo="select" data-opcoes='["Abatimento Juros","Abatimento Juros/Chave PIX","Cancelamento Conta","Chave PIX","PIX/Abatimento Juros/Encerramento de conta","Chave PIX/Abatimento Juros/Prob. App","Chave PIX/Acesso ao App","Chave PIX/Exclusão de Conta","Conta","Contestação de Valores","Credito do Trabalhador","Credito Pessoal","Cupons Velotax","Devolução à Celcoin","Fraude","Liquidação Antecipada","Liquidação Antecipada/Abatimento Juros","Não recebeu restituição","Não recebeu restituição/Abatimento Juros","Não recebeu restituição/Abatimento Juros/Chave PIX","Não recebeu restituição/Chave PIX","Probl. App/Gov","Seguro Celular","Seguro Divida Zero","Seguro Prestamista","Seguro Saude","Superendividamento"]'>${dados.motivoReduzido || 'Não informado'}</span>
                             </div>
                             <!-- Removido: Motivo da Reclamação e Prazo N2 (não existem mais em N2) -->
                         </div>
@@ -397,7 +397,7 @@ class FichasEspecificas {
                         <div class="ficha-grid">
                             <div class="ficha-item">
                                 <label>Motivo Reduzido:</label>
-                                <span class="ficha-valor editavel" data-campo="motivoReduzido">${dados.motivoReduzido || 'Não informado'}</span>
+                                <span class="ficha-valor editavel" data-campo="motivoReduzido" data-tipo="select" data-opcoes='["Calculadora","Chave PIX","Conta","Débito em Aberto","Elegibilidade","Encerramento da Cadastro","Erros – Bugs","Fraude","Open Finance"]'>${dados.motivoReduzido || 'Não informado'}</span>
                             </div>
                             <div class="ficha-item">
                                 <label>Motivo da Reclamação:</label>
