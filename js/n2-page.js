@@ -1011,7 +1011,6 @@ window.criarCardN2 = function criarCardN2(ficha) {
     
     const statusClass = `status-${ficha.status}`;
     const statusLabel = statusLabels[ficha.status] || ficha.status;
-    const portabilidadeLabel = portabilidadeLabels[ficha.statusPortabilidade] || ficha.statusPortabilidade;
     
     return `
         <div class="complaint-item" onclick="abrirFichaN2('${ficha.id}')">
