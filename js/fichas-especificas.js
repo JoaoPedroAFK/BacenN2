@@ -262,10 +262,6 @@ class FichasEspecificas {
                                 <span class="ficha-valor">${this.obterProtocolosFichaN2(dados) || 'Nenhum protocolo informado'}</span>
                             </div>
                             <div class="ficha-item">
-                                <label>Status Portabilidade:</label>
-                                <span class="ficha-valor editavel" data-campo="statusPortabilidade" data-tipo="select" data-opcoes='["em-andamento","concluida","pendente","cancelada","em-analise","solicitada"]'>${this.formatarStatusPortabilidade(dados.statusPortabilidade) || 'Não informado'}</span>
-                            </div>
-                            <div class="ficha-item">
                                 <label>N2 Portabilidade?</label>
                                 <span class="ficha-valor editavel" data-campo="n2Portabilidade">${dados.n2Portabilidade ? 'Sim' : 'Não'}</span>
                             </div>

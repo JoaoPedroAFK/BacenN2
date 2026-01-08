@@ -1031,7 +1031,7 @@ window.criarCardN2 = function criarCardN2(ficha) {
                 ${obterProtocolosFichaN2(ficha) ? `<div class="complaint-detail"><strong>Protocolo(s):</strong> ${obterProtocolosFichaN2(ficha)}</div>` : ''}
                 <div class="complaint-detail"><strong>CPF:</strong> ${ficha.cpf}</div>
                 <div class="complaint-detail"><strong>Motivo:</strong> ${ficha.motivoReduzido}</div>
-                <div class="complaint-detail"><strong>Status Portabilidade:</strong> ${portabilidadeLabel}</div>
+                <div class="complaint-detail"><strong>PIX liberado ou excluído?:</strong> ${ficha.pixStatus || (ficha.pixLiberado ? 'Liberado' : ficha.pixStatus ? ficha.pixStatus : 'Não informado')}</div>
                 <div class="complaint-detail"><strong>Responsável:</strong> ${ficha.responsavel}</div>
             </div>
         </div>

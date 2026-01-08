@@ -629,8 +629,11 @@ if (document.readyState === 'loading') {
     inicializarSistemaNotificacoes();
 }
 
-// Também tentar após um delay adicional (caso o header seja carregado dinamicamente)
+// Também tentar após delays adicionais (caso o header seja carregado dinamicamente)
+setTimeout(inicializarSistemaNotificacoes, 500);
 setTimeout(inicializarSistemaNotificacoes, 1000);
+setTimeout(inicializarSistemaNotificacoes, 2000);
+setTimeout(inicializarSistemaNotificacoes, 3000);
     
     // Adicionar estilos CSS para animações
     if (!document.getElementById('estilos-notificacoes')) {
