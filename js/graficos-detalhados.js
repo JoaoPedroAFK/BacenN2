@@ -230,6 +230,7 @@ class GraficosDetalhados {
             // N2: status e responsável em barras para facilitar comparação
             this.renderizarGraficoStatus(dadosFiltrados);
             this.renderizarGraficoMensal(dadosFiltrados);
+            this.renderizarGraficoPixRetiradaN2(dadosFiltrados);
             // this.renderizarGraficoOrigem(dadosFiltrados); // REMOVIDO - gráfico não necessário
             // REMOVIDO: renderizarGraficoStatusPortabilidade - gráfico não necessário
             this.renderizarGraficoCobrancaPizza(dadosFiltrados);
@@ -1297,6 +1298,117 @@ class GraficosDetalhados {
         } else {
             container.innerHTML = this.criarGraficoPizza(labels, values, 'Resolução');
         }
+    }
+
+    renderizarGraficoPixRetiradaN2(dados) {
+        const containerId = 'grafico-pix-retirada-n2';
+        let container = document.getElementById(containerId);
+        
+        if (!container) {
+            const graficosContainer = document.querySelector(`#dashboard-${this.tipoDemanda} .graficos-${this.tipoDemanda}`);
+            if (graficosContainer) {
+                const novoContainer = document.createElement('div');
+                novoContainer.className = 'grafico-card';
+                novoContainer.innerHTML = this.criarCardGraficoHTML('Chave PIX Retirada', containerId);
+                graficosContainer.appendChild(novoContainer);
+                container = document.getElementById(containerId);
+            } else {
+                return;
+            }
+        }
+
+        // Contar casos com PIX retirado/excluído
+        const totalCasos = dados.length;
+        const pixRetirado = dados.filter(f => {
+            // Verificar pixStatus
+            if (f.pixStatus === 'Excluído' || f.pixStatus === 'excluido' || f.pixStatus === 'Excluido') {
+                return true;
+            }
+            // Verificar pixLiberado (false ou 'Não' significa excluído)
+            if (f.pixLiberado === false || f.pixLiberado === 'Não' || f.pixLiberado === 'não') {
+                return true;
+            }
+            return false;
+        }).length;
+
+        const pixNaoRetirado = totalCasos - pixRetirado;
+        const porcentagemRetirado = totalCasos > 0 ? ((pixRetirado / totalCasos) * 100).toFixed(1) : 0;
+        const porcentagemNaoRetirado = totalCasos > 0 ? ((pixNaoRetirado / totalCasos) * 100).toFixed(1) : 0;
+
+        if (totalCasos === 0) {
+            container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--texto-secundario);">Nenhum dado disponível</p>';
+            return;
+        }
+
+        // Criar gráfico de pizza usando Chart.js
+        const canvasId = `canvas-pix-retirada-${Date.now()}`;
+        container.innerHTML = `
+            <div style="position: relative; height: 300px; margin: 20px 0;">
+                <canvas id="${canvasId}"></canvas>
+            </div>
+            <div style="text-align: center; margin-top: 20px; padding: 15px; background: var(--cor-card, #f5f5f5); border-radius: 8px;">
+                <div style="font-size: 24px; font-weight: bold; color: var(--azul-royal, #1634FF); margin-bottom: 10px;">
+                    ${porcentagemRetirado}%
+                </div>
+                <div style="font-size: 14px; color: var(--texto-secundario, #666);">
+                    dos casos tiveram a chave PIX retirada<br>
+                    (${pixRetirado} de ${totalCasos} casos)
+                </div>
+            </div>
+        `;
+
+        // Aguardar um pouco para garantir que o canvas foi criado
+        setTimeout(() => {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas || typeof Chart === 'undefined') {
+                console.error('Chart.js não está disponível ou canvas não foi criado');
+                return;
+            }
+
+            const ctx = canvas.getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['PIX Retirado', 'PIX Não Retirado'],
+                    datasets: [{
+                        data: [pixRetirado, pixNaoRetirado],
+                        backgroundColor: [
+                            '#FF0000', // Vermelho para retirado
+                            '#1DFDB9'  // Verde para não retirado
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 12,
+                                    family: 'Poppins, sans-serif'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }, 100);
     }
 
     renderizarGraficoCanal(dados) {
