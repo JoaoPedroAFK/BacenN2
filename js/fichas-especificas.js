@@ -204,12 +204,16 @@ class FichasEspecificas {
                         <h3>📋 Dados Básicos</h3>
                         <div class="ficha-grid">
                             <div class="ficha-item">
-                                <label>Data de Entrada:</label>
-                                <span class="ficha-valor editavel" data-campo="dataEntrada">${this.formatarData(dados.dataEntrada || dados.dataReclamacao)}</span>
+                                <label>Data entrada Atendimento:</label>
+                                <span class="ficha-valor editavel" data-campo="dataEntradaAtendimento" data-tipo="date">${this.formatarData(dados.dataEntradaAtendimento)}</span>
+                            </div>
+                            <div class="ficha-item">
+                                <label>Data Entrada N2:</label>
+                                <span class="ficha-valor editavel" data-campo="dataEntradaN2" data-tipo="date">${this.formatarData(dados.dataEntradaN2)}</span>
                             </div>
                             <div class="ficha-item">
                                 <label>Finalizado em:</label>
-                                <span class="ficha-valor editavel" data-campo="finalizadoEm">${this.formatarData(dados.finalizadoEm)}</span>
+                                <span class="ficha-valor editavel" data-campo="finalizadoEm" data-tipo="date">${this.formatarData(dados.finalizadoEm)}</span>
                             </div>
                             <div class="ficha-item">
                                 <label>Responsável:</label>
