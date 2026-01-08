@@ -116,7 +116,7 @@ class FichasEspecificas {
                             </div>
                             <div class="ficha-item">
                                 <label>PIX liberado ou excluído?</label>
-                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído","Solicitada"]'>${dados.pixStatus || (dados.pixLiberado ? 'Liberado' : 'Excluído')}</span>
+                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído","Solicitada","Não aplicável"]'>${dados.pixStatus || (dados.pixLiberado ? 'Liberado' : 'Excluído')}</span>
                             </div>
                             <div class="ficha-item">
                                 <label>Status do contrato</label>
@@ -275,7 +275,7 @@ class FichasEspecificas {
                             </div>
                             <div class="ficha-item">
                                 <label>PIX liberado ou excluído?</label>
-                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído","Solicitada"]'>${dados.pixStatus || (dados.pixLiberado ? 'Liberado' : 'Excluído')}</span>
+                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído","Solicitada","Não aplicável"]'>${dados.pixStatus || (dados.pixLiberado ? 'Liberado' : 'Excluído')}</span>
                             </div>
                             <div class="ficha-item">
                                 <label>Status do contrato</label>
@@ -457,7 +457,7 @@ class FichasEspecificas {
                             </div>
                             <div class="ficha-item">
                                 <label>PIX liberado ou excluído?</label>
-                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído","Solicitada"]'>${dados.pixStatus || (dados.pixLiberado ? 'Liberado' : 'Excluído')}</span>
+                                <span class="ficha-valor editavel" data-campo="pixStatus" data-tipo="select" data-opcoes='["Liberado","Excluído","Solicitada","Não aplicável"]'>${dados.pixStatus || (dados.pixLiberado ? 'Liberado' : 'Excluído')}</span>
                             </div>
                             <div class="ficha-item">
                                 <label>Enviar para cobrança?</label>
