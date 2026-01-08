@@ -11,8 +11,23 @@ class SistemaNotificacoes {
     }
     
     inicializar() {
-        // Criar container de notificações
+        // Criar container de notificações (com retry para garantir que o header esteja pronto)
         this.criarContainerNotificacoes();
+        
+        // Tentar criar o ícone novamente após alguns segundos (caso o header seja carregado dinamicamente)
+        setTimeout(() => {
+            if (!document.getElementById('icone-notificacoes')) {
+                console.log('🔄 [Notificações] Tentando criar ícone novamente após delay...');
+                this.criarIconeSino();
+            }
+        }, 2000);
+        
+        setTimeout(() => {
+            if (!document.getElementById('icone-notificacoes')) {
+                console.log('🔄 [Notificações] Tentando criar ícone novamente após delay 2...');
+                this.criarIconeSino();
+            }
+        }, 4000);
         
         // Iniciar verificação periódica (mas não exibir automaticamente)
         this.iniciarVerificacaoPeriodica();
