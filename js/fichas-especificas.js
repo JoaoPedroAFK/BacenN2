@@ -259,7 +259,7 @@ class FichasEspecificas {
                         <div class="ficha-grid">
                             <div class="ficha-item full-width">
                                 <label>Protocolo(s):</label>
-                                <span class="ficha-valor">${this.obterProtocolosFicha(dados) || 'Nenhum protocolo informado'}</span>
+                                <span class="ficha-valor">${this.obterProtocolosFichaN2(dados) || 'Nenhum protocolo informado'}</span>
                             </div>
                             <div class="ficha-item">
                                 <label>Status Portabilidade:</label>
