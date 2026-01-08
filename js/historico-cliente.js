@@ -1,5 +1,44 @@
 /* === HISTÓRICO COMPLETO DO CLIENTE === */
 
+// Garantir que buscarClientePorCPF esteja disponível IMEDIATAMENTE (antes de qualquer coisa)
+// Isso evita erros quando o HTML tenta chamar a função no onclick
+window.buscarClientePorCPF = async function() {
+    // Verificar se historicoCliente já está disponível
+    if (window.historicoCliente && typeof window.historicoCliente.mostrarHistorico === 'function') {
+        const input = document.getElementById('busca-cliente-cpf');
+        const cpf = input ? input.value.trim() : '';
+        if (cpf) {
+            const cpfLimpo = cpf.replace(/\D/g, '');
+            if (cpfLimpo.length < 11) {
+                if (typeof mostrarAlerta === 'function') {
+                    mostrarAlerta('CPF inválido. Digite os 11 dígitos.', 'warning');
+                } else {
+                    alert('CPF inválido. Digite os 11 dígitos.');
+                }
+                return;
+            }
+            await window.historicoCliente.mostrarHistorico(cpf);
+            if (input) input.value = '';
+        } else {
+            if (typeof mostrarAlerta === 'function') {
+                mostrarAlerta('Digite um CPF para buscar', 'info');
+            } else {
+                alert('Digite um CPF para buscar');
+            }
+        }
+    } else {
+        console.warn('⚠️ historicoCliente ainda não está disponível, aguardando...');
+        // Aguardar um pouco e tentar novamente
+        setTimeout(() => {
+            if (window.historicoCliente) {
+                window.buscarClientePorCPF();
+            } else {
+                alert('Sistema ainda carregando. Tente novamente em alguns segundos.');
+            }
+        }, 500);
+    }
+};
+
 // Função global para abrir ficha completa
 window.abrirFichaCompleta = function(tipoDemanda, id) {
     const pagina = `${tipoDemanda}.html`;
