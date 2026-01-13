@@ -49,6 +49,43 @@
         };
         console.log('✅ mostrarSecao definido globalmente no <head> (n2.html)');
         
+        // Definir adicionarTelefone ANTES do body ser renderizado
+        // Isso evita erro quando o HTML tenta chamar a função no onclick
+        window.adicionarTelefone = function(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) {
+                console.error('Container não encontrado:', containerId);
+                return;
+            }
+            
+            const telefoneDiv = document.createElement('div');
+            telefoneDiv.className = 'telefone-item-multiplo';
+            telefoneDiv.style.display = 'flex';
+            telefoneDiv.style.gap = '8px';
+            telefoneDiv.style.marginTop = '8px';
+            telefoneDiv.innerHTML = `
+                <input type="text" class="velohub-input telefone-mask telefone-input" placeholder="(00) 00000-0000" style="flex: 1;">
+                <button type="button" onclick="this.parentElement.remove()" style="padding: 8px 12px; background: #ff4757; color: white; border: none; border-radius: 4px; cursor: pointer;">✕</button>
+            `;
+            container.appendChild(telefoneDiv);
+            
+            // Aplicar máscara no novo campo quando formatPhone estiver disponível
+            setTimeout(() => {
+                if (typeof formatPhone === 'function') {
+                    const novoInput = telefoneDiv.querySelector('.telefone-mask');
+                    if (novoInput) {
+                        novoInput.addEventListener('input', formatPhone);
+                    }
+                } else if (window.aplicarMascaraTelefone) {
+                    const novoInput = telefoneDiv.querySelector('.telefone-mask');
+                    if (novoInput) {
+                        window.aplicarMascaraTelefone(novoInput);
+                    }
+                }
+            }, 100);
+        };
+        console.log('✅ adicionarTelefone definido globalmente no <head> (n2.html)');
+        
         // Definir buscarClientePorCPF ANTES do body ser renderizado
         // Isso evita erro quando o HTML tenta chamar a função no onclick
         window.buscarClientePorCPF = async function() {
