@@ -260,10 +260,11 @@ function configurarEventosBacen() {
         cpf.addEventListener('input', formatCPF);
     }
     
-    const telefone = document.getElementById('bacen-telefone');
-    if (telefone) {
-        telefone.addEventListener('input', formatPhone);
-    }
+    // Aplicar máscara em todos os campos de telefone existentes e futuros
+    const telefones = document.querySelectorAll('#bacen-telefones-container .telefone-mask');
+    telefones.forEach(tel => {
+        tel.addEventListener('input', formatPhone);
+    });
 }
 
 // Função auxiliar para obter valor de campo de forma segura
@@ -311,7 +312,7 @@ async function handleSubmitBacen(e) {
         mes: obterValorCampo('bacen-mes'),
         nomeCompleto: obterValorCampo('bacen-nome'),
         cpf: obterValorCampo('bacen-cpf'),
-        telefone: obterValorCampo('bacen-telefone'),
+        telefone: window.obterTelefonesDoContainer ? window.obterTelefonesDoContainer('bacen-telefones-container').join(', ') : obterValorCampo('bacen-telefone'),
         origem: obterValorCampo('bacen-origem'),
         origemTipo: document.querySelector('input[name="bacen-origem-tipo"]:checked')?.value || '',
         rdr: obterValorCampo('bacen-rdr'),

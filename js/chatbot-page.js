@@ -214,10 +214,11 @@ function configurarEventosChatbot() {
         cpf.addEventListener('input', formatCPF);
     }
     
-    const telefone = document.getElementById('chatbot-telefone');
-    if (telefone) {
-        telefone.addEventListener('input', formatPhone);
-    }
+    // Aplicar máscara em todos os campos de telefone existentes e futuros
+    const telefones = document.querySelectorAll('#chatbot-telefones-container .telefone-mask');
+    telefones.forEach(tel => {
+        tel.addEventListener('input', formatPhone);
+    });
 }
 
 // Função auxiliar para obter valor de campo de forma segura
@@ -270,7 +271,7 @@ async function handleSubmitChatbot(e) {
             nomeCompleto: obterValorCampoChatbot('chatbot-nome') || '',
             cpf: obterValorCampoChatbot('chatbot-cpf'),
             // Removido: origem (não existe mais em chatbot)
-            telefone: obterValorCampoChatbot('chatbot-telefone') || '',
+            telefone: window.obterTelefonesDoContainer ? window.obterTelefonesDoContainer('chatbot-telefones-container').join(', ') : obterValorCampoChatbot('chatbot-telefone') || '',
             notaAvaliacao: obterValorCampoChatbot('chatbot-nota-avaliacao'),
             avaliacaoCliente: obterValorCampoChatbot('chatbot-avaliacao-cliente'),
             produto: obterValorCampoChatbot('chatbot-produto'),

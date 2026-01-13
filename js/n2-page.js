@@ -278,10 +278,11 @@ function configurarEventosN2() {
         cpf.addEventListener('input', formatCPF);
     }
     
-    const telefone = document.getElementById('n2-telefone');
-    if (telefone) {
-        telefone.addEventListener('input', formatPhone);
-    }
+    // Aplicar máscara em todos os campos de telefone existentes e futuros
+    const telefones = document.querySelectorAll('#n2-telefones-container .telefone-mask');
+    telefones.forEach(tel => {
+        tel.addEventListener('input', formatPhone);
+    });
 }
 
 // Função auxiliar para obter valor de campo de forma segura
@@ -333,7 +334,7 @@ async function handleSubmitN2(e) {
         mes: obterValorCampoN2('n2-mes'),
         nomeCompleto: obterValorCampoN2('n2-nome'),
         cpf: obterValorCampoN2('n2-cpf'),
-        telefone: obterValorCampoN2('n2-telefone'),
+        telefone: window.obterTelefonesDoContainer ? window.obterTelefonesDoContainer('n2-telefones-container').join(', ') : obterValorCampoN2('n2-telefone'),
         origemTipo: document.querySelector('input[name="n2-origem-tipo"]:checked')?.value || '',
         motivoReduzido: obterValorCampoN2('n2-motivo-reduzido'),
         // Removido: motivoDetalhado e prazoN2 (prazo Bacen)
