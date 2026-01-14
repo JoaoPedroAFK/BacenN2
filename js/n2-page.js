@@ -491,9 +491,10 @@ function validarFichaN2(ficha) {
         const valor = ficha[campo];
         console.log(`🔍 Validando campo ${campo}:`, valor, 'Tipo:', typeof valor, 'Vazio?', !valor || (typeof valor === 'string' && valor.trim() === ''));
         
-        // Verificar se é checkbox
+        // Verificar se é checkbox - aceita tanto "Sim" quanto "Não"
         if (campo === 'enviarCobranca') {
-            if (!valor || valor === 'Não') {
+            // Campo é obrigatório mas aceita "Sim" ou "Não"
+            if (!valor || (valor !== 'Sim' && valor !== 'Não')) {
                 mostrarAlerta('Campo obrigatório não preenchido: Enviar para cobrança?', 'error');
                 return false;
             }
@@ -1028,7 +1029,7 @@ window.criarCardN2 = function criarCardN2(ficha) {
                 </div>
             </div>
             <div class="complaint-summary">
-                ${obterProtocolosFichaN2(ficha) ? `<div class="complaint-detail"><strong>Protocolo(s):</strong> ${obterProtocolosFichaN2(ficha)}</div>` : ''}
+                ${obterProtocolosFichaN2(ficha) ? `<div class="complaint-detail"><strong>Protocolo(s):</strong><br>${obterProtocolosFichaN2(ficha)}</div>` : ''}
                 <div class="complaint-detail"><strong>CPF:</strong> ${ficha.cpf}</div>
                 ${ficha.dataEntradaAtendimento ? `<div class="complaint-detail"><strong>Data entrada Atendimento:</strong> ${formatarData(ficha.dataEntradaAtendimento)}</div>` : ''}
                 ${ficha.dataEntradaN2 ? `<div class="complaint-detail"><strong>Data Entrada N2:</strong> ${formatarData(ficha.dataEntradaN2)}</div>` : ''}
@@ -1553,25 +1554,46 @@ function validarCPF(cpf) {
 
 // Função auxiliar para obter protocolos de uma ficha (mesma do bacen-page.js)
 function obterProtocolosFichaN2(ficha) {
-    const protocolos = [];
+    const protocolosPorTipo = [];
     
+    // Protocolo Central
     if (ficha.protocoloCentral && Array.isArray(ficha.protocoloCentral) && ficha.protocoloCentral.length > 0) {
-        protocolos.push(...ficha.protocoloCentral.filter(p => p && p.trim()));
-    }
-    if (ficha.protocoloN2 && Array.isArray(ficha.protocoloN2) && ficha.protocoloN2.length > 0) {
-        protocolos.push(...ficha.protocoloN2.filter(p => p && p.trim()));
-    }
-    if (ficha.protocoloReclameAqui && Array.isArray(ficha.protocoloReclameAqui) && ficha.protocoloReclameAqui.length > 0) {
-        protocolos.push(...ficha.protocoloReclameAqui.filter(p => p && p.trim()));
-    }
-    if (ficha.protocoloProcon && Array.isArray(ficha.protocoloProcon) && ficha.protocoloProcon.length > 0) {
-        protocolos.push(...ficha.protocoloProcon.filter(p => p && p.trim()));
-    }
-    if (ficha.protocolosSemAcionamento && ficha.protocolosSemAcionamento.trim()) {
-        protocolos.push(ficha.protocolosSemAcionamento.trim());
+        const protocolos = ficha.protocoloCentral.filter(p => p && p.trim());
+        if (protocolos.length > 0) {
+            protocolosPorTipo.push(`<strong>Central:</strong> ${protocolos.join(', ')}`);
+        }
     }
     
-    return protocolos.length > 0 ? protocolos.join(', ') : null;
+    // Protocolo N2
+    if (ficha.protocoloN2 && Array.isArray(ficha.protocoloN2) && ficha.protocoloN2.length > 0) {
+        const protocolos = ficha.protocoloN2.filter(p => p && p.trim());
+        if (protocolos.length > 0) {
+            protocolosPorTipo.push(`<strong>N2:</strong> ${protocolos.join(', ')}`);
+        }
+    }
+    
+    // Protocolo Reclame Aqui
+    if (ficha.protocoloReclameAqui && Array.isArray(ficha.protocoloReclameAqui) && ficha.protocoloReclameAqui.length > 0) {
+        const protocolos = ficha.protocoloReclameAqui.filter(p => p && p.trim());
+        if (protocolos.length > 0) {
+            protocolosPorTipo.push(`<strong>Reclame Aqui:</strong> ${protocolos.join(', ')}`);
+        }
+    }
+    
+    // Protocolo Procon
+    if (ficha.protocoloProcon && Array.isArray(ficha.protocoloProcon) && ficha.protocoloProcon.length > 0) {
+        const protocolos = ficha.protocoloProcon.filter(p => p && p.trim());
+        if (protocolos.length > 0) {
+            protocolosPorTipo.push(`<strong>Procon:</strong> ${protocolos.join(', ')}`);
+        }
+    }
+    
+    // Protocolos sem Acionamento
+    if (ficha.protocolosSemAcionamento && ficha.protocolosSemAcionamento.trim()) {
+        protocolosPorTipo.push(`<strong>Sem Acionamento:</strong> ${ficha.protocolosSemAcionamento.trim()}`);
+    }
+    
+    return protocolosPorTipo.length > 0 ? protocolosPorTipo.join('<br>') : null;
 }
 
 // Função para criar card N2 (se não existir)
@@ -1603,7 +1625,7 @@ if (typeof criarCardN2 === 'undefined' && typeof window.criarCardN2 === 'undefin
                 </div>
                 <div class="complaint-summary">
                     <div class="complaint-detail"><strong>CPF:</strong> ${ficha.cpf}</div>
-                    ${obterProtocolosFichaN2(ficha) ? `<div class="complaint-detail"><strong>Protocolo(s):</strong> ${obterProtocolosFichaN2(ficha)}</div>` : ''}
+                    ${obterProtocolosFichaN2(ficha) ? `<div class="complaint-detail"><strong>Protocolo(s):</strong><br>${obterProtocolosFichaN2(ficha)}</div>` : ''}
                     <div class="complaint-detail"><strong>Motivo:</strong> ${ficha.motivoReduzido}</div>
                     <div class="complaint-detail"><strong>Responsável:</strong> ${ficha.responsavel}</div>
                 </div>
