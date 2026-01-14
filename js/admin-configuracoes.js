@@ -441,20 +441,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     adminConfig = new AdminConfiguracoes();
     
     // Aguardar Firebase inicializar
-    if (window.firebaseDB) {
-        await adminConfig.inicializar();
-    } else {
-        // Aguardar Firebase estar disponível
-        const verificarFirebase = setInterval(() => {
-            if (window.firebaseDB) {
-                clearInterval(verificarFirebase);
-                adminConfig.inicializar();
-            }
-        }, 100);
-    }
+    const aguardarFirebaseAdmin = async () => {
+        if (window.firebaseDB && window.firebaseDB.inicializado) {
+            await adminConfig.inicializar();
+        } else {
+            // Aguardar evento firebaseReady
+            window.addEventListener('firebaseReady', async () => {
+                await adminConfig.inicializar();
+            }, { once: true });
+            
+            // Fallback: verificar periodicamente
+            let tentativas = 0;
+            const verificar = setInterval(() => {
+                tentativas++;
+                if (window.firebaseDB && window.firebaseDB.inicializado) {
+                    clearInterval(verificar);
+                    adminConfig.inicializar();
+                } else if (tentativas >= 50) {
+                    clearInterval(verificar);
+                    console.error('❌ Firebase não inicializou após 5 segundos');
+                    adminConfig.mostrarMensagem('Erro: Firebase não inicializou. Verifique o console.', 'error');
+                }
+            }, 100);
+        }
+    };
+    
+    await aguardarFirebaseAdmin();
     
     // Configurar formulário
-    document.getElementById('form-config').addEventListener('submit', (e) => {
-        adminConfig.salvarConfiguracao(e);
-    });
+    const formConfig = document.getElementById('form-config');
+    if (formConfig) {
+        formConfig.addEventListener('submit', (e) => {
+            adminConfig.salvarConfiguracao(e);
+        });
+    }
 });
