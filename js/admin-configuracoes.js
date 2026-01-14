@@ -128,10 +128,129 @@ class AdminConfiguracoes {
         }
     }
 
+    async registrarHistorico(acao, tipo, dados) {
+        try {
+            if (!this.firebaseDB) {
+                return;
+            }
+
+            // Obter usuário atual (se disponível)
+            const usuario = this.obterUsuarioAtual();
+            
+            const historicoItem = {
+                acao: acao, // 'criar', 'editar', 'remover'
+                tipo: tipo, // 'categoria', 'lista', 'checkbox'
+                dados: dados,
+                usuario: usuario,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                dataFormatada: new Date().toLocaleString('pt-BR')
+            };
+
+            const ref = this.firebaseDB.ref('configuracoes_formularios/historico');
+            await ref.push(historicoItem);
+            
+            console.log('✅ Histórico registrado:', historicoItem);
+        } catch (error) {
+            console.error('❌ Erro ao registrar histórico:', error);
+        }
+    }
+
+    obterUsuarioAtual() {
+        // Tentar obter usuário de diferentes fontes
+        if (window.sistemaPerfis && window.sistemaPerfis.usuarioAtual) {
+            return window.sistemaPerfis.usuarioAtual.nome || window.sistemaPerfis.usuarioAtual.email || 'Sistema';
+        }
+        if (localStorage.getItem('usuarioAtual')) {
+            return localStorage.getItem('usuarioAtual');
+        }
+        return 'Sistema';
+    }
+
+    async carregarHistorico() {
+        try {
+            if (!this.firebaseDB) {
+                return;
+            }
+
+            const ref = this.firebaseDB.ref('configuracoes_formularios/historico');
+            const snapshot = await ref.once('value');
+            
+            if (snapshot.exists()) {
+                const historico = snapshot.val();
+                // Converter objeto em array e ordenar por timestamp
+                const historicoArray = Object.keys(historico).map(key => ({
+                    id: key,
+                    ...historico[key]
+                })).sort((a, b) => {
+                    // Ordenar por timestamp (mais recente primeiro)
+                    const tsA = a.timestamp || 0;
+                    const tsB = b.timestamp || 0;
+                    return tsB - tsA;
+                });
+                
+                return historicoArray;
+            }
+            
+            return [];
+        } catch (error) {
+            console.error('❌ Erro ao carregar histórico:', error);
+            return [];
+        }
+    }
+
+    async renderizarHistorico() {
+        const container = document.getElementById('historico-list');
+        if (!container) return;
+
+        container.innerHTML = '<p style="text-align: center; color: var(--texto-secundario); padding: 20px;">Carregando histórico...</p>';
+
+        const historico = await this.carregarHistorico();
+
+        if (historico.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: var(--texto-secundario); padding: 40px;">Nenhum registro de histórico encontrado</p>';
+            return;
+        }
+
+        container.innerHTML = historico.map(item => {
+            const acaoLabel = {
+                'criar': '➕ Criado',
+                'editar': '✏️ Editado',
+                'remover': '🗑️ Removido'
+            }[item.acao] || item.acao;
+
+            const tipoLabel = {
+                'categoria': '📁 Categoria',
+                'lista': '📋 Lista',
+                'checkbox': '☑️ Checkbox'
+            }[item.tipo] || item.tipo;
+
+            const dadosInfo = item.dados ? 
+                (item.dados.nome || item.dados.label || JSON.stringify(item.dados).substring(0, 50)) : 
+                'N/A';
+
+            const dataFormatada = item.dataFormatada || 
+                (item.timestamp ? new Date(item.timestamp).toLocaleString('pt-BR') : 'Data não disponível');
+
+            return `
+                <div class="config-item" style="border-left: 4px solid var(--azul-royal);">
+                    <div class="config-item-info">
+                        <div class="config-item-label">
+                            ${acaoLabel} - ${tipoLabel}: ${dadosInfo}
+                        </div>
+                        <div class="config-item-type">
+                            Por: ${item.usuario || 'Sistema'} | ${dataFormatada}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
     renderizar() {
         this.renderizarCategorias();
         this.renderizarListas();
         this.renderizarCheckboxes();
+        // Histórico será renderizado quando a aba for aberta
     }
 
     renderizarCategorias() {
@@ -331,6 +450,12 @@ class AdminConfiguracoes {
             config.opcoes = opcoes;
         }
         
+        // Determinar ação para histórico
+        const acao = id === '' ? 'criar' : 'editar';
+        const dadosAntigos = id !== '' ? 
+            this.configuracoes[tipo === 'categoria' ? 'categorias' : tipo === 'lista' ? 'listas' : 'checkboxes'][parseInt(id)] : 
+            null;
+        
         // Salvar no array apropriado
         if (id === '') {
             // Nova configuração
@@ -345,6 +470,14 @@ class AdminConfiguracoes {
         const sucesso = await this.salvarConfiguracoes();
         
         if (sucesso) {
+            // Registrar no histórico
+            await this.registrarHistorico(acao, tipo, {
+                nome: config.nome,
+                label: config.label,
+                categoria: config.categoria,
+                dadosAntigos: dadosAntigos
+            });
+            
             this.renderizar();
             this.fecharModal();
         }
@@ -355,8 +488,18 @@ class AdminConfiguracoes {
             return;
         }
         
+        const categoriaRemovida = this.configuracoes.categorias[index];
         this.configuracoes.categorias.splice(index, 1);
-        await this.salvarConfiguracoes();
+        
+        const sucesso = await this.salvarConfiguracoes();
+        if (sucesso) {
+            // Registrar no histórico
+            await this.registrarHistorico('remover', 'categoria', {
+                nome: categoriaRemovida.nome,
+                label: categoriaRemovida.label
+            });
+        }
+        
         this.renderizar();
     }
 
@@ -365,8 +508,18 @@ class AdminConfiguracoes {
             return;
         }
         
+        const listaRemovida = this.configuracoes.listas[index];
         this.configuracoes.listas.splice(index, 1);
-        await this.salvarConfiguracoes();
+        
+        const sucesso = await this.salvarConfiguracoes();
+        if (sucesso) {
+            // Registrar no histórico
+            await this.registrarHistorico('remover', 'lista', {
+                nome: listaRemovida.nome,
+                label: listaRemovida.label
+            });
+        }
+        
         this.renderizar();
     }
 
@@ -375,8 +528,18 @@ class AdminConfiguracoes {
             return;
         }
         
+        const checkboxRemovido = this.configuracoes.checkboxes[index];
         this.configuracoes.checkboxes.splice(index, 1);
-        await this.salvarConfiguracoes();
+        
+        const sucesso = await this.salvarConfiguracoes();
+        if (sucesso) {
+            // Registrar no histórico
+            await this.registrarHistorico('remover', 'checkbox', {
+                nome: checkboxRemovido.nome,
+                label: checkboxRemovido.label
+            });
+        }
+        
         this.renderizar();
     }
 
@@ -407,6 +570,11 @@ function mostrarAba(aba) {
     // Ativar aba selecionada
     event.target.classList.add('active');
     document.getElementById(`aba-${aba}`).classList.add('active');
+    
+    // Se for a aba de histórico, carregar histórico
+    if (aba === 'historico' && adminConfig) {
+        adminConfig.renderizarHistorico();
+    }
 }
 
 function abrirModalCategoria() {

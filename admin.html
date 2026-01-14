@@ -300,6 +300,7 @@
             <button class="admin-tab active" onclick="mostrarAba('categorias')">📁 Categorias</button>
             <button class="admin-tab" onclick="mostrarAba('listas')">📋 Listas (Selects)</button>
             <button class="admin-tab" onclick="mostrarAba('checkboxes')">☑️ Checkboxes</button>
+            <button class="admin-tab" onclick="mostrarAba('historico')">📜 Histórico</button>
         </div>
 
         <!-- Aba Categorias -->
@@ -318,6 +319,15 @@
         <div id="aba-checkboxes" class="admin-content">
             <button class="btn-admin btn-add" onclick="abrirModalCheckbox()">➕ Adicionar Checkbox</button>
             <div id="checkboxes-list"></div>
+        </div>
+
+        <!-- Aba Histórico -->
+        <div id="aba-historico" class="admin-content">
+            <div class="config-section">
+                <h3>📜 Histórico de Alterações</h3>
+                <p style="color: var(--texto-secundario); margin-bottom: 20px;">Registro de todas as alterações realizadas nas configurações</p>
+                <div id="historico-list"></div>
+            </div>
         </div>
     </div>
 
