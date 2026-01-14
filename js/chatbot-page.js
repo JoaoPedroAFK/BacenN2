@@ -1445,9 +1445,69 @@ if (document.readyState === 'loading') {
     }, 500);
 }
 
+// Função para abrir ficha do Chatbot
+function abrirFichaChatbot(id) {
+    const ficha = fichasChatbot.find(f => f.id === id);
+    if (!ficha) {
+        mostrarAlerta('Ficha não encontrada', 'error');
+        return;
+    }
+    
+    // Usa o sistema de fichas específicas
+    console.log('🔍 [chatbot-page] abrirFichaChatbot - Verificando disponibilidade:', {
+        fichasEspecificas: !!window.fichasEspecificas,
+        FichasEspecificas: !!window.FichasEspecificas,
+        tipo: typeof window.FichasEspecificas
+    });
+    
+    if (window.fichasEspecificas && typeof window.fichasEspecificas.abrirFicha === 'function') {
+        console.log('✅ [chatbot-page] Usando instância existente');
+        window.fichasEspecificas.abrirFicha(ficha);
+    } else if (window.FichasEspecificas && typeof window.FichasEspecificas === 'function') {
+        // Criar instância se não existir
+        console.log('✅ [chatbot-page] Criando nova instância de FichasEspecificas');
+        try {
+            window.fichasEspecificas = new window.FichasEspecificas();
+            window.fichasEspecificas.abrirFicha(ficha);
+        } catch (error) {
+            console.error('❌ [chatbot-page] Erro ao criar instância:', error);
+            mostrarAlerta('Erro ao abrir ficha: ' + error.message, 'error');
+        }
+    } else {
+        // Aguardar mais tempo e tentar novamente (pode ser carregamento assíncrono)
+        console.warn('⚠️ [chatbot-page] FichasEspecificas não disponível imediatamente, aguardando...');
+        let tentativas = 0;
+        const maxTentativas = 10; // 5 segundos total
+        
+        const tentarAbrir = setInterval(() => {
+            tentativas++;
+            console.log(`🔄 [chatbot-page] Tentativa ${tentativas}/${maxTentativas} de abrir ficha`);
+            
+            if (window.FichasEspecificas && typeof window.FichasEspecificas === 'function') {
+                clearInterval(tentarAbrir);
+                console.log('✅ [chatbot-page] FichasEspecificas disponível após aguardar');
+                try {
+                    window.fichasEspecificas = new window.FichasEspecificas();
+                    window.fichasEspecificas.abrirFicha(ficha);
+                } catch (error) {
+                    console.error('❌ [chatbot-page] Erro ao criar instância após aguardar:', error);
+                    mostrarAlerta('Erro ao abrir ficha: ' + error.message, 'error');
+                }
+            } else if (tentativas >= maxTentativas) {
+                clearInterval(tentarAbrir);
+                console.error('❌ [chatbot-page] FichasEspecificas não disponível após', maxTentativas * 500, 'ms');
+                console.error('   Verifique se js/fichas-especificas.js está sendo carregado corretamente');
+                console.error('   window.FichasEspecificas:', window.FichasEspecificas);
+                mostrarAlerta('Sistema de fichas não disponível. Verifique o console para mais detalhes.', 'error');
+            }
+        }, 500);
+    }
+}
+
 // Expor funções e variáveis globalmente
 window.carregarFichasChatbot = carregarFichasChatbot;
 window.atualizarDashboardChatbot = atualizarDashboardChatbot;
+window.abrirFichaChatbot = abrirFichaChatbot;
 // Expor funções de renderização (já definidas acima)
 window.renderizarListaChatbot = renderizarListaChatbot;
 window.renderizarMinhasReclamacoesChatbot = renderizarMinhasReclamacoesChatbot;
