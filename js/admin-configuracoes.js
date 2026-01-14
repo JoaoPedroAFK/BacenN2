@@ -78,29 +78,57 @@ class AdminConfiguracoes {
                 throw new Error('Firebase não está disponível');
             }
 
-            const ref = this.firebaseDB.ref('configuracoes_formularios');
-            const snapshot = await ref.once('value');
-            
-            if (snapshot.exists()) {
-                const dados = snapshot.val();
-                this.configuracoes = {
-                    camposTexto: dados.camposTexto || dados.categorias || [],
-                    listas: dados.listas || [],
-                    checkboxes: dados.checkboxes || []
-                };
-                console.log('✅ Configurações carregadas do Firebase:', this.configuracoes);
-            } else {
-                console.log('ℹ️ Nenhuma configuração encontrada, iniciando com dados vazios');
-                // Inicializar estrutura vazia
-                this.configuracoes = {
-                    camposTexto: [],
-                    listas: [],
-                    checkboxes: []
-                };
+            // Tentar carregar do Firebase
+            try {
+                const ref = this.firebaseDB.ref('configuracoes_formularios');
+                const snapshot = await ref.once('value');
+                
+                if (snapshot.exists()) {
+                    const dados = snapshot.val();
+                    this.configuracoes = {
+                        camposTexto: dados.camposTexto || dados.categorias || [],
+                        listas: dados.listas || [],
+                        checkboxes: dados.checkboxes || []
+                    };
+                    console.log('✅ Configurações carregadas do Firebase:', this.configuracoes);
+                    return;
+                }
+            } catch (firebaseError) {
+                console.warn('⚠️ Erro ao carregar do Firebase, tentando localStorage:', firebaseError.message);
             }
+            
+            // Fallback para localStorage
+            const dadosLocal = localStorage.getItem('admin_configuracoes_formularios');
+            if (dadosLocal) {
+                try {
+                    const dados = JSON.parse(dadosLocal);
+                    this.configuracoes = {
+                        camposTexto: dados.camposTexto || dados.categorias || [],
+                        listas: dados.listas || [],
+                        checkboxes: dados.checkboxes || []
+                    };
+                    console.log('✅ Configurações carregadas do localStorage:', this.configuracoes);
+                    return;
+                } catch (parseError) {
+                    console.error('❌ Erro ao parsear localStorage:', parseError);
+                }
+            }
+            
+            // Inicializar estrutura vazia
+            console.log('ℹ️ Nenhuma configuração encontrada, iniciando com dados vazios');
+            this.configuracoes = {
+                camposTexto: [],
+                listas: [],
+                checkboxes: []
+            };
         } catch (error) {
             console.error('❌ Erro ao carregar configurações:', error);
-            throw error;
+            // Não lançar erro, apenas usar estrutura vazia
+            this.configuracoes = {
+                camposTexto: [],
+                listas: [],
+                checkboxes: []
+            };
         }
     }
 
@@ -130,11 +158,6 @@ class AdminConfiguracoes {
 
     async registrarHistorico(acao, tipo, dados) {
         try {
-            if (!this.firebaseDB) {
-                return;
-            }
-
-            // Obter usuário atual (se disponível)
             const usuario = this.obterUsuarioAtual();
             
             const historicoItem = {
@@ -142,14 +165,33 @@ class AdminConfiguracoes {
                 tipo: tipo, // 'campoTexto', 'lista', 'checkbox'
                 dados: dados,
                 usuario: usuario,
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                timestamp: new Date().toISOString(),
                 dataFormatada: new Date().toLocaleString('pt-BR')
             };
 
-            const ref = this.firebaseDB.ref('configuracoes_formularios/historico');
-            await ref.push(historicoItem);
+            // Tentar salvar no Firebase
+            if (this.firebaseDB) {
+                try {
+                    const ref = this.firebaseDB.ref('configuracoes_formularios/historico');
+                    await ref.push({
+                        ...historicoItem,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    console.log('✅ Histórico registrado no Firebase:', historicoItem);
+                } catch (firebaseError) {
+                    console.warn('⚠️ Erro ao salvar histórico no Firebase, usando localStorage:', firebaseError.message);
+                }
+            }
             
-            console.log('✅ Histórico registrado:', historicoItem);
+            // Sempre salvar no localStorage como backup
+            const historicoLocal = JSON.parse(localStorage.getItem('admin_historico') || '[]');
+            historicoLocal.push(historicoItem);
+            // Manter apenas os últimos 100 itens
+            if (historicoLocal.length > 100) {
+                historicoLocal.shift();
+            }
+            localStorage.setItem('admin_historico', JSON.stringify(historicoLocal));
+            console.log('✅ Histórico registrado no localStorage');
         } catch (error) {
             console.error('❌ Erro ao registrar histórico:', error);
         }
