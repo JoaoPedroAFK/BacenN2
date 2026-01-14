@@ -1447,7 +1447,8 @@ if (document.readyState === 'loading') {
 
 // Função para abrir ficha do Chatbot
 function abrirFichaChatbot(id) {
-    const ficha = fichasChatbot.find(f => f.id === id);
+    const fichas = window.fichasChatbot || fichasChatbot || [];
+    const ficha = fichas.find(f => f.id === id);
     if (!ficha) {
         mostrarAlerta('Ficha não encontrada', 'error');
         return;
