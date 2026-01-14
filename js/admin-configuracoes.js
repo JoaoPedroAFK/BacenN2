@@ -134,19 +134,32 @@ class AdminConfiguracoes {
 
     async salvarConfiguracoes() {
         try {
-            if (!this.firebaseDB) {
-                throw new Error('Firebase não está disponível');
-            }
-
-            const ref = this.firebaseDB.ref('configuracoes_formularios');
-            await ref.set({
+            const dadosParaSalvar = {
                 camposTexto: this.configuracoes.camposTexto,
                 listas: this.configuracoes.listas,
                 checkboxes: this.configuracoes.checkboxes,
-                atualizadoEm: firebase.database.ServerValue.TIMESTAMP
-            });
+                atualizadoEm: new Date().toISOString()
+            };
             
-            console.log('✅ Configurações salvas no Firebase');
+            // Tentar salvar no Firebase
+            if (this.firebaseDB) {
+                try {
+                    const ref = this.firebaseDB.ref('configuracoes_formularios');
+                    await ref.set({
+                        ...dadosParaSalvar,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    console.log('✅ Configurações salvas no Firebase');
+                } catch (firebaseError) {
+                    console.warn('⚠️ Erro ao salvar no Firebase, usando localStorage:', firebaseError.message);
+                    // Continuar para salvar no localStorage
+                }
+            }
+            
+            // Sempre salvar no localStorage como backup
+            localStorage.setItem('admin_configuracoes_formularios', JSON.stringify(dadosParaSalvar));
+            console.log('✅ Configurações salvas no localStorage');
+            
             this.mostrarMensagem('Configurações salvas com sucesso!', 'success');
             return true;
         } catch (error) {
@@ -210,27 +223,45 @@ class AdminConfiguracoes {
 
     async carregarHistorico() {
         try {
-            if (!this.firebaseDB) {
-                return;
+            // Tentar carregar do Firebase
+            if (this.firebaseDB) {
+                try {
+                    const ref = this.firebaseDB.ref('configuracoes_formularios/historico');
+                    const snapshot = await ref.once('value');
+                    
+                    if (snapshot.exists()) {
+                        const historico = snapshot.val();
+                        // Converter objeto em array e ordenar por timestamp
+                        const historicoArray = Object.keys(historico).map(key => ({
+                            id: key,
+                            ...historico[key]
+                        })).sort((a, b) => {
+                            // Ordenar por timestamp (mais recente primeiro)
+                            const tsA = a.timestamp || 0;
+                            const tsB = b.timestamp || 0;
+                            return tsB - tsA;
+                        });
+                        
+                        return historicoArray;
+                    }
+                } catch (firebaseError) {
+                    console.warn('⚠️ Erro ao carregar histórico do Firebase, usando localStorage:', firebaseError.message);
+                }
             }
-
-            const ref = this.firebaseDB.ref('configuracoes_formularios/historico');
-            const snapshot = await ref.once('value');
             
-            if (snapshot.exists()) {
-                const historico = snapshot.val();
-                // Converter objeto em array e ordenar por timestamp
-                const historicoArray = Object.keys(historico).map(key => ({
-                    id: key,
-                    ...historico[key]
-                })).sort((a, b) => {
-                    // Ordenar por timestamp (mais recente primeiro)
-                    const tsA = a.timestamp || 0;
-                    const tsB = b.timestamp || 0;
-                    return tsB - tsA;
-                });
-                
-                return historicoArray;
+            // Fallback para localStorage
+            const historicoLocal = localStorage.getItem('admin_historico');
+            if (historicoLocal) {
+                try {
+                    const historico = JSON.parse(historicoLocal);
+                    return historico.sort((a, b) => {
+                        const timestampA = new Date(a.timestamp || a.dataFormatada || 0).getTime();
+                        const timestampB = new Date(b.timestamp || b.dataFormatada || 0).getTime();
+                        return timestampB - timestampA;
+                    });
+                } catch (parseError) {
+                    console.error('❌ Erro ao parsear histórico do localStorage:', parseError);
+                }
             }
             
             return [];
