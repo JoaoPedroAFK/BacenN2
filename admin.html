@@ -321,6 +321,33 @@
             <div id="checkboxes-list"></div>
         </div>
 
+        <!-- Aba Editar Fichas -->
+        <div id="aba-fichas" class="admin-content">
+            <div class="config-section">
+                <h3>📝 Editar Fichas Existentes</h3>
+                <p style="color: var(--texto-secundario); margin-bottom: 20px;">Busque e edite fichas de reclamações existentes</p>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--texto-principal); font-weight: 500;">Tipo de Ficha:</label>
+                    <select id="filtro-tipo-ficha" class="form-group-admin" style="width: 200px; padding: 10px; border: 1px solid var(--borda); border-radius: 4px; background: var(--fundo-secundario); color: var(--texto-principal);">
+                        <option value="bacen">BACEN</option>
+                        <option value="n2">N2</option>
+                        <option value="chatbot">Chatbot</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--texto-principal); font-weight: 500;">Buscar por:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="busca-ficha" class="form-group-admin" placeholder="CPF, Nome ou ID da ficha" style="flex: 1; padding: 10px; border: 1px solid var(--borda); border-radius: 4px; background: var(--fundo-secundario); color: var(--texto-principal);">
+                        <button class="btn-admin btn-edit" onclick="adminConfig.buscarFichas()">🔍 Buscar</button>
+                    </div>
+                </div>
+                
+                <div id="fichas-resultados" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+
         <!-- Aba Histórico -->
         <div id="aba-historico" class="admin-content">
             <div class="config-section">
@@ -391,8 +418,8 @@
     </div>
 
     <!-- Scripts Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="js/config-firebase.js"></script>
     <script src="js/firebase-db.js"></script>
     

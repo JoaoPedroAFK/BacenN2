@@ -206,7 +206,7 @@ class AdminConfiguracoes {
 
         const historico = await this.carregarHistorico();
 
-        if (historico.length === 0) {
+        if (!historico || !Array.isArray(historico) || historico.length === 0) {
             container.innerHTML = '<p style="text-align: center; color: var(--texto-secundario); padding: 40px;">Nenhum registro de histórico encontrado</p>';
             return;
         }
@@ -571,9 +571,15 @@ function mostrarAba(aba) {
     event.target.classList.add('active');
     document.getElementById(`aba-${aba}`).classList.add('active');
     
-    // Se for a aba de histórico, carregar histórico
+    // Ações específicas por aba
     if (aba === 'historico' && adminConfig) {
         adminConfig.renderizarHistorico();
+    } else if (aba === 'fichas' && adminConfig) {
+        // Limpar resultados ao abrir a aba
+        const container = document.getElementById('fichas-resultados');
+        if (container) {
+            container.innerHTML = '';
+        }
     }
 }
 
