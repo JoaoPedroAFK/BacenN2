@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Configurações</title>
+    
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Anton&display=swap" rel="stylesheet">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/theme-dark.css">
+    
+    <style>
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .admin-header {
+            background: var(--azul-royal);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .admin-header h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+        
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--borda);
+        }
+        
+        .admin-tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 1em;
+            color: var(--texto-secundario);
+            transition: all 0.3s;
+        }
+        
+        .admin-tab.active {
+            color: var(--azul-royal);
+            border-bottom-color: var(--azul-royal);
+            font-weight: 600;
+        }
+        
+        .admin-tab:hover {
+            color: var(--azul-royal);
+        }
+        
+        .admin-content {
+            display: none;
+        }
+        
+        .admin-content.active {
+            display: block;
+        }
+        
+        .config-section {
+            background: var(--fundo-card);
+            border: 1px solid var(--borda);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .config-section h3 {
+            margin-top: 0;
+            color: var(--texto-principal);
+            border-bottom: 2px solid var(--azul-royal);
+            padding-bottom: 10px;
+        }
+        
+        .config-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--fundo-secundario);
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        
+        .config-item-info {
+            flex: 1;
+        }
+        
+        .config-item-label {
+            font-weight: 600;
+            color: var(--texto-principal);
+            margin-bottom: 5px;
+        }
+        
+        .config-item-type {
+            font-size: 0.9em;
+            color: var(--texto-secundario);
+        }
+        
+        .config-item-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-admin {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+        
+        .btn-edit {
+            background: var(--azul-royal);
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background: var(--azul-royal-hover);
+        }
+        
+        .btn-delete {
+            background: #ff4757;
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background: #ff3838;
+        }
+        
+        .btn-add {
+            background: #2ed573;
+            color: white;
+            padding: 12px 24px;
+            margin-bottom: 20px;
+        }
+        
+        .btn-add:hover {
+            background: #26de81;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--fundo-card);
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            color: var(--texto-principal);
+        }
+        
+        .btn-close {
+            background: transparent;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: var(--texto-secundario);
+        }
+        
+        .form-group-admin {
+            margin-bottom: 20px;
+        }
+        
+        .form-group-admin label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--texto-principal);
+            font-weight: 500;
+        }
+        
+        .form-group-admin input,
+        .form-group-admin select,
+        .form-group-admin textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--borda);
+            border-radius: 4px;
+            background: var(--fundo-secundario);
+            color: var(--texto-principal);
+            font-size: 1em;
+        }
+        
+        .options-list {
+            margin-top: 10px;
+        }
+        
+        .option-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .option-item input {
+            flex: 1;
+        }
+        
+        .btn-remove-option {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .btn-add-option {
+            background: var(--azul-royal);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .status-message {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .status-message.success {
+            background: #2ed573;
+            color: white;
+            display: block;
+        }
+        
+        .status-message.error {
+            background: #ff4757;
+            color: white;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="velohub-header">
+        <div class="header-content">
+            <h1>🔧 Painel Administrativo</h1>
+            <div class="header-actions">
+                <a href="index.html" class="velohub-btn btn-secondary">← Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>⚙️ Gerenciamento de Configurações</h1>
+            <p>Gerencie categorias, listas e checkboxes dos formulários</p>
+        </div>
+
+        <div id="status-message" class="status-message"></div>
+
+        <div class="admin-tabs">
+            <button class="admin-tab active" onclick="mostrarAba('categorias')">📁 Categorias</button>
+            <button class="admin-tab" onclick="mostrarAba('listas')">📋 Listas (Selects)</button>
+            <button class="admin-tab" onclick="mostrarAba('checkboxes')">☑️ Checkboxes</button>
+        </div>
+
+        <!-- Aba Categorias -->
+        <div id="aba-categorias" class="admin-content active">
+            <button class="btn-admin btn-add" onclick="abrirModalCategoria()">➕ Adicionar Categoria</button>
+            <div id="categorias-list"></div>
+        </div>
+
+        <!-- Aba Listas -->
+        <div id="aba-listas" class="admin-content">
+            <button class="btn-admin btn-add" onclick="abrirModalLista()">➕ Adicionar Lista</button>
+            <div id="listas-list"></div>
+        </div>
+
+        <!-- Aba Checkboxes -->
+        <div id="aba-checkboxes" class="admin-content">
+            <button class="btn-admin btn-add" onclick="abrirModalCheckbox()">➕ Adicionar Checkbox</button>
+            <div id="checkboxes-list"></div>
+        </div>
+    </div>
+
+    <!-- Modal para Categoria/Lista/Checkbox -->
+    <div id="modal-config" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Editar Configuração</h2>
+                <button class="btn-close" onclick="fecharModal()">✕</button>
+            </div>
+            <form id="form-config">
+                <input type="hidden" id="config-id">
+                <input type="hidden" id="config-tipo">
+                
+                <div class="form-group-admin">
+                    <label for="config-nome">Nome/ID (identificador único) *</label>
+                    <input type="text" id="config-nome" required>
+                </div>
+                
+                <div class="form-group-admin">
+                    <label for="config-label">Label (texto exibido) *</label>
+                    <input type="text" id="config-label" required>
+                </div>
+                
+                <div class="form-group-admin">
+                    <label for="config-categoria">Categoria (BACEN, N2, Chatbot) *</label>
+                    <select id="config-categoria" required>
+                        <option value="">Selecione...</option>
+                        <option value="bacen">BACEN</option>
+                        <option value="n2">N2</option>
+                        <option value="chatbot">Chatbot</option>
+                        <option value="todos">Todos</option>
+                    </select>
+                </div>
+                
+                <div class="form-group-admin" id="config-opcoes-group" style="display: none;">
+                    <label>Opções *</label>
+                    <div id="config-opcoes-list" class="options-list"></div>
+                    <button type="button" class="btn-add-option" onclick="adicionarOpcao()">➕ Adicionar Opção</button>
+                </div>
+                
+                <div class="form-group-admin">
+                    <label for="config-obrigatorio">Campo Obrigatório?</label>
+                    <select id="config-obrigatorio">
+                        <option value="false">Não</option>
+                        <option value="true">Sim</option>
+                    </select>
+                </div>
+                
+                <div class="form-group-admin">
+                    <label for="config-observacoes">Observações</label>
+                    <textarea id="config-observacoes" rows="3"></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn-admin btn-secondary" onclick="fecharModal()">Cancelar</button>
+                    <button type="submit" class="btn-admin btn-edit">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
+    <script src="js/config-firebase.js"></script>
+    <script src="js/firebase-db.js"></script>
+    
+    <!-- Script do Painel Admin -->
+    <script src="js/admin-configuracoes.js"></script>
+</body>
+</html>
