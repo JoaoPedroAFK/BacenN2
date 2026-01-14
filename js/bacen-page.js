@@ -478,9 +478,10 @@ function validarFichaBacen(ficha) {
         const valor = ficha[campo];
         console.log(`🔍 Validando campo ${campo}:`, valor, 'Tipo:', typeof valor, 'Vazio?', !valor || (typeof valor === 'string' && valor.trim() === ''));
         
-        // Verificar se é checkbox
+        // Verificar se é checkbox - aceita tanto "Sim" quanto "Não"
         if (campo === 'enviarCobranca') {
-            if (!valor || valor === 'Não') {
+            // Campo é obrigatório mas aceita "Sim" ou "Não"
+            if (!valor || (valor !== 'Sim' && valor !== 'Não')) {
                 mostrarAlerta('Campo obrigatório não preenchido: Enviar para cobrança?', 'error');
                 return false;
             }
