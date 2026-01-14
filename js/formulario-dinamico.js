@@ -69,24 +69,41 @@ class FormularioDinamico {
 
     async carregarConfiguracoes() {
         try {
-            if (!this.firebaseDB) {
-                throw new Error('Firebase não está disponível');
+            // Tentar carregar do Firebase
+            if (this.firebaseDB) {
+                try {
+                    const ref = this.firebaseDB.ref('configuracoes_formularios');
+                    const snapshot = await ref.once('value');
+                    
+                    if (snapshot.exists()) {
+                        this.configuracoes = snapshot.val();
+                        console.log('✅ Configurações carregadas do Firebase para formulários:', this.configuracoes);
+                        return;
+                    }
+                } catch (firebaseError) {
+                    console.warn('⚠️ Erro ao carregar do Firebase, tentando localStorage:', firebaseError.message);
+                }
             }
-
-            const ref = this.firebaseDB.ref('configuracoes_formularios');
-            const snapshot = await ref.once('value');
             
-            if (snapshot.exists()) {
-                this.configuracoes = snapshot.val();
-                console.log('✅ Configurações carregadas para formulários:', this.configuracoes);
-            } else {
-                console.log('ℹ️ Nenhuma configuração encontrada, usando padrões');
-                this.configuracoes = {
-                    camposTexto: [],
-                    listas: [],
-                    checkboxes: []
-                };
+            // Fallback para localStorage
+            const dadosLocal = localStorage.getItem('admin_configuracoes_formularios');
+            if (dadosLocal) {
+                try {
+                    this.configuracoes = JSON.parse(dadosLocal);
+                    console.log('✅ Configurações carregadas do localStorage para formulários:', this.configuracoes);
+                    return;
+                } catch (parseError) {
+                    console.error('❌ Erro ao parsear localStorage:', parseError);
+                }
             }
+            
+            // Inicializar estrutura vazia
+            console.log('ℹ️ Nenhuma configuração encontrada, usando padrões');
+            this.configuracoes = {
+                camposTexto: [],
+                listas: [],
+                checkboxes: []
+            };
         } catch (error) {
             console.error('❌ Erro ao carregar configurações:', error);
             this.configuracoes = {
