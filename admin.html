@@ -297,55 +297,39 @@
         <div id="status-message" class="status-message"></div>
 
         <div class="admin-tabs">
-            <button class="admin-tab active" onclick="mostrarAba('categorias')">📁 Categorias</button>
+            <button class="admin-tab active" onclick="mostrarAba('campos-texto')">📝 Campos de Texto</button>
             <button class="admin-tab" onclick="mostrarAba('listas')">📋 Listas (Selects)</button>
             <button class="admin-tab" onclick="mostrarAba('checkboxes')">☑️ Checkboxes</button>
-            <button class="admin-tab" onclick="mostrarAba('fichas')">📝 Editar Fichas</button>
             <button class="admin-tab" onclick="mostrarAba('historico')">📜 Histórico</button>
         </div>
 
-        <!-- Aba Categorias -->
-        <div id="aba-categorias" class="admin-content active">
-            <button class="btn-admin btn-add" onclick="abrirModalCategoria()">➕ Adicionar Categoria</button>
-            <div id="categorias-list"></div>
+        <!-- Aba Campos de Texto -->
+        <div id="aba-campos-texto" class="admin-content active">
+            <div class="config-section">
+                <h3>📝 Campos de Texto</h3>
+                <p style="color: var(--texto-secundario); margin-bottom: 20px;">Gerencie campos de texto que aparecem nos formulários de criação de reclamações</p>
+                <button class="btn-admin btn-add" onclick="abrirModalCampoTexto()">➕ Adicionar Campo de Texto</button>
+                <div id="campos-texto-list"></div>
+            </div>
         </div>
 
         <!-- Aba Listas -->
         <div id="aba-listas" class="admin-content">
-            <button class="btn-admin btn-add" onclick="abrirModalLista()">➕ Adicionar Lista</button>
-            <div id="listas-list"></div>
+            <div class="config-section">
+                <h3>📋 Listas (Selects)</h3>
+                <p style="color: var(--texto-secundario); margin-bottom: 20px;">Gerencie campos de seleção (dropdowns) que aparecem nos formulários</p>
+                <button class="btn-admin btn-add" onclick="abrirModalLista()">➕ Adicionar Lista</button>
+                <div id="listas-list"></div>
+            </div>
         </div>
 
         <!-- Aba Checkboxes -->
         <div id="aba-checkboxes" class="admin-content">
-            <button class="btn-admin btn-add" onclick="abrirModalCheckbox()">➕ Adicionar Checkbox</button>
-            <div id="checkboxes-list"></div>
-        </div>
-
-        <!-- Aba Editar Fichas -->
-        <div id="aba-fichas" class="admin-content">
             <div class="config-section">
-                <h3>📝 Editar Fichas Existentes</h3>
-                <p style="color: var(--texto-secundario); margin-bottom: 20px;">Busque e edite fichas de reclamações existentes</p>
-                
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; color: var(--texto-principal); font-weight: 500;">Tipo de Ficha:</label>
-                    <select id="filtro-tipo-ficha" class="form-group-admin" style="width: 200px; padding: 10px; border: 1px solid var(--borda); border-radius: 4px; background: var(--fundo-secundario); color: var(--texto-principal);">
-                        <option value="bacen">BACEN</option>
-                        <option value="n2">N2</option>
-                        <option value="chatbot">Chatbot</option>
-                    </select>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; color: var(--texto-principal); font-weight: 500;">Buscar por:</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="busca-ficha" class="form-group-admin" placeholder="CPF, Nome ou ID da ficha" style="flex: 1; padding: 10px; border: 1px solid var(--borda); border-radius: 4px; background: var(--fundo-secundario); color: var(--texto-principal);">
-                        <button class="btn-admin btn-edit" onclick="adminConfig.buscarFichas()">🔍 Buscar</button>
-                    </div>
-                </div>
-                
-                <div id="fichas-resultados" style="margin-top: 20px;"></div>
+                <h3>☑️ Checkboxes</h3>
+                <p style="color: var(--texto-secundario); margin-bottom: 20px;">Gerencie campos de checkbox que aparecem nos formulários</p>
+                <button class="btn-admin btn-add" onclick="abrirModalCheckbox()">➕ Adicionar Checkbox</button>
+                <div id="checkboxes-list"></div>
             </div>
         </div>
 
@@ -372,27 +356,41 @@
                 
                 <div class="form-group-admin">
                     <label for="config-nome">Nome/ID (identificador único) *</label>
-                    <input type="text" id="config-nome" required>
+                    <input type="text" id="config-nome" required placeholder="Ex: motivo-detalhado, observacoes-adicionais">
+                    <small style="color: var(--texto-secundario); font-size: 0.9em;">Use apenas letras minúsculas, números e hífens</small>
                 </div>
                 
                 <div class="form-group-admin">
-                    <label for="config-label">Label (texto exibido) *</label>
-                    <input type="text" id="config-label" required>
+                    <label for="config-label">Label (texto exibido no formulário) *</label>
+                    <input type="text" id="config-label" required placeholder="Ex: Motivo Detalhado, Observações Adicionais">
                 </div>
                 
                 <div class="form-group-admin">
-                    <label for="config-categoria">Categoria (BACEN, N2, Chatbot) *</label>
+                    <label for="config-categoria">Categoria (onde o campo aparecerá) *</label>
                     <select id="config-categoria" required>
                         <option value="">Selecione...</option>
                         <option value="bacen">BACEN</option>
                         <option value="n2">N2</option>
                         <option value="chatbot">Chatbot</option>
-                        <option value="todos">Todos</option>
+                        <option value="todos">Todos (BACEN, N2 e Chatbot)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group-admin" id="config-tipo-campo-group">
+                    <label for="config-tipo-campo">Tipo de Campo *</label>
+                    <select id="config-tipo-campo" required onchange="adminConfig.alterarTipoCampo()">
+                        <option value="texto">Texto</option>
+                        <option value="textarea">Área de Texto (múltiplas linhas)</option>
+                        <option value="data">Data</option>
+                        <option value="numero">Número</option>
+                        <option value="email">E-mail</option>
+                        <option value="telefone">Telefone</option>
+                        <option value="cpf">CPF</option>
                     </select>
                 </div>
                 
                 <div class="form-group-admin" id="config-opcoes-group" style="display: none;">
-                    <label>Opções *</label>
+                    <label>Opções (para campos de seleção) *</label>
                     <div id="config-opcoes-list" class="options-list"></div>
                     <button type="button" class="btn-add-option" onclick="adicionarOpcao()">➕ Adicionar Opção</button>
                 </div>
@@ -406,8 +404,13 @@
                 </div>
                 
                 <div class="form-group-admin">
+                    <label for="config-placeholder">Placeholder (texto de exemplo)</label>
+                    <input type="text" id="config-placeholder" placeholder="Ex: Digite o motivo detalhado...">
+                </div>
+                
+                <div class="form-group-admin">
                     <label for="config-observacoes">Observações</label>
-                    <textarea id="config-observacoes" rows="3"></textarea>
+                    <textarea id="config-observacoes" rows="3" placeholder="Notas internas sobre este campo"></textarea>
                 </div>
                 
                 <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">

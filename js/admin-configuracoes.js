@@ -10,7 +10,7 @@ class AdminConfiguracoes {
     constructor() {
         this.firebaseDB = null;
         this.configuracoes = {
-            categorias: [],
+            camposTexto: [],
             listas: [],
             checkboxes: []
         };
@@ -84,7 +84,7 @@ class AdminConfiguracoes {
             if (snapshot.exists()) {
                 const dados = snapshot.val();
                 this.configuracoes = {
-                    categorias: dados.categorias || [],
+                    camposTexto: dados.camposTexto || dados.categorias || [],
                     listas: dados.listas || [],
                     checkboxes: dados.checkboxes || []
                 };
@@ -93,7 +93,7 @@ class AdminConfiguracoes {
                 console.log('ℹ️ Nenhuma configuração encontrada, iniciando com dados vazios');
                 // Inicializar estrutura vazia
                 this.configuracoes = {
-                    categorias: [],
+                    camposTexto: [],
                     listas: [],
                     checkboxes: []
                 };
@@ -112,7 +112,7 @@ class AdminConfiguracoes {
 
             const ref = this.firebaseDB.ref('configuracoes_formularios');
             await ref.set({
-                categorias: this.configuracoes.categorias,
+                camposTexto: this.configuracoes.camposTexto,
                 listas: this.configuracoes.listas,
                 checkboxes: this.configuracoes.checkboxes,
                 atualizadoEm: firebase.database.ServerValue.TIMESTAMP
@@ -139,7 +139,7 @@ class AdminConfiguracoes {
             
             const historicoItem = {
                 acao: acao, // 'criar', 'editar', 'remover'
-                tipo: tipo, // 'categoria', 'lista', 'checkbox'
+                tipo: tipo, // 'campoTexto', 'lista', 'checkbox'
                 dados: dados,
                 usuario: usuario,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
@@ -219,7 +219,7 @@ class AdminConfiguracoes {
             }[item.acao] || item.acao;
 
             const tipoLabel = {
-                'categoria': '📁 Categoria',
+                'campoTexto': '📝 Campo de Texto',
                 'lista': '📋 Lista',
                 'checkbox': '☑️ Checkbox'
             }[item.tipo] || item.tipo;
@@ -247,33 +247,45 @@ class AdminConfiguracoes {
     }
 
     renderizar() {
-        this.renderizarCategorias();
+        this.renderizarCamposTexto();
         this.renderizarListas();
         this.renderizarCheckboxes();
         // Histórico será renderizado quando a aba for aberta
     }
 
-    renderizarCategorias() {
-        const container = document.getElementById('categorias-list');
+    renderizarCamposTexto() {
+        const container = document.getElementById('campos-texto-list');
         if (!container) return;
 
-        if (this.configuracoes.categorias.length === 0) {
-            container.innerHTML = '<p style="text-align: center; color: var(--texto-secundario); padding: 40px;">Nenhuma categoria cadastrada</p>';
+        if (this.configuracoes.camposTexto.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: var(--texto-secundario); padding: 40px;">Nenhum campo de texto cadastrado</p>';
             return;
         }
 
-        container.innerHTML = this.configuracoes.categorias.map((cat, index) => `
-            <div class="config-item">
-                <div class="config-item-info">
-                    <div class="config-item-label">${cat.label || cat.nome}</div>
-                    <div class="config-item-type">ID: ${cat.nome} | Categoria: ${cat.categoria || 'Todos'}</div>
+        container.innerHTML = this.configuracoes.camposTexto.map((campo, index) => {
+            const tipoLabel = {
+                'texto': '📝 Texto',
+                'textarea': '📄 Área de Texto',
+                'data': '📅 Data',
+                'numero': '🔢 Número',
+                'email': '📧 E-mail',
+                'telefone': '📱 Telefone',
+                'cpf': '🆔 CPF'
+            }[campo.tipo] || campo.tipo;
+            
+            return `
+                <div class="config-item">
+                    <div class="config-item-info">
+                        <div class="config-item-label">${campo.label || campo.nome}</div>
+                        <div class="config-item-type">ID: ${campo.nome} | Tipo: ${tipoLabel} | Categoria: ${campo.categoria || 'Todos'} ${campo.obrigatorio ? '| ⚠️ Obrigatório' : ''}</div>
+                    </div>
+                    <div class="config-item-actions">
+                        <button class="btn-admin btn-edit" onclick="adminConfig.editarCampoTexto(${index})">✏️ Editar</button>
+                        <button class="btn-admin btn-delete" onclick="adminConfig.removerCampoTexto(${index})">🗑️ Remover</button>
+                    </div>
                 </div>
-                <div class="config-item-actions">
-                    <button class="btn-admin btn-edit" onclick="adminConfig.editarCategoria(${index})">✏️ Editar</button>
-                    <button class="btn-admin btn-delete" onclick="adminConfig.removerCategoria(${index})">🗑️ Remover</button>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     renderizarListas() {
@@ -322,12 +334,46 @@ class AdminConfiguracoes {
         `).join('');
     }
 
-    abrirModalCategoria() {
-        document.getElementById('modal-title').textContent = 'Adicionar Categoria';
-        document.getElementById('config-tipo').value = 'categoria';
+    abrirModalCampoTexto() {
+        document.getElementById('modal-title').textContent = 'Adicionar Campo de Texto';
+        document.getElementById('config-tipo').value = 'campoTexto';
         document.getElementById('config-id').value = '';
         document.getElementById('config-opcoes-group').style.display = 'none';
+        document.getElementById('config-tipo-campo-group').style.display = 'block';
+        document.getElementById('config-tipo-campo').value = 'texto';
         document.getElementById('form-config').reset();
+        document.getElementById('modal-config').classList.add('active');
+    }
+
+    alterarTipoCampo() {
+        const tipoCampo = document.getElementById('config-tipo-campo').value;
+        const opcoesGroup = document.getElementById('config-opcoes-group');
+        
+        // Se for lista/select, mostrar opções
+        if (tipoCampo === 'select') {
+            opcoesGroup.style.display = 'block';
+            if (document.getElementById('config-opcoes-list').children.length === 0) {
+                document.getElementById('config-opcoes-list').innerHTML = '<div class="option-item"><input type="text" placeholder="Digite uma opção" class="opcao-input"></div>';
+            }
+        } else {
+            opcoesGroup.style.display = 'none';
+        }
+    }
+
+    editarCampoTexto(index) {
+        const campo = this.configuracoes.camposTexto[index];
+        document.getElementById('modal-title').textContent = 'Editar Campo de Texto';
+        document.getElementById('config-tipo').value = 'campoTexto';
+        document.getElementById('config-id').value = index;
+        document.getElementById('config-nome').value = campo.nome;
+        document.getElementById('config-label').value = campo.label || '';
+        document.getElementById('config-categoria').value = campo.categoria || 'todos';
+        document.getElementById('config-tipo-campo').value = campo.tipo || 'texto';
+        document.getElementById('config-obrigatorio').value = campo.obrigatorio ? 'true' : 'false';
+        document.getElementById('config-placeholder').value = campo.placeholder || '';
+        document.getElementById('config-observacoes').value = campo.observacoes || '';
+        document.getElementById('config-opcoes-group').style.display = 'none';
+        document.getElementById('config-tipo-campo-group').style.display = 'block';
         document.getElementById('modal-config').classList.add('active');
     }
 
@@ -336,6 +382,7 @@ class AdminConfiguracoes {
         document.getElementById('config-tipo').value = 'lista';
         document.getElementById('config-id').value = '';
         document.getElementById('config-opcoes-group').style.display = 'block';
+        document.getElementById('config-tipo-campo-group').style.display = 'none';
         document.getElementById('config-opcoes-list').innerHTML = '<div class="option-item"><input type="text" placeholder="Digite uma opção" class="opcao-input"></div>';
         document.getElementById('form-config').reset();
         document.getElementById('modal-config').classList.add('active');
@@ -346,23 +393,11 @@ class AdminConfiguracoes {
         document.getElementById('config-tipo').value = 'checkbox';
         document.getElementById('config-id').value = '';
         document.getElementById('config-opcoes-group').style.display = 'none';
+        document.getElementById('config-tipo-campo-group').style.display = 'none';
         document.getElementById('form-config').reset();
         document.getElementById('modal-config').classList.add('active');
     }
 
-    editarCategoria(index) {
-        const categoria = this.configuracoes.categorias[index];
-        document.getElementById('modal-title').textContent = 'Editar Categoria';
-        document.getElementById('config-tipo').value = 'categoria';
-        document.getElementById('config-id').value = index;
-        document.getElementById('config-nome').value = categoria.nome;
-        document.getElementById('config-label').value = categoria.label || '';
-        document.getElementById('config-categoria').value = categoria.categoria || 'todos';
-        document.getElementById('config-obrigatorio').value = categoria.obrigatorio ? 'true' : 'false';
-        document.getElementById('config-observacoes').value = categoria.observacoes || '';
-        document.getElementById('config-opcoes-group').style.display = 'none';
-        document.getElementById('modal-config').classList.add('active');
-    }
 
     editarLista(index) {
         const lista = this.configuracoes.listas[index];
@@ -373,7 +408,9 @@ class AdminConfiguracoes {
         document.getElementById('config-label').value = lista.label || '';
         document.getElementById('config-categoria').value = lista.categoria || 'todos';
         document.getElementById('config-obrigatorio').value = lista.obrigatorio ? 'true' : 'false';
+        document.getElementById('config-placeholder').value = lista.placeholder || '';
         document.getElementById('config-observacoes').value = lista.observacoes || '';
+        document.getElementById('config-tipo-campo-group').style.display = 'none';
         
         // Renderizar opções
         const opcoesList = document.getElementById('config-opcoes-list');
@@ -405,8 +442,10 @@ class AdminConfiguracoes {
         document.getElementById('config-label').value = checkbox.label || '';
         document.getElementById('config-categoria').value = checkbox.categoria || 'todos';
         document.getElementById('config-obrigatorio').value = checkbox.obrigatorio ? 'true' : 'false';
+        document.getElementById('config-placeholder').value = checkbox.placeholder || '';
         document.getElementById('config-observacoes').value = checkbox.observacoes || '';
         document.getElementById('config-opcoes-group').style.display = 'none';
+        document.getElementById('config-tipo-campo-group').style.display = 'none';
         document.getElementById('modal-config').classList.add('active');
     }
 
@@ -419,6 +458,7 @@ class AdminConfiguracoes {
         const label = document.getElementById('config-label').value.trim();
         const categoria = document.getElementById('config-categoria').value;
         const obrigatorio = document.getElementById('config-obrigatorio').value === 'true';
+        const placeholder = document.getElementById('config-placeholder').value.trim();
         const observacoes = document.getElementById('config-observacoes').value.trim();
         
         if (!nome || !label) {
@@ -431,9 +471,16 @@ class AdminConfiguracoes {
             label: label,
             categoria: categoria,
             obrigatorio: obrigatorio,
+            placeholder: placeholder,
             observacoes: observacoes,
             atualizadoEm: new Date().toISOString()
         };
+        
+        // Adicionar tipo de campo se for campo de texto
+        if (tipo === 'campoTexto') {
+            const tipoCampo = document.getElementById('config-tipo-campo').value;
+            config.tipo = tipoCampo;
+        }
         
         // Adicionar opções se for lista
         if (tipo === 'lista') {
@@ -452,18 +499,17 @@ class AdminConfiguracoes {
         
         // Determinar ação para histórico
         const acao = id === '' ? 'criar' : 'editar';
-        const dadosAntigos = id !== '' ? 
-            this.configuracoes[tipo === 'categoria' ? 'categorias' : tipo === 'lista' ? 'listas' : 'checkboxes'][parseInt(id)] : 
-            null;
+        const arrayNome = tipo === 'campoTexto' ? 'camposTexto' : tipo === 'lista' ? 'listas' : 'checkboxes';
+        const dadosAntigos = id !== '' ? this.configuracoes[arrayNome][parseInt(id)] : null;
         
         // Salvar no array apropriado
         if (id === '') {
             // Nova configuração
-            this.configuracoes[tipo === 'categoria' ? 'categorias' : tipo === 'lista' ? 'listas' : 'checkboxes'].push(config);
+            this.configuracoes[arrayNome].push(config);
         } else {
             // Editar configuração existente
             const index = parseInt(id);
-            this.configuracoes[tipo === 'categoria' ? 'categorias' : tipo === 'lista' ? 'listas' : 'checkboxes'][index] = config;
+            this.configuracoes[arrayNome][index] = config;
         }
         
         // Salvar no Firebase
@@ -483,20 +529,20 @@ class AdminConfiguracoes {
         }
     }
 
-    async removerCategoria(index) {
-        if (!confirm('Tem certeza que deseja remover esta categoria?')) {
+    async removerCampoTexto(index) {
+        if (!confirm('Tem certeza que deseja remover este campo de texto?')) {
             return;
         }
         
-        const categoriaRemovida = this.configuracoes.categorias[index];
-        this.configuracoes.categorias.splice(index, 1);
+        const campoRemovido = this.configuracoes.camposTexto[index];
+        this.configuracoes.camposTexto.splice(index, 1);
         
         const sucesso = await this.salvarConfiguracoes();
         if (sucesso) {
             // Registrar no histórico
-            await this.registrarHistorico('remover', 'categoria', {
-                nome: categoriaRemovida.nome,
-                label: categoriaRemovida.label
+            await this.registrarHistorico('remover', 'campoTexto', {
+                nome: campoRemovido.nome,
+                label: campoRemovido.label
             });
         }
         
@@ -574,17 +620,11 @@ function mostrarAba(aba) {
     // Ações específicas por aba
     if (aba === 'historico' && adminConfig) {
         adminConfig.renderizarHistorico();
-    } else if (aba === 'fichas' && adminConfig) {
-        // Limpar resultados ao abrir a aba
-        const container = document.getElementById('fichas-resultados');
-        if (container) {
-            container.innerHTML = '';
-        }
     }
 }
 
-function abrirModalCategoria() {
-    adminConfig.abrirModalCategoria();
+function abrirModalCampoTexto() {
+    adminConfig.abrirModalCampoTexto();
 }
 
 function abrirModalLista() {

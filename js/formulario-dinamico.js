@@ -82,7 +82,7 @@ class FormularioDinamico {
             } else {
                 console.log('ℹ️ Nenhuma configuração encontrada, usando padrões');
                 this.configuracoes = {
-                    categorias: [],
+                    camposTexto: [],
                     listas: [],
                     checkboxes: []
                 };
@@ -90,7 +90,7 @@ class FormularioDinamico {
         } catch (error) {
             console.error('❌ Erro ao carregar configurações:', error);
             this.configuracoes = {
-                categorias: [],
+                camposTexto: [],
                 listas: [],
                 checkboxes: []
             };
@@ -108,11 +108,109 @@ class FormularioDinamico {
             return;
         }
 
+        // Aplicar campos de texto
+        this.aplicarCamposTexto(tipo, container);
+        
         // Aplicar listas (selects)
         this.aplicarListas(tipo, container);
         
         // Aplicar checkboxes
         this.aplicarCheckboxes(tipo, container);
+    }
+
+    aplicarCamposTexto(tipo, container) {
+        const camposTexto = this.configuracoes.camposTexto || [];
+        
+        camposTexto.forEach(campo => {
+            // Verificar se o campo se aplica a este tipo
+            if (campo.categoria !== tipo && campo.categoria !== 'todos') {
+                return;
+            }
+            
+            // Procurar campo existente pelo ID
+            const campoId = `${tipo}-${campo.nome}`;
+            let campoElement = container.querySelector(`#${campoId}`);
+            
+            if (!campoElement) {
+                // Criar campo se não existir
+                const campoDiv = this.criarCampoTexto(campo, tipo);
+                // Inserir no container (procurar local apropriado)
+                const formSection = container.querySelector('.form-section:last-child') || container;
+                formSection.appendChild(campoDiv);
+            } else {
+                // Atualizar campo existente (label, placeholder, etc)
+                const label = campoElement.previousElementSibling;
+                if (label && label.tagName === 'LABEL') {
+                    label.textContent = campo.label + (campo.obrigatorio ? ' *' : '');
+                }
+                if (campo.placeholder) {
+                    campoElement.placeholder = campo.placeholder;
+                }
+            }
+        });
+    }
+
+    criarCampoTexto(campo, tipo) {
+        const div = document.createElement('div');
+        div.className = 'form-group';
+        
+        const label = document.createElement('label');
+        label.setAttribute('for', `${tipo}-${campo.nome}`);
+        label.textContent = campo.label + (campo.obrigatorio ? ' *' : '');
+        
+        let input;
+        const tipoCampo = campo.tipo || 'texto';
+        
+        if (tipoCampo === 'textarea') {
+            input = document.createElement('textarea');
+            input.rows = 4;
+        } else {
+            input = document.createElement('input');
+            
+            // Definir tipo do input baseado no tipo do campo
+            switch(tipoCampo) {
+                case 'data':
+                    input.type = 'date';
+                    break;
+                case 'numero':
+                    input.type = 'number';
+                    break;
+                case 'email':
+                    input.type = 'email';
+                    break;
+                case 'telefone':
+                    input.type = 'text';
+                    input.classList.add('telefone-mask');
+                    break;
+                case 'cpf':
+                    input.type = 'text';
+                    input.classList.add('cpf-mask');
+                    break;
+                default:
+                    input.type = 'text';
+            }
+        }
+        
+        input.id = `${tipo}-${campo.nome}`;
+        input.className = 'velohub-input';
+        if (campo.obrigatorio) {
+            input.setAttribute('required', '');
+        }
+        if (campo.placeholder) {
+            input.placeholder = campo.placeholder;
+        }
+        
+        div.appendChild(label);
+        div.appendChild(input);
+        
+        // Aplicar máscaras se necessário
+        if (tipoCampo === 'telefone' && typeof formatPhone === 'function') {
+            input.addEventListener('input', formatPhone);
+        } else if (tipoCampo === 'cpf' && typeof formatCPF === 'function') {
+            input.addEventListener('input', formatCPF);
+        }
+        
+        return div;
     }
 
     aplicarListas(tipo, container) {
