@@ -1362,6 +1362,21 @@ function inicializarChatbotPage() {
         if (secaoLista && secaoLista.classList.contains('active')) {
             renderizarListaChatbot();
         }
+        
+        // Verificar se há parâmetro ?editar=id na URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const editarId = urlParams.get('editar');
+        if (editarId) {
+            console.log('📝 [CHATBOT] Parâmetro editar encontrado:', editarId);
+            // Aguardar um pouco para garantir que tudo está carregado
+            setTimeout(() => {
+                if (window.abrirFichaChatbot) {
+                    window.abrirFichaChatbot(editarId);
+                } else {
+                    console.error('❌ [CHATBOT] abrirFichaChatbot não está disponível');
+                }
+            }, 1000);
+        }
     });
     
     // Listener para atualizar dashboard quando fichas forem importadas

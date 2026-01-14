@@ -27,6 +27,17 @@ document.addEventListener('DOMContentLoaded', function() {
         inicializarN2();
         carregarFichasN2().then(() => {
             atualizarDashboardN2(); // async, mas não precisa await aqui
+            
+            // Verificar se há parâmetro ?editar=id na URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const editarId = urlParams.get('editar');
+            if (editarId) {
+                console.log('📝 [N2] Parâmetro editar encontrado:', editarId);
+                // Aguardar um pouco para garantir que tudo está carregado
+                setTimeout(() => {
+                    abrirFichaN2(editarId);
+                }, 1000);
+            }
         });
         configurarEventosN2();
     } catch (error) {

@@ -14,6 +14,17 @@ document.addEventListener('DOMContentLoaded', function() {
         inicializarBacen();
         carregarFichasBacen().then(() => {
             atualizarDashboardBacen(); // async, mas não precisa await aqui
+            
+            // Verificar se há parâmetro ?editar=id na URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const editarId = urlParams.get('editar');
+            if (editarId) {
+                console.log('📝 [BACEN] Parâmetro editar encontrado:', editarId);
+                // Aguardar um pouco para garantir que tudo está carregado
+                setTimeout(() => {
+                    abrirFichaBacen(editarId);
+                }, 1000);
+            }
         });
         configurarEventosBacen();
     } catch (error) {
