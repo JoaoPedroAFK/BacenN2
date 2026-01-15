@@ -145,6 +145,68 @@ class FormularioDinamico {
         this.aplicarCheckboxes(tipo, container);
     }
 
+    /**
+     * Aplica configurações em todos os formulários visíveis
+     */
+    aplicarConfiguracoesEmTodosFormularios() {
+        // Aplicar em formulário BACEN
+        const formBacen = document.getElementById('form-bacen');
+        if (formBacen) {
+            this.aplicarConfiguracoes('bacen', formBacen);
+        }
+        
+        // Aplicar em formulário N2
+        const formN2 = document.getElementById('form-n2');
+        if (formN2) {
+            this.aplicarConfiguracoes('n2', formN2);
+        }
+        
+        // Aplicar em formulário Chatbot
+        const formChatbot = document.getElementById('form-chatbot');
+        if (formChatbot) {
+            this.aplicarConfiguracoes('chatbot', formChatbot);
+        }
+    }
+
+    configurarObservadorTempoReal() {
+        if (!this.firebaseDB) {
+            console.warn('⚠️ Firebase não disponível para observador em tempo real');
+            return;
+        }
+
+        try {
+            const ref = this.firebaseDB.ref('configuracoes_formularios');
+            
+            // Observar mudanças em tempo real
+            ref.on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const dados = snapshot.val();
+                    const novasConfiguracoes = {
+                        camposTexto: dados.camposTexto || dados.categorias || [],
+                        listas: dados.listas || [],
+                        checkboxes: dados.checkboxes || []
+                    };
+                    
+                    // Atualizar apenas se houver mudanças
+                    const configAtual = JSON.stringify(this.configuracoes);
+                    const configNova = JSON.stringify(novasConfiguracoes);
+                    
+                    if (configAtual !== configNova) {
+                        console.log('🔄 Configurações atualizadas em tempo real do Firebase');
+                        this.configuracoes = novasConfiguracoes;
+                        this.aplicarConfiguracoesEmTodosFormularios();
+                    }
+                }
+            }, (error) => {
+                console.warn('⚠️ Erro no observador em tempo real:', error);
+            });
+            
+            console.log('✅ Observador em tempo real configurado para formulários');
+        } catch (error) {
+            console.error('❌ Erro ao configurar observador:', error);
+        }
+    }
+
     aplicarCamposTexto(tipo, container) {
         const camposTexto = this.configuracoes.camposTexto || [];
         
