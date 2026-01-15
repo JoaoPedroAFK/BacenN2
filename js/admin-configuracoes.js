@@ -661,6 +661,12 @@ class AdminConfiguracoes {
             
             this.renderizar();
             this.fecharModal();
+            
+            // Se estiver na aba de editar fichas, recarregar
+            const tipoFicha = document.getElementById('tipo-ficha-editar')?.value;
+            if (tipoFicha) {
+                this.carregarCamposFicha();
+            }
         }
     }
 
@@ -755,6 +761,10 @@ function mostrarAba(aba) {
     // Ações específicas por aba
     if (aba === 'historico' && adminConfig) {
         adminConfig.renderizarHistorico();
+    } else if (aba === 'editar-fichas' && adminConfig) {
+        // Limpar seleção ao abrir a aba
+        document.getElementById('tipo-ficha-editar').value = '';
+        document.getElementById('campos-ficha-editaveis').innerHTML = '';
     }
 }
 

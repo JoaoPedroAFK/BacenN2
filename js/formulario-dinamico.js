@@ -223,9 +223,14 @@ class FormularioDinamico {
             if (!campoElement) {
                 // Criar campo se não existir
                 const campoDiv = this.criarCampoTexto(campo, tipo);
-                // Inserir no container (procurar local apropriado)
-                const formSection = container.querySelector('.form-section:last-child') || container;
-                formSection.appendChild(campoDiv);
+                // Inserir ANTES do botão de salvar (form-actions)
+                const formActions = container.querySelector('.form-actions');
+                if (formActions) {
+                    container.insertBefore(campoDiv, formActions);
+                } else {
+                    // Fallback: inserir no final se não encontrar form-actions
+                    container.appendChild(campoDiv);
+                }
             } else {
                 // Atualizar campo existente (label, placeholder, etc)
                 const label = campoElement.previousElementSibling;
@@ -317,10 +322,15 @@ class FormularioDinamico {
             
             if (!select) {
                 // Criar select se não existir
-                select = this.criarSelect(lista, tipo);
-                // Inserir no container (procurar local apropriado)
-                const formSection = container.querySelector('.form-section:last-child') || container;
-                formSection.appendChild(select);
+                const selectDiv = this.criarSelect(lista, tipo);
+                // Inserir ANTES do botão de salvar (form-actions)
+                const formActions = container.querySelector('.form-actions');
+                if (formActions) {
+                    container.insertBefore(selectDiv, formActions);
+                } else {
+                    // Fallback: inserir no final se não encontrar form-actions
+                    container.appendChild(selectDiv);
+                }
             } else {
                 // Atualizar opções do select existente
                 this.atualizarSelect(select, lista);
@@ -398,9 +408,14 @@ class FormularioDinamico {
             if (!checkboxElement) {
                 // Criar checkbox se não existir
                 const checkboxDiv = this.criarCheckbox(checkbox, tipo);
-                // Inserir no container
-                const formSection = container.querySelector('.form-section:last-child') || container;
-                formSection.appendChild(checkboxDiv);
+                // Inserir ANTES do botão de salvar (form-actions)
+                const formActions = container.querySelector('.form-actions');
+                if (formActions) {
+                    container.insertBefore(checkboxDiv, formActions);
+                } else {
+                    // Fallback: inserir no final se não encontrar form-actions
+                    container.appendChild(checkboxDiv);
+                }
             } else {
                 // Atualizar label do checkbox existente
                 const label = checkboxElement.closest('label') || checkboxElement.parentElement.querySelector('label');

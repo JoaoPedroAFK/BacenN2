@@ -310,6 +310,7 @@
             <button class="admin-tab active" onclick="mostrarAba('campos-texto')">📝 Campos de Texto</button>
             <button class="admin-tab" onclick="mostrarAba('listas')">📋 Listas (Selects)</button>
             <button class="admin-tab" onclick="mostrarAba('checkboxes')">☑️ Checkboxes</button>
+            <button class="admin-tab" onclick="mostrarAba('editar-fichas')">✏️ Editar Fichas Existentes</button>
             <button class="admin-tab" onclick="mostrarAba('historico')">📜 Histórico</button>
         </div>
 
@@ -340,6 +341,26 @@
                 <p style="color: var(--texto-secundario); margin-bottom: 20px;">Gerencie campos de checkbox que aparecem nos formulários</p>
                 <button class="btn-admin btn-add" onclick="abrirModalCheckbox()">➕ Adicionar Checkbox</button>
                 <div id="checkboxes-list"></div>
+            </div>
+        </div>
+
+        <!-- Aba Editar Fichas Existentes -->
+        <div id="aba-editar-fichas" class="admin-content">
+            <div class="config-section">
+                <h3>✏️ Editar Campos de Fichas Existentes</h3>
+                <p style="color: var(--texto-secundario); margin-bottom: 20px;">Visualize, edite, adicione ou remova campos das fichas já configuradas</p>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--texto-principal); font-weight: 500;">Selecione o tipo de ficha:</label>
+                    <select id="tipo-ficha-editar" class="form-group-admin" style="width: 200px; padding: 10px; border: 1px solid var(--borda); border-radius: 4px; background: var(--fundo-secundario); color: var(--texto-principal);" onchange="adminConfig.carregarCamposFicha()">
+                        <option value="">Selecione...</option>
+                        <option value="bacen">BACEN</option>
+                        <option value="n2">N2</option>
+                        <option value="chatbot">Chatbot</option>
+                    </select>
+                </div>
+                
+                <div id="campos-ficha-editaveis" style="margin-top: 20px;"></div>
             </div>
         </div>
 
