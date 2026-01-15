@@ -1,0 +1,24 @@
+{
+  "rules": {
+    "fichas_bacen": {
+      ".read": true,
+      ".write": true
+    },
+    "fichas_n2": {
+      ".read": true,
+      ".write": true
+    },
+    "fichas_chatbot": {
+      ".read": true,
+      ".write": true
+    },
+    "configuracoes_formularios": {
+      ".read": true,
+      ".write": true,
+      "historico": {
+        ".read": true,
+        ".write": true
+      }
+    }
+  }
+}

@@ -57,6 +57,8 @@ Adicione as seguintes regras ao seu arquivo de regras do Firebase:
 }
 ```
 
+**OU copie diretamente do arquivo `FIREBASE_RULES_COMPLETO.json` que está na raiz do projeto.**
+
 ### **Passo 3: Publicar as Regras**
 
 1. Clique em **Publish** (Publicar)
