@@ -134,6 +134,20 @@ router.get('/dashboard/metrics', async (req, res) => {
     global.emitTraffic('Sociais', 'received', 'Entrada recebida - GET /api/sociais/dashboard/metrics');
     global.emitLog('info', 'GET /api/sociais/dashboard/metrics - Obtendo métricas');
     
+    // Verificar se o banco está conectado
+    try {
+      const { getSociaisDatabase } = require('../config/database');
+      getSociaisDatabase();
+    } catch (dbError) {
+      global.emitTraffic('Sociais', 'error', 'Banco de dados não conectado');
+      global.emitLog('error', `GET /api/sociais/dashboard/metrics - Banco não conectado: ${dbError.message}`);
+      return res.status(503).json({ 
+        success: false, 
+        error: 'Banco de dados não disponível. Tente novamente em alguns instantes.',
+        details: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+      });
+    }
+    
     // Extrair filtros da query string
     const filters = {};
     
@@ -175,9 +189,11 @@ router.get('/dashboard/metrics', async (req, res) => {
   } catch (error) {
     global.emitTraffic('Sociais', 'error', 'Erro interno do servidor');
     global.emitLog('error', `GET /api/sociais/dashboard/metrics - Erro: ${error.message}`);
+    console.error('Erro detalhado em /dashboard/metrics:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Erro interno do servidor' 
+      error: 'Erro interno do servidor',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
@@ -187,6 +203,20 @@ router.get('/dashboard/charts', async (req, res) => {
   try {
     global.emitTraffic('Sociais', 'received', 'Entrada recebida - GET /api/sociais/dashboard/charts');
     global.emitLog('info', 'GET /api/sociais/dashboard/charts - Obtendo dados para gráficos');
+    
+    // Verificar se o banco está conectado
+    try {
+      const { getSociaisDatabase } = require('../config/database');
+      getSociaisDatabase();
+    } catch (dbError) {
+      global.emitTraffic('Sociais', 'error', 'Banco de dados não conectado');
+      global.emitLog('error', `GET /api/sociais/dashboard/charts - Banco não conectado: ${dbError.message}`);
+      return res.status(503).json({ 
+        success: false, 
+        error: 'Banco de dados não disponível. Tente novamente em alguns instantes.',
+        details: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+      });
+    }
     
     // Extrair filtros da query string
     const filters = {};
@@ -229,9 +259,73 @@ router.get('/dashboard/charts', async (req, res) => {
   } catch (error) {
     global.emitTraffic('Sociais', 'error', 'Erro interno do servidor');
     global.emitLog('error', `GET /api/sociais/dashboard/charts - Erro: ${error.message}`);
+    console.error('Erro detalhado em /dashboard/charts:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Erro interno do servidor' 
+      error: 'Erro interno do servidor',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// GET /api/sociais/rating/average - Média de ratings
+router.get('/rating/average', async (req, res) => {
+  try {
+    global.emitTraffic('Sociais', 'received', 'Entrada recebida - GET /api/sociais/rating/average');
+    global.emitLog('info', 'GET /api/sociais/rating/average - Obtendo média de ratings');
+    
+    // Verificar se o banco está conectado
+    try {
+      const { getSociaisDatabase } = require('../config/database');
+      getSociaisDatabase();
+    } catch (dbError) {
+      global.emitTraffic('Sociais', 'error', 'Banco de dados não conectado');
+      global.emitLog('error', `GET /api/sociais/rating/average - Banco não conectado: ${dbError.message}`);
+      return res.status(503).json({ 
+        success: false, 
+        error: 'Banco de dados não disponível. Tente novamente em alguns instantes.',
+        details: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+      });
+    }
+    
+    // Extrair filtros da query string
+    const filters = {};
+    
+    if (req.query.socialNetwork && req.query.socialNetwork !== '') {
+      filters.socialNetwork = req.query.socialNetwork;
+    }
+    
+    if (req.query.dateFrom) {
+      filters.dateFrom = req.query.dateFrom;
+    }
+    
+    if (req.query.dateTo) {
+      filters.dateTo = req.query.dateTo;
+    }
+    
+    global.emitTraffic('Sociais', 'processing', 'Calculando média de ratings');
+    const result = await SociaisMetricas.getRatingAverage(filters);
+    
+    if (result.success) {
+      global.emitTraffic('Sociais', 'completed', 'Concluído - Média de ratings obtida com sucesso');
+      global.emitLog('success', `GET /api/sociais/rating/average - Média: ${result.data?.average || 'N/A'}`);
+      
+      // INBOUND: Resposta para o frontend
+      global.emitJsonInput(result);
+      res.json(result);
+    } else {
+      global.emitTraffic('Sociais', 'error', result.error);
+      global.emitLog('error', `GET /api/sociais/rating/average - ${result.error}`);
+      res.status(500).json(result);
+    }
+  } catch (error) {
+    global.emitTraffic('Sociais', 'error', 'Erro interno do servidor');
+    global.emitLog('error', `GET /api/sociais/rating/average - Erro: ${error.message}`);
+    console.error('Erro detalhado em /rating/average:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Erro interno do servidor',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });

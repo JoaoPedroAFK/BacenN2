@@ -58,18 +58,27 @@ class SociaisMetricas {
         };
       }
 
-      if (tabulationData.rating && (tabulationData.rating < 1 || tabulationData.rating > 5)) {
-        return {
-          success: false,
-          error: 'rating deve ser um número entre 1 e 5'
-        };
+      // Converter rating para número se existir
+      let ratingValue = null;
+      if (tabulationData.rating !== null && tabulationData.rating !== undefined && tabulationData.rating !== '') {
+        ratingValue = typeof tabulationData.rating === 'string' 
+          ? parseInt(tabulationData.rating, 10) 
+          : Number(tabulationData.rating);
+        
+        // Validar se é um número válido entre 1 e 5
+        if (isNaN(ratingValue) || ratingValue < 1 || ratingValue > 5) {
+          return {
+            success: false,
+            error: 'rating deve ser um número entre 1 e 5'
+          };
+        }
       }
 
       const tabulation = {
         clientName: tabulationData.clientName,
         socialNetwork: tabulationData.socialNetwork,
         messageText: tabulationData.messageText,
-        rating: tabulationData.rating || null,
+        rating: ratingValue,  // Usar o valor convertido para número
         contactReason: tabulationData.contactReason || null,
         sentiment: tabulationData.sentiment || null,
         directedCenter: tabulationData.directedCenter !== undefined ? Boolean(tabulationData.directedCenter) : false,
@@ -384,6 +393,116 @@ class SociaisMetricas {
       };
     } catch (error) {
       console.error('Erro ao obter dados de gráficos:', error);
+      return {
+        success: false,
+        error: 'Erro interno do servidor'
+      };
+    }
+  }
+
+  // Obter média de ratings
+  async getRatingAverage(filters = {}) {
+    try {
+      const collection = this.getCollection();
+      
+      // Construir query de filtros
+      const query = {};
+      
+      // Aceitar ratings válidos (não null, não vazio, não zero)
+      query.rating = { 
+        $exists: true, 
+        $ne: null,
+        $nin: [0, '', '0']  // Excluir valores inválidos
+      };
+      
+      // Aplicar filtro de rede social (aceitar tanto array quanto string)
+      if (filters.socialNetwork) {
+        if (Array.isArray(filters.socialNetwork) && filters.socialNetwork.length > 0) {
+          query.socialNetwork = { $in: filters.socialNetwork };
+        } else if (typeof filters.socialNetwork === 'string' && filters.socialNetwork !== '') {
+          query.socialNetwork = filters.socialNetwork;
+        }
+      }
+      
+      // Aplicar filtros de data
+      if (filters.dateFrom || filters.dateTo) {
+        query.createdAt = {};
+        if (filters.dateFrom) {
+          query.createdAt.$gte = new Date(filters.dateFrom);
+        }
+        if (filters.dateTo) {
+          const dateTo = new Date(filters.dateTo);
+          dateTo.setHours(23, 59, 59, 999);
+          query.createdAt.$lte = dateTo;
+        }
+      }
+
+      // Calcular média usando agregação com conversão de tipos
+      const result = await collection.aggregate([
+        { $match: query },
+        {
+          $addFields: {
+            // Converter rating para número (funciona tanto para números quanto strings numéricas)
+            ratingNumber: {
+              $cond: {
+                if: { $eq: [{ $type: '$rating' }, 'string'] },
+                then: {
+                  $cond: {
+                    if: { $in: ['$rating', ['1', '2', '3', '4', '5']] },
+                    then: { $toInt: '$rating' },
+                    else: null
+                  }
+                },
+                else: {
+                  $cond: {
+                    if: { $and: [
+                      { $gte: ['$rating', 1] },
+                      { $lte: ['$rating', 5] }
+                    ]},
+                    then: '$rating',
+                    else: null
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          $match: {
+            ratingNumber: { $ne: null, $gte: 1, $lte: 5 }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            average: { $avg: '$ratingNumber' },
+            count: { $sum: 1 },
+            total: { $sum: '$ratingNumber' }
+          }
+        }
+      ]).toArray();
+
+      if (result.length === 0 || result[0].count === 0) {
+        return {
+          success: true,
+          data: {
+            average: null,
+            count: 0,
+            total: 0
+          }
+        };
+      }
+
+      return {
+        success: true,
+        data: {
+          average: parseFloat(result[0].average.toFixed(2)),
+          count: result[0].count,
+          total: result[0].total
+        }
+      };
+    } catch (error) {
+      console.error('Erro ao obter média de ratings:', error);
       return {
         success: false,
         error: 'Erro interno do servidor'
