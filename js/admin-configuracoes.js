@@ -283,6 +283,167 @@ class AdminConfiguracoes {
         }
     }
 
+    carregarCamposFicha() {
+        const tipo = document.getElementById('tipo-ficha-editar')?.value;
+        const container = document.getElementById('campos-ficha-editaveis');
+        
+        if (!container) {
+            console.error('❌ Container campos-ficha-editaveis não encontrado');
+            return;
+        }
+        
+        if (!tipo) {
+            container.innerHTML = '<p style="text-align: center; color: var(--texto-secundario); padding: 40px;">Selecione um tipo de ficha para visualizar os campos</p>';
+            return;
+        }
+        
+        // Filtrar campos por tipo
+        const camposTexto = (this.configuracoes.camposTexto || []).filter(c => c.categoria === tipo || c.categoria === 'todos');
+        const listas = (this.configuracoes.listas || []).filter(l => l.categoria === tipo || l.categoria === 'todos');
+        const checkboxes = (this.configuracoes.checkboxes || []).filter(c => c.categoria === tipo || c.categoria === 'todos');
+        
+        if (camposTexto.length === 0 && listas.length === 0 && checkboxes.length === 0) {
+            container.innerHTML = `
+                <p style="text-align: center; color: var(--texto-secundario); padding: 40px;">
+                    Nenhum campo configurado para ${tipo.toUpperCase()}.<br>
+                    Use as outras abas para adicionar campos.
+                </p>
+            `;
+            return;
+        }
+        
+        let html = '<div style="margin-bottom: 30px;">';
+        html += `<h4 style="color: var(--texto-principal); margin-bottom: 15px;">Campos configurados para ${tipo.toUpperCase()}</h4>`;
+        
+        // Campos de Texto
+        if (camposTexto.length > 0) {
+            html += '<div style="margin-bottom: 20px;"><h5 style="color: var(--texto-principal); margin-bottom: 10px;">📝 Campos de Texto</h5>';
+            camposTexto.forEach((campo) => {
+                const index = this.configuracoes.camposTexto.findIndex(c => c.nome === campo.nome);
+                const tipoLabel = {
+                    'texto': '📝 Texto',
+                    'textarea': '📄 Área de Texto',
+                    'data': '📅 Data',
+                    'numero': '🔢 Número',
+                    'email': '📧 E-mail',
+                    'telefone': '📱 Telefone',
+                    'cpf': '🆔 CPF'
+                }[campo.tipo] || campo.tipo;
+                
+                html += `
+                    <div class="config-item" style="margin-bottom: 10px;">
+                        <div class="config-item-info">
+                            <div class="config-item-label">${campo.label}</div>
+                            <div class="config-item-type">Tipo: ${tipoLabel} | ID: ${campo.nome} ${campo.obrigatorio ? '| ⚠️ Obrigatório' : ''}</div>
+                        </div>
+                        <div class="config-item-actions">
+                            <button class="btn-admin btn-edit" onclick="adminConfig.editarCampoExistente('campoTexto', '${tipo}', ${index})">✏️ Editar</button>
+                            <button class="btn-admin btn-delete" onclick="adminConfig.removerCampoExistente('campoTexto', '${tipo}', ${index})">🗑️ Remover</button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+        }
+        
+        // Listas
+        if (listas.length > 0) {
+            html += '<div style="margin-bottom: 20px;"><h5 style="color: var(--texto-principal); margin-bottom: 10px;">📋 Listas (Selects)</h5>';
+            listas.forEach((lista) => {
+                const index = this.configuracoes.listas.findIndex(l => l.nome === lista.nome);
+                html += `
+                    <div class="config-item" style="margin-bottom: 10px;">
+                        <div class="config-item-info">
+                            <div class="config-item-label">${lista.label}</div>
+                            <div class="config-item-type">ID: ${lista.nome} | Opções: ${lista.opcoes ? lista.opcoes.length : 0} ${lista.obrigatorio ? '| ⚠️ Obrigatório' : ''}</div>
+                        </div>
+                        <div class="config-item-actions">
+                            <button class="btn-admin btn-edit" onclick="adminConfig.editarCampoExistente('lista', '${tipo}', ${index})">✏️ Editar</button>
+                            <button class="btn-admin btn-delete" onclick="adminConfig.removerCampoExistente('lista', '${tipo}', ${index})">🗑️ Remover</button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+        }
+        
+        // Checkboxes
+        if (checkboxes.length > 0) {
+            html += '<div style="margin-bottom: 20px;"><h5 style="color: var(--texto-principal); margin-bottom: 10px;">☑️ Checkboxes</h5>';
+            checkboxes.forEach((checkbox) => {
+                const index = this.configuracoes.checkboxes.findIndex(c => c.nome === checkbox.nome);
+                html += `
+                    <div class="config-item" style="margin-bottom: 10px;">
+                        <div class="config-item-info">
+                            <div class="config-item-label">${checkbox.label}</div>
+                            <div class="config-item-type">ID: ${checkbox.nome} ${checkbox.obrigatorio ? '| ⚠️ Obrigatório' : ''}</div>
+                        </div>
+                        <div class="config-item-actions">
+                            <button class="btn-admin btn-edit" onclick="adminConfig.editarCampoExistente('checkbox', '${tipo}', ${index})">✏️ Editar</button>
+                            <button class="btn-admin btn-delete" onclick="adminConfig.removerCampoExistente('checkbox', '${tipo}', ${index})">🗑️ Remover</button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+        }
+        
+        html += '</div>';
+        html += '<div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--borda);">';
+        html += `<button class="btn-admin btn-add" onclick="adminConfig.adicionarCampoParaFicha('${tipo}')">➕ Adicionar Novo Campo para ${tipo.toUpperCase()}</button>`;
+        html += '</div>';
+        
+        container.innerHTML = html;
+    }
+
+    editarCampoExistente(tipoCampo, tipoFicha, index) {
+        if (tipoCampo === 'campoTexto') {
+            this.editarCampoTexto(index);
+        } else if (tipoCampo === 'lista') {
+            this.editarLista(index);
+        } else if (tipoCampo === 'checkbox') {
+            this.editarCheckbox(index);
+        }
+    }
+
+    async removerCampoExistente(tipoCampo, tipoFicha, index) {
+        if (!confirm('Tem certeza que deseja remover este campo?')) {
+            return;
+        }
+        
+        if (tipoCampo === 'campoTexto') {
+            await this.removerCampoTexto(index);
+        } else if (tipoCampo === 'lista') {
+            await this.removerLista(index);
+        } else if (tipoCampo === 'checkbox') {
+            await this.removerCheckbox(index);
+        }
+        
+        // Recarregar campos da ficha
+        this.carregarCamposFicha();
+    }
+
+    adicionarCampoParaFicha(tipoFicha) {
+        // Criar modal de seleção de tipo
+        const modal = document.createElement('div');
+        modal.className = 'modal active';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 400px;">
+                <div class="modal-header">
+                    <h2>Adicionar Campo para ${tipoFicha.toUpperCase()}</h2>
+                    <button class="btn-close" onclick="this.closest('.modal').remove()">✕</button>
+                </div>
+                <div style="padding: 20px;">
+                    <p style="margin-bottom: 20px; color: var(--texto-secundario);">Selecione o tipo de campo:</p>
+                    <button class="btn-admin btn-add" style="width: 100%; margin-bottom: 10px;" onclick="adminConfig.abrirModalCampoTexto(); document.getElementById('config-categoria').value = '${tipoFicha}'; this.closest('.modal').remove();">📝 Campo de Texto</button>
+                    <button class="btn-admin btn-add" style="width: 100%; margin-bottom: 10px;" onclick="adminConfig.abrirModalLista(); document.getElementById('config-categoria').value = '${tipoFicha}'; this.closest('.modal').remove();">📋 Lista (Select)</button>
+                    <button class="btn-admin btn-add" style="width: 100%;" onclick="adminConfig.abrirModalCheckbox(); document.getElementById('config-categoria').value = '${tipoFicha}'; this.closest('.modal').remove();">☑️ Checkbox</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
     async carregarHistorico() {
         try {
             // Tentar carregar do Firebase
