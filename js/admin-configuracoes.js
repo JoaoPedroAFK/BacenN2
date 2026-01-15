@@ -284,6 +284,21 @@ class AdminConfiguracoes {
     }
 
     carregarCamposFicha() {
+        if (!this.configuracoes) {
+            console.warn('⚠️ Configurações ainda não carregadas, aguardando...');
+            setTimeout(() => {
+                if (this.configuracoes) {
+                    this.carregarCamposFicha();
+                } else {
+                    const container = document.getElementById('campos-ficha-editaveis');
+                    if (container) {
+                        container.innerHTML = '<p style="text-align: center; color: var(--texto-secundario); padding: 40px;">Aguardando carregamento das configurações...</p>';
+                    }
+                }
+            }, 500);
+            return;
+        }
+        
         const tipo = document.getElementById('tipo-ficha-editar')?.value;
         const container = document.getElementById('campos-ficha-editaveis');
         
@@ -909,6 +924,7 @@ class AdminConfiguracoes {
 
 // Funções globais para acesso via HTML
 let adminConfig;
+window.adminConfig = null; // Será definido após inicialização
 
 function mostrarAba(aba) {
     // Remover active de todas as abas
