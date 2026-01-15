@@ -23,6 +23,16 @@ class FormularioDinamico {
             // Carregar configurações
             await this.carregarConfiguracoes();
             
+            // Configurar observador em tempo real
+            this.configurarObservadorTempoReal();
+            
+            // Escutar eventos de atualização
+            window.addEventListener('configuracoesFormulariosAtualizadas', (event) => {
+                console.log('🔄 Configurações atualizadas, reaplicando nos formulários...');
+                this.configuracoes = event.detail;
+                this.aplicarConfiguracoesEmTodosFormularios();
+            });
+            
             this.inicializado = true;
             console.log('✅ FormularioDinamico inicializado');
             

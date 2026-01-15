@@ -33,6 +33,9 @@ class AdminConfiguracoes {
             // Carregar configurações do Firebase
             await this.carregarConfiguracoes();
             
+            // Configurar observador em tempo real
+            this.configurarObservadorTempoReal();
+            
             this.inicializado = true;
             console.log('✅ AdminConfiguracoes inicializado');
             
@@ -141,27 +144,42 @@ class AdminConfiguracoes {
                 atualizadoEm: new Date().toISOString()
             };
             
-            // Tentar salvar no Firebase
-            if (this.firebaseDB) {
-                try {
-                    const ref = this.firebaseDB.ref('configuracoes_formularios');
-                    await ref.set({
-                        ...dadosParaSalvar,
-                        timestamp: firebase.database.ServerValue.TIMESTAMP
-                    });
-                    console.log('✅ Configurações salvas no Firebase');
-                } catch (firebaseError) {
-                    console.warn('⚠️ Erro ao salvar no Firebase, usando localStorage:', firebaseError.message);
-                    // Continuar para salvar no localStorage
-                }
+            // PRIORIDADE: Salvar no Firebase primeiro (para ficar disponível para todos)
+            if (!this.firebaseDB) {
+                throw new Error('Firebase não está disponível. Verifique a conexão e as regras de segurança.');
             }
             
-            // Sempre salvar no localStorage como backup
-            localStorage.setItem('admin_configuracoes_formularios', JSON.stringify(dadosParaSalvar));
-            console.log('✅ Configurações salvas no localStorage');
-            
-            this.mostrarMensagem('Configurações salvas com sucesso!', 'success');
-            return true;
+            try {
+                const ref = this.firebaseDB.ref('configuracoes_formularios');
+                await ref.set({
+                    ...dadosParaSalvar,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                console.log('✅ Configurações salvas no Firebase (disponível para todos)');
+                
+                // Salvar no localStorage como backup
+                localStorage.setItem('admin_configuracoes_formularios', JSON.stringify(dadosParaSalvar));
+                console.log('✅ Configurações também salvas no localStorage (backup)');
+                
+                this.mostrarMensagem('✅ Configurações salvas com sucesso! Agora disponíveis para todos os usuários.', 'success');
+                return true;
+            } catch (firebaseError) {
+                console.error('❌ Erro ao salvar no Firebase:', firebaseError);
+                
+                // Mostrar erro detalhado
+                let mensagemErro = 'Erro ao salvar no Firebase: ' + firebaseError.message;
+                if (firebaseError.message.includes('permission_denied')) {
+                    mensagemErro += '\n\n⚠️ ATENÇÃO: É necessário configurar as regras de segurança do Firebase para permitir escrita em "configuracoes_formularios".\n\nConsulte o arquivo GUIA_FIREBASE_REGRAS.md para instruções.';
+                }
+                
+                this.mostrarMensagem(mensagemErro, 'error');
+                
+                // Salvar no localStorage como fallback temporário
+                localStorage.setItem('admin_configuracoes_formularios', JSON.stringify(dadosParaSalvar));
+                console.warn('⚠️ Configurações salvas apenas localmente (não disponível para outros usuários)');
+                
+                return false;
+            }
         } catch (error) {
             console.error('❌ Erro ao salvar configurações:', error);
             this.mostrarMensagem('Erro ao salvar configurações: ' + error.message, 'error');
@@ -219,6 +237,50 @@ class AdminConfiguracoes {
             return localStorage.getItem('usuarioAtual');
         }
         return 'Sistema';
+    }
+
+    configurarObservadorTempoReal() {
+        if (!this.firebaseDB) {
+            console.warn('⚠️ Firebase não disponível para observador em tempo real');
+            return;
+        }
+
+        try {
+            const ref = this.firebaseDB.ref('configuracoes_formularios');
+            
+            // Observar mudanças em tempo real
+            ref.on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const dados = snapshot.val();
+                    const novasConfiguracoes = {
+                        camposTexto: dados.camposTexto || dados.categorias || [],
+                        listas: dados.listas || [],
+                        checkboxes: dados.checkboxes || []
+                    };
+                    
+                    // Atualizar apenas se houver mudanças
+                    const configAtual = JSON.stringify(this.configuracoes);
+                    const configNova = JSON.stringify(novasConfiguracoes);
+                    
+                    if (configAtual !== configNova) {
+                        console.log('🔄 Configurações atualizadas em tempo real do Firebase');
+                        this.configuracoes = novasConfiguracoes;
+                        this.renderizar();
+                        
+                        // Disparar evento para outros componentes
+                        window.dispatchEvent(new CustomEvent('configuracoesFormulariosAtualizadas', {
+                            detail: this.configuracoes
+                        }));
+                    }
+                }
+            }, (error) => {
+                console.warn('⚠️ Erro no observador em tempo real:', error);
+            });
+            
+            console.log('✅ Observador em tempo real configurado');
+        } catch (error) {
+            console.error('❌ Erro ao configurar observador:', error);
+        }
     }
 
     async carregarHistorico() {
