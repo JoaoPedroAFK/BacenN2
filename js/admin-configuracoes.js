@@ -975,6 +975,7 @@ function adicionarOpcao() {
 // Inicializar quando DOM estiver pronto
 document.addEventListener('DOMContentLoaded', async () => {
     adminConfig = new AdminConfiguracoes();
+    window.adminConfig = adminConfig; // Expor globalmente imediatamente
     
     // Aguardar Firebase inicializar
     const aguardarFirebaseAdmin = async () => {
