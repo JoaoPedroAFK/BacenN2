@@ -339,7 +339,8 @@ class FormularioDinamico {
                     const novasConfiguracoes = {
                         camposTexto: dados.camposTexto || dados.categorias || [],
                         listas: dados.listas || [],
-                        checkboxes: dados.checkboxes || []
+                        checkboxes: dados.checkboxes || [],
+                        camposFixos: dados.camposFixos || {}
                     };
                     
                     // Atualizar apenas se houver mudanças
