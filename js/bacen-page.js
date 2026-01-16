@@ -1258,7 +1258,7 @@ function mostrarRelatorio(titulo, dados, subtitulo) {
     `;
 }
 
-function exportarRelatorioBacenDados(dados) {
+function exportarRelatorioBacenDados(dados, camposSelecionados) {
     if (!dados) {
         // Tenta obter dados do contexto
         const container = document.getElementById('conteudo-relatorio-bacen');
@@ -1275,21 +1275,60 @@ function exportarRelatorioBacenDados(dados) {
         return;
     }
     
-    const headers = ['Cliente', 'CPF', 'Status', 'Prazo BACEN', 'Procon', 'Data Entrada'];
-    const rows = dados.map(f => [
-        f.nomeCompleto || f.nomeCliente || '',
-        f.cpf || '',
-        f.status || '',
-        formatarData(f.prazoBacen || f.prazoRetorno),
-        f.procon ? 'Sim' : 'Não',
-        formatarData(f.dataEntrada || f.dataReclamacao)
-    ]);
+    // Mapeamento de labels amigáveis
+    const mapeamentoLabels = {
+        'id': 'ID',
+        'dataEntrada': 'Data de Entrada',
+        'dataCriacao': 'Data de Criação',
+        'mes': 'Mês',
+        'nomeCompleto': 'Nome Completo',
+        'cpf': 'CPF',
+        'telefone': 'Telefone',
+        'origem': 'Origem',
+        'origemTipo': 'Tipo de Origem',
+        'rdr': 'RDR',
+        'motivoReduzido': 'Motivo Reduzido',
+        'motivoDetalhado': 'Motivo Detalhado',
+        'prazoBacen': 'Prazo BACEN',
+        'enviarCobranca': 'Enviar para Cobrança',
+        'casosCriticos': 'Casos Críticos',
+        'status': 'Status',
+        'finalizadoEm': 'Finalizado Em',
+        'observacoes': 'Observações',
+        'responsavel': 'Responsável'
+    };
+    
+    // Se campos selecionados não foram fornecidos, usar padrão
+    if (!camposSelecionados || camposSelecionados.length === 0) {
+        camposSelecionados = ['nomeCompleto', 'cpf', 'status', 'prazoBacen', 'dataEntrada'];
+    }
+    
+    // Gerar headers e rows baseados nos campos selecionados
+    const headers = camposSelecionados.map(campo => mapeamentoLabels[campo] || campo);
+    const rows = dados.map(f => {
+        return camposSelecionados.map(campo => {
+            let valor = f[campo];
+            // Formatação especial para alguns campos
+            if (campo.includes('data') || campo.includes('Data')) {
+                valor = formatarData(valor) || valor;
+            } else if (campo === 'prazoBacen' || campo === 'prazoRetorno') {
+                valor = formatarData(valor) || valor;
+            } else if (campo === 'enviarCobranca' || campo === 'casosCriticos' || campo === 'procon') {
+                valor = valor === true || valor === 'Sim' ? 'Sim' : 'Não';
+            } else if (Array.isArray(valor)) {
+                valor = valor.join('; ');
+            } else if (typeof valor === 'object' && valor !== null) {
+                valor = JSON.stringify(valor);
+            }
+            return valor || '';
+        });
+    });
     
     const csv = [headers, ...rows]
-        .map(row => row.map(cell => `"${cell}"`).join(','))
+        .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
         .join('\n');
     
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); // BOM para Excel
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

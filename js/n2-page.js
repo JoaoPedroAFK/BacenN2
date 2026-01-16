@@ -1183,7 +1183,7 @@ function mostrarRelatorioN2(titulo, dados, subtitulo) {
     `;
 }
 
-function exportarRelatorioN2Dados(dados) {
+function exportarRelatorioN2Dados(dados, camposSelecionados) {
     if (!dados) {
         const container = document.getElementById('conteudo-relatorio-n2');
         if (container) {
@@ -1196,19 +1196,60 @@ function exportarRelatorioN2Dados(dados) {
         return;
     }
     
-    const headers = ['Cliente', 'CPF', 'Status Portabilidade', 'Status'];
-    const rows = dados.map(f => [
-        f.nomeCompleto || f.nomeCliente || '',
-        f.cpf || '',
-        f.statusPortabilidade || '',
-        f.status || '',
-    ]);
+    // Mapeamento de labels amigáveis
+    const mapeamentoLabels = {
+        'id': 'ID',
+        'dataEntrada': 'Data de Entrada',
+        'dataCriacao': 'Data de Criação',
+        'mes': 'Mês',
+        'nomeCompleto': 'Nome Completo',
+        'cpf': 'CPF',
+        'telefone': 'Telefone',
+        'origem': 'Origem',
+        'origemTipo': 'Tipo de Origem',
+        'motivoReduzido': 'Motivo Reduzido',
+        'pixStatus': 'Status PIX',
+        'enviarCobranca': 'Enviar para Cobrança',
+        'casosCriticos': 'Casos Críticos',
+        'status': 'Status',
+        'statusPortabilidade': 'Status Portabilidade',
+        'finalizadoEm': 'Finalizado Em',
+        'observacoes': 'Observações',
+        'responsavel': 'Responsável',
+        'dataEntradaAtendimento': 'Data Entrada Atendimento',
+        'dataEntradaN2': 'Data Entrada N2',
+        'formalizadoCliente': 'Formalizado Cliente'
+    };
+    
+    // Se campos selecionados não foram fornecidos, usar padrão
+    if (!camposSelecionados || camposSelecionados.length === 0) {
+        camposSelecionados = ['nomeCompleto', 'cpf', 'statusPortabilidade', 'status'];
+    }
+    
+    // Gerar headers e rows baseados nos campos selecionados
+    const headers = camposSelecionados.map(campo => mapeamentoLabels[campo] || campo);
+    const rows = dados.map(f => {
+        return camposSelecionados.map(campo => {
+            let valor = f[campo];
+            // Formatação especial para alguns campos
+            if (campo.includes('data') || campo.includes('Data')) {
+                valor = formatarData(valor) || valor;
+            } else if (campo === 'enviarCobranca' || campo === 'casosCriticos' || campo === 'formalizadoCliente') {
+                valor = valor === true || valor === 'Sim' ? 'Sim' : 'Não';
+            } else if (Array.isArray(valor)) {
+                valor = valor.join('; ');
+            } else if (typeof valor === 'object' && valor !== null) {
+                valor = JSON.stringify(valor);
+            }
+            return valor || '';
+        });
+    });
     
     const csv = [headers, ...rows]
-        .map(row => row.map(cell => `"${cell}"`).join(','))
+        .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
         .join('\n');
     
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); // BOM para Excel
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

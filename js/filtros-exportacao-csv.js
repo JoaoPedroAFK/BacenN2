@@ -79,7 +79,31 @@ class FiltrosExportacaoCSV {
                                 <option value="90dias">Últimos 90 dias</option>
                                 <option value="mes">Este mês</option>
                                 <option value="ano">Este ano</option>
+                                <option value="custom">Período Customizado</option>
                             </select>
+                        </div>
+                        <div class="filtro-item-export" id="periodo-custom-container" style="display: none;">
+                            <label>Data Inicial:</label>
+                            <input type="date" id="filtro-csv-data-inicial" class="velohub-input">
+                        </div>
+                        <div class="filtro-item-export" id="periodo-custom-container-fim" style="display: none;">
+                            <label>Data Final:</label>
+                            <input type="date" id="filtro-csv-data-final" class="velohub-input">
+                        </div>
+                    </div>
+                    <div class="filtros-exportacao-secao" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--borda, #ddd);">
+                        <h4 style="margin-bottom: 15px; color: var(--texto-principal, #333);">📋 Campos para Incluir no Relatório</h4>
+                        <div id="campos-relatorio-container" style="max-height: 300px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+                            ${this.obterCamposDisponiveis(dados).map(campo => `
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 4px; background: var(--cor-container, #f5f5f5);">
+                                    <input type="checkbox" class="campo-relatorio-checkbox" value="${campo.chave}" checked style="cursor: pointer;">
+                                    <span>${campo.label}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                        <div style="margin-top: 10px; display: flex; gap: 10px;">
+                            <button type="button" class="velohub-btn btn-secondary" onclick="this.closest('.modal-filtros-csv').querySelectorAll('.campo-relatorio-checkbox').forEach(cb => cb.checked = true)" style="padding: 6px 12px; font-size: 12px;">✓ Selecionar Todos</button>
+                            <button type="button" class="velohub-btn btn-secondary" onclick="this.closest('.modal-filtros-csv').querySelectorAll('.campo-relatorio-checkbox').forEach(cb => cb.checked = false)" style="padding: 6px 12px; font-size: 12px;">✕ Desmarcar Todos</button>
                         </div>
                     </div>
                     <div class="modal-info-filtros">
@@ -108,8 +132,79 @@ class FiltrosExportacaoCSV {
         selects.forEach(select => {
             select.addEventListener('change', () => {
                 this.atualizarContador(dados);
+                // Mostrar/ocultar campos de data customizada
+                if (select.id === 'filtro-csv-periodo') {
+                    const periodoCustom = select.value === 'custom';
+                    document.getElementById('periodo-custom-container').style.display = periodoCustom ? 'block' : 'none';
+                    document.getElementById('periodo-custom-container-fim').style.display = periodoCustom ? 'block' : 'none';
+                }
             });
         });
+        
+        // Atualizar contador ao mudar datas customizadas
+        const dataInicial = modal.querySelector('#filtro-csv-data-inicial');
+        const dataFinal = modal.querySelector('#filtro-csv-data-final');
+        if (dataInicial) {
+            dataInicial.addEventListener('change', () => this.atualizarContador(dados));
+        }
+        if (dataFinal) {
+            dataFinal.addEventListener('change', () => this.atualizarContador(dados));
+        }
+    }
+    
+    obterCamposDisponiveis(dados) {
+        if (!dados || dados.length === 0) return [];
+        
+        // Obter todos os campos únicos do primeiro registro
+        const primeiroRegistro = dados[0];
+        const campos = [];
+        
+        // Mapeamento de campos comuns com labels amigáveis
+        const mapeamentoLabels = {
+            'id': 'ID',
+            'dataEntrada': 'Data de Entrada',
+            'dataCriacao': 'Data de Criação',
+            'mes': 'Mês',
+            'nomeCompleto': 'Nome Completo',
+            'cpf': 'CPF',
+            'telefone': 'Telefone',
+            'origem': 'Origem',
+            'origemTipo': 'Tipo de Origem',
+            'rdr': 'RDR',
+            'motivoReduzido': 'Motivo Reduzido',
+            'motivoDetalhado': 'Motivo Detalhado',
+            'prazoBacen': 'Prazo BACEN',
+            'pixStatus': 'Status PIX',
+            'enviarCobranca': 'Enviar para Cobrança',
+            'casosCriticos': 'Casos Críticos',
+            'status': 'Status',
+            'finalizadoEm': 'Finalizado Em',
+            'observacoes': 'Observações',
+            'responsavel': 'Responsável',
+            'dataEntradaAtendimento': 'Data Entrada Atendimento',
+            'dataEntradaN2': 'Data Entrada N2',
+            'formalizadoCliente': 'Formalizado Cliente',
+            'dataClienteChatbot': 'Data Cliente Chatbot',
+            'notaAvaliacao': 'Nota de Avaliação',
+            'avaliacaoCliente': 'Avaliação do Cliente',
+            'produto': 'Produto',
+            'motivo': 'Motivo',
+            'respostaBot': 'Resposta do Bot',
+            'canalChatbot': 'Canal Chatbot'
+        };
+        
+        // Adicionar campos do primeiro registro
+        for (const chave in primeiroRegistro) {
+            if (primeiroRegistro.hasOwnProperty(chave) && chave !== '__objeto' && chave !== '__metadata') {
+                const label = mapeamentoLabels[chave] || chave.charAt(0).toUpperCase() + chave.slice(1).replace(/([A-Z])/g, ' $1').trim();
+                campos.push({ chave, label });
+            }
+        }
+        
+        // Ordenar por label
+        campos.sort((a, b) => a.label.localeCompare(b.label));
+        
+        return campos;
     }
 
     atualizarContador(dados) {
@@ -133,15 +228,33 @@ class FiltrosExportacaoCSV {
             return;
         }
 
+        // Obter campos selecionados
+        const camposSelecionados = [];
+        const checkboxes = document.querySelectorAll('.campo-relatorio-checkbox:checked');
+        checkboxes.forEach(cb => {
+            camposSelecionados.push(cb.value);
+        });
+        
+        // Se nenhum campo foi selecionado, usar todos
+        if (camposSelecionados.length === 0) {
+            if (dadosFiltrados.length > 0) {
+                Object.keys(dadosFiltrados[0]).forEach(chave => {
+                    if (chave !== '__objeto' && chave !== '__metadata') {
+                        camposSelecionados.push(chave);
+                    }
+                });
+            }
+        }
+
         // Fechar modal
         const modal = document.getElementById('modal-filtros-csv');
         if (modal) {
             modal.remove();
         }
 
-        // Chamar callback de exportação
+        // Chamar callback de exportação com campos selecionados
         if (callbackExportar) {
-            callbackExportar(dadosFiltrados);
+            callbackExportar(dadosFiltrados, camposSelecionados);
         }
     }
 
@@ -198,31 +311,58 @@ class FiltrosExportacaoCSV {
         const filtroPeriodo = document.getElementById('filtro-csv-periodo')?.value;
         if (filtroPeriodo) {
             const hoje = new Date();
-            const dataLimite = new Date();
+            let dataInicial = null;
+            let dataFinal = null;
             
-            switch (filtroPeriodo) {
-                case '7dias':
-                    dataLimite.setDate(hoje.getDate() - 7);
-                    break;
-                case '30dias':
-                    dataLimite.setDate(hoje.getDate() - 30);
-                    break;
-                case '90dias':
-                    dataLimite.setDate(hoje.getDate() - 90);
-                    break;
-                case 'mes':
-                    dataLimite.setDate(1);
-                    dataLimite.setMonth(hoje.getMonth());
-                    break;
-                case 'ano':
-                    dataLimite.setFullYear(hoje.getFullYear(), 0, 1);
-                    break;
+            if (filtroPeriodo === 'custom') {
+                // Período customizado
+                const dataInicialStr = document.getElementById('filtro-csv-data-inicial')?.value;
+                const dataFinalStr = document.getElementById('filtro-csv-data-final')?.value;
+                
+                if (dataInicialStr) {
+                    dataInicial = new Date(dataInicialStr + 'T00:00:00');
+                }
+                if (dataFinalStr) {
+                    dataFinal = new Date(dataFinalStr + 'T23:59:59');
+                }
+            } else {
+                // Períodos pré-definidos
+                const dataLimite = new Date();
+                
+                switch (filtroPeriodo) {
+                    case '7dias':
+                        dataInicial = new Date();
+                        dataInicial.setDate(hoje.getDate() - 7);
+                        break;
+                    case '30dias':
+                        dataInicial = new Date();
+                        dataInicial.setDate(hoje.getDate() - 30);
+                        break;
+                    case '90dias':
+                        dataInicial = new Date();
+                        dataInicial.setDate(hoje.getDate() - 90);
+                        break;
+                    case 'mes':
+                        dataInicial = new Date();
+                        dataInicial.setDate(1);
+                        dataInicial.setMonth(hoje.getMonth());
+                        break;
+                    case 'ano':
+                        dataInicial = new Date();
+                        dataInicial.setFullYear(hoje.getFullYear(), 0, 1);
+                        break;
+                }
+                dataFinal = hoje;
             }
             
-            dadosFiltrados = dadosFiltrados.filter(f => {
-                const dataFicha = new Date(f.dataEntrada || f.dataCriacao || f.dataReclamacao);
-                return dataFicha >= dataLimite;
-            });
+            if (dataInicial || dataFinal) {
+                dadosFiltrados = dadosFiltrados.filter(f => {
+                    const dataFicha = new Date(f.dataEntrada || f.dataCriacao || f.dataReclamacao);
+                    if (dataInicial && dataFicha < dataInicial) return false;
+                    if (dataFinal && dataFicha > dataFinal) return false;
+                    return true;
+                });
+            }
         }
 
         return dadosFiltrados;

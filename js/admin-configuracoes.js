@@ -576,6 +576,15 @@ class AdminConfiguracoes {
 
     // Função auxiliar para obter opções atuais de um select fixo
     obterOpcoesSelectFixo(tipoFicha, nomeCampo) {
+        // 1. Tentar buscar das configurações salvas primeiro
+        if (this.configuracoes?.camposFixos?.[tipoFicha]?.[nomeCampo]?.opcoes) {
+            const opcoesSalvas = this.configuracoes.camposFixos[tipoFicha][nomeCampo].opcoes;
+            if (Array.isArray(opcoesSalvas) && opcoesSalvas.length > 0) {
+                return opcoesSalvas;
+            }
+        }
+        
+        // 2. Tentar buscar do DOM atual (se estiver na página do formulário)
         const mapeamentoIds = {
             'bacen': {
                 'mes': 'bacen-mes',
@@ -596,19 +605,42 @@ class AdminConfiguracoes {
         };
         
         const seletor = mapeamentoIds[tipoFicha]?.[nomeCampo];
-        if (!seletor) return [];
-        
-        const select = document.getElementById(seletor);
-        if (!select) return [];
-        
-        const opcoes = [];
-        for (let i = 0; i < select.options.length; i++) {
-            const option = select.options[i];
-            if (option.value !== '') { // Ignorar opção vazia "Selecione..."
-                opcoes.push(option.value);
+        if (seletor) {
+            const select = document.getElementById(seletor);
+            if (select && select.options) {
+                const opcoes = [];
+                for (let i = 0; i < select.options.length; i++) {
+                    const option = select.options[i];
+                    if (option.value !== '') { // Ignorar opção vazia "Selecione..."
+                        opcoes.push(option.value);
+                    }
+                }
+                if (opcoes.length > 0) {
+                    return opcoes;
+                }
             }
         }
-        return opcoes;
+        
+        // 3. Valores padrão baseados no tipo de campo
+        if (nomeCampo === 'mes') {
+            // Gerar meses do ano atual e próximo
+            const hoje = new Date();
+            const anoAtual = hoje.getFullYear();
+            const opcoes = [];
+            for (let mes = 1; mes <= 12; mes++) {
+                const mesFormatado = String(mes).padStart(2, '0');
+                opcoes.push(`${mesFormatado}/${anoAtual}`);
+            }
+            // Adicionar próximo ano também
+            for (let mes = 1; mes <= 12; mes++) {
+                const mesFormatado = String(mes).padStart(2, '0');
+                opcoes.push(`${mesFormatado}/${anoAtual + 1}`);
+            }
+            return opcoes;
+        }
+        
+        // 4. Retornar array vazio se não encontrou nada
+        return [];
     }
 
     // Função auxiliar para obter opções atuais de um radio fixo
