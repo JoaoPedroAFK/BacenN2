@@ -296,7 +296,7 @@ class AdminConfiguracoes {
             'n2': [
                 { nome: 'dataEntradaAtendimento', label: 'Data Entrada Atendimento', tipo: 'data', obrigatorio: false, fixo: true },
                 { nome: 'dataEntradaN2', label: 'Data Entrada N2', tipo: 'data', obrigatorio: false, fixo: true },
-                { nome: 'mes', label: 'Mês', tipo: 'texto', obrigatorio: false, fixo: true },
+                { nome: 'mes', label: 'Mês', tipo: 'select', obrigatorio: false, fixo: true },
                 { nome: 'nomeCompleto', label: 'Nome Completo', tipo: 'texto', obrigatorio: true, fixo: true },
                 { nome: 'cpf', label: 'CPF', tipo: 'cpf', obrigatorio: true, fixo: true },
                 { nome: 'telefone', label: 'Telefone', tipo: 'telefone', obrigatorio: false, fixo: true },
@@ -325,7 +325,7 @@ class AdminConfiguracoes {
             ],
             'bacen': [
                 { nome: 'dataEntrada', label: 'Data de Entrada', tipo: 'data', obrigatorio: true, fixo: true },
-                { nome: 'mes', label: 'Mês', tipo: 'texto', obrigatorio: true, fixo: true },
+                { nome: 'mes', label: 'Mês', tipo: 'select', obrigatorio: true, fixo: true },
                 { nome: 'nomeCompleto', label: 'Nome Completo', tipo: 'texto', obrigatorio: true, fixo: true },
                 { nome: 'cpf', label: 'CPF', tipo: 'cpf', obrigatorio: true, fixo: true },
                 { nome: 'origem', label: 'Origem', tipo: 'select', obrigatorio: true, fixo: true },
@@ -578,10 +578,12 @@ class AdminConfiguracoes {
     obterOpcoesSelectFixo(tipoFicha, nomeCampo) {
         const mapeamentoIds = {
             'bacen': {
+                'mes': 'bacen-mes',
                 'origem': 'bacen-origem',
                 'motivoReduzido': 'bacen-motivo-reduzido'
             },
             'n2': {
+                'mes': 'n2-mes',
                 'motivoReduzido': 'n2-motivo-reduzido',
                 'pixStatus': 'n2-pix-status'
             },

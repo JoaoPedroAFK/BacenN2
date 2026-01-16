@@ -174,7 +174,7 @@ class FormularioDinamico {
         const mapeamentoIds = {
             'bacen': {
                 'dataEntrada': 'bacen-data-entrada',
-                'mes': 'bacen-mes',
+                'mes': 'bacen-mes', // SELECT
                 'nomeCompleto': 'bacen-nome',
                 'cpf': 'bacen-cpf',
                 'origem': 'bacen-origem',
