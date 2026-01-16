@@ -92,7 +92,8 @@ class AdminConfiguracoes {
                     this.configuracoes = {
                         camposTexto: dados.camposTexto || dados.categorias || [],
                         listas: dados.listas || [],
-                        checkboxes: dados.checkboxes || []
+                        checkboxes: dados.checkboxes || [],
+                        camposFixos: dados.camposFixos || {}
                     };
                     console.log('✅ Configurações carregadas do Firebase:', this.configuracoes);
                     return;
@@ -109,7 +110,8 @@ class AdminConfiguracoes {
                     this.configuracoes = {
                         camposTexto: dados.camposTexto || dados.categorias || [],
                         listas: dados.listas || [],
-                        checkboxes: dados.checkboxes || []
+                        checkboxes: dados.checkboxes || [],
+                        camposFixos: dados.camposFixos || {}
                     };
                     console.log('✅ Configurações carregadas do localStorage:', this.configuracoes);
                     return;
