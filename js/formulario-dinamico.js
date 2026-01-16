@@ -135,6 +135,9 @@ class FormularioDinamico {
             return;
         }
 
+        // Aplicar configurações de campos fixos primeiro
+        this.aplicarConfiguracoesCamposFixos(tipo, container);
+
         // Aplicar campos de texto
         this.aplicarCamposTexto(tipo, container);
         
@@ -143,6 +146,144 @@ class FormularioDinamico {
         
         // Aplicar checkboxes
         this.aplicarCheckboxes(tipo, container);
+    }
+
+    aplicarConfiguracoesCamposFixos(tipo, container) {
+        const camposFixos = this.configuracoes.camposFixos || {};
+        const configTipo = camposFixos[tipo] || {};
+        
+        if (!configTipo || Object.keys(configTipo).length === 0) {
+            return; // Nenhuma configuração customizada
+        }
+        
+        // Mapear IDs dos campos fixos para seletores HTML
+        const mapeamentoIds = {
+            'bacen': {
+                'dataEntrada': 'bacen-data-entrada',
+                'mes': 'bacen-mes',
+                'nomeCompleto': 'bacen-nome',
+                'cpf': 'bacen-cpf',
+                'origem': 'bacen-origem',
+                'origemTipo': 'input[name="bacen-origem-tipo"]',
+                'telefone': '#bacen-telefones-container',
+                'rdr': 'bacen-rdr',
+                'motivoReduzido': 'bacen-motivo-reduzido',
+                'prazoBacen': 'bacen-prazo-bacen',
+                'motivoDetalhado': 'bacen-motivo-detalhado',
+                'enviarCobranca': 'input[name="bacen-enviar-cobranca"]',
+                'casosCriticos': 'bacen-casos-criticos',
+                'status': 'bacen-status',
+                'finalizadoEm': 'bacen-finalizado-em',
+                'observacoes': 'bacen-observacoes'
+            },
+            'n2': {
+                'dataEntradaAtendimento': 'n2-data-entrada-atendimento',
+                'dataEntradaN2': 'n2-data-entrada-n2',
+                'mes': 'n2-mes',
+                'nomeCompleto': 'n2-nome',
+                'cpf': 'n2-cpf',
+                'telefone': '#n2-telefones-container',
+                'origemTipo': 'input[name="n2-origem-tipo"]',
+                'motivoReduzido': 'n2-motivo-reduzido',
+                'pixStatus': 'n2-pix-status',
+                'enviarCobranca': 'input[name="n2-enviar-cobranca"]',
+                'formalizadoCliente': 'input[name="n2-formalizado-cliente"]',
+                'casosCriticos': 'n2-casos-criticos',
+                'status': 'n2-status',
+                'finalizadoEm': 'n2-finalizado-em',
+                'observacoes': 'n2-observacoes'
+            },
+            'chatbot': {
+                'dataClienteChatbot': 'chatbot-data-cliente',
+                'nomeCompleto': 'chatbot-nome',
+                'cpf': 'chatbot-cpf',
+                'telefone': '#chatbot-telefones-container',
+                'notaAvaliacao': 'chatbot-nota-avaliacao',
+                'avaliacaoCliente': 'chatbot-avaliacao-cliente',
+                'produto': 'chatbot-produto',
+                'motivo': 'chatbot-motivo',
+                'respostaBot': 'input[name="chatbot-resposta-bot"]',
+                'pixStatus': 'chatbot-pix-status',
+                'enviarCobranca': 'input[name="chatbot-enviar-cobranca"]',
+                'casosCriticos': 'chatbot-casos-criticos',
+                'observacoes': 'chatbot-observacoes',
+                'status': 'chatbot-status',
+                'canalChatbot': 'chatbot-canal'
+            }
+        };
+        
+        const mapeamento = mapeamentoIds[tipo] || {};
+        
+        // Aplicar configurações para cada campo fixo
+        Object.keys(configTipo).forEach(nomeCampo => {
+            const config = configTipo[nomeCampo];
+            const seletor = mapeamento[nomeCampo];
+            
+            if (!seletor) {
+                console.warn(`⚠️ Seletor não encontrado para campo fixo ${nomeCampo} em ${tipo}`);
+                return;
+            }
+            
+            // Encontrar o campo no formulário
+            let campo = null;
+            if (seletor.startsWith('#')) {
+                campo = document.querySelector(seletor);
+            } else if (seletor.startsWith('input[name=')) {
+                campo = document.querySelector(seletor);
+            } else {
+                campo = document.getElementById(seletor);
+            }
+            
+            if (!campo) {
+                console.warn(`⚠️ Campo não encontrado: ${seletor} para ${nomeCampo}`);
+                return;
+            }
+            
+            // Aplicar configurações
+            // 1. Ocultar se necessário
+            if (config.oculto) {
+                const formGroup = campo.closest('.form-group');
+                if (formGroup) {
+                    formGroup.style.display = 'none';
+                } else {
+                    campo.style.display = 'none';
+                }
+            } else {
+                const formGroup = campo.closest('.form-group');
+                if (formGroup) {
+                    formGroup.style.display = '';
+                } else {
+                    campo.style.display = '';
+                }
+            }
+            
+            // 2. Atualizar label
+            if (config.label) {
+                const label = campo.previousElementSibling || campo.parentElement.querySelector('label');
+                if (label && label.tagName === 'LABEL') {
+                    // Remover asterisco de obrigatório se existir
+                    let labelText = config.label;
+                    if (config.obrigatorio) {
+                        labelText += ' *';
+                    }
+                    label.textContent = labelText;
+                }
+            }
+            
+            // 3. Atualizar obrigatório
+            if (campo.tagName === 'INPUT' || campo.tagName === 'SELECT' || campo.tagName === 'TEXTAREA') {
+                if (config.obrigatorio) {
+                    campo.setAttribute('required', 'required');
+                } else {
+                    campo.removeAttribute('required');
+                }
+            }
+            
+            // 4. Atualizar placeholder
+            if (config.placeholder && (campo.tagName === 'INPUT' || campo.tagName === 'TEXTAREA')) {
+                campo.setAttribute('placeholder', config.placeholder);
+            }
+        });
     }
 
     /**
