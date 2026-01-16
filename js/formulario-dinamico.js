@@ -86,7 +86,13 @@ class FormularioDinamico {
                     const snapshot = await ref.once('value');
                     
                     if (snapshot.exists()) {
-                        this.configuracoes = snapshot.val();
+                        const dados = snapshot.val();
+                        this.configuracoes = {
+                            camposTexto: dados.camposTexto || dados.categorias || [],
+                            listas: dados.listas || [],
+                            checkboxes: dados.checkboxes || [],
+                            camposFixos: dados.camposFixos || {}
+                        };
                         console.log('✅ Configurações carregadas do Firebase para formulários:', this.configuracoes);
                         return;
                     }
@@ -99,7 +105,13 @@ class FormularioDinamico {
             const dadosLocal = localStorage.getItem('admin_configuracoes_formularios');
             if (dadosLocal) {
                 try {
-                    this.configuracoes = JSON.parse(dadosLocal);
+                    const dados = JSON.parse(dadosLocal);
+                    this.configuracoes = {
+                        camposTexto: dados.camposTexto || dados.categorias || [],
+                        listas: dados.listas || [],
+                        checkboxes: dados.checkboxes || [],
+                        camposFixos: dados.camposFixos || {}
+                    };
                     console.log('✅ Configurações carregadas do localStorage para formulários:', this.configuracoes);
                     return;
                 } catch (parseError) {
@@ -112,14 +124,16 @@ class FormularioDinamico {
             this.configuracoes = {
                 camposTexto: [],
                 listas: [],
-                checkboxes: []
+                checkboxes: [],
+                camposFixos: {}
             };
         } catch (error) {
             console.error('❌ Erro ao carregar configurações:', error);
             this.configuracoes = {
                 camposTexto: [],
                 listas: [],
-                checkboxes: []
+                checkboxes: [],
+                camposFixos: {}
             };
         }
     }
