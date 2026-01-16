@@ -1396,6 +1396,13 @@ function adicionarOpcao() {
     opcoesList.appendChild(div);
 }
 
+// Expor função globalmente para uso em campos fixos
+window.adicionarOpcaoFixo = function() {
+    if (adminConfig && typeof adminConfig.adicionarOpcaoFixo === 'function') {
+        adminConfig.adicionarOpcaoFixo();
+    }
+};
+
 // Inicializar quando DOM estiver pronto
 document.addEventListener('DOMContentLoaded', async () => {
     adminConfig = new AdminConfiguracoes();
