@@ -297,6 +297,71 @@ class FormularioDinamico {
             if (config.placeholder && (campo.tagName === 'INPUT' || campo.tagName === 'TEXTAREA')) {
                 campo.setAttribute('placeholder', config.placeholder);
             }
+            
+            // 5. Atualizar opções de selects
+            if (config.opcoes && campo.tagName === 'SELECT') {
+                // Limpar opções existentes (exceto a primeira que é "Selecione...")
+                while (campo.options.length > 1) {
+                    campo.removeChild(campo.lastChild);
+                }
+                
+                // Adicionar novas opções
+                config.opcoes.forEach(opcao => {
+                    const option = document.createElement('option');
+                    option.value = opcao;
+                    option.textContent = opcao;
+                    campo.appendChild(option);
+                });
+            }
+            
+            // 6. Atualizar opções de radios
+            if (config.opcoes && campo.tagName === 'INPUT' && campo.type === 'radio') {
+                // Encontrar todos os radios com o mesmo name
+                const radioName = campo.name;
+                const todosRadios = document.querySelectorAll(`input[name="${radioName}"]`);
+                
+                // Remover radios antigos (exceto o primeiro que serve como referência)
+                const container = campo.closest('.form-group') || campo.parentElement;
+                if (container) {
+                    // Remover todos os radios existentes
+                    todosRadios.forEach(radio => {
+                        const label = radio.closest('label') || radio.nextElementSibling;
+                        if (label && label.tagName === 'LABEL') {
+                            label.remove();
+                        } else {
+                            radio.remove();
+                        }
+                    });
+                    
+                    // Criar novos radios com as opções configuradas
+                    config.opcoes.forEach((opcao, index) => {
+                        const label = document.createElement('label');
+                        label.className = 'radio-label';
+                        label.style.cssText = 'display: flex; align-items: center; gap: 8px;';
+                        
+                        const radio = document.createElement('input');
+                        radio.type = 'radio';
+                        radio.name = radioName;
+                        radio.value = opcao;
+                        if (campo.required) {
+                            radio.setAttribute('required', 'required');
+                        }
+                        
+                        const span = document.createElement('span');
+                        span.textContent = opcao;
+                        
+                        label.appendChild(radio);
+                        label.appendChild(span);
+                        
+                        // Inserir no container
+                        if (container.querySelector('.radio-label')) {
+                            container.insertBefore(label, container.firstChild);
+                        } else {
+                            container.appendChild(label);
+                        }
+                    });
+                }
+            }
         });
     }
 
