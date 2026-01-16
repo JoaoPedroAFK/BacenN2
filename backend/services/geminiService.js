@@ -7,28 +7,43 @@ try {
   console.error('⚠️ Funcionalidades de IA não estarão disponíveis');
 }
 
-// Configurar API Key do Gemini
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-
 let genAI = null;
 
 // Inicializar Gemini AI
 const configureGemini = () => {
+  // Verificar módulo primeiro
   if (!GoogleGenerativeAI) {
     console.warn('⚠️ @google/generative-ai não disponível');
     return null;
   }
-  if (!genAI && GEMINI_API_KEY) {
+
+  // Verificar API Key dinamicamente (não apenas no carregamento do módulo)
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  
+  // Logs detalhados para debug (sem mostrar o valor da chave por segurança)
+  if (!GEMINI_API_KEY) {
+    console.warn('⚠️ GEMINI_API_KEY não configurada');
+    console.warn('⚠️ Verifique se a variável de ambiente GEMINI_API_KEY está definida');
+    console.warn('⚠️ Ambiente:', process.env.NODE_ENV || 'development');
+    return null;
+  }
+
+  // Verificar se já foi inicializado
+  if (!genAI) {
     try {
+      console.log('🔄 Inicializando Gemini AI...');
+      console.log('✅ GEMINI_API_KEY encontrada (tamanho:', GEMINI_API_KEY.length, 'caracteres)');
       genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-      console.log('✅ Gemini AI configurado');
+      console.log('✅ Gemini AI configurado com sucesso');
+      return genAI;
     } catch (error) {
-      console.error('⚠️ Erro ao configurar Gemini AI:', error.message);
+      console.error('❌ Erro ao configurar Gemini AI:', error.message);
+      console.error('❌ Stack trace:', error.stack);
       return null;
     }
-  } else if (!GEMINI_API_KEY) {
-    console.warn('⚠️ GEMINI_API_KEY não configurada');
   }
+
+  // Retornar instância já inicializada
   return genAI;
 };
 
@@ -53,8 +68,13 @@ const analyzeSentimentAndReason = async (text) => {
       };
     }
 
+    console.log('🔄 Tentando configurar Gemini AI para análise...');
     const ai = configureGemini();
     if (!ai) {
+      const apiKeyStatus = process.env.GEMINI_API_KEY ? 'definida' : 'não definida';
+      console.error('❌ Gemini AI não configurado');
+      console.error('❌ Status GEMINI_API_KEY:', apiKeyStatus);
+      console.error('❌ Status GoogleGenerativeAI:', GoogleGenerativeAI ? 'disponível' : 'não disponível');
       return {
         success: false,
         error: 'Gemini AI não configurado. Verifique GEMINI_API_KEY',
@@ -64,6 +84,7 @@ const analyzeSentimentAndReason = async (text) => {
         }
       };
     }
+    console.log('✅ Gemini AI configurado e pronto para análise');
 
     const model = ai.getGenerativeModel({ model: 'gemini-2.0-flash' });
     
@@ -154,13 +175,20 @@ const generateExecutiveReport = async (data) => {
       };
     }
 
+    console.log('🔄 Tentando configurar Gemini AI para gerar relatório...');
     const ai = configureGemini();
     if (!ai) {
+      const apiKeyStatus = process.env.GEMINI_API_KEY ? 'definida' : 'não definida';
+      console.error('❌ Gemini AI não configurado');
+      console.error('❌ Status GEMINI_API_KEY:', apiKeyStatus);
+      console.error('❌ Status GoogleGenerativeAI:', GoogleGenerativeAI ? 'disponível' : 'não disponível');
+      console.error('❌ Ambiente:', process.env.NODE_ENV || 'development');
       return {
         success: false,
         error: 'Gemini AI não configurado. Verifique GEMINI_API_KEY'
       };
     }
+    console.log('✅ Gemini AI configurado e pronto para gerar relatório');
 
     const model = ai.getGenerativeModel({ model: 'gemini-2.0-flash' });
     
