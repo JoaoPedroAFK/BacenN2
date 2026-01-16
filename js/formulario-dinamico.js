@@ -318,48 +318,68 @@ class FormularioDinamico {
             if (config.opcoes && campo.tagName === 'INPUT' && campo.type === 'radio') {
                 // Encontrar todos os radios com o mesmo name
                 const radioName = campo.name;
-                const todosRadios = document.querySelectorAll(`input[name="${radioName}"]`);
-                
-                // Remover radios antigos (exceto o primeiro que serve como referência)
                 const container = campo.closest('.form-group') || campo.parentElement;
+                
                 if (container) {
-                    // Remover todos os radios existentes
-                    todosRadios.forEach(radio => {
-                        const label = radio.closest('label') || radio.nextElementSibling;
-                        if (label && label.tagName === 'LABEL') {
-                            label.remove();
-                        } else {
-                            radio.remove();
-                        }
-                    });
+                    // Encontrar todos os radios existentes
+                    const todosRadios = container.querySelectorAll(`input[name="${radioName}"]`);
+                    const radiosArray = Array.from(todosRadios);
                     
-                    // Criar novos radios com as opções configuradas
-                    config.opcoes.forEach((opcao, index) => {
-                        const label = document.createElement('label');
-                        label.className = 'radio-label';
-                        label.style.cssText = 'display: flex; align-items: center; gap: 8px;';
+                    // Verificar se as opções mudaram
+                    const opcoesAtuais = radiosArray.map(r => r.value).filter(v => v);
+                    const opcoesIguais = opcoesAtuais.length === config.opcoes.length && 
+                                        opcoesAtuais.every((op, idx) => op === config.opcoes[idx]);
+                    
+                    if (!opcoesIguais) {
+                        // Remover todos os labels de radio existentes
+                        radiosArray.forEach(radio => {
+                            const label = radio.closest('label.radio-label');
+                            if (label) {
+                                label.remove();
+                            } else {
+                                radio.remove();
+                            }
+                        });
                         
-                        const radio = document.createElement('input');
-                        radio.type = 'radio';
-                        radio.name = radioName;
-                        radio.value = opcao;
-                        if (campo.required) {
-                            radio.setAttribute('required', 'required');
-                        }
+                        // Criar novos radios com as opções configuradas
+                        const radioContainer = document.createElement('div');
+                        radioContainer.style.cssText = 'display: flex; gap: 16px; margin-top: 8px;';
                         
-                        const span = document.createElement('span');
-                        span.textContent = opcao;
+                        config.opcoes.forEach((opcao) => {
+                            const label = document.createElement('label');
+                            label.className = 'radio-label';
+                            label.style.cssText = 'display: flex; align-items: center; gap: 8px;';
+                            
+                            const radio = document.createElement('input');
+                            radio.type = 'radio';
+                            radio.name = radioName;
+                            radio.value = opcao;
+                            if (config.obrigatorio) {
+                                radio.setAttribute('required', 'required');
+                            }
+                            
+                            const span = document.createElement('span');
+                            span.textContent = opcao;
+                            
+                            label.appendChild(radio);
+                            label.appendChild(span);
+                            radioContainer.appendChild(label);
+                        });
                         
-                        label.appendChild(radio);
-                        label.appendChild(span);
-                        
-                        // Inserir no container
-                        if (container.querySelector('.radio-label')) {
-                            container.insertBefore(label, container.firstChild);
-                        } else {
-                            container.appendChild(label);
-                        }
-                    });
+                        // Inserir o container de radios no form-group
+                        container.appendChild(radioContainer);
+                    } else {
+                        // Apenas atualizar os valores e labels se necessário
+                        radiosArray.forEach((radio, index) => {
+                            if (config.opcoes[index]) {
+                                radio.value = config.opcoes[index];
+                                const span = radio.nextElementSibling;
+                                if (span && span.tagName === 'SPAN') {
+                                    span.textContent = config.opcoes[index];
+                                }
+                            }
+                        });
+                    }
                 }
             }
         });
