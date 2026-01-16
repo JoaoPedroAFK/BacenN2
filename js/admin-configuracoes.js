@@ -12,7 +12,8 @@ class AdminConfiguracoes {
         this.configuracoes = {
             camposTexto: [],
             listas: [],
-            checkboxes: []
+            checkboxes: [],
+            camposFixos: {} // { tipoFicha: { nomeCampo: { label, obrigatorio, placeholder, oculto, observacoes } } }
         };
         this.inicializado = false;
     }
@@ -122,7 +123,8 @@ class AdminConfiguracoes {
             this.configuracoes = {
                 camposTexto: [],
                 listas: [],
-                checkboxes: []
+                checkboxes: [],
+                camposFixos: {}
             };
         } catch (error) {
             console.error('❌ Erro ao carregar configurações:', error);
@@ -130,7 +132,8 @@ class AdminConfiguracoes {
             this.configuracoes = {
                 camposTexto: [],
                 listas: [],
-                checkboxes: []
+                checkboxes: [],
+                camposFixos: {}
             };
         }
     }
@@ -141,6 +144,7 @@ class AdminConfiguracoes {
                 camposTexto: this.configuracoes.camposTexto,
                 listas: this.configuracoes.listas,
                 checkboxes: this.configuracoes.checkboxes,
+                camposFixos: this.configuracoes.camposFixos || {},
                 atualizadoEm: new Date().toISOString()
             };
             
@@ -255,7 +259,8 @@ class AdminConfiguracoes {
                     const novasConfiguracoes = {
                         camposTexto: dados.camposTexto || dados.categorias || [],
                         listas: dados.listas || [],
-                        checkboxes: dados.checkboxes || []
+                        checkboxes: dados.checkboxes || [],
+                        camposFixos: dados.camposFixos || {}
                     };
                     
                     // Atualizar apenas se houver mudanças
@@ -438,14 +443,20 @@ class AdminConfiguracoes {
                     'file': '📎 Arquivo'
                 }[campo.tipo] || campo.tipo;
                 
+                // Verificar se há configuração customizada para este campo fixo
+                const configCustomizada = (this.configuracoes.camposFixos[tipo] || {})[campo.nome] || {};
+                const labelExibido = configCustomizada.label || campo.label;
+                const obrigatorioCustomizado = configCustomizada.obrigatorio !== undefined ? configCustomizada.obrigatorio : campo.obrigatorio;
+                const oculto = configCustomizada.oculto || false;
+                
                 html += `
-                    <div class="config-item" style="margin-bottom: 10px; opacity: 0.8;">
+                    <div class="config-item" style="margin-bottom: 10px; ${oculto ? 'opacity: 0.5;' : ''}">
                         <div class="config-item-info">
-                            <div class="config-item-label">${campo.label} <span style="color: var(--azul-royal); font-size: 0.85em;">(Fixo)</span></div>
-                            <div class="config-item-type">Tipo: ${tipoLabel} | ID: ${campo.nome} ${campo.obrigatorio ? '| ⚠️ Obrigatório' : ''}</div>
+                            <div class="config-item-label">${labelExibido} <span style="color: var(--azul-royal); font-size: 0.85em;">(Fixo)</span> ${oculto ? '<span style="color: #ff4757; font-size: 0.85em;">(Oculto)</span>' : ''}</div>
+                            <div class="config-item-type">Tipo: ${tipoLabel} | ID: ${campo.nome} ${obrigatorioCustomizado ? '| ⚠️ Obrigatório' : ''}</div>
                         </div>
                         <div class="config-item-actions">
-                            <button class="btn-admin btn-info" onclick="alert('Este é um campo fixo do sistema e não pode ser editado ou removido.')" style="background: var(--azul-royal);">ℹ️ Info</button>
+                            <button class="btn-admin btn-edit" onclick="adminConfig.editarCampoFixo('${tipo}', '${campo.nome}')">✏️ Editar</button>
                         </div>
                     </div>
                 `;
@@ -559,6 +570,136 @@ class AdminConfiguracoes {
         
         // Recarregar campos da ficha
         this.carregarCamposFicha();
+    }
+
+    editarCampoFixo(tipoFicha, nomeCampo) {
+        const camposFixos = this.obterCamposFixos(tipoFicha);
+        const campo = camposFixos.find(c => c.nome === nomeCampo);
+        
+        if (!campo) {
+            this.mostrarMensagem('Campo fixo não encontrado', 'error');
+            return;
+        }
+        
+        // Obter configuração customizada existente
+        if (!this.configuracoes.camposFixos[tipoFicha]) {
+            this.configuracoes.camposFixos[tipoFicha] = {};
+        }
+        const configAtual = this.configuracoes.camposFixos[tipoFicha][nomeCampo] || {};
+        
+        // Criar modal de edição
+        const modal = document.createElement('div');
+        modal.className = 'modal active';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2>Editar Campo Fixo: ${campo.label}</h2>
+                    <button class="btn-close" onclick="this.closest('.modal').remove()">✕</button>
+                </div>
+                <form id="form-editar-campo-fixo" style="padding: 20px;">
+                    <input type="hidden" id="edit-fixo-tipo" value="${tipoFicha}">
+                    <input type="hidden" id="edit-fixo-nome" value="${nomeCampo}">
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: var(--texto-principal);">Label (Nome exibido) *</label>
+                        <input type="text" id="edit-fixo-label" class="velohub-input" value="${configAtual.label || campo.label}" required>
+                        <small style="color: var(--texto-secundario);">Nome que aparecerá no formulário</small>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: var(--texto-principal);">Obrigatório</label>
+                        <select id="edit-fixo-obrigatorio" class="velohub-input">
+                            <option value="true" ${(configAtual.obrigatorio !== undefined ? configAtual.obrigatorio : campo.obrigatorio) ? 'selected' : ''}>Sim</option>
+                            <option value="false" ${(configAtual.obrigatorio !== undefined ? configAtual.obrigatorio : campo.obrigatorio) ? '' : 'selected'}>Não</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: var(--texto-principal);">Placeholder</label>
+                        <input type="text" id="edit-fixo-placeholder" class="velohub-input" value="${configAtual.placeholder || ''}" placeholder="Texto de exemplo no campo">
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: var(--texto-principal);">Observações</label>
+                        <textarea id="edit-fixo-observacoes" class="velohub-input" rows="3" placeholder="Observações sobre este campo">${configAtual.observacoes || ''}</textarea>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: flex; align-items: center; gap: 8px; color: var(--texto-principal);">
+                            <input type="checkbox" id="edit-fixo-oculto" ${configAtual.oculto ? 'checked' : ''}>
+                            Ocultar campo no formulário
+                        </label>
+                        <small style="color: var(--texto-secundario);">Se marcado, o campo não será exibido no formulário</small>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button type="submit" class="btn-admin btn-add" style="flex: 1;">💾 Salvar</button>
+                        <button type="button" class="btn-admin btn-secondary" onclick="this.closest('.modal').remove()" style="flex: 1;">❌ Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Adicionar listener ao formulário
+        document.getElementById('form-editar-campo-fixo').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await this.salvarConfiguracaoCampoFixo(tipoFicha, nomeCampo);
+            modal.remove();
+        });
+    }
+
+    async salvarConfiguracaoCampoFixo(tipoFicha, nomeCampo) {
+        const label = document.getElementById('edit-fixo-label').value.trim();
+        const obrigatorio = document.getElementById('edit-fixo-obrigatorio').value === 'true';
+        const placeholder = document.getElementById('edit-fixo-placeholder').value.trim();
+        const observacoes = document.getElementById('edit-fixo-observacoes').value.trim();
+        const oculto = document.getElementById('edit-fixo-oculto').checked;
+        
+        if (!label) {
+            this.mostrarMensagem('Label é obrigatório', 'error');
+            return;
+        }
+        
+        // Inicializar estrutura se não existir
+        if (!this.configuracoes.camposFixos[tipoFicha]) {
+            this.configuracoes.camposFixos[tipoFicha] = {};
+        }
+        
+        // Salvar configuração
+        this.configuracoes.camposFixos[tipoFicha][nomeCampo] = {
+            label,
+            obrigatorio,
+            placeholder: placeholder || undefined,
+            observacoes: observacoes || undefined,
+            oculto,
+            dataModificacao: new Date().toISOString()
+        };
+        
+        // Salvar no Firebase/localStorage
+        const sucesso = await this.salvarConfiguracoes();
+        if (sucesso) {
+            // Registrar no histórico
+            await this.registrarHistorico('editar', 'campoFixo', {
+                tipoFicha,
+                nomeCampo,
+                label,
+                obrigatorio,
+                oculto
+            });
+            
+            this.mostrarMensagem('Configuração do campo fixo salva com sucesso!', 'success');
+            
+            // Recarregar campos da ficha
+            this.carregarCamposFicha();
+            
+            // Disparar evento para atualizar formulários
+            window.dispatchEvent(new CustomEvent('configuracoesFormulariosAtualizadas', {
+                detail: this.configuracoes
+            }));
+        } else {
+            this.mostrarMensagem('Erro ao salvar configuração', 'error');
+        }
     }
 
     adicionarCampoParaFicha(tipoFicha) {
