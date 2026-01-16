@@ -574,6 +574,74 @@ class AdminConfiguracoes {
         this.carregarCamposFicha();
     }
 
+    // Função auxiliar para obter opções atuais de um select fixo
+    obterOpcoesSelectFixo(tipoFicha, nomeCampo) {
+        const mapeamentoIds = {
+            'bacen': {
+                'origem': 'bacen-origem',
+                'motivoReduzido': 'bacen-motivo-reduzido'
+            },
+            'n2': {
+                'motivoReduzido': 'n2-motivo-reduzido',
+                'pixStatus': 'n2-pix-status'
+            },
+            'chatbot': {
+                'notaAvaliacao': 'chatbot-nota-avaliacao',
+                'produto': 'chatbot-produto',
+                'motivo': 'chatbot-motivo',
+                'pixStatus': 'chatbot-pix-status'
+            }
+        };
+        
+        const seletor = mapeamentoIds[tipoFicha]?.[nomeCampo];
+        if (!seletor) return [];
+        
+        const select = document.getElementById(seletor);
+        if (!select) return [];
+        
+        const opcoes = [];
+        for (let i = 0; i < select.options.length; i++) {
+            const option = select.options[i];
+            if (option.value !== '') { // Ignorar opção vazia "Selecione..."
+                opcoes.push(option.value);
+            }
+        }
+        return opcoes;
+    }
+
+    // Função auxiliar para obter opções atuais de um radio fixo
+    obterOpcoesRadioFixo(tipoFicha, nomeCampo) {
+        const mapeamentoIds = {
+            'bacen': {
+                'origemTipo': 'input[name="bacen-origem-tipo"]',
+                'enviarCobranca': 'input[name="bacen-enviar-cobranca"]'
+            },
+            'n2': {
+                'origemTipo': 'input[name="n2-origem-tipo"]',
+                'enviarCobranca': 'input[name="n2-enviar-cobranca"]',
+                'formalizadoCliente': 'input[name="n2-formalizado-cliente"]'
+            },
+            'chatbot': {
+                'respostaBot': 'input[name="chatbot-resposta-bot"]',
+                'enviarCobranca': 'input[name="chatbot-enviar-cobranca"]'
+            }
+        };
+        
+        const seletor = mapeamentoIds[tipoFicha]?.[nomeCampo];
+        if (!seletor) return [];
+        
+        const radios = document.querySelectorAll(seletor);
+        if (radios.length === 0) return [];
+        
+        const opcoes = [];
+        radios.forEach(radio => {
+            if (radio.value) {
+                opcoes.push(radio.value);
+            }
+        });
+        return [...new Set(opcoes)]; // Remover duplicatas
+    }
+
     editarCampoFixo(tipoFicha, nomeCampo) {
         const camposFixos = this.obterCamposFixos(tipoFicha);
         const campo = camposFixos.find(c => c.nome === nomeCampo);
@@ -589,11 +657,47 @@ class AdminConfiguracoes {
         }
         const configAtual = this.configuracoes.camposFixos[tipoFicha][nomeCampo] || {};
         
+        // Obter opções atuais do campo (se for select ou radio)
+        let opcoesAtuais = [];
+        if (campo.tipo === 'select') {
+            opcoesAtuais = configAtual.opcoes || this.obterOpcoesSelectFixo(tipoFicha, nomeCampo);
+        } else if (campo.tipo === 'radio') {
+            opcoesAtuais = configAtual.opcoes || this.obterOpcoesRadioFixo(tipoFicha, nomeCampo);
+        }
+        
+        // Criar HTML para opções (se aplicável)
+        let htmlOpcoes = '';
+        if (campo.tipo === 'select' || campo.tipo === 'radio') {
+            htmlOpcoes = `
+                <div style="margin-bottom: 15px; padding: 15px; background: var(--cor-container); border-radius: 8px; border: 1px solid var(--borda);">
+                    <label style="display: block; margin-bottom: 10px; color: var(--texto-principal); font-weight: 500;">
+                        Opções ${campo.tipo === 'select' ? '(Select/Dropdown)' : '(Radio)'} *
+                    </label>
+                    <div id="edit-fixo-opcoes-list" style="margin-bottom: 10px;">
+                        ${opcoesAtuais.map((opcao, idx) => `
+                            <div class="option-item" style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                <input type="text" class="opcao-input velohub-input" value="${opcao}" placeholder="Digite uma opção" style="flex: 1;">
+                                <button type="button" class="btn-admin btn-delete" onclick="this.parentElement.remove()" style="padding: 8px 12px;">✕</button>
+                            </div>
+                        `).join('')}
+                        ${opcoesAtuais.length === 0 ? `
+                            <div class="option-item" style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                <input type="text" class="opcao-input velohub-input" placeholder="Digite uma opção" style="flex: 1;">
+                                <button type="button" class="btn-admin btn-delete" onclick="this.parentElement.remove()" style="padding: 8px 12px;">✕</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <button type="button" class="btn-admin btn-add" onclick="adminConfig.adicionarOpcaoFixo()" style="width: 100%;">➕ Adicionar Opção</button>
+                    <small style="color: var(--texto-secundario); display: block; margin-top: 8px;">Adicione, edite ou remova as opções disponíveis</small>
+                </div>
+            `;
+        }
+        
         // Criar modal de edição
         const modal = document.createElement('div');
         modal.className = 'modal active';
         modal.innerHTML = `
-            <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
                 <div class="modal-header">
                     <h2>Editar Campo Fixo: ${campo.label}</h2>
                     <button class="btn-close" onclick="this.closest('.modal').remove()">✕</button>
@@ -601,6 +705,7 @@ class AdminConfiguracoes {
                 <form id="form-editar-campo-fixo" style="padding: 20px;">
                     <input type="hidden" id="edit-fixo-tipo" value="${tipoFicha}">
                     <input type="hidden" id="edit-fixo-nome" value="${nomeCampo}">
+                    <input type="hidden" id="edit-fixo-tipo-campo" value="${campo.tipo}">
                     
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; color: var(--texto-principal);">Label (Nome exibido) *</label>
@@ -616,10 +721,14 @@ class AdminConfiguracoes {
                         </select>
                     </div>
                     
+                    ${campo.tipo !== 'select' && campo.tipo !== 'radio' && campo.tipo !== 'checkbox' ? `
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; color: var(--texto-principal);">Placeholder</label>
                         <input type="text" id="edit-fixo-placeholder" class="velohub-input" value="${configAtual.placeholder || ''}" placeholder="Texto de exemplo no campo">
                     </div>
+                    ` : ''}
+                    
+                    ${htmlOpcoes}
                     
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; color: var(--texto-principal);">Observações</label>
@@ -651,12 +760,50 @@ class AdminConfiguracoes {
         });
     }
 
+    adicionarOpcaoFixo() {
+        const opcoesList = document.getElementById('edit-fixo-opcoes-list');
+        if (!opcoesList) return;
+        
+        const div = document.createElement('div');
+        div.className = 'option-item';
+        div.style.cssText = 'display: flex; gap: 8px; margin-bottom: 8px;';
+        div.innerHTML = `
+            <input type="text" class="opcao-input velohub-input" placeholder="Digite uma opção" style="flex: 1;">
+            <button type="button" class="btn-admin btn-delete" onclick="this.parentElement.remove()" style="padding: 8px 12px;">✕</button>
+        `;
+        opcoesList.appendChild(div);
+    }
+
     async salvarConfiguracaoCampoFixo(tipoFicha, nomeCampo) {
         const label = document.getElementById('edit-fixo-label').value.trim();
         const obrigatorio = document.getElementById('edit-fixo-obrigatorio').value === 'true';
-        const placeholder = document.getElementById('edit-fixo-placeholder').value.trim();
+        const tipoCampo = document.getElementById('edit-fixo-tipo-campo').value;
         const observacoes = document.getElementById('edit-fixo-observacoes').value.trim();
         const oculto = document.getElementById('edit-fixo-oculto').checked;
+        
+        // Obter placeholder (se não for select/radio/checkbox)
+        let placeholder = '';
+        const placeholderEl = document.getElementById('edit-fixo-placeholder');
+        if (placeholderEl) {
+            placeholder = placeholderEl.value.trim();
+        }
+        
+        // Obter opções (se for select ou radio)
+        let opcoes = [];
+        if (tipoCampo === 'select' || tipoCampo === 'radio') {
+            const opcoesList = document.getElementById('edit-fixo-opcoes-list');
+            if (opcoesList) {
+                const inputs = opcoesList.querySelectorAll('.opcao-input');
+                opcoes = Array.from(inputs)
+                    .map(input => input.value.trim())
+                    .filter(val => val !== ''); // Remover opções vazias
+            }
+            
+            if (opcoes.length === 0) {
+                this.mostrarMensagem('É necessário ter pelo menos uma opção', 'error');
+                return;
+            }
+        }
         
         if (!label) {
             this.mostrarMensagem('Label é obrigatório', 'error');
@@ -669,14 +816,25 @@ class AdminConfiguracoes {
         }
         
         // Salvar configuração
-        this.configuracoes.camposFixos[tipoFicha][nomeCampo] = {
+        const config = {
             label,
             obrigatorio,
-            placeholder: placeholder || undefined,
             observacoes: observacoes || undefined,
             oculto,
             dataModificacao: new Date().toISOString()
         };
+        
+        // Adicionar placeholder se não for select/radio/checkbox
+        if (tipoCampo !== 'select' && tipoCampo !== 'radio' && tipoCampo !== 'checkbox' && placeholder) {
+            config.placeholder = placeholder;
+        }
+        
+        // Adicionar opções se for select ou radio
+        if (tipoCampo === 'select' || tipoCampo === 'radio') {
+            config.opcoes = opcoes;
+        }
+        
+        this.configuracoes.camposFixos[tipoFicha][nomeCampo] = config;
         
         // Salvar no Firebase/localStorage
         const sucesso = await this.salvarConfiguracoes();

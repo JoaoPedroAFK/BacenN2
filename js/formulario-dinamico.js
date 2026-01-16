@@ -363,6 +363,19 @@ class FormularioDinamico {
         }
     }
 
+    // Função auxiliar para normalizar nomes para IDs válidos
+    normalizarId(nome) {
+        // Remover espaços e caracteres especiais, converter para minúsculas
+        return nome
+            .toString()
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '-')  // Espaços viram hífens
+            .replace(/[^a-z0-9-]/g, '')  // Remove caracteres especiais
+            .replace(/-+/g, '-')  // Múltiplos hífens viram um só
+            .replace(/^-|-$/g, '');  // Remove hífens no início/fim
+    }
+
     aplicarCamposTexto(tipo, container) {
         const camposTexto = this.configuracoes.camposTexto || [];
         
@@ -372,8 +385,9 @@ class FormularioDinamico {
                 return;
             }
             
-            // Procurar campo existente pelo ID
-            const campoId = `${tipo}-${campo.nome}`;
+            // Procurar campo existente pelo ID (normalizado)
+            const nomeNormalizado = this.normalizarId(campo.nome);
+            const campoId = `${tipo}-${nomeNormalizado}`;
             let campoElement = container.querySelector(`#${campoId}`);
             
             if (!campoElement) {
@@ -441,7 +455,9 @@ class FormularioDinamico {
             }
         }
         
-        input.id = `${tipo}-${campo.nome}`;
+        // Normalizar nome para ID válido
+        const nomeNormalizado = this.normalizarId(campo.nome);
+        input.id = `${tipo}-${nomeNormalizado}`;
         input.className = 'velohub-input';
         if (campo.obrigatorio) {
             input.setAttribute('required', '');
@@ -472,8 +488,9 @@ class FormularioDinamico {
                 return;
             }
             
-            // Procurar select existente pelo ID
-            const selectId = `${tipo}-${lista.nome}`;
+            // Procurar select existente pelo ID (normalizado)
+            const nomeNormalizado = this.normalizarId(lista.nome);
+            const selectId = `${tipo}-${nomeNormalizado}`;
             let select = container.querySelector(`#${selectId}`);
             
             if (!select) {
@@ -498,12 +515,15 @@ class FormularioDinamico {
         const div = document.createElement('div');
         div.className = 'form-group';
         
+        // Normalizar nome para ID válido
+        const nomeNormalizado = this.normalizarId(lista.nome);
+        
         const label = document.createElement('label');
-        label.setAttribute('for', `${tipo}-${lista.nome}`);
+        label.setAttribute('for', `${tipo}-${nomeNormalizado}`);
         label.textContent = lista.label + (lista.obrigatorio ? ' *' : '');
         
         const select = document.createElement('select');
-        select.id = `${tipo}-${lista.nome}`;
+        select.id = `${tipo}-${nomeNormalizado}`;
         select.className = 'velohub-input';
         if (lista.obrigatorio) {
             select.setAttribute('required', '');
@@ -558,7 +578,9 @@ class FormularioDinamico {
             }
             
             // Procurar checkbox existente pelo ID
-            const checkboxId = `${tipo}-${checkbox.nome}`;
+            // Normalizar nome para ID válido
+            const nomeNormalizado = this.normalizarId(checkbox.nome);
+            const checkboxId = `${tipo}-${nomeNormalizado}`;
             let checkboxElement = container.querySelector(`#${checkboxId}`);
             
             if (!checkboxElement) {
@@ -596,7 +618,9 @@ class FormularioDinamico {
         
         const input = document.createElement('input');
         input.type = 'checkbox';
-        input.id = `${tipo}-${checkbox.nome}`;
+        // Normalizar nome para ID válido
+        const nomeNormalizado = this.normalizarId(checkbox.nome);
+        input.id = `${tipo}-${nomeNormalizado}`;
         if (checkbox.obrigatorio) {
             input.setAttribute('required', '');
         }
