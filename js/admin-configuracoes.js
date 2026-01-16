@@ -283,6 +283,93 @@ class AdminConfiguracoes {
         }
     }
 
+    obterCamposFixos(tipo) {
+        // Campos fixos existentes em cada tipo de ficha
+        const camposFixos = {
+            'n2': [
+                { nome: 'dataEntradaAtendimento', label: 'Data Entrada Atendimento', tipo: 'data', obrigatorio: false, fixo: true },
+                { nome: 'dataEntradaN2', label: 'Data Entrada N2', tipo: 'data', obrigatorio: false, fixo: true },
+                { nome: 'mes', label: 'Mês', tipo: 'texto', obrigatorio: false, fixo: true },
+                { nome: 'nomeCompleto', label: 'Nome Completo', tipo: 'texto', obrigatorio: true, fixo: true },
+                { nome: 'cpf', label: 'CPF', tipo: 'cpf', obrigatorio: true, fixo: true },
+                { nome: 'telefone', label: 'Telefone', tipo: 'telefone', obrigatorio: false, fixo: true },
+                { nome: 'origemTipo', label: 'Origem Tipo', tipo: 'texto', obrigatorio: false, fixo: true },
+                { nome: 'motivoReduzido', label: 'Motivo Reduzido', tipo: 'select', obrigatorio: true, fixo: true },
+                { nome: 'tentativasContato', label: 'Tentativas de Contato', tipo: 'texto', obrigatorio: false, fixo: true },
+                { nome: 'pixStatus', label: 'PIX Status', tipo: 'select', obrigatorio: false, fixo: true },
+                { nome: 'statusContratoQuitado', label: 'Status Contrato Quitado', tipo: 'checkbox', obrigatorio: false, fixo: true },
+                { nome: 'statusContratoAberto', label: 'Status Contrato Aberto', tipo: 'checkbox', obrigatorio: false, fixo: true },
+                { nome: 'enviarCobranca', label: 'Enviar para Cobrança', tipo: 'radio', obrigatorio: true, fixo: true },
+                { nome: 'formalizadoCliente', label: 'Formalizado Cliente', tipo: 'radio', obrigatorio: false, fixo: true },
+                { nome: 'casosCriticos', label: 'Casos Críticos', tipo: 'checkbox', obrigatorio: false, fixo: true },
+                { nome: 'status', label: 'Status', tipo: 'texto', obrigatorio: false, fixo: true },
+                { nome: 'finalizadoEm', label: 'Finalizado Em', tipo: 'data', obrigatorio: false, fixo: true },
+                { nome: 'observacoes', label: 'Observações', tipo: 'textarea', obrigatorio: false, fixo: true },
+                { nome: 'anexos', label: 'Anexos', tipo: 'file', obrigatorio: false, fixo: true },
+                { nome: 'acionouCentral', label: 'Acionou Central', tipo: 'checkbox', obrigatorio: false, fixo: true },
+                { nome: 'protocoloCentral', label: 'Protocolo Central', tipo: 'texto', obrigatorio: false, fixo: true },
+                { nome: 'n2SegundoNivel', label: 'N2 Segundo Nível', tipo: 'checkbox', obrigatorio: false, fixo: true },
+                { nome: 'protocoloN2', label: 'Protocolo N2', tipo: 'texto', obrigatorio: false, fixo: true },
+                { nome: 'reclameAqui', label: 'Reclame Aqui', tipo: 'checkbox', obrigatorio: false, fixo: true },
+                { nome: 'protocoloReclameAqui', label: 'Protocolo Reclame Aqui', tipo: 'texto', obrigatorio: false, fixo: true },
+                { nome: 'procon', label: 'Procon', tipo: 'checkbox', obrigatorio: false, fixo: true },
+                { nome: 'protocoloProcon', label: 'Protocolo Procon', tipo: 'texto', obrigatorio: false, fixo: true },
+                { nome: 'protocolosSemAcionamento', label: 'Protocolos Sem Acionamento', tipo: 'texto', obrigatorio: false, fixo: true }
+            ],
+            'bacen': [
+                { nome: 'dataEntrada', label: 'Data de Entrada', tipo: 'data', obrigatorio: true, fixo: true },
+                { nome: 'mes', label: 'Mês', tipo: 'texto', obrigatorio: true, fixo: true },
+                { nome: 'nomeCompleto', label: 'Nome Completo', tipo: 'texto', obrigatorio: true, fixo: true },
+                { nome: 'cpf', label: 'CPF', tipo: 'cpf', obrigatorio: true, fixo: true },
+                { nome: 'origem', label: 'Origem', tipo: 'select', obrigatorio: true, fixo: true },
+                { nome: 'origemTipo', label: 'Origem Tipo', tipo: 'texto', obrigatorio: true, fixo: true },
+                { nome: 'telefone', label: 'Telefone', tipo: 'telefone', obrigatorio: false, fixo: true },
+                { nome: 'rdr', label: 'RDR', tipo: 'numero', obrigatorio: false, fixo: true },
+                { nome: 'anexo', label: 'Anexo', tipo: 'file', obrigatorio: false, fixo: true },
+                { nome: 'motivoReduzido', label: 'Motivo Reduzido', tipo: 'select', obrigatorio: true, fixo: true },
+                { nome: 'prazoBacen', label: 'Prazo Bacen', tipo: 'data', obrigatorio: false, fixo: true },
+                { nome: 'motivoDetalhado', label: 'Motivo Detalhado', tipo: 'textarea', obrigatorio: true, fixo: true },
+                { nome: 'tentativasContato', label: 'Tentativas de Contato', tipo: 'texto', obrigatorio: false, fixo: true },
+                { nome: 'enviarCobranca', label: 'Enviar para Cobrança', tipo: 'radio', obrigatorio: true, fixo: true },
+                { nome: 'casosCriticos', label: 'Casos Críticos', tipo: 'checkbox', obrigatorio: false, fixo: true },
+                { nome: 'status', label: 'Status', tipo: 'texto', obrigatorio: false, fixo: true },
+                { nome: 'finalizadoEm', label: 'Finalizado Em', tipo: 'data', obrigatorio: false, fixo: true },
+                { nome: 'observacoes', label: 'Observações', tipo: 'textarea', obrigatorio: false, fixo: true },
+                { nome: 'anexos', label: 'Anexos', tipo: 'file', obrigatorio: false, fixo: true },
+                { nome: 'acionouCentral', label: 'Acionou Central', tipo: 'checkbox', obrigatorio: false, fixo: true },
+                { nome: 'protocoloCentral', label: 'Protocolo Central', tipo: 'texto', obrigatorio: false, fixo: true },
+                { nome: 'n2SegundoNivel', label: 'N2 Segundo Nível', tipo: 'checkbox', obrigatorio: false, fixo: true },
+                { nome: 'protocoloN2', label: 'Protocolo N2', tipo: 'texto', obrigatorio: false, fixo: true },
+                { nome: 'reclameAqui', label: 'Reclame Aqui', tipo: 'checkbox', obrigatorio: false, fixo: true },
+                { nome: 'protocoloReclameAqui', label: 'Protocolo Reclame Aqui', tipo: 'texto', obrigatorio: false, fixo: true },
+                { nome: 'procon', label: 'Procon', tipo: 'checkbox', obrigatorio: false, fixo: true },
+                { nome: 'protocoloProcon', label: 'Protocolo Procon', tipo: 'texto', obrigatorio: false, fixo: true },
+                { nome: 'protocolosSemAcionamento', label: 'Protocolos Sem Acionamento', tipo: 'texto', obrigatorio: false, fixo: true }
+            ],
+            'chatbot': [
+                { nome: 'dataClienteChatbot', label: 'Data Cliente Chatbot', tipo: 'data', obrigatorio: false, fixo: true },
+                { nome: 'nomeCompleto', label: 'Nome Completo', tipo: 'texto', obrigatorio: true, fixo: true },
+                { nome: 'cpf', label: 'CPF', tipo: 'cpf', obrigatorio: true, fixo: true },
+                { nome: 'telefone', label: 'Telefone', tipo: 'telefone', obrigatorio: false, fixo: true },
+                { nome: 'notaAvaliacao', label: 'Nota de Avaliação', tipo: 'select', obrigatorio: false, fixo: true },
+                { nome: 'avaliacaoCliente', label: 'Avaliação do Cliente', tipo: 'textarea', obrigatorio: false, fixo: true },
+                { nome: 'produto', label: 'Produto', tipo: 'select', obrigatorio: false, fixo: true },
+                { nome: 'motivo', label: 'Motivo', tipo: 'select', obrigatorio: false, fixo: true },
+                { nome: 'respostaBot', label: 'Resposta do Bot', tipo: 'radio', obrigatorio: false, fixo: true },
+                { nome: 'observacaoRespostaBot', label: 'Observação Resposta Bot', tipo: 'textarea', obrigatorio: false, fixo: true },
+                { nome: 'pixStatus', label: 'PIX Status', tipo: 'select', obrigatorio: false, fixo: true },
+                { nome: 'enviarCobranca', label: 'Enviar para Cobrança', tipo: 'radio', obrigatorio: true, fixo: true },
+                { nome: 'casosCriticos', label: 'Casos Críticos', tipo: 'checkbox', obrigatorio: false, fixo: true },
+                { nome: 'observacoes', label: 'Observações', tipo: 'textarea', obrigatorio: false, fixo: true },
+                { nome: 'status', label: 'Status', tipo: 'texto', obrigatorio: false, fixo: true },
+                { nome: 'canalChatbot', label: 'Canal Chatbot', tipo: 'texto', obrigatorio: false, fixo: true },
+                { nome: 'anexos', label: 'Anexos', tipo: 'file', obrigatorio: false, fixo: true }
+            ]
+        };
+        
+        return camposFixos[tipo.toLowerCase()] || [];
+    }
+
     carregarCamposFicha() {
         if (!this.configuracoes) {
             console.warn('⚠️ Configurações ainda não carregadas, aguardando...');
@@ -312,12 +399,15 @@ class AdminConfiguracoes {
             return;
         }
         
-        // Filtrar campos por tipo
+        // Obter campos fixos
+        const camposFixos = this.obterCamposFixos(tipo);
+        
+        // Filtrar campos dinâmicos por tipo
         const camposTexto = (this.configuracoes.camposTexto || []).filter(c => c.categoria === tipo || c.categoria === 'todos');
         const listas = (this.configuracoes.listas || []).filter(l => l.categoria === tipo || l.categoria === 'todos');
         const checkboxes = (this.configuracoes.checkboxes || []).filter(c => c.categoria === tipo || c.categoria === 'todos');
         
-        if (camposTexto.length === 0 && listas.length === 0 && checkboxes.length === 0) {
+        if (camposFixos.length === 0 && camposTexto.length === 0 && listas.length === 0 && checkboxes.length === 0) {
             container.innerHTML = `
                 <p style="text-align: center; color: var(--texto-secundario); padding: 40px;">
                     Nenhum campo configurado para ${tipo.toUpperCase()}.<br>
@@ -330,7 +420,40 @@ class AdminConfiguracoes {
         let html = '<div style="margin-bottom: 30px;">';
         html += `<h4 style="color: var(--texto-principal); margin-bottom: 15px;">Campos configurados para ${tipo.toUpperCase()}</h4>`;
         
-        // Campos de Texto
+        // Campos Fixos (já existentes)
+        if (camposFixos.length > 0) {
+            html += '<div style="margin-bottom: 20px;"><h5 style="color: var(--texto-principal); margin-bottom: 10px;">🔒 Campos Fixos (Sistema)</h5>';
+            camposFixos.forEach((campo) => {
+                const tipoLabel = {
+                    'texto': '📝 Texto',
+                    'textarea': '📄 Área de Texto',
+                    'data': '📅 Data',
+                    'numero': '🔢 Número',
+                    'email': '📧 E-mail',
+                    'telefone': '📱 Telefone',
+                    'cpf': '🆔 CPF',
+                    'select': '📋 Select',
+                    'checkbox': '☑️ Checkbox',
+                    'radio': '🔘 Radio',
+                    'file': '📎 Arquivo'
+                }[campo.tipo] || campo.tipo;
+                
+                html += `
+                    <div class="config-item" style="margin-bottom: 10px; opacity: 0.8;">
+                        <div class="config-item-info">
+                            <div class="config-item-label">${campo.label} <span style="color: var(--azul-royal); font-size: 0.85em;">(Fixo)</span></div>
+                            <div class="config-item-type">Tipo: ${tipoLabel} | ID: ${campo.nome} ${campo.obrigatorio ? '| ⚠️ Obrigatório' : ''}</div>
+                        </div>
+                        <div class="config-item-actions">
+                            <button class="btn-admin btn-info" onclick="alert('Este é um campo fixo do sistema e não pode ser editado ou removido.')" style="background: var(--azul-royal);">ℹ️ Info</button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+        }
+        
+        // Campos de Texto Dinâmicos
         if (camposTexto.length > 0) {
             html += '<div style="margin-bottom: 20px;"><h5 style="color: var(--texto-principal); margin-bottom: 10px;">📝 Campos de Texto</h5>';
             camposTexto.forEach((campo) => {
