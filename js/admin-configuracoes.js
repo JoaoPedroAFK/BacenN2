@@ -644,13 +644,114 @@ class AdminConfiguracoes {
         return [...new Set(opcoes)]; // Remover duplicatas
     }
 
+    // Função auxiliar para detectar o tipo real do campo no HTML
+    detectarTipoCampoReal(tipoFicha, nomeCampo) {
+        const mapeamentoIds = {
+            'bacen': {
+                'dataEntrada': 'bacen-data-entrada',
+                'mes': 'bacen-mes',
+                'nomeCompleto': 'bacen-nome',
+                'cpf': 'bacen-cpf',
+                'origem': 'bacen-origem',
+                'origemTipo': 'input[name="bacen-origem-tipo"]',
+                'telefone': '#bacen-telefones-container',
+                'rdr': 'bacen-rdr',
+                'motivoReduzido': 'bacen-motivo-reduzido',
+                'prazoBacen': 'bacen-prazo-bacen',
+                'motivoDetalhado': 'bacen-motivo-detalhado',
+                'enviarCobranca': 'input[name="bacen-enviar-cobranca"]',
+                'casosCriticos': 'bacen-casos-criticos',
+                'status': 'bacen-status',
+                'finalizadoEm': 'bacen-finalizado-em',
+                'observacoes': 'bacen-observacoes'
+            },
+            'n2': {
+                'dataEntradaAtendimento': 'n2-data-entrada-atendimento',
+                'dataEntradaN2': 'n2-data-entrada-n2',
+                'mes': 'n2-mes',
+                'nomeCompleto': 'n2-nome',
+                'cpf': 'n2-cpf',
+                'telefone': '#n2-telefones-container',
+                'origemTipo': 'input[name="n2-origem-tipo"]',
+                'motivoReduzido': 'n2-motivo-reduzido',
+                'pixStatus': 'n2-pix-status',
+                'enviarCobranca': 'input[name="n2-enviar-cobranca"]',
+                'formalizadoCliente': 'input[name="n2-formalizado-cliente"]',
+                'casosCriticos': 'n2-casos-criticos',
+                'status': 'n2-status',
+                'finalizadoEm': 'n2-finalizado-em',
+                'observacoes': 'n2-observacoes'
+            },
+            'chatbot': {
+                'dataClienteChatbot': 'chatbot-data-cliente',
+                'nomeCompleto': 'chatbot-nome',
+                'cpf': 'chatbot-cpf',
+                'telefone': '#chatbot-telefones-container',
+                'notaAvaliacao': 'chatbot-nota-avaliacao',
+                'avaliacaoCliente': 'chatbot-avaliacao-cliente',
+                'produto': 'chatbot-produto',
+                'motivo': 'chatbot-motivo',
+                'respostaBot': 'input[name="chatbot-resposta-bot"]',
+                'pixStatus': 'chatbot-pix-status',
+                'enviarCobranca': 'input[name="chatbot-enviar-cobranca"]',
+                'casosCriticos': 'chatbot-casos-criticos',
+                'observacoes': 'chatbot-observacoes',
+                'status': 'chatbot-status',
+                'canalChatbot': 'chatbot-canal'
+            }
+        };
+        
+        const seletor = mapeamentoIds[tipoFicha]?.[nomeCampo];
+        if (!seletor) return null;
+        
+        let elemento = null;
+        if (seletor.startsWith('#')) {
+            elemento = document.querySelector(seletor);
+        } else if (seletor.startsWith('input[name=')) {
+            elemento = document.querySelector(seletor);
+        } else {
+            elemento = document.getElementById(seletor);
+        }
+        
+        if (!elemento) return null;
+        
+        // Detectar tipo baseado no elemento HTML
+        if (elemento.tagName === 'SELECT') {
+            return 'select';
+        } else if (elemento.tagName === 'INPUT' && elemento.type === 'radio') {
+            return 'radio';
+        } else if (elemento.tagName === 'INPUT' && elemento.type === 'checkbox') {
+            return 'checkbox';
+        } else if (elemento.tagName === 'TEXTAREA') {
+            return 'textarea';
+        } else if (elemento.tagName === 'INPUT' && elemento.type === 'date') {
+            return 'data';
+        } else if (elemento.tagName === 'INPUT' && elemento.type === 'number') {
+            return 'numero';
+        } else if (elemento.tagName === 'INPUT' && elemento.type === 'email') {
+            return 'email';
+        } else if (elemento.classList.contains('cpf-mask')) {
+            return 'cpf';
+        } else if (elemento.classList.contains('telefone-mask')) {
+            return 'telefone';
+        } else {
+            return 'texto';
+        }
+    }
+
     editarCampoFixo(tipoFicha, nomeCampo) {
         const camposFixos = this.obterCamposFixos(tipoFicha);
-        const campo = camposFixos.find(c => c.nome === nomeCampo);
+        let campo = camposFixos.find(c => c.nome === nomeCampo);
         
         if (!campo) {
             this.mostrarMensagem('Campo fixo não encontrado', 'error');
             return;
+        }
+        
+        // Detectar tipo real do campo no HTML (pode ser diferente do definido)
+        const tipoReal = this.detectarTipoCampoReal(tipoFicha, nomeCampo);
+        if (tipoReal) {
+            campo = { ...campo, tipo: tipoReal }; // Usar tipo detectado
         }
         
         // Obter configuração customizada existente
