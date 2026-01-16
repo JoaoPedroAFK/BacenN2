@@ -763,30 +763,26 @@ class AdminConfiguracoes {
         // Obter opções atuais do campo (se for select ou radio)
         let opcoesAtuais = [];
         if (campo.tipo === 'select') {
-            // Prioridade: 1) Configuração salva, 2) HTML atual, 3) Array vazio
-            if (configAtual.opcoes && configAtual.opcoes.length > 0) {
-                opcoesAtuais = configAtual.opcoes;
+            // Prioridade: 1) Configuração salva (mesmo que vazia), 2) HTML atual, 3) Array vazio
+            if (configAtual.opcoes !== undefined && configAtual.opcoes !== null) {
+                opcoesAtuais = Array.isArray(configAtual.opcoes) ? configAtual.opcoes : [];
             } else {
+                // Tentar ler do HTML atual
                 const opcoesHTML = this.obterOpcoesSelectFixo(tipoFicha, nomeCampo);
-                if (opcoesHTML && opcoesHTML.length > 0) {
-                    opcoesAtuais = opcoesHTML;
-                } else {
-                    opcoesAtuais = [];
-                }
+                opcoesAtuais = Array.isArray(opcoesHTML) && opcoesHTML.length > 0 ? opcoesHTML : [];
             }
         } else if (campo.tipo === 'radio') {
-            // Prioridade: 1) Configuração salva, 2) HTML atual, 3) Array vazio
-            if (configAtual.opcoes && configAtual.opcoes.length > 0) {
-                opcoesAtuais = configAtual.opcoes;
+            // Prioridade: 1) Configuração salva (mesmo que vazia), 2) HTML atual, 3) Array vazio
+            if (configAtual.opcoes !== undefined && configAtual.opcoes !== null) {
+                opcoesAtuais = Array.isArray(configAtual.opcoes) ? configAtual.opcoes : [];
             } else {
+                // Tentar ler do HTML atual
                 const opcoesHTML = this.obterOpcoesRadioFixo(tipoFicha, nomeCampo);
-                if (opcoesHTML && opcoesHTML.length > 0) {
-                    opcoesAtuais = opcoesHTML;
-                } else {
-                    opcoesAtuais = [];
-                }
+                opcoesAtuais = Array.isArray(opcoesHTML) && opcoesHTML.length > 0 ? opcoesHTML : [];
             }
         }
+        
+        console.log(`🔍 Opções obtidas para ${nomeCampo} (${campo.tipo}):`, opcoesAtuais);
         
         // Criar HTML para opções (se aplicável)
         let htmlOpcoes = '';
