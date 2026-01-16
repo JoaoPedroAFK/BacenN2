@@ -763,32 +763,49 @@ class AdminConfiguracoes {
         // Obter opções atuais do campo (se for select ou radio)
         let opcoesAtuais = [];
         if (campo.tipo === 'select') {
-            opcoesAtuais = configAtual.opcoes || this.obterOpcoesSelectFixo(tipoFicha, nomeCampo);
+            // Prioridade: 1) Configuração salva, 2) HTML atual, 3) Array vazio
+            if (configAtual.opcoes && configAtual.opcoes.length > 0) {
+                opcoesAtuais = configAtual.opcoes;
+            } else {
+                const opcoesHTML = this.obterOpcoesSelectFixo(tipoFicha, nomeCampo);
+                if (opcoesHTML && opcoesHTML.length > 0) {
+                    opcoesAtuais = opcoesHTML;
+                } else {
+                    opcoesAtuais = [];
+                }
+            }
         } else if (campo.tipo === 'radio') {
-            opcoesAtuais = configAtual.opcoes || this.obterOpcoesRadioFixo(tipoFicha, nomeCampo);
+            // Prioridade: 1) Configuração salva, 2) HTML atual, 3) Array vazio
+            if (configAtual.opcoes && configAtual.opcoes.length > 0) {
+                opcoesAtuais = configAtual.opcoes;
+            } else {
+                const opcoesHTML = this.obterOpcoesRadioFixo(tipoFicha, nomeCampo);
+                if (opcoesHTML && opcoesHTML.length > 0) {
+                    opcoesAtuais = opcoesHTML;
+                } else {
+                    opcoesAtuais = [];
+                }
+            }
         }
         
         // Criar HTML para opções (se aplicável)
         let htmlOpcoes = '';
         if (campo.tipo === 'select' || campo.tipo === 'radio') {
+            // Sempre mostrar pelo menos um campo vazio se não houver opções
+            const opcoesParaExibir = opcoesAtuais.length > 0 ? opcoesAtuais : [''];
+            
             htmlOpcoes = `
                 <div style="margin-bottom: 15px; padding: 15px; background: var(--cor-container); border-radius: 8px; border: 1px solid var(--borda);">
                     <label style="display: block; margin-bottom: 10px; color: var(--texto-principal); font-weight: 500;">
                         Opções ${campo.tipo === 'select' ? '(Select/Dropdown)' : '(Radio)'} *
                     </label>
                     <div id="edit-fixo-opcoes-list" style="margin-bottom: 10px;">
-                        ${opcoesAtuais.map((opcao, idx) => `
+                        ${opcoesParaExibir.map((opcao, idx) => `
                             <div class="option-item" style="display: flex; gap: 8px; margin-bottom: 8px;">
-                                <input type="text" class="opcao-input velohub-input" value="${opcao}" placeholder="Digite uma opção" style="flex: 1;">
+                                <input type="text" class="opcao-input velohub-input" value="${opcao || ''}" placeholder="Digite uma opção" style="flex: 1;">
                                 <button type="button" class="btn-admin btn-delete" onclick="this.parentElement.remove()" style="padding: 8px 12px;">✕</button>
                             </div>
                         `).join('')}
-                        ${opcoesAtuais.length === 0 ? `
-                            <div class="option-item" style="display: flex; gap: 8px; margin-bottom: 8px;">
-                                <input type="text" class="opcao-input velohub-input" placeholder="Digite uma opção" style="flex: 1;">
-                                <button type="button" class="btn-admin btn-delete" onclick="this.parentElement.remove()" style="padding: 8px 12px;">✕</button>
-                            </div>
-                        ` : ''}
                     </div>
                     <button type="button" class="btn-admin btn-add" onclick="adminConfig.adicionarOpcaoFixo()" style="width: 100%;">➕ Adicionar Opção</button>
                     <small style="color: var(--texto-secundario); display: block; margin-top: 8px;">Adicione, edite ou remova as opções disponíveis</small>
