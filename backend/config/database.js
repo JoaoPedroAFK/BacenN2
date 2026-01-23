@@ -92,9 +92,18 @@ const getAcademyDatabase = () => {
 };
 
 // Obter instância do banco console_sociais
-const getSociaisDatabase = () => {
+const getSociaisDatabase = async () => {
   if (!sociaisDb) {
-    throw new Error('Sociais Database não conectado. Chame connectToDatabase() primeiro.');
+    // Tentar conectar se não estiver conectado
+    try {
+      await connectToDatabase();
+      // Se ainda não estiver disponível após conectar, lançar erro
+      if (!sociaisDb) {
+        throw new Error('Sociais Database não conectado após tentativa de conexão.');
+      }
+    } catch (error) {
+      throw new Error(`Sociais Database não conectado: ${error.message}`);
+    }
   }
   return sociaisDb;
 };
