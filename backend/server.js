@@ -143,9 +143,10 @@ app.use(cors({
   origin: [
     'https://app.velohub.velotax.com.br', // NOVO DOMÍNIO PERSONALIZADO
     process.env.CORS_ORIGIN || 'https://velohub-278491073220.us-east1.run.app',
+    /\.onrender\.com$/, // Render.com (qualquer subdomínio)
     'http://localhost:8080', // Frontend padrão (regra estabelecida)
     'http://localhost:3000', // Compatibilidade
-    'http://localhost:5000', // Compatibilidade
+    'http://localhost:5000',  // Compatibilidade
     'http://172.16.50.66:8080' // IP local da máquina
   ],
   credentials: true
@@ -3584,6 +3585,7 @@ try {
   const initSolicitacoesRoutes = require('./routes/api/escalacoes/solicitacoes');
   const initErrosBugsRoutes = require('./routes/api/escalacoes/erros-bugs');
   const initLogsRoutes = require('./routes/api/escalacoes/logs');
+  const initReportsRoutes = require('./routes/api/escalacoes/reports');
   const createEscalacoesIndexes = require('./routes/api/escalacoes/indexes');
   console.log('✅ Módulos carregados com sucesso');
 
@@ -3592,12 +3594,14 @@ try {
   const solicitacoesRouter = initSolicitacoesRoutes(client, connectToMongo, { userActivityLogger });
   const errosBugsRouter = initErrosBugsRoutes(client, connectToMongo, { userActivityLogger });
   const logsRouter = initLogsRoutes(client, connectToMongo);
+  const reportsRouter = initReportsRoutes(client, connectToMongo, { userActivityLogger });
   console.log('✅ Routers inicializados');
 
   console.log('🔗 Registrando rotas no Express...');
   app.use('/api/escalacoes/solicitacoes', solicitacoesRouter);
   app.use('/api/escalacoes/erros-bugs', errosBugsRouter);
   app.use('/api/escalacoes/logs', logsRouter);
+  app.use('/api/escalacoes/reports', reportsRouter);
   console.log('✅ Rotas registradas no Express');
 
   // Criar índices MongoDB (em background, não bloqueia startup)
@@ -3617,6 +3621,8 @@ try {
   console.log('   - GET/POST/PUT/DELETE /api/escalacoes/solicitacoes');
   console.log('   - GET/POST /api/escalacoes/erros-bugs');
   console.log('   - GET/POST /api/escalacoes/logs');
+  console.log('   - POST /api/escalacoes/reports/send');
+  console.log('   - POST /api/escalacoes/reports/send-with-image');
 } catch (error) {
   console.error('❌ Erro ao registrar rotas de Escalações:', error.message);
   console.error('Stack:', error.stack);

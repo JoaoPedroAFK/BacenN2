@@ -40,6 +40,32 @@
 
 ## 🚀 **DEPLOYS E PUSHES REALIZADOS**
 
+### **GitHub Commit - Tipo Estorno com Checkboxes, Valor e Anexos (apenas req_prod)**
+- **Data/Hora**: 2025-01-31 18:30:00
+- **Tipo**: GitHub Commit (push pendente - requer autenticação)
+- **Repositório**: https://github.com/admVeloHub/Inova-Hub
+- **Versão**: FormSolicitacao.js v1.4.0
+- **Commit**: c8bb3369d6a2d3f5fcc93a8d03fb60fa0e61c704
+- **Branch**: Inovações
+- **Arquivos Modificados**:
+  - `src/components/Escalacoes/FormSolicitacao.js` (v1.4.0)
+  - `backend/routes/api/escalacoes/solicitacoes.js` (atualizado)
+- **Descrição**: Adicionado novo tipo de solicitação "Estorno" apenas no req_prod (src/components/Escalacoes) com checkboxes "Crédito do Trabalhador" e "Excedeu 40 dias", campo "Valor", suporte para anexar arquivos (imagens e vídeos), e processamento de anexos no backend. Painel isolado mantido sem alterações do Estorno (apenas Cancelamento).
+- **Status**: ✅ Commit realizado localmente | ⚠️ Push pendente (erro de autenticação/permissão)
+
+### **GitHub Commit - Tipo Cancelamento com Campos Nome do Cliente, Data da Contratação e Valor**
+- **Data/Hora**: 2025-01-30 23:55:00
+- **Tipo**: GitHub Commit (push pendente - requer autenticação)
+- **Repositório**: https://github.com/admVeloHub/Inova-Hub
+- **Versão**: FormSolicitacao.jsx v1.5.0 / FormSolicitacao.js v1.10.0
+- **Commit**: 5016e7de6c672cfb39d3b1188b046d9776aa831b
+- **Branch**: Inovações
+- **Arquivos Modificados**:
+  - `painel de serviços/components/FormSolicitacao.jsx` (v1.5.0)
+  - `src/components/Escalacoes/FormSolicitacao.js` (v1.10.0)
+- **Descrição**: Adicionado novo tipo de solicitação "Cancelamento" nos formulários com três campos obrigatórios: Nome do Cliente (texto), Data da Contratação (date) e Valor (texto). Campos incluídos na mensagem do WhatsApp. Layout responsivo com grid de 3 colunas no desktop e 1 coluna no mobile. Correções aplicadas em ambos os formulários (painel de serviços e VeloHub principal).
+- **Status**: ✅ Commit realizado localmente | ⚠️ Push pendente (erro de autenticação/permissão)
+
 ### **GitHub Push - Campos Obrigatórios para Exclusão de Chave PIX e Correção Formatação CPF**
 - **Data/Hora**: 2025-01-30 23:50:00
 - **Tipo**: GitHub Push

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BacenN2 - Sistema de Fichas</title>
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    #loading-indicator {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+
+    #erro-mensagem {
+      display: none;
+      background: #fee;
+      color: #c33;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      border-left: 4px solid #c33;
+    }
+
+    #fichas-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .ficha-card {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .ficha-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .ficha-card h3 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+    }
+
+    .ficha-card p {
+      color: #666;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    .ficha-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+    }
+
+    .ficha-meta small {
+      color: #999;
+      font-size: 0.85em;
+    }
+
+    .sem-fichas {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+
+    .secao {
+      display: none;
+    }
+
+    .secao.ativa {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>BacenN2 - Sistema de Fichas</h1>
+    
+    <div id="erro-mensagem"></div>
+    
+    <div id="loading-indicator">
+      <p>Carregando fichas...</p>
+    </div>
+    
+    <div id="fichas-container">
+      <!-- Fichas serão renderizadas aqui -->
+    </div>
+  </div>
+
+  <!-- Scripts na ordem correta -->
+  <!-- 1. Firebase SDK já carregado no <head> -->
+  
+  <!-- 2. Firebase Manager (deve ser o primeiro) -->
+  <script src="js/firebase-init.js"></script>
+  
+  <!-- 3. ArmazenamentoReclamacoes (depende do Firebase Manager) -->
+  <script src="js/armazenamento-reclamacoes.js"></script>
+  
+  <!-- 4. Páginas específicas -->
+  <script src="js/bacen-page.js"></script>
+  <!-- <script src="js/chatbot-page.js"></script> -->
+</body>
+</html>
+
