@@ -61,11 +61,7 @@ class SociaisMetricas {
         };
       }
 
-<<<<<<< HEAD
       const validReasons = ['Produto', 'Suporte', 'Bug', 'Elogio', 'Reclamação', 'Oculto', 'Outro'];
-=======
-      const validReasons = ['Produto', 'Suporte', 'Bug', 'Elogio', 'Reclamação', ' Oculto ', 'Outro'];
->>>>>>> a753bc9e729d5e2b9932f5dd0f67edd5ed3f5aca
       if (tabulationData.contactReason && !validReasons.includes(tabulationData.contactReason)) {
         return {
           success: false,
@@ -325,11 +321,7 @@ class SociaisMetricas {
       }
 
       if (updateData.contactReason) {
-<<<<<<< HEAD
         const validReasons = ['Produto', 'Suporte', 'Bug', 'Elogio', 'Reclamação', 'Oculto', 'Outro'];
-=======
-        const validReasons = ['Produto', 'Suporte', 'Bug', 'Elogio', 'Reclamação', ' Oculto '];
->>>>>>> a753bc9e729d5e2b9932f5dd0f67edd5ed3f5aca
         if (!validReasons.includes(updateData.contactReason)) {
           return {
             success: false,
