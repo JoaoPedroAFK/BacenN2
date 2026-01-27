@@ -34,7 +34,7 @@ Arquivo criado para ignorar:
 **IMPORTANTE:** Configure no Vercel (Settings > Environment Variables):
 
 ```env
-REACT_APP_API_URL=https://velohub-backend.onrender.com
+REACT_APP_API_URL=https://natralha.onrender.com
 ```
 
 **Substitua pela URL real do seu backend no Render!**

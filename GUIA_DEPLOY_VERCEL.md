@@ -48,11 +48,11 @@ Este guia explica como fazer deploy do frontend VeloHub no Vercel e configurar a
 ⚠️ **IMPORTANTE:** Configure a variável abaixo:
 
 ```env
-REACT_APP_API_URL=https://velohub-backend.onrender.com
+REACT_APP_API_URL=https://natralha.onrender.com
 ```
 
 **Onde obter a URL:**
-- Após fazer deploy no Render, você receberá uma URL como: `https://velohub-backend.onrender.com`
+- Backend já está deployado em: `https://natralha.onrender.com`
 - Use essa URL completa (sem `/api` no final - o código adiciona automaticamente)
 
 **Como configurar:**
