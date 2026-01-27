@@ -1,0 +1,19 @@
+# Render.com Configuration - VeloHub Backend
+# VERSION: v1.0.1 | DATE: 2025-01-23 | AUTHOR: VeloHub Development Team
+
+services:
+  - type: web
+    name: velohub-backend
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    rootDir: backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8080
+    healthCheckPath: /api/test
+    autoDeploy: true

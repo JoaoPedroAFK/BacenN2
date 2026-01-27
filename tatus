@@ -1,0 +1,11 @@
+[33m1ea1118[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mInovações[m[33m)[m Merge branch 'main' into Inovações
+[33medcf704[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m merge: resolve conflitos mantendo alterações do VeloNews
+[33m6015757[m feat: adiciona suporte a imagens, vídeos YouTube e editor de texto rico no VeloNews
+[33mab9a5d1[m feat: melhorias no header, footer e histórico do agente - Header: gradiente azul no tema escuro, logo adaptativo, botões de navegação com cores atualizadas - Footer: adicionado com altura reduzida - Histórico do agente: altura fixa e scrollável nas abas Solicitações e Erros/Bugs
+[33m65295b0[m fix(escalacoes): corrigir mapeamento de status para compatibilidade frontend - Corrigido mapeamento de status nos endpoints auto-status:   'feito' e   'não feito' (antes: 'Resolvido' e 'Negado') - Atualizado solicitacoes.js v1.3.2 e erros-bugs.js v1.3.1 - Frontend já estava esperando esses valores, agora está compatível
+[33m2078474[m docs: Atualizar DEPLOY_LOG.md com push das correções de tabulação
+[33m1aa3df5[m fix: Adicionar campo tabulação nas respostas do clarification - Corrige exibição de tabulação após seleção de opção no menu de esclarecimento - Adiciona tabulação nas respostas diretas e via busca tradicional do clarification - Atualiza versões: backend v2.31.4, frontend v1.10.3
+[33m0f56375[m fix: Normalização da URL da API WhatsApp para corrigir envio de mensagens - Remove barra final da URL para evitar URLs duplicadas - Melhora logs de diagnóstico - Versão atualizada: whatsappService v1.1.2
+[33mf601945[m chore: Atualizar referência do submodule api wpp e remover conexão remota externa
+[33m8ada8e3[m fix: Toast fixo no viewport e histórico scrollável no módulo Escalações - Toast fixo no canto inferior direito da tela (FormSolicitacao e ErrosBugsTab) - Histórico do agente com altura fixa (500px) e scrollável - Substituído sistema de mensagens inline por toast notifications - Versões atualizadas: FormSolicitacao v1.3.2, ErrosBugsTab v1.6.1, EscalacoesPage v1.3.2
+[33m0c8ca3b[m Trigger Cloud Build

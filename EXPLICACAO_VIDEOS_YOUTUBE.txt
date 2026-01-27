@@ -1,0 +1,85 @@
+📍 ONDE ESTÃO ARMAZENADOS OS VÍDEOS DO YOUTUBE NO VELOHUB:
+
+🗄️ LOCALIZAÇÃO COMPLETA:
+• Servidor: MongoDB Atlas (Cloud)
+• Database: console_conteudo
+• Collection: Velonews
+• Campo: videos (Array)
+
+📦 FORMATO:
+• Os vídeos são adicionados via URL do YouTube (não há upload de arquivo)
+• O sistema extrai automaticamente o ID do vídeo da URL
+• São armazenados diretamente no MongoDB dentro do documento da notícia
+• NÃO há arquivos físicos no servidor - apenas metadados (ID, URL, embedUrl)
+• NÃO ocupa espaço significativo no banco (apenas strings pequenas)
+
+🔍 COMO ACESSAR:
+1. MongoDB Atlas: https://cloud.mongodb.com
+2. Cluster: velohubcentral
+3. Database: console_conteudo
+4. Collection: Velonews
+5. Cada documento tem campo 'videos' com array de objetos
+
+📊 ESTRUTURA DOS DADOS:
+Cada vídeo do YouTube é um objeto com:
+• youtubeId: String (ex: "dQw4w9WgXcQ") - ID extraído da URL
+• url: String (ex: "https://www.youtube.com/watch?v=dQw4w9WgXcQ") - URL completa
+• embedUrl: String (ex: "https://www.youtube.com/embed/dQw4w9WgXcQ") - URL para embed
+• type: String (sempre "youtube")
+• name: String (ex: "YouTube Video dQw4w9WgXcQ") - Nome descritivo
+
+💾 TAMANHO:
+• Cada vídeo ocupa apenas ~200-300 bytes no MongoDB
+• Apenas metadados (ID, URLs) são armazenados
+• O vídeo real fica no YouTube (não no nosso banco)
+• Sem limites de tamanho de vídeo (YouTube gerencia)
+
+🔗 ROTAS DA API:
+• GET /api/velo-news - Busca notícias com vídeos do YouTube
+• POST /api/velo-news - Cria notícia com vídeos do YouTube
+• PUT /api/velo-news/:id - Atualiza notícia com vídeos do YouTube
+
+📝 EXEMPLO DE DOCUMENTO NO MONGODB:
+{
+  "_id": ObjectId("..."),
+  "titulo": "Título da notícia",
+  "conteudo": "Conteúdo...",
+  "images": [...],
+  "videos": [
+    {
+      "youtubeId": "dQw4w9WgXcQ",
+      "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "embedUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "type": "youtube",
+      "name": "YouTube Video dQw4w9WgXcQ"
+    }
+  ],
+  "createdAt": ISODate("..."),
+  "updatedAt": ISODate("...")
+}
+
+🎬 COMO FUNCIONA:
+1. Usuário cola URL do YouTube no admin
+2. Sistema extrai o ID do vídeo automaticamente
+3. Salva apenas metadados (ID, URLs) no MongoDB
+4. Frontend renderiza usando iframe do YouTube
+5. Player nativo do YouTube é exibido
+
+✅ PADRÕES DE NOMENCLATURA:
+• youtubeId, embedUrl (camelCase) - campos técnicos
+• url, type, name (camelCase) - campos técnicos
+• Seguindo padrão: camelCase para campos técnicos, snake_case para conteúdo em português
+
+🔄 COMPATIBILIDADE:
+• Vídeos antigos em base64 ainda funcionam (campo "data" mantido)
+• Sistema detecta automaticamente se é YouTube ou base64
+• YouTube é preferido para novos vídeos (melhor performance)
+
+💡 VANTAGENS DO YOUTUBE:
+• Não ocupa espaço no MongoDB
+• Player nativo e otimizado
+• Thumbnails automáticos
+• Sem limites de tamanho
+• Melhor performance (streaming do YouTube)
+• Suporte a legendas e qualidade adaptativa
+

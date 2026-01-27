@@ -6,12 +6,19 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Next.js
+.next/
+out/
+build/
+
 # Environment variables
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+env
+backend/env
 
 # Logs
 logs
@@ -36,6 +43,15 @@ jspm_packages/
 # Optional npm cache directory
 .npm
 
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
 # Optional REPL history
 .node_repl_history
 
@@ -44,9 +60,6 @@ jspm_packages/
 
 # Yarn Integrity file
 .yarn-integrity
-
-# dotenv environment variables file
-.env
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -62,7 +75,7 @@ jspm_packages/
 .vuepress/dist
 
 # Serverless directories
-.serverless
+.serverless/
 
 # FuseBox cache
 .fusebox/
@@ -84,3 +97,19 @@ Thumbs.db
 
 # Worker separado (repositório próprio)
 worker-qualidade/
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# VS Code - Extensões e configurações pessoais
+.vscode/extensions/
+.vscode/User/
+.vscode/workspaceStorage/
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/settings.json
+
+# VS Code - Manter apenas extensões recomendadas
+!.vscode/extensions.json
+
+.vercel
