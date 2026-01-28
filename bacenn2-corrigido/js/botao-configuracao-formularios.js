@@ -1,9 +1,9 @@
 /**
- * Botão de Configuração de Formulários - BacenN2
- * Versão: v1.0.0
- * 
- * Adiciona botão para acessar configuração de ordem de formulários
- * nas páginas de edição
+ * Botão "Ordem dos campos e módulos" – Edição de fichas – BacenN2
+ * Versão: v1.1.0
+ *
+ * Adiciona botão na edição de fichas para abrir o editor de ordem
+ * dos campos e módulos (BACEN, N2, Chatbot).
  */
 
 (function() {
@@ -29,8 +29,8 @@
     // Criar botão
     const botao = document.createElement('button');
     botao.className = 'btn-config-ordem-formulario';
-    botao.innerHTML = '⚙️ Configurar Ordem';
-    botao.title = 'Configurar ordem de campos e seções do formulário';
+    botao.innerHTML = 'Ordem dos campos e módulos';
+    botao.title = 'Definir em que ordem os campos e módulos aparecem na edição desta ficha';
     
     // Estilos inline
     botao.style.cssText = `
@@ -135,7 +135,8 @@
       // Adicionar sem tipo específico (abre página de seleção)
       const botao = document.createElement('button');
       botao.className = 'btn-config-ordem-formulario';
-      botao.innerHTML = '⚙️ Configurar Ordem';
+      botao.innerHTML = 'Ordem dos campos e módulos';
+      botao.title = 'Definir ordem dos campos e módulos na edição de fichas';
       botao.style.cssText = `
         padding: 8px 16px;
         background: #1976d2;

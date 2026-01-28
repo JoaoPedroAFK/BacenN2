@@ -1,9 +1,9 @@
 /**
- * Editor de Ordem de Formulários - BacenN2
- * Versão: v1.0.0
- * 
- * Interface para editar a ordem de campos e seções nos formulários
- * usando drag and drop
+ * Editor de ordem – Edição de fichas – BacenN2
+ * Versão: v1.1.0
+ *
+ * Interface para definir a ordem dos campos e módulos na edição de fichas
+ * (BACEN, N2, Chatbot). Drag and drop para reordenar.
  */
 
 (function() {
@@ -103,12 +103,12 @@
       modal.innerHTML = `
         <div class="modal-editor-ordem-content">
           <div class="modal-editor-ordem-header">
-            <h2>Editar Ordem do Formulário - ${this.tipoSelecionado.toUpperCase()}</h2>
+            <h2>Edição de fichas – Ordem dos campos e módulos (${this.tipoSelecionado.toUpperCase()})</h2>
             <button class="btn-fechar-modal" onclick="window.editorOrdemFormularios.fecharEditor()">×</button>
           </div>
           <div class="modal-editor-ordem-body">
             <p class="instrucoes-drag-drop">
-              💡 Arraste os itens para reorganizar a ordem. A ordem será aplicada ao formulário de edição.
+              Arraste os campos e módulos para cima ou para baixo. A ordem aqui define como aparecem na tela de edição da ficha.
             </p>
             <div id="container-drag-drop" class="container-drag-drop">
               <!-- Campos serão renderizados aqui -->

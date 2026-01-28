@@ -1,10 +1,10 @@
-# 📝 Exemplo de Integração - Ordem de Formulários
+# Integração – Ordem dos campos e módulos na edição de fichas
 
-<!-- VERSION: v1.0.0 | DATE: 2025-01-27 | AUTHOR: VeloHub Development Team -->
+<!-- VERSION: v1.1.0 | DATE: 2025-01-27 | AUTHOR: VeloHub Development Team -->
 
-## 🎯 Objetivo
+## Objetivo
 
-Este documento mostra como integrar o sistema de ordem personalizada de formulários nos arquivos existentes do projeto BacenN2.
+Integrar a funcionalidade de **reordenar campos e módulos** nas telas de **edição de fichas** (BACEN, N2, Chatbot) nos arquivos existentes do BacenN2.
 
 ## 📋 Passo a Passo
 

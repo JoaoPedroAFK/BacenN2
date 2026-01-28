@@ -1,10 +1,10 @@
-# ⚙️ Configuração de Ordem de Formulários - BacenN2
+# Edição de fichas – Ordem dos campos e módulos
 
-<!-- VERSION: v1.0.0 | DATE: 2025-01-27 | AUTHOR: VeloHub Development Team -->
+<!-- VERSION: v1.1.0 | DATE: 2025-01-27 | AUTHOR: VeloHub Development Team -->
 
-## 📋 Visão Geral
+## O que é
 
-Este sistema permite personalizar a ordem de campos e seções nos formulários de edição de fichas (BACEN, N2 e Chatbot) através de uma interface de drag and drop.
+Define em que ordem os **campos e módulos** aparecem na **tela de edição de fichas** (BACEN, N2 e Chatbot). Você escolhe o tipo de ficha, abre a lista e arrasta para cima/baixo; a ordem salva vale para todas as edições daquele tipo.
 
 ## 🎯 Funcionalidades
 
@@ -63,7 +63,7 @@ Adicione os scripts na ordem correta nos arquivos HTML dos formulários:
 <script src="js/botao-configuracao-formularios.js"></script>
 ```
 
-**Nota:** O último script (`botao-configuracao-formularios.js`) adiciona automaticamente um botão "⚙️ Configurar Ordem" nas páginas de edição, ao lado das outras opções.
+**Nota:** O script `botao-configuracao-formularios.js` adiciona um botão "Configurar Ordem" na **edição de fichas**, ao lado das outras opções, para abrir direto o editor de ordem daquele tipo.
 
 ### 2. Acessar Página de Configuração
 

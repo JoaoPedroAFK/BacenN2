@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Configuração de Formulários - BacenN2</title>
+  <title>Edição de fichas – Ordem dos campos e módulos | BacenN2</title>
   
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -108,15 +108,15 @@
 </head>
 <body>
   <div class="container">
-    <h1>⚙️ Configuração de Formulários</h1>
-    <p class="subtitulo">Personalize a ordem de campos e seções nos formulários de edição</p>
+    <h1>Edição de fichas – Ordem dos campos e módulos</h1>
+    <p class="subtitulo">Defina em que ordem os campos e módulos aparecem na tela de edição de cada tipo de ficha.</p>
 
     <div class="info-box">
-      <p><strong>💡 Como usar:</strong></p>
-      <p>1. Selecione o tipo de ficha que deseja configurar (BACEN, N2 ou Chatbot)</p>
-      <p>2. Arraste os campos para reorganizar a ordem</p>
-      <p>3. Clique em "Salvar Ordem" para aplicar as alterações</p>
-      <p>4. A nova ordem será aplicada automaticamente nos formulários de edição</p>
+      <p><strong>Como usar:</strong></p>
+      <p>1. Escolha o tipo de ficha (BACEN, N2 ou Chatbot).</p>
+      <p>2. Abre a lista de campos e módulos daquele tipo.</p>
+      <p>3. Arraste os itens para cima ou para baixo para mudar a ordem (o que ficar no topo aparece primeiro na edição).</p>
+      <p>4. Clique em "Salvar Ordem". A nova ordem vale para todas as telas de edição daquele tipo.</p>
     </div>
 
     <div class="seletor-tipo-ficha">
@@ -131,12 +131,7 @@
       </button>
     </div>
 
-    <div style="display: flex; gap: 10px; margin-top: 20px;">
-      <a href="index.html" class="btn-voltar">← Voltar</a>
-      <button class="btn-configurar-todos" onclick="abrirTodosEditores()" style="padding: 10px 20px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1em;">
-        ⚙️ Configurar Todos os Tipos
-      </button>
-    </div>
+    <a href="index.html" class="btn-voltar">← Voltar</a>
   </div>
 
   <!-- Scripts na ordem correta -->
@@ -175,17 +170,6 @@
         console.error('Editor de ordem não está disponível');
         alert('⚠️ Sistema ainda não está pronto. Aguarde alguns instantes e tente novamente.');
       }
-    }
-
-    function abrirTodosEditores() {
-      const tipos = ['bacen', 'n2', 'chatbot'];
-      tipos.forEach((tipo, index) => {
-        setTimeout(() => {
-          if (window.abrirEditorOrdemFormulario) {
-            window.abrirEditorOrdemFormulario(tipo);
-          }
-        }, index * 500); // Abrir com delay para não sobrecarregar
-      });
     }
 
     // Aguardar tudo estar pronto

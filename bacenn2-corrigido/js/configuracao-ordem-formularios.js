@@ -1,9 +1,9 @@
 /**
- * Configuração de Ordem de Formulários - BacenN2
- * Versão: v1.0.0
+ * Edição de fichas – Ordem dos campos e módulos – BacenN2
+ * Versão: v1.1.0
  * 
- * Gerencia a ordem personalizada de campos e seções nos formulários
- * de edição de fichas (chatbot, bacen, n2)
+ * Gerencia a ordem dos campos e módulos na edição de fichas (BACEN, N2, Chatbot).
+ * Salva/carrega do Firebase.
  */
 
 (function() {

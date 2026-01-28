@@ -1,8 +1,8 @@
 /**
- * Aplicar Ordem de Formulários - BacenN2
- * Versão: v1.0.0
- * 
- * Aplica a ordem personalizada aos formulários de edição
+ * Aplicar ordem – Edição de fichas – BacenN2
+ * Versão: v1.1.0
+ *
+ * Aplica a ordem salva (campos e módulos) nas telas de edição de fichas.
  */
 
 (function() {

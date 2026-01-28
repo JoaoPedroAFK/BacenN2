@@ -1,8 +1,10 @@
-# 🔘 Integração do Botão de Configuração
+# Botão "Configurar Ordem" na edição de fichas
 
-<!-- VERSION: v1.0.0 | DATE: 2025-01-27 | AUTHOR: VeloHub Development Team -->
+<!-- VERSION: v1.1.0 | DATE: 2025-01-27 | AUTHOR: VeloHub Development Team -->
 
-## 📋 Como Adicionar o Botão nas Páginas de Edição
+Este botão abre o editor de **ordem dos campos e módulos** da tela de edição de fichas (BACEN, N2 ou Chatbot).
+
+## Como adicionar o botão nas páginas de edição
 
 ### Opção 1: Automática (Recomendado)
 
