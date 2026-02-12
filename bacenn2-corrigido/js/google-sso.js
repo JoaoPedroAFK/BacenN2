@@ -1,9 +1,15 @@
 /* === SSO GOOGLE - SINGLE SIGN-ON === */
+/* SSO desativado por padrão para testes; mudar para false para exigir login Google */
+if (typeof window.SSO_DESATIVADO === 'undefined') window.SSO_DESATIVADO = true;
 
 class GoogleSSO {
     constructor() {
         this.clientId = null;
         this.initialized = false;
+        if (window.SSO_DESATIVADO) {
+            console.log('SSO desativado – Google Sign-In não carregado');
+            return;
+        }
         this.inicializar();
     }
 
@@ -219,6 +225,7 @@ class GoogleSSO {
     }
 
     renderizarBotao(containerId) {
+        if (window.SSO_DESATIVADO) return;
         if (!this.initialized || !this.clientId) {
             console.warn('⚠️ Google SSO não inicializado. Tentando novamente...');
             // Tentar novamente após um tempo

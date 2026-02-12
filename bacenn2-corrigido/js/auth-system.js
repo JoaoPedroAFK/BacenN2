@@ -1,4 +1,7 @@
 /* === SISTEMA DE PERFIS E AUTENTICAÇÃO VELOTAX === */
+/* SSO desativado temporariamente para testes: app entra direto com usuário "Operador (teste)" */
+
+window.SSO_DESATIVADO = true; // true = sem login; false = exige login/Google
 
 class SistemaPerfis {
     constructor() {
@@ -306,9 +309,25 @@ class SistemaPerfis {
 
     // === INICIALIZAÇÃO ===
     inicializarSistema() {
-        // Adiciona estilos CSS
         this.adicionarEstilos();
-        
+
+        // SSO desativado: entra direto com usuário de teste (para rodar testes sem login)
+        if (window.SSO_DESATIVADO) {
+            this.usuarioAtual = {
+                id: 0,
+                nome: 'Operador (teste)',
+                email: 'teste@velotax.com',
+                perfil: 'operador',
+                tiposDemanda: ['bacen', 'n2', 'chatbot'],
+                ativo: true
+            };
+            localStorage.setItem('velotax_usuario_atual', JSON.stringify(this.usuarioAtual));
+            this.mostrarSistema();
+            this.configurarEventos();
+            console.log('SSO desativado – usando usuário de teste');
+            return;
+        }
+
         // Verifica se usuário está logado
         if (!this.usuarioAtual) {
             this.mostrarTelaLogin();
@@ -316,7 +335,6 @@ class SistemaPerfis {
             this.mostrarSistema();
         }
 
-        // Configura eventos
         this.configurarEventos();
     }
 
