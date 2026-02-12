@@ -1,0 +1,4 @@
+# Bacen N2 - site estático (index.html + JS)
+[build]
+  publish = "."
+  command = "echo 'Static site - no build'"
