@@ -1,0 +1,1079 @@
+/* === TEMA ESCURO - SISTEMA BACEN === */
+
+/* === APLICAR TEMA ESCURO NO BODY === */
+.dark body {
+  background-color: var(--cor-fundo-escuro);
+  color: #ECECEC !important;
+}
+
+/* === REGRA GERAL PARA TEXTOS NO TEMA ESCURO === */
+.dark * {
+  color: inherit;
+}
+
+.dark p, .dark span, .dark div, .dark li, .dark td {
+  color: #ECECEC !important;
+}
+
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6, .dark th {
+  color: #FFFFFF !important;
+}
+
+/* === CONTAINERS NO TEMA ESCURO === */
+.dark .velohub-container {
+  background-color: var(--cor-container-escuro);
+  box-shadow: 0 4px 20px var(--sombra-escura);
+}
+
+.dark .velohub-card {
+  background-color: var(--cor-card-escuro);
+  border: 1px solid var(--borda-escura);
+  box-shadow: 0 8px 32px var(--sombra-escura);
+}
+
+.dark .velohub-card:hover {
+  border-color: var(--blue-light);
+  box-shadow: 0 20px 40px var(--sombra-escura);
+}
+
+/* === HEADER NO TEMA ESCURO === */
+.dark .velohub-header {
+  background: linear-gradient(135deg, #000058 0%, #1634FF 100%);
+  border-bottom: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.dark .velohub-header h1,
+.dark .header-logo h1 {
+  color: #FFFFFF !important;
+}
+
+/* === NAVEGAÇÃO NO TEMA ESCURO === */
+.dark .nav-menu {
+  background-color: var(--cor-container-escuro);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dark .nav-btn,
+.dark a.nav-btn {
+  color: #FFFFFF !important;
+  background: transparent;
+}
+
+/* === MENU CANAIS NO TEMA ESCURO === */
+.dark .nav-canais {
+  background: var(--cor-header, #1634FF);
+}
+
+.dark .canais-label {
+  color: #FFFFFF !important;
+}
+
+.dark .canais-btn {
+  color: #FFFFFF !important;
+}
+
+.dark .canais-btn:hover {
+  color: #FFFFFF !important;
+}
+
+.dark .canais-btn.active {
+  background: white;
+  color: var(--cor-header, #1634FF) !important;
+}
+
+.dark .nav-btn:hover {
+  background: rgba(22, 52, 255, 0.2) !important;
+  color: #FFFFFF !important;
+}
+
+.dark .nav-btn.active {
+  background: linear-gradient(135deg, var(--azul-royal), #1DFDB9) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(22, 52, 255, 0.4);
+}
+
+/* === TEXTOS NO TEMA ESCURO === */
+/* Regras já definidas acima - removidas duplicatas */
+
+.dark .stat-card,
+.dark .velohub-card,
+.dark .segment-card {
+  color: #ECECEC !important;
+}
+
+.dark .stat-card h3,
+.dark .velohub-card h3,
+.dark .segment-card h3 {
+  color: #FFFFFF !important;
+}
+
+.dark .highlight, .dark .accent {
+  color: var(--texto-destaque-escuro);
+}
+
+/* === BOTÕES NO TEMA ESCURO === */
+.dark .velohub-btn {
+  background: var(--blue-medium);
+  color: var(--texto-principal-escuro);
+  border: 1px solid var(--borda-escura);
+}
+
+.dark .velohub-btn:hover {
+  background: var(--blue-light);
+  box-shadow: 0 4px 12px var(--sombra-escura);
+}
+
+.dark .btn-secondary {
+  background: var(--blue-opaque);
+}
+
+.dark .btn-secondary:hover {
+  background: var(--blue-dark);
+}
+
+/* === INPUTS NO TEMA ESCURO === */
+.dark .velohub-input {
+  background: var(--cor-container-escuro);
+  color: #FFFFFF !important;
+  border: 1px solid var(--borda-escura);
+}
+
+.dark .velohub-input:focus {
+  border-color: #1634FF;
+  box-shadow: 0 0 0 3px rgba(22, 52, 255, 0.2);
+}
+
+.dark .velohub-input::placeholder {
+  color: var(--texto-secundario-escuro);
+}
+
+/* === FORMULÁRIO NO TEMA ESCURO === */
+.dark .complaint-form {
+  background: var(--cor-card-escuro);
+  border: 1px solid var(--borda-escura);
+  box-shadow: 0 4px 20px var(--sombra-escura);
+}
+
+.dark .form-section {
+  background: var(--cor-fundo-escuro);
+  border: 1px solid var(--borda-escura);
+}
+
+.dark .form-section h3 {
+  color: var(--texto-principal-escuro);
+  border-bottom-color: var(--blue-opaque);
+}
+
+.dark .form-group label {
+  color: var(--texto-principal-escuro);
+}
+
+/* === MÓDULO DE CONTATO NO TEMA ESCURO === */
+.dark .checkbox-label {
+  color: var(--texto-principal-escuro);
+}
+
+.dark .checkbox-label:hover {
+  color: var(--blue-light);
+}
+
+.dark .checkmark {
+  border-color: var(--borda-escura);
+}
+
+.dark .checkbox-label input[type="checkbox"]:checked + .checkmark {
+  background: var(--blue-medium);
+  border-color: var(--blue-medium);
+}
+
+/* === PROTOCOLOS E TENTATIVAS NO TEMA ESCURO === */
+.dark .protocolo-item,
+.dark .tentativa-item {
+  background: var(--cor-container-escuro);
+  border: 1px solid var(--borda-escura);
+}
+
+.dark .protocolo-item .form-row {
+  margin-bottom: 0;
+}
+
+.dark .protocolo-item .btn-remove,
+.dark .tentativa-item .btn-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+/* === LISTA DE RECLAMAÇÕES NO TEMA ESCURO === */
+.dark .complaint-item {
+  background: var(--cor-card-escuro);
+  border: 1px solid var(--borda-escura);
+  box-shadow: 0 4px 20px var(--sombra-escura);
+}
+
+.dark .complaint-item:hover {
+  box-shadow: 0 12px 32px var(--sombra-escura);
+}
+
+.dark .complaint-title {
+  color: var(--texto-principal-escuro);
+}
+
+.dark .complaint-detail {
+  color: var(--texto-secundario-escuro);
+}
+
+.dark .complaint-detail strong {
+  color: var(--texto-destaque-escuro);
+}
+
+.dark .complaint-details {
+  background: var(--cor-fundo-escuro);
+}
+
+/* === DASHBOARD NO TEMA ESCURO === */
+.dark .stat-card {
+  background: var(--cor-card-escuro);
+  border: 1px solid var(--borda-escura);
+  box-shadow: 0 4px 20px var(--sombra-escura);
+}
+
+.dark .stat-card:hover {
+  box-shadow: 0 12px 32px var(--sombra-escura);
+}
+
+.dark .stat-card h3 {
+  color: #FFFFFF !important;
+}
+
+.dark .stat-number {
+  color: var(--azul-ciano) !important;
+  -webkit-text-fill-color: var(--azul-ciano) !important;
+  background: none !important;
+  background-clip: unset !important;
+  -webkit-background-clip: unset !important;
+}
+
+.dark .stat-card .stat-number {
+  color: var(--azul-ciano) !important;
+  -webkit-text-fill-color: var(--azul-ciano) !important;
+}
+
+/* === CARDS DE SEGMENTO NO TEMA ESCURO === */
+.dark .segmento-card {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+}
+
+.dark .segmento-card h3 {
+  color: #FFFFFF !important;
+}
+
+.dark .segmento-descricao {
+  color: #B0BEC5 !important;
+}
+
+.dark .segmento-stats {
+  background: var(--cor-fundo-escuro) !important;
+}
+
+.dark .stat-label {
+  color: #B0BEC5 !important;
+}
+
+.dark .stat-value {
+  color: var(--azul-ciano) !important;
+}
+
+/* === TABELAS NO TEMA ESCURO === */
+.dark table {
+  color: #ECECEC !important;
+}
+
+.dark table th {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+.dark table td {
+  color: #ECECEC !important;
+  border-color: var(--borda-escura) !important;
+}
+
+.dark table tr:hover {
+  background: var(--cor-fundo-escuro) !important;
+}
+
+/* === CARDS DE MÉTRICAS NO TEMA ESCURO === */
+.dark .metrica-card {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+}
+
+.dark .metrica-card h4,
+.dark .metrica-card h3 {
+  color: #FFFFFF !important;
+}
+
+.dark .metrica-card p,
+.dark .metrica-card span {
+  color: #B0BEC5 !important;
+}
+
+/* === GRÁFICOS E CHART NO TEMA ESCURO === */
+.dark .chart-container,
+.dark .status-chart,
+.dark .responsible-chart {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+}
+
+.dark .chart-label,
+.dark .chart-title {
+  color: #FFFFFF !important;
+}
+
+.dark .chart-item,
+.dark .status-item,
+.dark .responsible-item {
+  color: #ECECEC !important;
+}
+
+.dark .status-label,
+.dark .responsible-label {
+  color: #B0BEC5 !important;
+}
+
+.dark .status-count,
+.dark .responsible-count {
+  color: var(--azul-ciano) !important;
+}
+
+/* === CARDS DE GRÁFICOS NO TEMA ESCURO === */
+.dark .grafico-card {
+  background: var(--cor-card-escuro) !important;
+  border: 1px solid var(--borda-escura) !important;
+  color: #ECECEC !important;
+  box-shadow: 0 4px 20px var(--sombra-escura) !important;
+}
+
+.dark .grafico-card h3 {
+  color: #FFFFFF !important;
+}
+
+.dark .grafico-card p,
+.dark .grafico-card span,
+.dark .grafico-card div {
+  color: #ECECEC !important;
+}
+
+/* Canvas e gráficos dentro dos cards */
+.dark .grafico-card canvas {
+  filter: brightness(1.2) contrast(1.1);
+}
+
+/* Labels e textos dentro dos gráficos */
+.dark .grafico-card .chartjs-render-monitor,
+.dark .grafico-card svg text,
+.dark .grafico-card svg tspan {
+  fill: #ECECEC !important;
+  color: #ECECEC !important;
+}
+
+/* Elementos de gráfico específicos */
+.dark .grafico-card .chart-legend,
+.dark .grafico-card .legend {
+  color: #ECECEC !important;
+}
+
+.dark .grafico-card .legend-item {
+  color: #B0BEC5 !important;
+}
+
+.dark .grafico-card .legend-item strong {
+  color: #FFFFFF !important;
+}
+
+/* === PERÍODO DE ANÁLISE NO TEMA ESCURO === */
+.dark .periodo-analise,
+.dark .filter-section {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+  border: 1px solid var(--borda-escura) !important;
+}
+
+.dark .periodo-analise label,
+.dark .filter-section label {
+  color: #FFFFFF !important;
+}
+
+.dark .periodo-analise select,
+.dark .filter-section select {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+/* === FILTROS DE GRÁFICOS NO TEMA ESCURO === */
+.dark .filtros-graficos-container,
+.dark .filtros-graficos {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+  border: 1px solid var(--borda-escura) !important;
+  box-shadow: 0 4px 20px var(--sombra-escura) !important;
+}
+
+.dark .filtros-graficos h3 {
+  color: #FFFFFF !important;
+}
+
+.dark .filtros-graficos label,
+.dark .filtro-item label {
+  color: #FFFFFF !important;
+}
+
+.dark .filtros-grid {
+  background: transparent !important;
+}
+
+.dark .filtro-item {
+  background: transparent !important;
+}
+
+.dark .filtros-graficos select,
+.dark .filtros-graficos input,
+.dark .filtros-graficos .velohub-input,
+.dark .filtros-graficos .velohub-select {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+.dark .filtros-graficos select:focus,
+.dark .filtros-graficos input:focus,
+.dark .filtros-graficos .velohub-input:focus,
+.dark .filtros-graficos .velohub-select:focus {
+  border-color: #1634FF !important;
+  box-shadow: 0 0 0 3px rgba(22, 52, 255, 0.2) !important;
+}
+
+.dark .filtros-graficos select option {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+}
+
+/* === CONTROLES DE FILTRO NO TEMA ESCURO === */
+.dark .filter-controls {
+  background: transparent !important;
+}
+
+.dark .filter-controls label {
+  color: #FFFFFF !important;
+}
+
+.dark .filter-controls select,
+.dark .filter-controls input {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+.dark .filter-controls select option {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+}
+
+/* === CAIXA DE BUSCA NO TEMA ESCURO === */
+.dark .search-box,
+.dark .search-input-container {
+  background: transparent !important;
+}
+
+.dark .search-box input,
+.dark .search-input,
+.dark .search-input-container input {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+.dark .search-box input::placeholder,
+.dark .search-input::placeholder,
+.dark .search-input-container input::placeholder {
+  color: #B0BEC5 !important;
+}
+
+.dark .search-box input:focus,
+.dark .search-input:focus,
+.dark .search-input-container input:focus {
+  border-color: #1634FF !important;
+  box-shadow: 0 0 0 3px rgba(22, 52, 255, 0.2) !important;
+}
+
+.dark .search-button,
+.dark .search-box button {
+  background: var(--azul-royal) !important;
+  color: #FFFFFF !important;
+  border-color: var(--azul-royal) !important;
+}
+
+.dark .search-button:hover,
+.dark .search-box button:hover {
+  background: var(--azul-ciano) !important;
+  border-color: var(--azul-ciano) !important;
+}
+
+/* === BUSCA CLIENTE INLINE NO TEMA ESCURO === */
+.dark .busca-cliente-inline {
+  background: transparent !important;
+}
+
+.dark .busca-cliente-input {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+.dark .busca-cliente-input::placeholder {
+  color: #B0BEC5 !important;
+}
+
+.dark .busca-cliente-input:focus {
+  background: var(--cor-container-escuro) !important;
+  border-color: #1634FF !important;
+  box-shadow: 0 0 0 3px rgba(22, 52, 255, 0.2) !important;
+}
+
+/* === TODOS OS CARDS NO TEMA ESCURO === */
+.dark .card,
+.dark [class*="card"],
+.dark [class*="Card"] {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+  border: 1px solid var(--borda-escura) !important;
+}
+
+.dark .card *,
+.dark [class*="card"] *,
+.dark [class*="Card"] * {
+  color: inherit;
+}
+
+.dark .card h1,
+.dark .card h2,
+.dark .card h3,
+.dark .card h4,
+.dark .card h5,
+.dark .card h6,
+.dark [class*="card"] h1,
+.dark [class*="card"] h2,
+.dark [class*="card"] h3,
+.dark [class*="card"] h4,
+.dark [class*="card"] h5,
+.dark [class*="card"] h6 {
+  color: #FFFFFF !important;
+}
+
+.dark .card p,
+.dark .card span,
+.dark .card div,
+.dark [class*="card"] p,
+.dark [class*="card"] span,
+.dark [class*="card"] div {
+  color: #ECECEC !important;
+}
+
+/* === ELEMENTOS DE TEXTO DENTRO DOS CARDS === */
+.dark .card strong,
+.dark .card b,
+.dark [class*="card"] strong,
+.dark [class*="card"] b {
+  color: #FFFFFF !important;
+}
+
+.dark .card em,
+.dark .card i,
+.dark [class*="card"] em,
+.dark [class*="card"] i {
+  color: #B0BEC5 !important;
+}
+
+/* === CARDS DE RESUMO NO TEMA ESCURO === */
+.dark .summary-card,
+.dark .dashboard-card {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+}
+
+.dark .summary-card h3,
+.dark .dashboard-card h3 {
+  color: #FFFFFF !important;
+}
+
+.dark .summary-card p,
+.dark .dashboard-card p {
+  color: #B0BEC5 !important;
+}
+
+/* === BADGES E STATUS PILLS NO TEMA ESCURO === */
+.dark .status-badge,
+.dark .badge {
+  color: #FFFFFF !important;
+}
+
+/* === TEXTOS GERAL NO TEMA ESCURO === */
+.dark label {
+  color: #ECECEC !important;
+}
+
+.dark .text-muted,
+.dark .text-secondary {
+  color: #B0BEC5 !important;
+}
+
+/* === DASHBOARD ESPECÍFICO NO TEMA ESCURO === */
+.dark .segmento-dashboard {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+}
+
+.dark .dashboard-urgencias-section {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+}
+
+.dark .dashboard-urgencias-section h3 {
+  color: #FFFFFF !important;
+}
+
+.dark .segmento-stat-card {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+}
+
+.dark .segmento-stat-card h4 {
+  color: #FFFFFF !important;
+}
+
+.dark .segmento-stat-card .stat-number {
+  color: var(--azul-ciano) !important;
+}
+
+/* === ELEMENTOS DE FORMULÁRIO NO TEMA ESCURO === */
+.dark select,
+.dark .velohub-select {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+.dark select option {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+}
+
+.dark textarea {
+  background: var(--cor-container-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+/* === LINKS NO TEMA ESCURO === */
+.dark a {
+  color: var(--azul-ciano) !important;
+}
+
+.dark a:hover {
+  color: var(--azul-ciano) !important;
+  opacity: 0.8;
+}
+
+/* === BOTÕES NO TEMA ESCURO === */
+.dark button:not(.canais-btn):not(.nav-btn) {
+  color: #FFFFFF !important;
+}
+
+.dark .velohub-btn-primary {
+  background: var(--azul-royal) !important;
+  color: #FFFFFF !important;
+}
+
+.dark .velohub-btn-secondary {
+  background: var(--cor-fundo-escuro) !important;
+  color: #FFFFFF !important;
+  border-color: var(--borda-escura) !important;
+}
+
+/* === CARDS E CONTAINERS NO TEMA ESCURO === */
+.dark .velohub-card,
+.dark .card {
+  background: var(--cor-card-escuro) !important;
+  color: #ECECEC !important;
+  border-color: var(--borda-escura) !important;
+}
+
+.dark .velohub-card h2,
+.dark .velohub-card h3,
+.dark .velohub-card h4,
+.dark .card h2,
+.dark .card h3,
+.dark .card h4 {
+  color: #FFFFFF !important;
+}
+
+.dark .velohub-card p,
+.dark .card p {
+  color: #B0BEC5 !important;
+}
+
+/* === LISTAS NO TEMA ESCURO === */
+.dark ul,
+.dark ol {
+  color: #ECECEC !important;
+}
+
+.dark li {
+  color: #ECECEC !important;
+}
+
+/* === ELEMENTOS ESPECÍFICOS DO DASHBOARD === */
+.dark .no-results,
+.dark .empty-state {
+  color: #B0BEC5 !important;
+}
+
+.dark .percentage,
+.dark .percent {
+  color: var(--azul-ciano) !important;
+}
+
+.dark .value,
+.dark .number {
+  color: #FFFFFF !important;
+}
+
+/* === RELATÓRIOS NO TEMA ESCURO === */
+.dark .report-card {
+  background: var(--cor-card-escuro);
+  border: 1px solid var(--borda-escura);
+  box-shadow: 0 4px 20px var(--sombra-escura);
+}
+
+.dark .report-card:hover {
+  box-shadow: 0 12px 32px var(--sombra-escura);
+}
+
+.dark .report-card h3 {
+  color: #FFFFFF !important;
+}
+
+.dark .report-card p {
+  color: #B0BEC5 !important;
+}
+
+.dark .report-content {
+  background: var(--cor-card-escuro);
+  border: 1px solid var(--borda-escura);
+  box-shadow: 0 4px 20px var(--sombra-escura);
+}
+
+/* === CONTROLES DE LISTA NO TEMA ESCURO === */
+.dark .list-controls {
+  color: var(--texto-principal-escuro);
+}
+
+/* === BOTÃO DE TEMA NO TEMA ESCURO === */
+.dark .theme-toggle-btn {
+  background: var(--blue-light);
+  box-shadow: 0 4px 12px var(--sombra-escura);
+}
+
+.dark .theme-toggle-btn:hover {
+  background: var(--blue-medium);
+}
+
+/* === MODAL NO TEMA ESCURO === */
+.dark .velohub-modal {
+  background-color: var(--cor-card-escuro);
+  box-shadow: 0 4px 20px var(--sombra-escura);
+}
+
+.dark .modal-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* === ALERTAS NO TEMA ESCURO === */
+.dark .alert-success {
+  background: rgba(21, 87, 36, 0.2);
+  color: #90ee90;
+  border-color: #15a237;
+}
+
+.dark .alert-error {
+  background: rgba(114, 28, 36, 0.2);
+  color: #ff6b6b;
+  border-color: #ff4757;
+}
+
+.dark .alert-warning {
+  background: rgba(133, 100, 4, 0.2);
+  color: #ffd93d;
+  border-color: #fcc200;
+}
+
+.dark .alert-info {
+  background: rgba(12, 84, 96, 0.2);
+  color: #74c0fc;
+  border-color: #1694ff;
+}
+
+/* === DROPDOWN NO TEMA ESCURO === */
+.dark .dropdown-toggle {
+  background: var(--cor-container-escuro);
+  color: var(--texto-principal-escuro);
+  border-color: var(--borda-escura);
+}
+
+.dark .dropdown-toggle:hover {
+  border-color: var(--blue-light);
+}
+
+.dark .dropdown-menu {
+  background: var(--cor-card-escuro);
+  border: 1px solid var(--borda-escura);
+  box-shadow: 0 4px 12px var(--sombra-escura);
+}
+
+.dark .dropdown-item {
+  color: var(--texto-principal-escuro);
+  border-bottom-color: var(--borda-escura);
+}
+
+.dark .dropdown-item:hover {
+  background: var(--cor-fundo-escuro);
+}
+
+/* === ACCORDION NO TEMA ESCURO === */
+.dark .accordion {
+  border-color: var(--borda-escura);
+}
+
+.dark .accordion-header {
+  background: var(--cor-fundo-escuro);
+  color: var(--texto-principal-escuro);
+  border-bottom-color: var(--borda-escura);
+}
+
+.dark .accordion-header:hover {
+  background: var(--cor-container-escuro);
+}
+
+.dark .accordion-header.active {
+  background: var(--blue-medium);
+  color: var(--texto-principal-escuro);
+}
+
+.dark .accordion-content {
+  background: var(--cor-card-escuro);
+}
+
+/* === TABS NO TEMA ESCURO === */
+.dark .tabs {
+  border-bottom-color: var(--borda-escura);
+}
+
+.dark .tab-btn {
+  color: var(--texto-secundario-escuro);
+}
+
+.dark .tab-btn:hover {
+  color: var(--blue-light);
+}
+
+.dark .tab-btn.active {
+  color: var(--texto-destaque-escuro);
+  border-bottom-color: var(--blue-light);
+}
+
+/* === PAGINAÇÃO NO TEMA ESCURO === */
+.dark .pagination-btn {
+  background: var(--cor-container-escuro);
+  color: var(--texto-principal-escuro);
+  border-color: var(--borda-escura);
+}
+
+.dark .pagination-btn:hover {
+  background: var(--blue-medium);
+  color: var(--texto-principal-escuro);
+}
+
+.dark .pagination-btn.active {
+  background: var(--blue-medium);
+  color: var(--texto-principal-escuro);
+}
+
+.dark .pagination-btn:disabled {
+  background: var(--cor-fundo-escuro);
+  color: var(--texto-secundario-escuro);
+  border-color: var(--borda-escura);
+}
+
+/* === TOOLTIP NO TEMA ESCURO === */
+.dark .tooltip .tooltiptext {
+  background-color: var(--gray);
+  color: var(--texto-principal-escuro);
+}
+
+.dark .tooltip .tooltiptext::after {
+  border-top-color: var(--gray);
+}
+
+/* === PROGRESS BAR NO TEMA ESCURO === */
+.dark .progress {
+  background-color: var(--cor-fundo-escuro);
+}
+
+/* === BADGES NO TEMA ESCURO === */
+.dark .badge-primary {
+  background: var(--blue-medium);
+  color: var(--texto-principal-escuro);
+}
+
+.dark .badge-success {
+  background: var(--green);
+  color: var(--texto-principal-escuro);
+}
+
+.dark .badge-warning {
+  background: var(--yellow);
+  color: var(--gray);
+}
+
+.dark .badge-danger {
+  background: #ff4757;
+  color: var(--texto-principal-escuro);
+}
+
+.dark .badge-info {
+  background: var(--blue-opaque);
+  color: var(--texto-principal-escuro);
+}
+
+/* === STATUS BADGES NO TEMA ESCURO === */
+.dark .status-nao-iniciado {
+  background: rgba(108, 117, 125, 0.2);
+  color: #adb5bd;
+  border-color: #6c757d;
+}
+
+.dark .status-em-tratativa {
+  background: rgba(133, 100, 4, 0.2);
+  color: #ffd93d;
+  border-color: #fcc200;
+}
+
+.dark .status-concluido {
+  background: rgba(21, 87, 36, 0.2);
+  color: #90ee90;
+  border-color: #15a237;
+}
+
+.dark .status-respondido {
+  background: rgba(12, 84, 96, 0.2);
+  color: #74c0fc;
+  border-color: #1694ff;
+}
+
+/* === SELEÇÃO DE TEXTO NO TEMA ESCURO === */
+.dark ::selection {
+  background: var(--blue-medium);
+  color: var(--texto-principal-escuro);
+}
+
+.dark ::-moz-selection {
+  background: var(--blue-medium);
+  color: var(--texto-principal-escuro);
+}
+
+/* === SCROLLBAR NO TEMA ESCURO === */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: var(--cor-fundo-escuro);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--blue-opaque);
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--blue-medium);
+}
+
+/* === FOCO NO TEMA ESCURO === */
+.dark *:focus {
+  outline: 2px solid var(--blue-light);
+  outline-offset: 2px;
+}
+
+/* === RELATÓRIOS NO TEMA ESCURO === */
+.dark .report-table table {
+  background: var(--cor-card-escuro);
+  box-shadow: 0 2px 8px var(--sombra-escura);
+}
+
+.dark .report-table th {
+  background: var(--blue-medium);
+  color: var(--texto-principal-escuro);
+}
+
+.dark .report-table td {
+  color: var(--texto-secundario-escuro);
+  border-bottom-color: var(--borda-escura);
+}
+
+.dark .report-table tr:hover {
+  background: var(--cor-fundo-escuro);
+}
+
+.dark .status-item,
+.dark .responsible-item {
+  background: var(--cor-card-escuro);
+  box-shadow: 0 2px 8px var(--sombra-escura);
+}
+
+.dark .status-label,
+.dark .responsible-label {
+  color: var(--texto-principal-escuro);
+}
+
+.dark .status-bar,
+.dark .responsible-bar {
+  background: var(--cor-fundo-escuro);
+}
+
+.dark .status-count,
+.dark .responsible-count {
+  color: var(--texto-destaque-escuro);
+}
+
+.dark .no-results {
+  background: var(--cor-card-escuro);
+  color: var(--texto-secundario-escuro);
+  box-shadow: 0 2px 8px var(--sombra-escura);
+}
+
+.dark .tentativa-detail {
+  color: var(--texto-secundario-escuro);
+}
+
+/* === TRANSIÇÕES SUAVES === */
+.dark * {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

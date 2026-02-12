@@ -1,145 +1,609 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BacenN2 - Sistema de Fichas</title>
-  
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f5f5;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    h1 {
-      color: #333;
-      margin-bottom: 20px;
-    }
-
-    #loading-indicator {
-      display: none;
-      text-align: center;
-      padding: 20px;
-      color: #666;
-    }
-
-    #erro-mensagem {
-      display: none;
-      background: #fee;
-      color: #c33;
-      padding: 15px;
-      border-radius: 4px;
-      margin-bottom: 20px;
-      border-left: 4px solid #c33;
-    }
-
-    #fichas-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
-    }
-
-    .ficha-card {
-      background: #f9f9f9;
-      padding: 15px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .ficha-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-
-    .ficha-card h3 {
-      color: #333;
-      margin-bottom: 10px;
-      font-size: 1.2em;
-    }
-
-    .ficha-card p {
-      color: #666;
-      margin-bottom: 10px;
-      line-height: 1.5;
-    }
-
-    .ficha-meta {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid #eee;
-    }
-
-    .ficha-meta small {
-      color: #999;
-      font-size: 0.85em;
-    }
-
-    .sem-fichas {
-      text-align: center;
-      padding: 40px;
-      color: #999;
-    }
-
-    .secao {
-      display: none;
-    }
-
-    .secao.ativa {
-      display: block;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Reclamações BACEN</title>
+    
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Anton&display=swap" rel="stylesheet">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/theme-dark.css">
+    
+    <!-- Script Inline: Definir buscarClientePorCPF ANTES do body ser renderizado -->
+    <script>
+        // Definir buscarClientePorCPF ANTES do body ser renderizado
+        // Isso evita erro quando o HTML tenta chamar a função no onclick
+        window.buscarClientePorCPF = async function() {
+            // Verificar se historicoCliente já está disponível
+            if (window.historicoCliente && typeof window.historicoCliente.mostrarHistorico === 'function') {
+                const input = document.getElementById('busca-cliente-cpf');
+                const cpf = input ? input.value.trim() : '';
+                if (cpf) {
+                    const cpfLimpo = cpf.replace(/\D/g, '');
+                    if (cpfLimpo.length < 11) {
+                        if (typeof mostrarAlerta === 'function') {
+                            mostrarAlerta('CPF inválido. Digite os 11 dígitos.', 'warning');
+                        } else {
+                            alert('CPF inválido. Digite os 11 dígitos.');
+                        }
+                        return;
+                    }
+                    await window.historicoCliente.mostrarHistorico(cpf);
+                    if (input) input.value = '';
+                } else {
+                    if (typeof mostrarAlerta === 'function') {
+                        mostrarAlerta('Digite um CPF para buscar', 'info');
+                    } else {
+                        alert('Digite um CPF para buscar');
+                    }
+                }
+            } else {
+                console.warn('⚠️ historicoCliente ainda não está disponível, aguardando...');
+                // Aguardar um pouco e tentar novamente
+                setTimeout(() => {
+                    if (window.historicoCliente) {
+                        window.buscarClientePorCPF();
+                    } else {
+                        alert('Sistema ainda carregando. Tente novamente em alguns segundos.');
+                    }
+                }, 500);
+            }
+        };
+        console.log('✅ buscarClientePorCPF definido globalmente no <head> (index.html)');
+    </script>
 </head>
 <body>
-  <div class="container">
-    <h1>BacenN2 - Sistema de Fichas</h1>
-    
-    <div id="erro-mensagem"></div>
-    
-    <div id="loading-indicator">
-      <p>Carregando fichas...</p>
-    </div>
-    
-    <div id="fichas-container">
-      <!-- Fichas serão renderizadas aqui -->
-    </div>
-  </div>
+    <!-- Header -->
+    <header class="velohub-header">
+        <div class="header-content">
+            <div class="header-logo">
+                <div class="logo-container">
+                    <img src="img/simbolo_velotax_ajustada_branco.png" alt="Velotax" class="logo-header" id="logo-home">
+                </div>
+                <h1>Home</h1>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle-btn" onclick="toggleTheme()">🌙</button>
+            </div>
+        </div>
+    </header>
 
-  <!-- Scripts na ordem correta -->
-  <!-- 1. Firebase SDK já carregado no <head> -->
-  
-  <!-- 2. Firebase Manager (deve ser o primeiro) -->
-  <script src="js/firebase-init.js"></script>
-  
-  <!-- 3. ArmazenamentoReclamacoes (depende do Firebase Manager) -->
-  <script src="js/armazenamento-reclamacoes.js"></script>
-  
-  <!-- 4. Páginas específicas -->
-  <script src="js/bacen-page.js"></script>
-  <!-- <script src="js/chatbot-page.js"></script> -->
+    <!-- Menu CANAIS -->
+    <nav class="nav nav-canais">
+        <div class="canais-menu">
+            <span class="canais-label">CANAIS:</span>
+            <a href="bacen.html" class="nav-btn canais-btn">BACEN</a>
+            <a href="n2.html" class="nav-btn canais-btn">N2</a>
+            <a href="chatbot.html" class="nav-btn canais-btn">Chatbot</a>
+        </div>
+        <div class="busca-cliente-inline">
+            <input type="text" id="busca-cliente-cpf" class="velohub-input busca-cliente-input" placeholder="🔍 Buscar cliente por CPF..." onkeypress="if(event.key === 'Enter') buscarClientePorCPF()">
+            <button class="velohub-btn btn-secondary btn-buscar-cliente" onclick="buscarClientePorCPF()">Buscar</button>
+        </div>
+    </nav>
+
+    <!-- Navegação -->
+    <nav class="nav">
+        <button class="nav-btn active" onclick="showSection('home')">🏠 Home</button>
+        <button class="nav-btn" onclick="showSection('dashboard-geral')">📊 Dashboard Geral</button>
+        <a href="importacao.html" class="nav-btn">📥 Importar Dados</a>
+        <a href="admin.html" class="nav-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">⚙️ Painel Admin</a>
+    </nav>
+
+    <!-- Container Principal -->
+    <main class="velohub-container">
+        <!-- Home com Cards dos Segmentos -->
+        <section id="home" class="section active">
+            <h2>🏠 Home - Gestão de Demandas</h2>
+            <div class="segmentos-grid">
+                <a href="bacen.html" class="segmento-card bacen-card" style="text-decoration: none; color: inherit;">
+                    <div class="segmento-icon">🏦</div>
+                    <h3>BACEN</h3>
+                    <p class="segmento-descricao">Reclamações registradas no Banco Central</p>
+                    <button class="segmento-btn" type="button">Acessar BACEN →</button>
+                </a>
+
+                <a href="n2.html" class="segmento-card n2-card" style="text-decoration: none; color: inherit;">
+                    <div class="segmento-icon">🔄</div>
+                    <h3>N2</h3>
+                    <p class="segmento-descricao">Demandas de portabilidade e transferência bancária</p>
+                    <button class="segmento-btn" type="button">Acessar N2 →</button>
+                </a>
+
+                <a href="chatbot.html" class="segmento-card chatbot-card" style="text-decoration: none; color: inherit;">
+                    <div class="segmento-icon">
+                        <span class="robot-icon-base">🤖</span>
+                    </div>
+                    <h3>Chatbot</h3>
+                    <p class="segmento-descricao">Demandas originadas no chatbot</p>
+                    <button class="segmento-btn" type="button">Acessar Chatbot →</button>
+                </a>
+
+                <a href="ra-procon.html" class="segmento-card" style="display: none; text-decoration: none; color: inherit; background: linear-gradient(135deg, #FF00D7 0%, #791DD0 100%); border: 2px solid #FF00D7;">
+                    <div class="segmento-icon">⚖️</div>
+                    <h3>ReclameAqui & Procon</h3>
+                    <p class="segmento-descricao">Gestão refinada de reclamações do ReclameAqui e Procon</p>
+                    <button class="segmento-btn" type="button" style="background: rgba(255,255,255,0.2); color: white;">Acessar RA/Procon →</button>
+                </a>
+            </div>
+        </section>
+
+        <!-- Dashboard -->
+        <section id="dashboard" class="section">
+            <h2>Dashboard</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total de Reclamações</h3>
+                    <span class="stat-number" id="total-complaints">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Em Tratativa</h3>
+                    <span class="stat-number" id="in-progress">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Concluídas</h3>
+                    <span class="stat-number" id="completed">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Respondidas</h3>
+                    <span class="stat-number" id="responded">0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Geral Consolidado -->
+        <section id="dashboard-geral" class="section">
+            <div class="dashboard-header">
+                <h2>📊 Dashboard Geral</h2>
+                <p>Visão consolidada de todos os canais (BACEN, N2 e Chatbot)</p>
+            </div>
+            
+            <!-- Métricas Gerais -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Geral de Reclamações</h3>
+                    <span class="stat-number" id="total-geral">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Em Tratativa</h3>
+                    <span class="stat-number" id="em-tratativa-geral">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Concluídas</h3>
+                    <span class="stat-number" id="concluidas-geral">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Respondidas</h3>
+                    <span class="stat-number" id="respondidas-geral">0</span>
+                </div>
+            </div>
+
+            <!-- Métricas por Canal -->
+            <div class="canais-dashboard">
+                <h3>📈 Métricas por Canal</h3>
+                <div class="canais-grid">
+                    <!-- BACEN -->
+                    <div class="canal-card bacen-card">
+                        <h4>🏦 BACEN</h4>
+                        <div class="canal-stats">
+                            <div class="canal-stat">
+                                <span class="canal-label">Total:</span>
+                                <span class="canal-value" id="total-bacen">0</span>
+                            </div>
+                            <div class="canal-stat">
+                                <span class="canal-label">Em Tratativa:</span>
+                                <span class="canal-value" id="em-tratativa-bacen">0</span>
+                            </div>
+                            <div class="canal-stat">
+                                <span class="canal-label">Concluídas:</span>
+                                <span class="canal-value" id="concluidas-bacen">0</span>
+                            </div>
+                        </div>
+                        <a href="bacen.html" class="canal-link">Ver Dashboard BACEN →</a>
+                    </div>
+
+                    <!-- N2 -->
+                    <div class="canal-card n2-card">
+                        <h4>🔄 N2</h4>
+                        <div class="canal-stats">
+                            <div class="canal-stat">
+                                <span class="canal-label">Total:</span>
+                                <span class="canal-value" id="total-n2">0</span>
+                            </div>
+                            <div class="canal-stat">
+                                <span class="canal-label">Em Tratativa:</span>
+                                <span class="canal-value" id="em-tratativa-n2">0</span>
+                            </div>
+                            <div class="canal-stat">
+                                <span class="canal-label">Concluídas:</span>
+                                <span class="canal-value" id="concluidas-n2">0</span>
+                            </div>
+                        </div>
+                        <a href="n2.html" class="canal-link">Ver Dashboard N2 →</a>
+                    </div>
+
+                    <!-- Chatbot -->
+                    <div class="canal-card chatbot-card">
+                        <h4>🤖 Chatbot</h4>
+                        <div class="canal-stats">
+                            <div class="canal-stat">
+                                <span class="canal-label">Total:</span>
+                                <span class="canal-value" id="total-chatbot">0</span>
+                            </div>
+                            <div class="canal-stat">
+                                <span class="canal-label">Resolvidas Auto:</span>
+                                <span class="canal-value" id="auto-chatbot">0</span>
+                            </div>
+                            <div class="canal-stat">
+                                <span class="canal-label">Encaminhadas:</span>
+                                <span class="canal-value" id="encaminhadas-chatbot">0</span>
+                            </div>
+                        </div>
+                        <a href="chatbot.html" class="canal-link">Ver Dashboard Chatbot →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos Consolidados -->
+            <div class="graficos-gerais">
+                <h3>📊 Gráficos Consolidados</h3>
+                <div class="graficos-grid">
+                    <!-- Gráfico de Status Geral -->
+                    <div class="grafico-card">
+                        <h4>Status Geral</h4>
+                        <div id="grafico-status-geral"></div>
+                    </div>
+                    <!-- Gráfico Mensal Consolidado -->
+                    <div class="grafico-card">
+                        <h4>Reclamações por Mês (Todos os Canais)</h4>
+                        <div id="grafico-mensal-geral"></div>
+                    </div>
+                    <!-- Gráfico por Canal -->
+                    <div class="grafico-card">
+                        <h4>Distribuição por Canal</h4>
+                        <div id="grafico-canal-geral"></div>
+                    </div>
+                    <!-- Gráfico por Status por Canal -->
+                    <div class="grafico-card">
+                        <h4>Status por Canal</h4>
+                        <div id="grafico-status-canal-geral"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Formulário de Nova Reclamação -->
+        <section id="register" class="section">
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+                <button class="btn-voltar" onclick="showSection('home')" style="display: none;" id="btn-voltar-form">← Voltar</button>
+                <h2>Nova Reclamação</h2>
+            </div>
+            <form id="complaint-form" class="complaint-form">
+                <div class="form-grid">
+                    <!-- Dados Básicos -->
+                    <div class="form-section">
+                        <h3>Dados Básicos</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="data-reclamacao">Data da Reclamação *</label>
+                                <input type="date" id="data-reclamacao" class="velohub-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="data-recebimento">Data de Recebimento *</label>
+                                <input type="date" id="data-recebimento" class="velohub-input" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="prazo-retorno">Prazo Retorno BACEN</label>
+                                <input type="date" id="prazo-retorno" class="velohub-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="responsavel">Responsável *</label>
+                                <input type="text" id="responsavel" class="velohub-input" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dados do Cliente -->
+                    <div class="form-section">
+                        <h3>Dados do Cliente</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nome-cliente">Nome do Cliente *</label>
+                                <input type="text" id="nome-cliente" class="velohub-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="cpf">CPF *</label>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="text" id="cpf" class="velohub-input cpf-mask" required placeholder="000.000.000-00" style="flex: 1;">
+                                    <button type="button" class="velohub-btn btn-secondary" onclick="gerarCPFTeste()" style="padding: 12px 16px; white-space: nowrap;">
+                                        🎲 Gerar CPF
+                                    </button>
+                                </div>
+                                <small style="color: #666; font-size: 0.8rem; margin-top: 4px; display: block;">
+                                    Use o botão para gerar um CPF válido para testes
+                                </small>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="origem">Origem</label>
+                                <select id="origem" class="velohub-input" onchange="handleOrigemChange()">
+                                    <option value="">Selecione...</option>
+                                    <option value="celcoin">Celcoin</option>
+                                    <option value="via-capital">Via Capital</option>
+                                    <option value="telefone">Telefone</option>
+                                    <option value="email">Email</option>
+                                    <option value="presencial">Presencial</option>
+                                    <option value="site">Site</option>
+                                    <option value="app">App</option>
+                                    <option value="outro">Outro</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="origem-outro-group" style="display: none;">
+                                <label for="origem-outro">Especificar Origem</label>
+                                <input type="text" id="origem-outro" class="velohub-input" placeholder="Digite a origem...">
+                            </div>
+                            <div class="form-group">
+                                <label for="telefone">Telefone</label>
+                                <input type="text" id="telefone" class="velohub-input telefone-mask" placeholder="(00) 00000-0000">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detalhes da Reclamação -->
+                    <div class="form-section">
+                        <h3>Detalhes da Reclamação</h3>
+                        <div class="form-group">
+                            <label for="motivo-reduzido">Motivo Reduzido *</label>
+                            <input type="text" id="motivo-reduzido" class="velohub-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="motivo-detalhado">Motivo Detalhado</label>
+                            <textarea id="motivo-detalhado" class="velohub-input" rows="4" placeholder="Descreva detalhadamente a reclamação..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Módulo de Contato -->
+                    <div class="form-section">
+                        <h3>Módulo de Contato</h3>
+                        <div class="contact-module">
+                            <div class="contact-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="atendimento">
+                                    <span class="checkmark"></span>
+                                    Atendimento
+                                </label>
+                            </div>
+                            <div class="contact-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="reclame-aqui">
+                                    <span class="checkmark"></span>
+                                    Reclame Aqui
+                                </label>
+                            </div>
+                            <div class="contact-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="bacen">
+                                    <span class="checkmark"></span>
+                                    BACEN
+                                </label>
+                            </div>
+                            <div class="contact-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="procon">
+                                    <span class="checkmark"></span>
+                                    Procon
+                                </label>
+                            </div>
+                            <div class="contact-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="n2">
+                                    <span class="checkmark"></span>
+                                    N2
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Protocolos Anteriores -->
+                    <div class="form-section">
+                        <h3>Protocolos Anteriores</h3>
+                        <div id="protocolos-container">
+                            <div class="protocolo-item">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Número do Protocolo</label>
+                                        <input type="text" class="velohub-input protocolo-input" placeholder="Digite o número do protocolo">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Canal</label>
+                                        <input type="text" class="velohub-input protocolo-canal" placeholder="Digite o canal">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Data</label>
+                                        <input type="date" class="velohub-input protocolo-data">
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-remove" onclick="removeProtocolo(this)">❌</button>
+                            </div>
+                        </div>
+                        <button type="button" class="velohub-btn btn-secondary" onclick="addProtocolo()">➕ Adicionar Protocolo</button>
+                    </div>
+
+                    <!-- Status e Resultado -->
+                    <div class="form-section">
+                        <h3>Status e Resultado</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="status">Status da Reclamação *</label>
+                                <select id="status" class="velohub-input" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="nao-iniciado">Não Iniciado</option>
+                                    <option value="em-tratativa">Em Tratativa</option>
+                                    <option value="concluido">Concluído</option>
+                                    <option value="respondido">Respondido</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="data-status">Data do Status</label>
+                                <input type="date" id="data-status" class="velohub-input">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="resultado-tratativa">Resultado da Tratativa</label>
+                            <textarea id="resultado-tratativa" class="velohub-input" rows="3" placeholder="Descreva o resultado da tratativa..."></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="prazo-final">Prazo Final (dias)</label>
+                                <input type="text" id="prazo-final" class="velohub-input numero-mask" placeholder="0" data-tipo="numero" min="1" max="365">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Histórico de Tentativas -->
+                    <div class="form-section">
+                        <h3>Histórico de Tentativas de Contato</h3>
+                        <div id="historico-container">
+                            <div class="tentativa-item">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Data/Hora</label>
+                                        <input type="datetime-local" class="velohub-input tentativa-datetime">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Resultado</label>
+                                        <select class="velohub-input tentativa-resultado">
+                                            <option value="">Selecione...</option>
+                                            <option value="contatado">Contatado</option>
+                                            <option value="nao-atendeu">Não Atendeu</option>
+                                            <option value="telefone-ocupado">Telefone Ocupado</option>
+                                            <option value="nao-existe">Número Não Existe</option>
+                                            <option value="mensagem-voz">Mensagem de Voz</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Observações</label>
+                                    <input type="text" class="velohub-input tentativa-obs" placeholder="Observações sobre a tentativa...">
+                                </div>
+                                <button type="button" class="btn-remove" onclick="removeTentativa(this)">❌</button>
+                            </div>
+                        </div>
+                        <button type="button" class="velohub-btn btn-secondary" onclick="addTentativa()">➕ Adicionar Tentativa</button>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="velohub-btn">💾 Salvar Reclamação</button>
+                    <button type="button" class="velohub-btn btn-secondary" onclick="clearForm()">🗑️ Limpar Formulário</button>
+                </div>
+            </form>
+        </section>
+
+
+        <!-- Lista de Reclamações -->
+        <section id="list" class="section">
+            <h2>Lista de Fichas</h2>
+            <div class="list-controls">
+                <div class="search-box">
+                    <input type="text" id="search-input" class="velohub-input" placeholder="🔍 Buscar por cliente, CPF, motivo ou observações...">
+                </div>
+                <div class="filter-controls">
+                    <select id="tipo-filter" class="velohub-input">
+                        <option value="">Todos os Tipos</option>
+                        <option value="bacen">🏦 BACEN</option>
+                        <option value="n2">🔄 N2</option>
+                        <option value="chatbot">🤖 Chatbot</option>
+                    </select>
+                    <select id="status-filter" class="velohub-input">
+                        <option value="">Todos os Status</option>
+                        <option value="nao-iniciado">Não Iniciado</option>
+                        <option value="em-tratativa">Em Tratativa</option>
+                        <option value="concluido">Concluído</option>
+                        <option value="respondido">Respondido</option>
+                    </select>
+                    <button class="velohub-btn btn-secondary" onclick="abrirBuscaAvancada()">
+                        🔍 Busca Avançada
+                    </button>
+                </div>
+            </div>
+            <div id="complaints-list" class="complaints-list">
+                <!-- Lista será populada dinamicamente -->
+            </div>
+        </section>
+
+        <!-- Relatórios -->
+        <section id="reports" class="section">
+            <h2>Relatórios</h2>
+            <div class="reports-grid">
+                <div class="report-card">
+                    <h3>📊 Relatório por Período</h3>
+                    <p>Gere relatórios de reclamações por período específico</p>
+                    <button class="velohub-btn" onclick="generatePeriodReport()">Gerar Relatório</button>
+                </div>
+                <div class="report-card">
+                    <h3>📈 Relatório por Status</h3>
+                    <p>Análise detalhada por status das reclamações</p>
+                    <button class="velohub-btn" onclick="generateStatusReport()">Gerar Relatório</button>
+                </div>
+                <div class="report-card">
+                    <h3>👥 Relatório por Responsável</h3>
+                    <p>Performance dos responsáveis por reclamação</p>
+                    <button class="velohub-btn" onclick="generateResponsibleReport()">Gerar Relatório</button>
+                </div>
+                <div class="report-card">
+                    <h3>📋 Relatório Completo</h3>
+                    <p>Relatório completo com todas as informações</p>
+                    <button class="velohub-btn" onclick="generateFullReport()">Gerar Relatório</button>
+                </div>
+            </div>
+            <div id="report-content" class="report-content" style="display: none;">
+                <!-- Conteúdo do relatório será exibido aqui -->
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript -->
+    <!-- Configuração Google SSO -->
+    <script>
+        window.GOOGLE_CLIENT_ID = '638842930106-b0plff0sbbs0ljsm39n5kadsjfcj3u3q.apps.googleusercontent.com';
+    </script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="js/config-firebase.js"></script>
+    <!-- Firebase Manager Corrigido - Aguarda inicialização completa -->
+    <script src="js/firebase-init-v2.js"></script>
+    <script src="js/firebase-db.js"></script>
+    <!-- Sistema de Armazenamento -->
+    <script src="js/armazenamento-reclamacoes.js"></script>
+    <!-- Outros scripts -->
+    <script src="js/loading.js"></script>
+    <script src="js/validador-velotax.js"></script>
+    <script src="js/google-sso.js"></script>
+    <script src="js/auth-system.js"></script>
+    <!-- Definir showSection como stub antes de main.js carregar -->
+    <script>
+        // Stub para showSection até main.js carregar
+        window.showSection = window.showSection || function(sectionId) {
+            console.warn('⚠️ showSection ainda não carregado, aguardando...');
+            setTimeout(() => {
+                if (window.showSection && typeof window.showSection === 'function' && window.showSection.toString().includes('section.classList')) {
+                    window.showSection(sectionId);
+                }
+            }, 100);
+        };
+    </script>
+    <!-- Scripts do app serão carregados pelo auth-system.js após autenticação -->
+    <!-- Não carregar aqui para evitar duplicação -->
 </body>
 </html>
-

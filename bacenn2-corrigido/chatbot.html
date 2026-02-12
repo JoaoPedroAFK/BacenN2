@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão Chatbot - Sistema Velotax</title>
+    
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/theme-dark.css">
+    
+    <!-- Script Inline: Definir buscarClientePorCPF ANTES do body ser renderizado -->
+    <script>
+        // Definir buscarClientePorCPF ANTES do body ser renderizado
+        // Isso evita erro quando o HTML tenta chamar a função no onclick
+        window.buscarClientePorCPF = async function() {
+            // Verificar se historicoCliente já está disponível
+            if (window.historicoCliente && typeof window.historicoCliente.mostrarHistorico === 'function') {
+                const input = document.getElementById('busca-cliente-cpf');
+                const cpf = input ? input.value.trim() : '';
+                if (cpf) {
+                    const cpfLimpo = cpf.replace(/\D/g, '');
+                    if (cpfLimpo.length < 11) {
+                        if (typeof mostrarAlerta === 'function') {
+                            mostrarAlerta('CPF inválido. Digite os 11 dígitos.', 'warning');
+                        } else {
+                            alert('CPF inválido. Digite os 11 dígitos.');
+                        }
+                        return;
+                    }
+                    await window.historicoCliente.mostrarHistorico(cpf);
+                    if (input) input.value = '';
+                } else {
+                    if (typeof mostrarAlerta === 'function') {
+                        mostrarAlerta('Digite um CPF para buscar', 'info');
+                    } else {
+                        alert('Digite um CPF para buscar');
+                    }
+                }
+            } else {
+                console.warn('⚠️ historicoCliente ainda não está disponível, aguardando...');
+                // Aguardar um pouco e tentar novamente
+                setTimeout(() => {
+                    if (window.historicoCliente) {
+                        window.buscarClientePorCPF();
+                    } else {
+                        alert('Sistema ainda carregando. Tente novamente em alguns segundos.');
+                    }
+                }, 500);
+            }
+        };
+        console.log('✅ buscarClientePorCPF definido globalmente no <head> (chatbot.html)');
+    </script>
+    
+    <!-- Script Inline: Definir mostrarSecao ANTES dos botões serem renderizados -->
+    <script>
+        // Função mostrarSecao deve estar disponível GLOBALMENTE antes dos botões
+        // Esta função será sobrescrita/reforçada pelo chatbot-page.js quando carregar
+        (function() {
+            'use strict';
+            window.mostrarSecao = function(secaoId) {
+                console.log('🔘 [HEAD] mostrarSecao chamado com:', secaoId);
+                
+                // Esconder todas as seções
+                const sections = document.querySelectorAll('.section');
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // Remover active de todos os botões
+                const buttons = document.querySelectorAll('.nav-btn');
+                buttons.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Mostrar seção selecionada
+                const section = document.getElementById(secaoId);
+                if (section) {
+                    section.classList.add('active');
+                } else {
+                    console.warn('⚠️ Seção não encontrada:', secaoId);
+                }
+                
+                // Ativar botão correspondente
+                buttons.forEach(btn => {
+                    const onclick = btn.getAttribute('onclick');
+                    if (onclick && onclick.includes(`'${secaoId}'`)) {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                // Chamar funções específicas de cada seção
+                if (secaoId === 'lista-chatbot') {
+                    console.log('📋 [HEAD] Seção lista-chatbot selecionada, chamando renderizarListaChatbot...');
+                    // Verificar se a função existe antes de chamar
+                    if (typeof window.renderizarListaChatbot === 'function') {
+                        console.log('✅ [HEAD] Chamando window.renderizarListaChatbot...');
+                        window.renderizarListaChatbot();
+                    } else if (typeof renderizarListaChatbot === 'function') {
+                        console.log('✅ [HEAD] Chamando renderizarListaChatbot...');
+                        renderizarListaChatbot();
+                    } else {
+                        console.warn('⚠️ [HEAD] renderizarListaChatbot não está disponível ainda');
+                        console.warn('⚠️ [HEAD] typeof window.renderizarListaChatbot:', typeof window.renderizarListaChatbot);
+                        console.warn('⚠️ [HEAD] typeof renderizarListaChatbot:', typeof renderizarListaChatbot);
+                        // Tentar novamente após um pequeno delay
+                        setTimeout(() => {
+                            if (typeof window.renderizarListaChatbot === 'function') {
+                                console.log('✅ [HEAD] Chamando window.renderizarListaChatbot após delay...');
+                                window.renderizarListaChatbot();
+                            } else if (typeof renderizarListaChatbot === 'function') {
+                                console.log('✅ [HEAD] Chamando renderizarListaChatbot após delay...');
+                                renderizarListaChatbot();
+                            } else {
+                                console.error('❌ [HEAD] renderizarListaChatbot ainda não está disponível após delay');
+                            }
+                        }, 1000);
+                    }
+                } else if (secaoId === 'minhas-reclamacoes-chatbot') {
+                    if (typeof window.renderizarMinhasReclamacoesChatbot === 'function') {
+                        window.renderizarMinhasReclamacoesChatbot();
+                    } else if (typeof renderizarMinhasReclamacoesChatbot === 'function') {
+                        renderizarMinhasReclamacoesChatbot();
+                    }
+                } else if (secaoId === 'dashboard-chatbot') {
+                    // Aguardar um pouco para garantir que armazenamentoReclamacoes está pronto
+                    setTimeout(async () => {
+                    if (typeof window.atualizarDashboardChatbot === 'function') {
+                            await window.atualizarDashboardChatbot();
+                    } else if (typeof atualizarDashboardChatbot === 'function') {
+                            await atualizarDashboardChatbot();
+                    }
+                    }, 500);
+                }
+            };
+            console.log('✅ [HEAD] mostrarSecao definido globalmente no <head>');
+            console.log('✅ [HEAD] typeof window.mostrarSecao:', typeof window.mostrarSecao);
+        })();
+    </script>
+    
+    <style>
+        /* Estilos específicos Chatbot */
+        .chatbot-header {
+            background: linear-gradient(135deg, #1634FF 0%, #1DFDB9 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .chatbot-card {
+            border-left: 4px solid #1634FF;
+        }
+        
+        .chatbot-badge {
+            background: #1634FF;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="velohub-header">
+        <div class="header-content">
+                <div class="header-logo">
+                    <div class="logo-container">
+                        <img src="img/simbolo_velotax_ajustada_branco.png" alt="Velotax" class="logo-header">
+                    </div>
+                    <h1>Chatbot</h1>
+                </div>
+            <div class="header-actions">
+                <a href="index.html" class="velohub-btn btn-secondary" style="text-decoration: none; color: white; margin-right: 12px;">🏠 Voltar à Home</a>
+                <button class="theme-toggle-btn" onclick="toggleTheme()">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Menu CANAIS -->
+    <nav class="nav nav-canais">
+        <div class="canais-menu">
+            <span class="canais-label">CANAIS:</span>
+            <a href="bacen.html" class="nav-btn canais-btn">BACEN</a>
+            <a href="n2.html" class="nav-btn canais-btn">N2</a>
+            <a href="chatbot.html" class="nav-btn canais-btn active">Chatbot</a>
+        </div>
+        <div class="busca-cliente-inline">
+            <input type="text" id="busca-cliente-cpf" class="velohub-input busca-cliente-input" placeholder="🔍 Buscar cliente por CPF..." onkeypress="if(event.key === 'Enter') buscarClientePorCPF()">
+            <button class="velohub-btn btn-secondary btn-buscar-cliente" onclick="buscarClientePorCPF()">Buscar</button>
+        </div>
+    </nav>
+
+    <!-- Navegação -->
+    <nav class="nav">
+        <button class="nav-btn active" onclick="mostrarSecao('dashboard-chatbot')">📊 Dashboard</button>
+        <button class="nav-btn" onclick="mostrarSecao('minhas-reclamacoes-chatbot')">👤 Minhas Reclamações</button>
+        <button class="nav-btn" onclick="mostrarSecao('nova-reclamacao-chatbot')">➕ Nova Reclamação Chatbot</button>
+        <button class="nav-btn" onclick="mostrarSecao('lista-chatbot')">📋 Lista de Reclamações</button>
+        <button class="nav-btn" onclick="mostrarSecao('relatorios-chatbot')">📈 Relatórios</button>
+    </nav>
+
+    <!-- Container Principal -->
+    <main class="velohub-container">
+        <!-- Dashboard Chatbot -->
+        <section id="dashboard-chatbot" class="section active">
+            <div class="chatbot-header">
+                <h2>📊 Dashboard Chatbot</h2>
+                <p>Métricas e estatísticas das demandas originadas no chatbot</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card chatbot-card">
+                    <h3>Total de Reclamações Chatbot</h3>
+                    <span class="stat-number" id="chatbot-total-dash">0</span>
+                </div>
+                <div class="stat-card chatbot-card">
+                    <h3>Resolvidas Automaticamente</h3>
+                    <span class="stat-number" id="chatbot-auto-resolvidas">0</span>
+                </div>
+                <div class="stat-card chatbot-card">
+                    <h3>Encaminhadas para Humano</h3>
+                    <span class="stat-number" id="chatbot-encaminhadas">0</span>
+                </div>
+                <div class="stat-card chatbot-card">
+                    <h3>Taxa de Satisfação</h3>
+                    <span class="stat-number" id="chatbot-satisfacao">0%</span>
+                </div>
+            </div>
+
+            <!-- Métricas Específicas Chatbot -->
+            <div class="metricas-chatbot">
+                <h3>📊 Métricas Específicas Chatbot</h3>
+                <div class="metricas-grid">
+                    <div class="metrica-card">
+                        <h4>Taxa de Resolução Automática</h4>
+                        <div class="metrica-valor" id="taxa-auto-chatbot">0%</div>
+                    </div>
+                    <div class="metrica-card">
+                        <h4>Canal Mais Usado</h4>
+                        <div class="metrica-valor" id="canal-mais-usado">-</div>
+                    </div>
+                    <div class="metrica-card">
+                        <h4>Média de Satisfação</h4>
+                        <div class="metrica-valor" id="media-satisfacao">0.0</div>
+                    </div>
+                    <div class="metrica-card">
+                        <h4>Tempo Médio de Resposta</h4>
+                        <div class="metrica-valor" id="tempo-resposta-chatbot">0 min</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos Chatbot -->
+            <div class="graficos-chatbot">
+                <div class="grafico-card">
+                    <h3>Resolução Automática vs Humana</h3>
+                    <div id="grafico-resolucao-chatbot"></div>
+                </div>
+                <div class="grafico-card">
+                    <h3>Distribuição por Canal</h3>
+                    <div id="grafico-canais-chatbot"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Minhas Reclamações Chatbot -->
+        <section id="minhas-reclamacoes-chatbot" class="section">
+            <div class="chatbot-header">
+                <h2>👤 Minhas Reclamações Chatbot</h2>
+                <p>Reclamações atribuídas a você</p>
+            </div>
+            
+            <div id="minhas-fichas-chatbot" class="fichas-container">
+                <div class="loading-message">Carregando suas reclamações...</div>
+            </div>
+        </section>
+
+        <!-- Nova Reclamação Chatbot -->
+        <section id="nova-reclamacao-chatbot" class="section">
+            <div class="chatbot-header">
+                <h2>➕ Nova Reclamação Chatbot</h2>
+                <p>Registre uma nova demanda originada no chatbot</p>
+            </div>
+            
+            <form id="form-chatbot" class="complaint-form">
+                <!-- Dados Básicos -->
+                <div class="form-section">
+                    <h3>Dados Básicos</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chatbot-data-cliente">Data entrada *</label>
+                            <input type="date" id="chatbot-data-cliente" class="velohub-input" required>
+                        </div>
+                        <!-- Responsável será preenchido automaticamente com o usuário logado -->
+                        <input type="hidden" id="chatbot-responsavel">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chatbot-nome">Nome Completo *</label>
+                            <input type="text" id="chatbot-nome" class="velohub-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="chatbot-cpf">CPF (000.000.000-00) *</label>
+                            <input type="text" id="chatbot-cpf" class="velohub-input cpf-mask" required placeholder="000.000.000-00">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Telefone (DDD) 00000-0000</label>
+                            <div id="chatbot-telefones-container">
+                                <input type="text" class="velohub-input telefone-mask telefone-input" placeholder="(00) 00000-0000">
+                            </div>
+                            <button type="button" class="btn-adicionar-telefone" onclick="adicionarTelefone('chatbot-telefones-container')" style="margin-top: 8px; padding: 6px 12px; background: var(--azul-royal); color: white; border: none; border-radius: 4px; cursor: pointer;">+ Adicionar Telefone</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalhes da Avaliação -->
+                <div class="form-section">
+                    <h3>Detalhes da Avaliação</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chatbot-nota-avaliacao">Nota de Avaliação</label>
+                            <select id="chatbot-nota-avaliacao" class="velohub-input">
+                                <option value="">Selecione...</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="chatbot-produto">Produto</label>
+                            <select id="chatbot-produto" class="velohub-input">
+                                <option value="">Selecione...</option>
+                                <option value="Antecipação">Antecipação</option>
+                                <option value="Aplicativo">Aplicativo</option>
+                                <option value="Calculadora">Calculadora</option>
+                                <option value="Crédito do Trabalhador">Crédito do Trabalhador</option>
+                                <option value="Empréstimo Pessoal">Empréstimo Pessoal</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chatbot-motivo">Motivo</label>
+                            <select id="chatbot-motivo" class="velohub-input">
+                                <option value="">Selecione...</option>
+                                <option value="Calculadora">Calculadora</option>
+                                <option value="Chave PIX">Chave PIX</option>
+                                <option value="Conta">Conta</option>
+                                <option value="Débito em Aberto">Débito em Aberto</option>
+                                <option value="Elegibilidade">Elegibilidade</option>
+                                <option value="Encerramento da Cadastro">Encerramento da Cadastro</option>
+                                <option value="Erros – Bugs">Erros – Bugs</option>
+                                <option value="Fraude">Fraude</option>
+                                <option value="Open Finance">Open Finance</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Resposta do Bot</label>
+                            <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                <label class="radio-label">
+                                    <input type="radio" name="chatbot-resposta-bot" value="Sim" onchange="toggleObservacaoRespostaBot()">
+                                    <span>Sim</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="chatbot-resposta-bot" value="Não" onchange="toggleObservacaoRespostaBot()">
+                                    <span>Não</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="chatbot-observacao-resposta-bot" class="form-group" style="display: none;">
+                        <label for="chatbot-observacao-resposta-bot-texto">Observação</label>
+                        <textarea id="chatbot-observacao-resposta-bot-texto" class="velohub-input" rows="4" placeholder="Digite a observação sobre a resposta do bot..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="chatbot-avaliacao-cliente">Avaliação do Cliente (campo aberto)</label>
+                        <textarea id="chatbot-avaliacao-cliente" class="velohub-input" rows="4" placeholder="Digite a avaliação do cliente..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Liberação do PIX -->
+                <div class="form-section">
+                    <h3>Liberação do PIX</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chatbot-pix-status">PIX liberado ou excluído?</label>
+                            <select id="chatbot-pix-status" class="velohub-input">
+                                <option value="">Selecione...</option>
+                                <option value="Liberado">Liberado</option>
+                                <option value="Excluído">Excluído</option>
+                                <option value="Solicitada">Solicitada</option>
+                                <option value="Não aplicável">Não aplicável</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Enviar para cobrança? *</label>
+                            <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                <label class="radio-label">
+                                    <input type="radio" name="chatbot-enviar-cobranca" value="Sim" required>
+                                    <span>Sim</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="chatbot-enviar-cobranca" value="Não" required>
+                                    <span>Não</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Observações -->
+                <div class="form-section">
+                    <h3>Observações</h3>
+                    <div class="form-group">
+                        <label for="chatbot-observacoes">Observações</label>
+                        <textarea id="chatbot-observacoes" class="velohub-input" rows="4" placeholder="Digite as observações..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Casos Críticos (Blacklist) -->
+                <div class="form-section">
+                    <h3>Casos Críticos (Blacklist)</h3>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="chatbot-casos-criticos">
+                            <span class="checkmark"></span>
+                            Blacklist
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="velohub-btn">💾 Salvar Reclamação Chatbot</button>
+                    <button type="button" class="velohub-btn btn-secondary" onclick="limparFormChatbot()">🗑️ Limpar</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Lista de Reclamações Chatbot -->
+        <section id="lista-chatbot" class="section">
+            <div class="chatbot-header">
+                <h2>📋 Lista de Reclamações Chatbot</h2>
+                <p>Todas as demandas originadas no chatbot</p>
+            </div>
+            
+            <div class="list-controls">
+                <div class="search-box">
+                    <input type="text" id="busca-chatbot" class="velohub-input" placeholder="🔍 Buscar por nome, CPF ou motivo...">
+                </div>
+                <div class="filter-controls">
+                    <select id="filtro-status-chatbot" class="velohub-input">
+                        <option value="" selected>Todos os Status</option>
+                        <option value="nao-iniciado">Não Iniciado</option>
+                        <option value="em-tratativa">Em Tratativa</option>
+                        <option value="concluido">Concluído</option>
+                        <option value="respondido">Respondido</option>
+                    </select>
+                    <select id="filtro-canal-chatbot" class="velohub-input">
+                        <option value="" selected>Todos os Canais</option>
+                        <option value="whatsapp">WhatsApp</option>
+                        <option value="telegram">Telegram</option>
+                        <option value="site">Site</option>
+                        <option value="app">App</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="lista-fichas-chatbot" class="complaints-list">
+                <!-- Lista será populada dinamicamente -->
+            </div>
+        </section>
+
+        <!-- Relatórios Chatbot -->
+        <section id="relatorios-chatbot" class="section">
+            <div class="chatbot-header">
+                <h2>📈 Relatórios Chatbot</h2>
+                <p>Relatórios específicos para demandas do chatbot</p>
+            </div>
+            
+            <div class="reports-grid">
+                <div class="report-card">
+                    <h3>📊 Relatório por Período</h3>
+                    <p>Análise temporal das demandas</p>
+                    <button class="velohub-btn" onclick="gerarRelatorioPeriodoChatbot()">Gerar Relatório</button>
+                </div>
+                <div class="report-card">
+                    <h3>🤖 Relatório de Resolução Automática</h3>
+                    <p>Fichas resolvidas automaticamente</p>
+                    <button class="velohub-btn" onclick="gerarRelatorioAutoChatbot()">Gerar Relatório</button>
+                </div>
+                <div class="report-card">
+                    <h3>⭐ Relatório de Satisfação</h3>
+                    <p>Análise de satisfação dos clientes</p>
+                    <button class="velohub-btn" onclick="gerarRelatorioSatisfacaoChatbot()">Gerar Relatório</button>
+                </div>
+                <div class="report-card">
+                    <h3>📋 Relatório Completo</h3>
+                    <p>Todas as fichas Chatbot</p>
+                    <button class="velohub-btn" onclick="gerarRelatorioCompletoChatbot()">Gerar Relatório</button>
+                </div>
+            </div>
+            
+            <div id="conteudo-relatorio-chatbot" class="report-content" style="display: none;">
+                <!-- Conteúdo do relatório será exibido aqui -->
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript -->
+    <!-- Configuração Google SSO -->
+    <script>
+        window.GOOGLE_CLIENT_ID = '638842930106-b0plff0sbbs0ljsm39n5kadsjfcj3u3q.apps.googleusercontent.com';
+    </script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="js/config-firebase.js"></script>
+    <!-- Firebase Manager Corrigido - Aguarda inicialização completa -->
+    <script src="js/firebase-init-v2.js"></script>
+    <script src="js/firebase-db.js"></script>
+    <!-- Outros scripts -->
+    <script src="js/loading.js"></script>
+    <script src="js/validador-velotax.js"></script>
+    <script src="js/google-sso.js"></script>
+    <script src="js/auth-system.js"></script>
+    <script src="js/gerenciador-fichas-perfil.js"></script>
+    <script src="js/gerenciador-anexos.js"></script>
+    <script src="js/fichas-especificas.js"></script>
+    <script src="js/armazenamento-reclamacoes.js"></script>
+    <!-- Definir renderizarListaChatbot antes de carregar chatbot-page.js para garantir disponibilidade -->
+    <script>
+        // Versão stub que será sobrescrita pelo chatbot-page.js se carregar corretamente
+        window.renderizarListaChatbot = window.renderizarListaChatbot || async function() {
+            console.log('🎨 [HTML STUB] renderizarListaChatbot chamada (versão HTML)');
+            const container = document.getElementById('lista-fichas-chatbot');
+            if (!container) {
+                console.error('❌ [HTML STUB] Container não encontrado');
+                return;
+            }
+            container.innerHTML = '<div class="loading-message">Carregando reclamações...</div>';
+            
+            // Tentar usar a versão completa se disponível
+            if (window._renderizarListaChatbotFull && typeof window._renderizarListaChatbotFull === 'function') {
+                console.log('✅ [HTML STUB] Usando versão completa');
+                return window._renderizarListaChatbotFull();
+            }
+            
+            // Se não houver versão completa, tentar carregar fichas diretamente
+            if (window.armazenamentoReclamacoes) {
+                try {
+                    const fichas = await window.armazenamentoReclamacoes.carregarTodos('chatbot');
+                    console.log('📋 [HTML STUB] Fichas carregadas:', fichas.length);
+                    if (fichas.length > 0) {
+                        console.log('📋 [HTML STUB] Primeira ficha:', fichas[0]);
+                        // Aguardar um pouco para garantir que criarCardChatbot esteja disponível
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        
+                        // Tentar usar criarCardChatbot de várias formas
+                        let criarCard = null;
+                        if (typeof window.criarCardChatbot === 'function') {
+                            criarCard = window.criarCardChatbot;
+                            console.log('✅ [HTML STUB] Usando window.criarCardChatbot');
+                        } else if (typeof criarCardChatbot === 'function') {
+                            criarCard = criarCardChatbot;
+                            console.log('✅ [HTML STUB] Usando criarCardChatbot');
+                        } else {
+                            // Tentar novamente após mais um delay
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                            if (typeof window.criarCardChatbot === 'function') {
+                                criarCard = window.criarCardChatbot;
+                                console.log('✅ [HTML STUB] Usando window.criarCardChatbot (após delay)');
+                            }
+                        }
+                        
+                        if (criarCard) {
+                            try {
+                                const html = fichas.map(f => {
+                                    console.log('🎨 [HTML STUB] Criando card para ficha:', f.id);
+                                    return criarCard(f);
+                                }).join('');
+                                console.log('📝 [HTML STUB] HTML gerado (primeiros 500 chars):', html.substring(0, 500));
+                                container.innerHTML = html;
+                                console.log('✅ [HTML STUB] Cards renderizados com sucesso!');
+                            } catch (error) {
+                                console.error('❌ [HTML STUB] Erro ao criar cards:', error);
+                                console.error('❌ [HTML STUB] Stack:', error.stack);
+                                container.innerHTML = fichas.map(f => `<div class="ficha-card">${f.nomeCompleto || f.id || 'Sem nome'}</div>`).join('');
+                            }
+                        } else {
+                            console.warn('⚠️ [HTML STUB] criarCardChatbot não encontrado, usando HTML simples');
+                            console.warn('⚠️ [HTML STUB] typeof window.criarCardChatbot:', typeof window.criarCardChatbot);
+                            container.innerHTML = fichas.map(f => `<div class="ficha-card">${f.nomeCompleto || f.id || 'Sem nome'}</div>`).join('');
+                        }
+                    } else {
+                        container.innerHTML = '<div class="no-results">Nenhuma reclamação Chatbot cadastrada ainda</div>';
+                    }
+                } catch (error) {
+                    console.error('❌ [HTML STUB] Erro ao carregar fichas:', error);
+                    container.innerHTML = '<div class="no-results">Erro ao carregar reclamações</div>';
+                }
+            } else {
+                container.innerHTML = '<div class="no-results">Sistema de armazenamento não disponível</div>';
+            }
+        };
+        console.log('✅ [HTML] renderizarListaChatbot definida no HTML');
+        
+        // Definir criarCardChatbot no HTML também para garantir disponibilidade
+        // Usar o mesmo padrão das outras páginas (complaint-item)
+        if (!window.criarCardChatbot) {
+            window.criarCardChatbot = function(ficha) {
+                const statusLabels = {
+                    'nao-iniciado': 'Não Iniciado',
+                    'em-tratativa': 'Em Tratativa',
+                    'concluido': 'Concluído',
+                    'respondido': 'Respondido'
+                };
+                
+                const canalLabels = {
+                    'whatsapp': '📱 WhatsApp',
+                    'telegram': '✈️ Telegram',
+                    'site': '🌐 Site',
+                    'app': '📲 App',
+                    'outro': '🔗 Outro'
+                };
+                
+                const statusClass = `status-${ficha.status || 'nao-iniciado'}`;
+                const statusLabel = statusLabels[ficha.status] || ficha.status || 'Não Iniciado';
+                const canalLabel = canalLabels[ficha.canalChatbot] || ficha.canalChatbot || 'Não informado';
+                
+                let badges = `<span class="chatbot-badge">🤖 Chatbot</span>`;
+                if (ficha.resolvidoAutomaticamente) {
+                    badges += '<span style="background: #1DFDB9; color: #000058; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 8px;">✅ Auto</span>';
+                }
+                if (ficha.encaminhadoHumano) {
+                    badges += '<span style="background: #1634FF; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 8px;">👤 Humano</span>';
+                }
+                
+                const dataFormatada = ficha.dataCriacao ? new Date(ficha.dataCriacao).toLocaleDateString('pt-BR') : 'N/A';
+                const nome = ficha.nomeCompleto || ficha.nomeCliente || 'Nome não informado';
+                const cpf = ficha.cpf || 'N/A';
+                const motivo = ficha.motivoReduzido || ficha.motivo || 'Não informado';
+                const responsavel = ficha.responsavel || 'Não atribuído';
+                
+                // Função auxiliar para formatar data (se não existir)
+                const formatarData = (dataString) => {
+                    if (!dataString) return 'N/A';
+                    try {
+                        return new Date(dataString).toLocaleDateString('pt-BR');
+                    } catch {
+                        return dataString;
+                    }
+                };
+                
+                // Escapar ID para uso seguro em onclick
+                const fichaIdEscapado = ficha.id.replace(/'/g, "\\'");
+                return `
+                    <div class="complaint-item" onclick="abrirFichaChatbotHTML('${fichaIdEscapado}')">
+                        <div class="complaint-header">
+                            <div class="complaint-title">
+                                ${nome}
+                                ${badges}
+                            </div>
+                            <div class="complaint-status ${statusClass}">${statusLabel}</div>
+                        </div>
+                        <div class="complaint-summary">
+                            <div class="complaint-detail"><strong>CPF:</strong> ${cpf}</div>
+                            <div class="complaint-detail"><strong>Motivo:</strong> ${motivo}</div>
+                            <div class="complaint-detail"><strong>Canal:</strong> ${canalLabel}</div>
+                            <div class="complaint-detail"><strong>Data:</strong> ${dataFormatada}</div>
+                            <div class="complaint-detail"><strong>Responsável:</strong> ${responsavel}</div>
+                        </div>
+                    </div>
+                `;
+            };
+            console.log('✅ [HTML] criarCardChatbot definida no HTML (padrão complaint-item)');
+        }
+        
+        // Função auxiliar para abrir ficha (compatível com o sistema)
+        window.abrirFichaChatbotHTML = function(id) {
+            console.log('🔍 [HTML] abrirFichaChatbotHTML chamado com ID:', id);
+            if (window.abrirFichaChatbot && typeof window.abrirFichaChatbot === 'function') {
+                window.abrirFichaChatbot(id);
+            } else if (window.fichasEspecificas && window.fichasEspecificas.abrirFicha) {
+                // Buscar a ficha primeiro
+                if (window.armazenamentoReclamacoes) {
+                    window.armazenamentoReclamacoes.obterPorId('chatbot', id).then(ficha => {
+                        if (ficha) {
+                            window.fichasEspecificas.abrirFicha(ficha);
+                        } else {
+                            console.error('❌ Ficha não encontrada:', id);
+                        }
+                    });
+                } else {
+                    console.error('❌ armazenamentoReclamacoes não disponível');
+                }
+            } else if (window.FichasEspecificas) {
+                // Criar instância se não existir
+                window.fichasEspecificas = new window.FichasEspecificas();
+                if (window.armazenamentoReclamacoes) {
+                    window.armazenamentoReclamacoes.obterPorId('chatbot', id).then(ficha => {
+                        if (ficha) {
+                            window.fichasEspecificas.abrirFicha(ficha);
+            } else {
+                            console.error('❌ Ficha não encontrada:', id);
+                        }
+                    });
+                } else {
+                    console.error('❌ armazenamentoReclamacoes não disponível');
+                }
+            } else {
+                // Aguardar um pouco e tentar novamente
+                setTimeout(() => {
+                    if (window.FichasEspecificas) {
+                        window.fichasEspecificas = new window.FichasEspecificas();
+                        if (window.armazenamentoReclamacoes) {
+                            window.armazenamentoReclamacoes.obterPorId('chatbot', id).then(ficha => {
+                                if (ficha) {
+                                    window.fichasEspecificas.abrirFicha(ficha);
+                                } else {
+                                    console.error('❌ Ficha não encontrada:', id);
+                                }
+                            });
+                        }
+                    } else {
+                        console.error('❌ FichasEspecificas não disponível. Verifique se js/fichas-especificas.js está carregado.');
+                    }
+                }, 500);
+            }
+        };
+        
+        // Listener para atualizar lista quando uma nova ficha for salva
+        window.addEventListener('reclamacaoSalva', function(event) {
+            if (event.detail && event.detail.tipo === 'chatbot') {
+                console.log('📢 [HTML] Evento reclamacaoSalva recebido para chatbot, atualizando lista...');
+                setTimeout(() => {
+                    if (window.renderizarListaChatbot) {
+                        window.renderizarListaChatbot();
+                    }
+                }, 500);
+            }
+        });
+        
+        // Definir handleSubmitChatbot diretamente no HTML para garantir disponibilidade
+        if (!window.handleSubmitChatbot) {
+            window.handleSubmitChatbot = async function(e) {
+                console.log('🚀🚀🚀 [HTML] handleSubmitChatbot chamado (versão HTML) 🚀🚀🚀');
+                if (e) {
+                    e.preventDefault();
+                }
+                
+                // Tentar usar a versão completa se disponível
+                if (window._handleSubmitChatbotFull && typeof window._handleSubmitChatbotFull === 'function') {
+                    console.log('✅ [HTML] Usando versão completa de handleSubmitChatbot');
+                    return window._handleSubmitChatbotFull(e);
+                }
+                
+                // Versão HTML stub - coletar dados do formulário e salvar
+                try {
+                    console.log('📋 [HTML] Coletando dados do formulário...');
+                    
+                    // Função auxiliar para obter valor de campo
+                    const obterValor = (id) => {
+                        const campo = document.getElementById(id);
+                        return campo ? campo.value : '';
+                    };
+                    
+                    // Função auxiliar para obter checkbox
+                    const obterCheckbox = (id) => {
+                        const campo = document.getElementById(id);
+                        return campo ? campo.checked : false;
+                    };
+                    
+                    // Gerar ID
+                    const id = window.armazenamentoReclamacoes ? 
+                        window.armazenamentoReclamacoes.gerarId() : 
+                        `rec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                    
+                    // Coletar dados do formulário
+                    const ficha = {
+                        id: id,
+                        tipoDemanda: 'chatbot',
+                        nomeCompleto: obterValor('chatbot-nome') || '',
+                        cpf: obterValor('chatbot-cpf'),
+                        telefone: obterValor('chatbot-telefone') || '',
+                        notaAvaliacao: obterValor('chatbot-nota-avaliacao'),
+                        avaliacaoCliente: obterValor('chatbot-avaliacao-cliente'),
+                        produto: obterValor('chatbot-produto'),
+                        motivo: obterValor('chatbot-motivo'),
+                        respostaBot: document.querySelector('input[name="chatbot-resposta-bot"]:checked')?.value || '',
+                        observacaoRespostaBot: obterValor('chatbot-observacao-resposta-bot-texto') || '',
+                        pixStatus: obterValor('chatbot-pix-status'),
+                        enviarCobranca: document.querySelector('input[name="chatbot-enviar-cobranca"]:checked')?.value || 'Não',
+                        casosCriticos: obterCheckbox('chatbot-casos-criticos'),
+                        observacoes: obterValor('chatbot-observacoes'),
+                        status: obterValor('chatbot-status') || 'nao-iniciado',
+                        canalChatbot: obterValor('chatbot-canal') || '',
+                        dataCriacao: new Date().toISOString(),
+                        responsavel: window.sistemaPerfis?.usuarioAtual?.nome || window.sistemaPerfis?.usuarioAtual?.email || 'Sistema'
+                    };
+                    
+                    console.log('📋 [HTML] Ficha coletada:', ficha);
+                    
+                    // Validar campos obrigatórios
+                    if (!ficha.nomeCompleto || !ficha.cpf) {
+                        alert('Por favor, preencha pelo menos o nome e CPF');
+                        return;
+                    }
+                    
+                    // Salvar usando armazenamentoReclamacoes
+                    if (!window.armazenamentoReclamacoes) {
+                        alert('Erro: sistema de armazenamento não disponível');
+                        return;
+                    }
+                    
+                    console.log('💾 [HTML] Salvando ficha...');
+                    const sucesso = await window.armazenamentoReclamacoes.salvar('chatbot', ficha);
+                    console.log('📥 [HTML] Resultado do salvar:', sucesso);
+                    
+                    if (!sucesso) {
+                        alert('Erro ao salvar reclamação');
+                        return;
+                    }
+                    
+                    console.log('✅ [HTML] Ficha salva com sucesso!');
+                    
+                    // Limpar formulário
+                    const form = document.getElementById('form-chatbot');
+                    if (form) {
+                        form.reset();
+                    }
+                    
+                    // Atualizar lista
+                    if (window.renderizarListaChatbot) {
+                        await window.renderizarListaChatbot();
+                    }
+                    
+                    // Mostrar lista
+                    if (window.mostrarSecao) {
+                        window.mostrarSecao('lista-chatbot');
+                    }
+                    
+                    alert('Reclamação Chatbot salva com sucesso!');
+                    
+                } catch (error) {
+                    console.error('❌ [HTML] Erro ao salvar:', error);
+                    alert('Erro ao salvar reclamação: ' + error.message);
+                }
+            };
+            console.log('✅ [HTML] handleSubmitChatbot definida no HTML');
+        }
+        
+        // Garantir que o event listener do formulário seja adicionado (mesmo com erro de sintaxe)
+        (function configurarFormularioChatbot() {
+            console.log('🔧 [HTML] Configurando formulário chatbot...');
+            const form = document.getElementById('form-chatbot');
+            if (form) {
+                console.log('✅ [HTML] Formulário encontrado, adicionando listener...');
+                form.addEventListener('submit', function(e) {
+                    console.log('🚀🚀🚀 [HTML] FORMULÁRIO SUBMIT CHAMADO! 🚀🚀🚀');
+                    e.preventDefault();
+                    console.log('✅ [HTML] preventDefault executado');
+                    
+                    // Usar handleSubmitChatbot (agora sempre disponível)
+                    if (window.handleSubmitChatbot) {
+                        console.log('✅ [HTML] Chamando window.handleSubmitChatbot...');
+                        window.handleSubmitChatbot(e);
+                    } else {
+                        console.error('❌ [HTML] window.handleSubmitChatbot não está disponível!');
+                        alert('Erro: função de salvamento não está disponível. Recarregue a página.');
+                    }
+                });
+                console.log('✅ [HTML] Event listener adicionado ao formulário');
+            } else {
+                console.warn('⚠️ [HTML] Formulário form-chatbot não encontrado');
+            }
+        })();
+        
+        // Função para mostrar/ocultar campo de observação quando selecionar "Não" em Resposta do Bot
+        window.toggleObservacaoRespostaBot = function() {
+            const respostaBot = document.querySelector('input[name="chatbot-resposta-bot"]:checked')?.value;
+            const campoObservacao = document.getElementById('chatbot-observacao-resposta-bot');
+            const campoTexto = document.getElementById('chatbot-observacao-resposta-bot-texto');
+            
+            if (respostaBot === 'Não' && campoObservacao) {
+                campoObservacao.style.display = 'block';
+                if (campoTexto) {
+                    campoTexto.required = true;
+                }
+            } else {
+                if (campoObservacao) {
+                    campoObservacao.style.display = 'none';
+                }
+                if (campoTexto) {
+                    campoTexto.required = false;
+                    campoTexto.value = '';
+                }
+            }
+        };
+        
+        // Verificar logs persistentes de salvamento ao carregar a página
+        (function verificarLogsSalvamento() {
+            console.log('🔍 Verificando logs persistentes de salvamento...');
+            const logs = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && (key.startsWith('velotax_salvamento_') || key.startsWith('velotax_debug_salvamento_'))) {
+                    try {
+                        const log = JSON.parse(localStorage.getItem(key));
+                        logs.push({ key, ...log });
+                    } catch (e) {
+                        // Ignorar erros de parse
+                    }
+                }
+            }
+            if (logs.length > 0) {
+                console.log('📋 Logs de salvamento encontrados:', logs);
+                // Mostrar os últimos 5 logs
+                const ultimosLogs = logs.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0)).slice(0, 5);
+                console.table(ultimosLogs);
+                
+                // Se houver um salvamento recente (últimos 10 segundos), atualizar a lista
+                const agora = Date.now();
+                const salvamentoRecente = ultimosLogs.find(log => {
+                    if (log.timestamp) {
+                        const tempoLog = new Date(log.timestamp).getTime();
+                        return (agora - tempoLog) < 10000; // 10 segundos
+                    }
+                    return false;
+                });
+                
+                if (salvamentoRecente && salvamentoRecente.sucesso) {
+                    console.log('🔄 Salvamento recente detectado, atualizando lista...');
+                    setTimeout(() => {
+                        if (window.renderizarListaChatbot) {
+                            window.renderizarListaChatbot();
+                        }
+                    }, 1000);
+                }
+            } else {
+                console.log('📭 Nenhum log de salvamento encontrado');
+            }
+        })();
+    </script>
+    <script src="js/chatbot-page.js"></script>
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/graficos-detalhados.js"></script>
+    <script src="js/controle-graficos-dashboard.js"></script>
+    <script src="js/lista-casos-abertos.js"></script>
+    <script src="js/filtros-exportacao-csv.js"></script>
+    <script src="js/exportacao-excel.js"></script>
+    <!-- Script de Depuração Firebase - Carregamento e Diagnóstico -->
+    <script src="js/DEBUG_CARREGAMENTO_FIREBASE.js"></script>
+    <script>
+        // MIGRAÇÃO DE DADOS ANTIGOS (SEM RESETAR) - APENAS UMA VEZ
+        (function() {
+            // Verificar se já migrou (usar uma flag)
+            const flagMigracao = 'velotax_migracao_concluida';
+            if (localStorage.getItem(flagMigracao) === 'true') {
+                console.log('✅ Migração já foi concluída anteriormente. Pulando...');
+                return;
+            }
+            
+            console.log('🔄 Verificando e migrando dados antigos (primeira vez)...');
+            
+            // Migrar dados das chaves antigas para as novas (sem apagar)
+            const migracoes = [
+                { antiga: 'velotax_demandas_bacen', nova: 'velotax_reclamacoes_bacen' },
+                { antiga: 'velotax_demandas_n2', nova: 'velotax_reclamacoes_n2' },
+                { antiga: 'velotax_demandas_chatbot', nova: 'velotax_reclamacoes_chatbot' }
+            ];
+            
+            let migradas = 0;
+            migracoes.forEach(({ antiga, nova }) => {
+                const dadosAntigos = localStorage.getItem(antiga);
+                const dadosNovos = localStorage.getItem(nova);
+                
+                if (dadosAntigos && !dadosNovos) {
+                    try {
+                        console.log(`🔄 Migrando dados de ${antiga} para ${nova}...`);
+                        const dados = JSON.parse(dadosAntigos);
+                        if (Array.isArray(dados) && dados.length > 0) {
+                            localStorage.setItem(nova, JSON.stringify(dados));
+                            console.log(`✅ ${dados.length} reclamações migradas de ${antiga} para ${nova}`);
+                            migradas++;
+                            // Remover chave antiga apenas após migração bem-sucedida
+                            localStorage.removeItem(antiga);
+                        }
+                    } catch (error) {
+                        console.error(`❌ Erro ao migrar ${antiga}:`, error);
+                    }
+                } else if (dadosAntigos && dadosNovos) {
+                    // Se ambas existem, mesclar (evitar duplicatas)
+                    try {
+                        const antigos = JSON.parse(dadosAntigos);
+                        const novos = JSON.parse(dadosNovos);
+                        if (Array.isArray(antigos) && Array.isArray(novos)) {
+                            const idsNovos = new Set(novos.map(n => n.id));
+                            const paraAdicionar = antigos.filter(a => a.id && !idsNovos.has(a.id));
+                            if (paraAdicionar.length > 0) {
+                                const mesclados = [...novos, ...paraAdicionar];
+                                localStorage.setItem(nova, JSON.stringify(mesclados));
+                                console.log(`✅ ${paraAdicionar.length} reclamações mescladas de ${antiga} para ${nova}`);
+                                migradas++;
+                            }
+                            localStorage.removeItem(antiga);
+                        }
+                    } catch (error) {
+                        console.error(`❌ Erro ao mesclar ${antiga}:`, error);
+                    }
+                }
+            });
+            
+            if (migradas > 0) {
+                console.log(`✅ ${migradas} migrações concluídas.`);
+            } else {
+                console.log('✅ Nenhuma migração necessária.');
+            }
+            
+            // Marcar migração como concluída
+            localStorage.setItem(flagMigracao, 'true');
+        })();
+        
+        // Função para adicionar múltiplos telefones (global)
+        window.adicionarTelefone = function(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) {
+                console.error('Container não encontrado:', containerId);
+                return;
+            }
+            
+            const telefoneDiv = document.createElement('div');
+            telefoneDiv.className = 'telefone-item-multiplo';
+            telefoneDiv.style.display = 'flex';
+            telefoneDiv.style.gap = '8px';
+            telefoneDiv.style.marginTop = '8px';
+            telefoneDiv.innerHTML = `
+                <input type="text" class="velohub-input telefone-mask telefone-input" placeholder="(00) 00000-0000" style="flex: 1;">
+                <button type="button" onclick="this.parentElement.remove()" style="padding: 8px 12px; background: #ff4757; color: white; border: none; border-radius: 4px; cursor: pointer;">✕</button>
+            `;
+            container.appendChild(telefoneDiv);
+            
+            // Aplicar máscara no novo campo
+            if (window.aplicarMascaraTelefone) {
+                const novoInput = telefoneDiv.querySelector('.telefone-mask');
+                if (novoInput) {
+                    window.aplicarMascaraTelefone(novoInput);
+                }
+            } else if (typeof formatPhone === 'function') {
+                const novoInput = telefoneDiv.querySelector('.telefone-mask');
+                if (novoInput) {
+                    novoInput.addEventListener('input', formatPhone);
+                }
+            }
+        };
+        
+        // Função para coletar todos os telefones de um container (global)
+        window.obterTelefonesDoContainer = function(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return [];
+            
+            const inputs = container.querySelectorAll('.telefone-input');
+            const telefones = Array.from(inputs)
+                .map(input => input.value.trim())
+                .filter(valor => valor.length > 0);
+            
+            return telefones;
+        };
+    </script>
+    <script src="js/historico-cliente.js"></script>
+    <script src="js/formulario-dinamico.js"></script>
+    <script src="js/sistema-notificacoes.js"></script>
+</body>
+</html>
+

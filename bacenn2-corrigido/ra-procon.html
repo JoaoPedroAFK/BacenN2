@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReclameAqui & Procon - Sistema Velotax</title>
+    
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/theme-dark.css">
+    
+    <!-- Script Inline: Definir mostrarSecao ANTES dos botões serem renderizados -->
+    <script>
+        window.mostrarSecao = function(secaoId) {
+            console.log('🔘 mostrarSecao chamado com:', secaoId);
+            
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const section = document.getElementById(secaoId);
+            if (section) {
+                section.classList.add('active');
+            } else {
+                console.warn('⚠️ Seção não encontrada:', secaoId);
+            }
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${secaoId}'`)) {
+                    btn.classList.add('active');
+                }
+            });
+        };
+        console.log('✅ mostrarSecao definido globalmente no <head> (ra-procon.html)');
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="velohub-header">
+        <div class="header-content">
+            <div class="header-logo">
+                <div class="logo-container">
+                    <img src="img/simbolo_velotax_ajustada_branco.png" alt="Velotax" class="logo-header" id="logo-ra-procon">
+                </div>
+                <h1>ReclameAqui & Procon</h1>
+            </div>
+            <div class="header-actions">
+                <a href="index.html" class="velohub-btn btn-secondary" style="margin-right: 10px;">🏠 Home</a>
+                <button class="theme-toggle-btn" onclick="toggleTheme()">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Menu CANAIS -->
+    <nav class="nav nav-canais">
+        <div class="canais-menu">
+            <span class="canais-label">TIPO:</span>
+            <button class="nav-btn canais-btn" onclick="filtrarPorTipo('todos')" id="filtro-tipo-todos">Todos</button>
+            <button class="nav-btn canais-btn" onclick="filtrarPorTipo('reclame-aqui')" id="filtro-tipo-ra">ReclameAqui</button>
+            <button class="nav-btn canais-btn" onclick="filtrarPorTipo('procon')" id="filtro-tipo-procon">Procon</button>
+        </div>
+        <div class="busca-cliente-inline">
+            <input type="text" id="busca-ra-procon" class="velohub-input busca-cliente-input" placeholder="🔍 Buscar por CPF, nome, protocolo..." onkeypress="if(event.key === 'Enter') buscarRAPROCON()">
+            <button class="velohub-btn btn-secondary btn-buscar-cliente" onclick="buscarRAPROCON()">Buscar</button>
+        </div>
+    </nav>
+
+    <!-- Navegação -->
+    <nav class="nav">
+        <button class="nav-btn active" onclick="mostrarSecao('dashboard-ra-procon')">📊 Dashboard</button>
+        <button class="nav-btn" onclick="mostrarSecao('nova-reclamacao-ra-procon')">➕ Nova Reclamação</button>
+        <button class="nav-btn" onclick="mostrarSecao('lista-ra-procon')">📋 Lista de Reclamações</button>
+        <button class="nav-btn" onclick="mostrarSecao('relatorios-ra-procon')">📈 Relatórios</button>
+        <button class="nav-btn" onclick="mostrarSecao('importacao-ra-procon')">📥 Importar Planilha</button>
+    </nav>
+
+    <!-- Container Principal -->
+    <main class="velohub-container">
+        <!-- Dashboard RA e Procon -->
+        <section id="dashboard-ra-procon" class="section active">
+            <div class="ra-procon-header">
+                <h2>📊 Dashboard - ReclameAqui & Procon</h2>
+                <p>Visão geral refinada das reclamações</p>
+            </div>
+            
+            <!-- Cards de Métricas -->
+            <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 30px;">
+                <div class="stat-card" style="background: linear-gradient(135deg, #1634FF 0%, #1694FF 100%);">
+                    <h3>Total de Reclamações</h3>
+                    <span class="stat-number" id="ra-procon-total-dash">0</span>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #006AB9 0%, #1694FF 100%);">
+                    <h3>ReclameAqui</h3>
+                    <span class="stat-number" id="ra-total-dash">0</span>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #000058 0%, #1634FF 100%);">
+                    <h3>Procon</h3>
+                    <span class="stat-number" id="procon-total-dash">0</span>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #1634FF 0%, #4A6FFF 100%);">
+                    <h3>Em Tratativa</h3>
+                    <span class="stat-number" id="ra-procon-tratativa-dash">0</span>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #15A237 0%, #4CAF50 100%);">
+                    <h3>Concluídas</h3>
+                    <span class="stat-number" id="ra-procon-concluidas-dash">0</span>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #1694FF 0%, #4A6FFF 100%);">
+                    <h3>Pendentes</h3>
+                    <span class="stat-number" id="ra-procon-pendentes-dash">0</span>
+                </div>
+            </div>
+
+            <!-- Gráficos -->
+            <div class="graficos-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-top: 30px;">
+                <div class="grafico-card">
+                    <h3>📊 Distribuição por Tipo</h3>
+                    <canvas id="grafico-tipo-ra-procon"></canvas>
+                </div>
+                <div class="grafico-card">
+                    <h3>📅 Reclamações por Mês</h3>
+                    <canvas id="grafico-mensal-ra-procon"></canvas>
+                </div>
+                <div class="grafico-card">
+                    <h3>📈 Status das Reclamações</h3>
+                    <canvas id="grafico-status-ra-procon"></canvas>
+                </div>
+                <div class="grafico-card">
+                    <h3>⏱️ Tempo Médio de Resolução</h3>
+                    <canvas id="grafico-tempo-resolucao-ra-procon"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Nova Reclamação RA/Procon -->
+        <section id="nova-reclamacao-ra-procon" class="section">
+            <div class="ra-procon-header">
+                <h2>➕ Nova Reclamação</h2>
+                <p>Registre uma nova reclamação do ReclameAqui ou Procon</p>
+            </div>
+            
+            <form id="form-ra-procon" class="complaint-form">
+                <!-- Tipo de Reclamação -->
+                <div class="form-section">
+                    <h3>Tipo de Reclamação *</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Tipo *</label>
+                            <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                <label class="radio-label">
+                                    <input type="radio" name="ra-procon-tipo" value="reclame-aqui" required onchange="toggleCamposEspecificos()">
+                                    <span>ReclameAqui</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="ra-procon-tipo" value="procon" required onchange="toggleCamposEspecificos()">
+                                    <span>Procon</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dados Básicos -->
+                <div class="form-section">
+                    <h3>Dados Básicos</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ra-procon-mes">Mês *</label>
+                            <select id="ra-procon-mes" class="velohub-input" required>
+                                <option value="">Selecione...</option>
+                                <option value="01/2026">01/2026</option>
+                                <option value="02/2026">02/2026</option>
+                                <option value="03/2026">03/2026</option>
+                                <option value="04/2026">04/2026</option>
+                                <option value="05/2026">05/2026</option>
+                                <option value="06/2026">06/2026</option>
+                                <option value="07/2026">07/2026</option>
+                                <option value="08/2026">08/2026</option>
+                                <option value="09/2026">09/2026</option>
+                                <option value="10/2026">10/2026</option>
+                                <option value="11/2026">11/2026</option>
+                                <option value="12/2026">12/2026</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ra-procon-protocolo">Protocolo *</label>
+                            <input type="text" id="ra-procon-protocolo" class="velohub-input" required placeholder="Número do protocolo">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ra-procon-nome">Nome Completo *</label>
+                            <input type="text" id="ra-procon-nome" class="velohub-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ra-procon-cpf">CPF (000.000.000-00) *</label>
+                            <input type="text" id="ra-procon-cpf" class="velohub-input cpf-mask" required placeholder="000.000.000-00">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ra-procon-telefone">Telefone (DDD) 00000-0000</label>
+                            <input type="text" id="ra-procon-telefone" class="velohub-input telefone-mask" placeholder="(00) 00000-0000">
+                        </div>
+                        <div class="form-group">
+                            <label for="ra-procon-email">E-mail</label>
+                            <input type="email" id="ra-procon-email" class="velohub-input" placeholder="email@exemplo.com">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campos Específicos ReclameAqui -->
+                <div class="form-section" id="campos-reclame-aqui" style="display: none;">
+                    <h3>📝 Dados Específicos - ReclameAqui</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ra-nota">Nota da Avaliação (1-5)</label>
+                            <select id="ra-nota" class="velohub-input">
+                                <option value="">Selecione...</option>
+                                <option value="1">1 ⭐</option>
+                                <option value="2">2 ⭐⭐</option>
+                                <option value="3">3 ⭐⭐⭐</option>
+                                <option value="4">4 ⭐⭐⭐⭐</option>
+                                <option value="5">5 ⭐⭐⭐⭐⭐</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ra-data-publicacao">Data de Publicação</label>
+                            <input type="date" id="ra-data-publicacao" class="velohub-input">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="ra-comentario">Comentário do Cliente</label>
+                        <textarea id="ra-comentario" class="velohub-input" rows="4" placeholder="Comentário publicado no ReclameAqui..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="ra-link">Link da Reclamação</label>
+                        <input type="url" id="ra-link" class="velohub-input" placeholder="https://www.reclameaqui.com.br/...">
+                    </div>
+                </div>
+
+                <!-- Campos Específicos Procon -->
+                <div class="form-section" id="campos-procon" style="display: none;">
+                    <h3>⚖️ Dados Específicos - Procon</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="procon-orgao">Órgão Procon *</label>
+                            <input type="text" id="procon-orgao" class="velohub-input" placeholder="Ex: Procon-SP, Procon-RJ">
+                        </div>
+                        <div class="form-group">
+                            <label for="procon-data-recebimento">Data de Recebimento</label>
+                            <input type="date" id="procon-data-recebimento" class="velohub-input">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="procon-prazo-resposta">Prazo para Resposta</label>
+                            <input type="date" id="procon-prazo-resposta" class="velohub-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="procon-valor-reclamado">Valor Reclamado (R$)</label>
+                            <input type="number" id="procon-valor-reclamado" class="velohub-input" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="procon-descricao">Descrição da Reclamação</label>
+                        <textarea id="procon-descricao" class="velohub-input" rows="4" placeholder="Descrição detalhada da reclamação..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Detalhes da Reclamação -->
+                <div class="form-section">
+                    <h3>Detalhes da Reclamação</h3>
+                    <div class="form-group">
+                        <label for="ra-procon-motivo">Motivo da Reclamação *</label>
+                        <select id="ra-procon-motivo" class="velohub-input" required>
+                            <option value="">Selecione...</option>
+                            <option value="Abatimento Juros">Abatimento Juros</option>
+                            <option value="Chave PIX">Chave PIX</option>
+                            <option value="Cancelamento Conta">Cancelamento Conta</option>
+                            <option value="Fraude">Fraude</option>
+                            <option value="Cobrança Indevida">Cobrança Indevida</option>
+                            <option value="Problemas no App">Problemas no App</option>
+                            <option value="Atendimento">Atendimento</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ra-procon-detalhamento">Detalhamento da Reclamação</label>
+                        <textarea id="ra-procon-detalhamento" class="velohub-input" rows="5" placeholder="Descreva detalhadamente a reclamação..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Acompanhamento -->
+                <div class="form-section">
+                    <h3>Acompanhamento</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ra-procon-status">Status *</label>
+                            <select id="ra-procon-status" class="velohub-input" required>
+                                <option value="nao-iniciado">Não Iniciado</option>
+                                <option value="em-tratativa">Em Tratativa</option>
+                                <option value="aguardando-cliente">Aguardando Cliente</option>
+                                <option value="concluido">Concluído</option>
+                                <option value="respondido">Respondido</option>
+                                <option value="arquivado">Arquivado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ra-procon-prioridade">Prioridade</label>
+                            <select id="ra-procon-prioridade" class="velohub-input">
+                                <option value="baixa">Baixa</option>
+                                <option value="media">Média</option>
+                                <option value="alta">Alta</option>
+                                <option value="critica">Crítica</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ra-procon-data-entrada">Data de Entrada *</label>
+                            <input type="date" id="ra-procon-data-entrada" class="velohub-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ra-procon-data-resolucao">Data de Resolução</label>
+                            <input type="date" id="ra-procon-data-resolucao" class="velohub-input">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="ra-procon-observacoes">Observações</label>
+                        <textarea id="ra-procon-observacoes" class="velohub-input" rows="4" placeholder="Observações internas..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="form-actions">
+                    <button type="submit" class="velohub-btn btn-primary">💾 Salvar Reclamação</button>
+                    <button type="button" class="velohub-btn btn-secondary" onclick="limparFormRAPROCON()">🗑️ Limpar</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Lista de Reclamações -->
+        <section id="lista-ra-procon" class="section">
+            <div class="ra-procon-header">
+                <h2>📋 Lista de Reclamações</h2>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="velohub-btn btn-secondary" onclick="exportarListaRAPROCON()">📥 Exportar</button>
+                    <button class="velohub-btn btn-secondary" onclick="aplicarFiltrosAvancadosRAPROCON()">🔍 Filtros Avançados</button>
+                </div>
+            </div>
+            
+            <div id="fichas-container-ra-procon" class="fichas-container">
+                <!-- Lista será renderizada aqui -->
+            </div>
+        </section>
+
+        <!-- Relatórios -->
+        <section id="relatorios-ra-procon" class="section">
+            <div class="ra-procon-header">
+                <h2>📈 Relatórios Detalhados</h2>
+            </div>
+            
+            <div class="relatorios-grid">
+                <button class="relatorio-card" onclick="gerarRelatorioTipoRAPROCON()">
+                    <h3>📊 Por Tipo</h3>
+                    <p>Distribuição entre ReclameAqui e Procon</p>
+                </button>
+                <button class="relatorio-card" onclick="gerarRelatorioStatusRAPROCON()">
+                    <h3>📈 Por Status</h3>
+                    <p>Análise detalhada dos status</p>
+                </button>
+                <button class="relatorio-card" onclick="gerarRelatorioMensalRAPROCON()">
+                    <h3>📅 Por Período</h3>
+                    <p>Evolução mensal das reclamações</p>
+                </button>
+                <button class="relatorio-card" onclick="gerarRelatorioPrioridadeRAPROCON()">
+                    <h3>⚡ Por Prioridade</h3>
+                    <p>Análise de prioridades</p>
+                </button>
+            </div>
+            
+            <div id="conteudo-relatorio-ra-procon" style="margin-top: 30px;"></div>
+        </section>
+
+        <!-- Importação -->
+        <section id="importacao-ra-procon" class="section">
+            <div class="ra-procon-header">
+                <h2>📥 Importar Planilha RA e Procon</h2>
+                <p>Importe dados da planilha "Planilha RA e Procon acompanhamento 2026.xlsx"</p>
+            </div>
+            
+            <div class="importacao-container">
+                <div class="form-group">
+                    <label for="arquivo-ra-procon">Selecione o arquivo Excel (.xlsx)</label>
+                    <input type="file" id="arquivo-ra-procon" accept=".xlsx,.xls" class="velohub-input">
+                </div>
+                <button class="velohub-btn btn-primary" onclick="importarPlanilhaRAPROCON()">📥 Importar Planilha</button>
+                <div id="log-importacao-ra-procon" style="margin-top: 20px;"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-db.js"></script>
+    <script src="js/armazenamento-reclamacoes.js"></script>
+    <script src="js/auth-system.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/mascaras.js"></script>
+    <script src="js/ra-procon-page.js"></script>
+</body>
+</html>
+

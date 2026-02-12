@@ -1,0 +1,24 @@
+{
+  "database": {
+    "clearData": [
+      "/fichas_bacen",
+      "/fichas_n2",
+      "/fichas_chatbot"
+    ],
+    "exportData": [
+      "/fichas_bacen",
+      "/fichas_n2",
+      "/fichas_chatbot"
+    ]
+  },
+  "firestore": {
+    "clearData": [],
+    "exportData": []
+  },
+  "storage": {
+    "clearData": [],
+    "exportData": []
+  },
+  "exportDataUploadBucket": "bacen-n2.appspot.com"
+}
+

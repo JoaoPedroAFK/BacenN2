@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classificação de Demandas - Sistema Velotax</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/theme-dark.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <h1>🚀 VELOTAX</h1>
+                <span class="subtitle">Classificação de Demandas</span>
+            </div>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">← Voltar ao Sistema</a>
+                <a href="importacao.html" class="nav-link">📥 Importar Dados</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div id="classificacao-container">
+            <!-- Conteúdo será gerado pelo JavaScript -->
+        </div>
+    </main>
+
+    <!-- JavaScript -->
+    <script src="js/validador-velotax.js"></script>
+    <script src="js/auth-system.js"></script>
+    <script src="js/ficha-detalhada.js"></script>
+    <script src="js/busca-avancada.js"></script>
+    <script src="js/dashboard-avancado.js"></script>
+    <script src="js/relatorios-robusto.js"></script>
+    <script src="js/classificacao-demandas.js"></script>
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/demo-data.js"></script>
+    <script>
+        // Inicializa a interface de classificação
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('classificacao-container');
+            const classificacao = new SistemaClassificacao();
+            container.innerHTML = classificacao.criarInterfaceClassificacao();
+            
+            // Configura eventos após renderização
+            setTimeout(() => {
+                classificacao.configurarEventos();
+            }, 100);
+        });
+    </script>
+</body>
+</html>

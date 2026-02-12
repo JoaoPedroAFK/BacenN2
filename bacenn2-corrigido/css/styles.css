@@ -1,0 +1,1098 @@
+/* === SISTEMA DE RECLAMAÇÕES BACEN - ESTILOS PRINCIPAIS === */
+
+:root {
+  /* === PALETA VELOTAX OFICIAL === */
+  --azul-escuro: #000058;         /* Azul escuro principal */
+  --azul-royal: #1634FF;          /* Azul royal médio */
+  --azul-ciano: #1DFDB9;          /* Verde ciano vibrante */
+  --laranja-destaque: #FF8400;    /* Laranja energético */
+  --cinza-escuro: #272A30;        /* Cinza escuro profundo */
+  --cinza-claro: #ECECEC;        /* Cinza claro suave */
+  --rosa-vibrante: #FF00D7;       /* Rosa vibrante */
+  --roxo-escuro: #791DD0;         /* Roxo escuro elegante */
+  
+  /* === CORES DE FUNDO - TEMA CLARO === */
+  --cor-fundo: #FFFFFF;           /* Fundo branco puro */
+  --cor-container: #FFFFFF;       /* Container branco puro */
+  --cor-card: #FFFFFF;            /* Cards brancos */
+  --cor-header: #000058;          /* Header azul escuro Velotax */
+  --cor-sidebar: #F8F9FB;         /* Sidebar cinza muito claro */
+  
+  /* === CORES DO TEMA ESCURO === */
+  --cor-fundo-escuro: #272A30;
+  --cor-container-escuro: #3A3D45;
+  --cor-card-escuro: #3A3D45;
+  --cor-header-escuro: #000058;
+  
+  /* === TEXTOS - TEMA CLARO === */
+  --texto-principal: #272A30;     /* Texto principal cinza escuro */
+  --texto-secundario: #6B7280;    /* Texto secundário */
+  --texto-claro: #FFFFFF;         /* Texto claro */
+  --texto-destaque: #1634FF;      /* Texto destaque azul royal */
+  
+  /* === TEXTOS - TEMA ESCURO === */
+  --texto-principal-escuro: #F3F7FC;
+  --texto-secundario-escuro: #B0BEC5;
+  --texto-destaque-escuro: #1DFDB9; /* Destaque ciano no tema escuro */
+  
+  /* === BORDAS E SOMBRAS === */
+  --borda-clara: #E5E7EB;
+  --borda-escura: rgba(255, 255, 255, 0.1);
+  --divisoria-escura: rgba(255, 255, 255, 0.2);
+  --sombra-suave: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --sombra-media: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --sombra-forte: 0 8px 32px rgba(0, 0, 0, 0.16);
+  --sombra-escura: rgba(0, 0, 0, 0.3);
+  --sombra-header-escura: rgba(0, 0, 88, 0.3);
+  
+  /* === CORES DE ESTADO VELOTAX === */
+  --sucesso: #1DFDB9;              /* Verde ciano para sucesso */
+  --aviso: #FF8400;                /* Laranja para avisos */
+  --erro: #FF00D7;                 /* Rosa vibrante para erros */
+  --info: #1634FF;                 /* Azul royal para informações */
+}
+
+/* === CONFIGURAÇÃO BASE === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+* {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--cor-fundo);
+  color: var(--texto-principal);
+  line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* === HEADER === */
+.velohub-header {
+  background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul-royal) 100%);
+  border-bottom: none;
+  box-shadow: var(--sombra-media);
+  padding: 10px 24px;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 100;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.logo-header {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+}
+
+.velohub-header h1,
+.header-logo h1 {
+  color: #FFFFFF !important;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 1.8rem;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-actions .velohub-btn,
+.header-actions .btn-secondary {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #FFFFFF !important;
+  border: 2px solid rgba(255, 255, 255, 0.4) !important;
+  backdrop-filter: blur(10px);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.header-actions .velohub-btn:hover,
+.header-actions .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.35) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  color: #FFFFFF !important;
+}
+
+.theme-toggle-btn {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #FFFFFF !important;
+  border: 2px solid rgba(255, 255, 255, 0.4) !important;
+  backdrop-filter: blur(10px);
+  padding: 0;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  line-height: 1;
+}
+
+.theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.35) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* === NAVEGAÇÃO === */
+.nav-menu {
+  background-color: var(--cor-container);
+  border-radius: 12px;
+  padding: 12px 20px;
+  margin: 20px auto;
+  max-width: 1400px;
+  display: flex;
+  gap: 12px;
+  box-shadow: var(--sombra-suave);
+  border: 1px solid var(--borda-clara);
+}
+
+.nav-btn {
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  color: var(--texto-principal) !important;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+  position: relative;
+  text-decoration: none;
+}
+
+.nav-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--azul-royal), var(--azul-claro));
+  border-radius: 3px 3px 0 0;
+  transition: width 0.3s ease;
+}
+
+.nav-btn:hover {
+  background: rgba(22, 52, 255, 0.1);
+  color: var(--azul-royal) !important;
+  transform: translateY(-2px);
+  font-weight: 600;
+}
+
+.nav-btn:hover::after {
+  width: 80%;
+}
+
+.nav-btn.active {
+  background: linear-gradient(135deg, var(--azul-royal) 0%, var(--azul-suave) 100%);
+  color: var(--texto-claro);
+  box-shadow: 0 4px 12px rgba(22, 52, 255, 0.4);
+}
+
+.nav-btn.active::after {
+  width: 0;
+}
+
+/* === CONTAINER PRINCIPAL === */
+.velohub-container {
+  background-color: var(--cor-container);
+  border-radius: 16px;
+  box-shadow: var(--sombra-suave);
+  padding: 32px;
+  margin: 20px auto;
+  max-width: 1400px;
+  transition: all 0.3s ease;
+  border: 1px solid var(--borda-clara);
+}
+
+/* === SEÇÕES === */
+.section {
+  display: none;
+}
+
+.section.active {
+  display: block;
+}
+
+.section h2 {
+  color: var(--azul-escuro);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 2rem;
+  margin-bottom: 28px;
+  padding-bottom: 12px;
+  position: relative;
+}
+
+.section h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--azul-royal), var(--azul-claro));
+  border-radius: 2px;
+}
+
+/* === DASHBOARD === */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: var(--cor-card);
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: var(--sombra-suave);
+  border: 1px solid var(--borda-clara);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--azul-royal), var(--azul-claro));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover::before {
+  transform: scaleX(1);
+}
+
+.stat-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--sombra-forte);
+  border-color: var(--azul-claro);
+}
+
+.stat-card h3 {
+  color: var(--texto-secundario);
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-number {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--azul-royal) !important;
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.2;
+  -webkit-text-fill-color: var(--azul-royal) !important;
+  background: none !important;
+  background-clip: unset !important;
+  -webkit-background-clip: unset !important;
+}
+
+/* Garante legibilidade nos cards */
+.stat-card .stat-number {
+  color: var(--azul-royal) !important;
+  -webkit-text-fill-color: var(--azul-royal) !important;
+}
+
+/* === FORMULÁRIO === */
+.complaint-form {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 2px solid #E1E8ED;
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.form-section {
+  background: #F5F7FA;
+  border-radius: 12px;
+  padding: 24px;
+  border: 2px solid #E1E8ED;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.form-section:hover {
+  box-shadow: 0 4px 12px rgba(22, 52, 255, 0.1);
+  border-color: #1634FF;
+}
+
+.form-section h3 {
+  color: var(--azul-escuro);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  position: relative;
+}
+
+.form-section h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--azul-royal), var(--azul-claro));
+  border-radius: 2px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  color: var(--texto-principal);
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.velohub-input {
+  background: var(--cor-container);
+  border: 2px solid var(--borda-clara);
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-family: 'Poppins', sans-serif;
+  color: var(--texto-principal);
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.velohub-input:focus {
+  outline: none;
+  border-color: var(--azul-royal);
+  box-shadow: 0 0 0 4px rgba(22, 52, 255, 0.1);
+  background: #FFFFFF;
+}
+
+.velohub-input:hover {
+  border-color: var(--azul-claro);
+}
+
+.velohub-input::placeholder {
+  color: var(--texto-secundario);
+  opacity: 0.6;
+}
+
+/* === MÓDULO DE CONTATO === */
+.contact-module {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--blue-dark);
+  transition: color 0.3s ease;
+}
+
+.checkbox-label:hover {
+  color: var(--blue-medium);
+}
+
+.checkbox-label:hover .checkmark {
+  border-color: #1634FF;
+  background: #F0F4FF;
+  box-shadow: 0 2px 4px rgba(22, 52, 255, 0.2);
+}
+
+.checkbox-label input[type="checkbox"] {
+  display: none;
+}
+
+.checkmark {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #1634FF;
+  border-radius: 4px;
+  margin-right: 8px;
+  position: relative;
+  transition: all 0.3s ease;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark {
+  background: var(--blue-medium);
+  border-color: var(--blue-medium);
+}
+
+.checkmark::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark::before {
+  background: var(--white);
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--white);
+  font-weight: bold;
+  font-size: 12px;
+}
+
+/* Radio Buttons */
+.radio-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--blue-dark);
+  transition: color 0.3s ease;
+  gap: 8px;
+}
+
+.radio-label:hover {
+  color: var(--blue-medium);
+}
+
+.radio-label input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--blue-medium);
+}
+
+/* === PROTOCOLOS E TENTATIVAS === */
+.protocolo-item, .tentativa-item {
+  margin-bottom: 12px;
+  padding: 12px;
+  background: var(--white);
+  border-radius: 8px;
+  border: 1px solid var(--borda-escura);
+  position: relative;
+}
+
+.protocolo-item .form-row {
+  margin-bottom: 0;
+}
+
+.protocolo-item .btn-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.tentativa-item .btn-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.protocolo-input {
+  flex: 1;
+}
+
+.btn-remove {
+  background: #ff4757;
+  color: var(--white);
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s ease;
+}
+
+.btn-remove:hover {
+  background: #ff3742;
+  transform: scale(1.05);
+}
+
+/* === BOTÕES === */
+.velohub-btn {
+  background: linear-gradient(135deg, var(--azul-royal), var(--azul-claro));
+  color: var(--texto-claro);
+  border: none;
+  border-radius: 10px;
+  padding: 14px 28px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 12px rgba(22, 52, 255, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.velohub-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.velohub-btn:hover::before {
+  left: 100%;
+}
+
+.velohub-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(22, 52, 255, 0.4);
+}
+
+.velohub-btn:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--azul-secundario), var(--azul-claro));
+  box-shadow: 0 4px 12px rgba(0, 90, 185, 0.25);
+}
+
+.btn-secondary:hover {
+  box-shadow: 0 6px 20px rgba(0, 90, 185, 0.4);
+}
+
+.form-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--borda-escura);
+}
+
+/* === LISTA DE RECLAMAÇÕES === */
+.list-controls {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 300px;
+}
+
+.filter-controls {
+  min-width: 200px;
+}
+
+.complaints-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.complaint-item {
+  background: var(--cor-card);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--sombra-suave);
+  border: 1px solid var(--borda-clara);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.complaint-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--azul-royal), var(--azul-claro));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.complaint-item:hover::before {
+  transform: scaleX(1);
+}
+
+.complaint-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sombra-media);
+  border-color: var(--azul-claro);
+}
+
+.btn-excluir-ficha {
+    background: rgba(255, 71, 87, 0.1);
+    border: 1px solid rgba(255, 71, 87, 0.3);
+    color: #ff4757;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+}
+
+.btn-excluir-ficha:hover {
+    background: rgba(255, 71, 87, 0.2);
+    border-color: #ff4757;
+    transform: scale(1.1);
+}
+
+.btn-excluir-ficha:active {
+    transform: scale(0.95);
+}
+
+.dark .btn-excluir-ficha {
+    background: rgba(255, 71, 87, 0.2);
+    border-color: rgba(255, 71, 87, 0.4);
+    color: #ff6b6b;
+}
+
+.dark .btn-excluir-ficha:hover {
+    background: rgba(255, 71, 87, 0.3);
+    border-color: #ff6b6b;
+}
+
+.complaint-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.complaint-title {
+  color: var(--azul-escuro);
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.complaint-status {
+  padding: 6px 16px;
+  border-radius: 24px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-nao-iniciado {
+  background: linear-gradient(135deg, #E5E7EB, #D1D5DB);
+  color: #374151;
+  border: none;
+}
+
+.status-em-tratativa {
+  background: linear-gradient(135deg, var(--amarelo), #FFD700);
+  color: #78350F;
+  border: none;
+}
+
+.status-concluido {
+  background: linear-gradient(135deg, var(--verde), #22C55E);
+  color: #FFFFFF;
+  border: none;
+}
+
+.status-respondido {
+  background: linear-gradient(135deg, var(--azul-claro), #60A5FA);
+  color: #FFFFFF;
+  border: none;
+}
+
+.complaint-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.complaint-detail {
+  font-size: 0.9rem;
+  color: var(--gray);
+}
+
+.complaint-detail strong {
+  color: var(--blue-dark);
+  font-weight: 600;
+}
+
+.complaint-details {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: var(--cor-fundo);
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.complaint-details.expanded {
+  max-height: 1000px;
+  padding: 16px;
+}
+
+.expand-icon {
+  transition: transform 0.3s ease;
+  font-size: 1.2rem;
+}
+
+.complaint-item.expanded .expand-icon {
+  transform: rotate(180deg);
+}
+
+/* === RELATÓRIOS === */
+.reports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.report-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(22, 52, 255, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.report-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--blue-medium), var(--blue-light), var(--blue-medium));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.report-card:hover::before {
+  transform: scaleX(1);
+}
+
+.report-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+.report-card h3 {
+  color: var(--blue-dark);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.report-card p {
+  color: var(--gray);
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.report-content {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(22, 52, 255, 0.1);
+  margin-top: 20px;
+}
+
+/* === BOTÃO DE TEMA === */
+.theme-toggle-btn {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #FFFFFF !important;
+  border: 2px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.35) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  color: #FFFFFF !important;
+}
+
+/* === RELATÓRIOS === */
+.report-table {
+  overflow-x: auto;
+  margin: 20px 0;
+}
+
+.report-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--white);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.report-table th,
+.report-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--borda-escura);
+}
+
+.report-table th {
+  background: var(--blue-medium);
+  color: var(--white);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+}
+
+.report-table tr:hover {
+  background: var(--cor-fundo);
+}
+
+.status-chart,
+.responsible-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.status-item,
+.responsible-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background: var(--white);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-label,
+.responsible-label {
+  min-width: 120px;
+  font-weight: 600;
+  color: var(--blue-dark);
+}
+
+.status-bar,
+.responsible-bar {
+  flex: 1;
+  height: 20px;
+  background: var(--cor-fundo);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.status-fill,
+.responsible-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue-medium), var(--blue-light));
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+.status-count,
+.responsible-count {
+  min-width: 80px;
+  text-align: right;
+  font-weight: 600;
+  color: var(--blue-dark);
+}
+
+.no-results {
+  text-align: center;
+  padding: 40px;
+  color: var(--gray);
+  font-style: italic;
+  background: var(--white);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tentativas-list {
+  margin-top: 8px;
+  padding-left: 16px;
+}
+
+.tentativa-detail {
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+  color: var(--gray);
+}
+
+/* === RESPONSIVIDADE === */
+@media (max-width: 768px) {
+  .velohub-container {
+    margin: 8px;
+    padding: 16px;
+  }
+  
+  .nav-menu {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .nav-btn {
+    flex: 1;
+    min-width: 120px;
+    font-size: 0.8rem;
+    padding: 8px 12px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .list-controls {
+    flex-direction: column;
+  }
+  
+  .search-box {
+    min-width: auto;
+  }
+  
+  .complaint-summary {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .status-item,
+  .responsible-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .status-label,
+  .responsible-label {
+    min-width: auto;
+  }
+  
+  .status-bar,
+  .responsible-bar {
+    width: 100%;
+  }
+  
+  .status-count,
+  .responsible-count {
+    text-align: left;
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .velohub-container {
+    margin: 4px;
+    padding: 12px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .reports-grid {
+    grid-template-columns: 1fr;
+  }
+}

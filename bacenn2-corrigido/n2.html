@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão N2 - Sistema Velotax</title>
+    
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/theme-dark.css">
+    
+    <!-- Script Inline: Definir mostrarSecao ANTES dos botões serem renderizados -->
+    <script>
+        // Função mostrarSecao deve estar disponível GLOBALMENTE antes dos botões
+        // Esta função será sobrescrita/reforçada pelo n2-page.js quando carregar
+        window.mostrarSecao = function(secaoId) {
+            console.log('🔘 mostrarSecao chamado com:', secaoId);
+            
+            // Esconder todas as seções
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remover active de todos os botões
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostrar seção selecionada
+            const section = document.getElementById(secaoId);
+            if (section) {
+                section.classList.add('active');
+            } else {
+                console.warn('⚠️ Seção não encontrada:', secaoId);
+            }
+            
+            // Ativar botão correspondente
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${secaoId}'`)) {
+                    btn.classList.add('active');
+                }
+            });
+        };
+        console.log('✅ mostrarSecao definido globalmente no <head> (n2.html)');
+        
+        // Definir adicionarTelefone ANTES do body ser renderizado
+        // Isso evita erro quando o HTML tenta chamar a função no onclick
+        window.adicionarTelefone = function(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) {
+                console.error('Container não encontrado:', containerId);
+                return;
+            }
+            
+            const telefoneDiv = document.createElement('div');
+            telefoneDiv.className = 'telefone-item-multiplo';
+            telefoneDiv.style.display = 'flex';
+            telefoneDiv.style.gap = '8px';
+            telefoneDiv.style.marginTop = '8px';
+            telefoneDiv.innerHTML = `
+                <input type="text" class="velohub-input telefone-mask telefone-input" placeholder="(00) 00000-0000" style="flex: 1;">
+                <button type="button" onclick="this.parentElement.remove()" style="padding: 8px 12px; background: #ff4757; color: white; border: none; border-radius: 4px; cursor: pointer;">✕</button>
+            `;
+            container.appendChild(telefoneDiv);
+            
+            // Aplicar máscara no novo campo quando formatPhone estiver disponível
+            setTimeout(() => {
+                if (typeof formatPhone === 'function') {
+                    const novoInput = telefoneDiv.querySelector('.telefone-mask');
+                    if (novoInput) {
+                        novoInput.addEventListener('input', formatPhone);
+                    }
+                } else if (window.aplicarMascaraTelefone) {
+                    const novoInput = telefoneDiv.querySelector('.telefone-mask');
+                    if (novoInput) {
+                        window.aplicarMascaraTelefone(novoInput);
+                    }
+                }
+            }, 100);
+        };
+        console.log('✅ adicionarTelefone definido globalmente no <head> (n2.html)');
+        
+        // Definir buscarClientePorCPF ANTES do body ser renderizado
+        // Isso evita erro quando o HTML tenta chamar a função no onclick
+        window.buscarClientePorCPF = async function() {
+            // Verificar se historicoCliente já está disponível
+            if (window.historicoCliente && typeof window.historicoCliente.mostrarHistorico === 'function') {
+                const input = document.getElementById('busca-cliente-cpf');
+                const cpf = input ? input.value.trim() : '';
+                if (cpf) {
+                    const cpfLimpo = cpf.replace(/\D/g, '');
+                    if (cpfLimpo.length < 11) {
+                        if (typeof mostrarAlerta === 'function') {
+                            mostrarAlerta('CPF inválido. Digite os 11 dígitos.', 'warning');
+                        } else {
+                            alert('CPF inválido. Digite os 11 dígitos.');
+                        }
+                        return;
+                    }
+                    await window.historicoCliente.mostrarHistorico(cpf);
+                    if (input) input.value = '';
+                } else {
+                    if (typeof mostrarAlerta === 'function') {
+                        mostrarAlerta('Digite um CPF para buscar', 'info');
+                    } else {
+                        alert('Digite um CPF para buscar');
+                    }
+                }
+            } else {
+                console.warn('⚠️ historicoCliente ainda não está disponível, aguardando...');
+                // Aguardar um pouco e tentar novamente
+                setTimeout(() => {
+                    if (window.historicoCliente) {
+                        window.buscarClientePorCPF();
+                    } else {
+                        alert('Sistema ainda carregando. Tente novamente em alguns segundos.');
+                    }
+                }, 500);
+            }
+        };
+        console.log('✅ buscarClientePorCPF definido globalmente no <head> (n2.html)');
+    </script>
+    
+    <style>
+        /* Estilos específicos N2 */
+        .n2-header {
+            background: linear-gradient(135deg, #1DFDB9 0%, #1634FF 100%);
+            color: #000058;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .n2-card {
+            border-left: 4px solid #1DFDB9;
+        }
+        
+        .n2-badge {
+            background: #1DFDB9;
+            color: #000058;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="velohub-header">
+        <div class="header-content">
+                <div class="header-logo">
+                    <div class="logo-container">
+                        <img src="img/simbolo_velotax_ajustada_branco.png" alt="Velotax" class="logo-header">
+                    </div>
+                    <h1>N2</h1>
+                </div>
+            <div class="header-actions">
+                <a href="index.html" class="velohub-btn btn-secondary" style="text-decoration: none; color: white; margin-right: 12px;">🏠 Voltar à Home</a>
+                <button class="theme-toggle-btn" onclick="toggleTheme()">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Menu CANAIS -->
+    <nav class="nav nav-canais">
+        <div class="canais-menu">
+            <span class="canais-label">CANAIS:</span>
+            <a href="bacen.html" class="nav-btn canais-btn">BACEN</a>
+            <a href="n2.html" class="nav-btn canais-btn active">N2</a>
+            <a href="chatbot.html" class="nav-btn canais-btn">Chatbot</a>
+        </div>
+        <div class="busca-cliente-inline">
+            <input type="text" id="busca-cliente-cpf" class="velohub-input busca-cliente-input" placeholder="🔍 Buscar cliente por CPF..." onkeypress="if(event.key === 'Enter') buscarClientePorCPF()">
+            <button class="velohub-btn btn-secondary btn-buscar-cliente" onclick="buscarClientePorCPF()">Buscar</button>
+        </div>
+    </nav>
+
+    <!-- Navegação -->
+    <nav class="nav">
+        <button class="nav-btn active" onclick="mostrarSecao('dashboard-n2')">📊 Dashboard</button>
+        <button class="nav-btn" onclick="mostrarSecao('minhas-reclamacoes-n2')">👤 Minhas Reclamações</button>
+        <button class="nav-btn" onclick="mostrarSecao('nova-reclamacao-n2')">➕ Nova Reclamação N2</button>
+        <button class="nav-btn" onclick="mostrarSecao('lista-n2')">📋 Lista de Reclamações</button>
+        <button class="nav-btn" onclick="mostrarSecao('relatorios-n2')">📈 Relatórios</button>
+    </nav>
+
+    <!-- Container Principal -->
+    <main class="velohub-container">
+        <!-- Dashboard N2 -->
+        <section id="dashboard-n2" class="section active">
+            <div class="n2-header">
+                <h2>📊 Dashboard N2</h2>
+                <p>Métricas e estatísticas de portabilidade e transferência bancária</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card n2-card">
+                    <h3>Total de Reclamações N2</h3>
+                    <span class="stat-number" id="n2-total-dash">0</span>
+                </div>
+                <div class="stat-card n2-card">
+                    <h3>Em Tratativa</h3>
+                    <span class="stat-number" id="n2-tratativa-dash">0</span>
+                </div>
+                <div class="stat-card n2-card">
+                    <h3>Portabilidades Concluídas</h3>
+                    <span class="stat-number" id="n2-concluidas-dash">0</span>
+                </div>
+                <div class="stat-card n2-card">
+                    <h3>Em Andamento</h3>
+                    <span class="stat-number" id="n2-andamento">0</span>
+                </div>
+            </div>
+
+            <!-- Métricas Específicas N2 -->
+            <div class="metricas-n2">
+                <h3>📊 Métricas Específicas N2</h3>
+                <div class="metricas-grid">
+                    <div class="metrica-card">
+                        <h4>Taxa de Portabilidade</h4>
+                        <div class="metrica-valor" id="taxa-portabilidade-n2">0%</div>
+                    </div>
+                    <div class="metrica-card">
+                        <h4>Tempo Médio</h4>
+                        <div class="metrica-valor" id="tempo-medio-n2">0 dias</div>
+                    </div>
+                    <div class="metrica-card">
+                        <h4>PIX Liberado</h4>
+                        <div class="metrica-valor" id="pix-liberado-n2">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos N2 -->
+            <div class="graficos-n2">
+                <div class="grafico-card">
+                    <h3>Reclamações por Mês</h3>
+                    <div id="grafico-mensal-n2"></div>
+                </div>
+                <div class="grafico-card">
+                    <h3>Chave PIX Retirada</h3>
+                    <div id="grafico-pix-retirada-n2"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Minhas Reclamações N2 -->
+        <section id="minhas-reclamacoes-n2" class="section">
+            <div class="n2-header">
+                <h2>👤 Minhas Reclamações N2</h2>
+                <p>Reclamações atribuídas a você</p>
+            </div>
+            
+            <div id="minhas-fichas-n2" class="fichas-container">
+                <div class="loading-message">Carregando suas reclamações...</div>
+            </div>
+        </section>
+
+        <!-- Nova Reclamação N2 -->
+        <section id="nova-reclamacao-n2" class="section">
+            <div class="n2-header">
+                <h2>➕ Nova Reclamação N2</h2>
+                <p>Registre uma nova demanda de portabilidade ou transferência</p>
+            </div>
+            
+            <form id="form-n2" class="complaint-form">
+                <!-- Dados Básicos -->
+                <div class="form-section">
+                    <h3>Dados Básicos</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="n2-data-entrada-atendimento">Data entrada Atendimento *</label>
+                            <input type="date" id="n2-data-entrada-atendimento" class="velohub-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="n2-data-entrada-n2">Data Entrada N2 *</label>
+                            <input type="date" id="n2-data-entrada-n2" class="velohub-input" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <!-- Responsável será preenchido automaticamente com o usuário logado -->
+                        <input type="hidden" id="n2-responsavel">
+                        <div class="form-group">
+                            <label for="n2-mes">Mês *</label>
+                            <select id="n2-mes" class="velohub-input" required>
+                                <option value="">Selecione...</option>
+                                <option value="01/2026">01/2026</option>
+                                <option value="02/2026">02/2026</option>
+                                <option value="03/2026">03/2026</option>
+                                <option value="04/2026">04/2026</option>
+                                <option value="05/2026">05/2026</option>
+                                <option value="06/2026">06/2026</option>
+                                <option value="07/2026">07/2026</option>
+                                <option value="08/2026">08/2026</option>
+                                <option value="09/2026">09/2026</option>
+                                <option value="10/2026">10/2026</option>
+                                <option value="11/2026">11/2026</option>
+                                <option value="12/2026">12/2026</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="n2-nome">Nome Completo *</label>
+                            <input type="text" id="n2-nome" class="velohub-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="n2-cpf">CPF (000.000.000-00) *</label>
+                            <input type="text" id="n2-cpf" class="velohub-input cpf-mask" required placeholder="000.000.000-00">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Telefone (DDD) 00000-0000</label>
+                            <div id="n2-telefones-container">
+                                <input type="text" class="velohub-input telefone-mask telefone-input" placeholder="(00) 00000-0000">
+                            </div>
+                            <button type="button" class="btn-adicionar-telefone" onclick="adicionarTelefone('n2-telefones-container')" style="margin-top: 8px; padding: 6px 12px; background: var(--azul-royal); color: white; border: none; border-radius: 4px; cursor: pointer;">+ Adicionar Telefone</button>
+                        </div>
+                        <div class="form-group">
+                            <label>Origem da Reclamação *</label>
+                            <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                <label class="radio-label">
+                                    <input type="radio" name="n2-origem-tipo" value="Ligação" required>
+                                    <span>Ligação</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="n2-origem-tipo" value="Ticket" required>
+                                    <span>Ticket</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalhes da Reclamação -->
+                <div class="form-section">
+                    <h3>Detalhes da Reclamação</h3>
+                    <div class="form-group">
+                        <label for="n2-motivo-reduzido">Motivo *</label>
+                        <select id="n2-motivo-reduzido" class="velohub-input" required>
+                            <option value="">Selecione...</option>
+                            <option value="Abatimento Juros">Abatimento Juros</option>
+                            <option value="Abatimento Juros/Chave PIX">Abatimento Juros/Chave PIX</option>
+                            <option value="Cancelamento Conta">Cancelamento Conta</option>
+                            <option value="Chave PIX">Chave PIX</option>
+                            <option value="PIX/Abatimento Juros/Encerramento de conta">PIX/Abatimento Juros/Encerramento de conta</option>
+                            <option value="Chave PIX/Abatimento Juros/Prob. App">Chave PIX/Abatimento Juros/Prob. App</option>
+                            <option value="Chave PIX/Acesso ao App">Chave PIX/Acesso ao App</option>
+                            <option value="Chave PIX/Exclusão de Conta">Chave PIX/Exclusão de Conta</option>
+                            <option value="Conta">Conta</option>
+                            <option value="Contestação de Valores">Contestação de Valores</option>
+                            <option value="Credito do Trabalhador">Credito do Trabalhador</option>
+                            <option value="Credito Pessoal">Credito Pessoal</option>
+                            <option value="Cupons Velotax">Cupons Velotax</option>
+                            <option value="Devolução à Celcoin">Devolução à Celcoin</option>
+                            <option value="Fraude">Fraude</option>
+                            <option value="Liquidação Antecipada">Liquidação Antecipada</option>
+                            <option value="Liquidação Antecipada/Abatimento Juros">Liquidação Antecipada/Abatimento Juros</option>
+                            <option value="Não recebeu restituição">Não recebeu restituição</option>
+                            <option value="Não recebeu restituição/Abatimento Juros">Não recebeu restituição/Abatimento Juros</option>
+                            <option value="Não recebeu restituição/Abatimento Juros/Chave PIX">Não recebeu restituição/Abatimento Juros/Chave PIX</option>
+                            <option value="Não recebeu restituição/Chave PIX">Não recebeu restituição/Chave PIX</option>
+                            <option value="Probl. App/Gov">Probl. App/Gov</option>
+                            <option value="Seguro Celular">Seguro Celular</option>
+                            <option value="Seguro Divida Zero">Seguro Divida Zero</option>
+                            <option value="Seguro Prestamista">Seguro Prestamista</option>
+                            <option value="Seguro Saude">Seguro Saude</option>
+                            <option value="Superendividamento">Superendividamento</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Tentativas de Contato -->
+                <div class="form-section">
+                    <h3>Tentativas de Contato</h3>
+                    <div id="tentativas-contato-n2">
+                        <div class="form-row tentativa-item">
+                            <div class="form-group">
+                                <label>1ª tentativa</label>
+                                <input type="date" class="velohub-input tentativa-data" data-tentativa="1">
+                            </div>
+                            <div class="form-group">
+                                <label>2ª tentativa</label>
+                                <input type="date" class="velohub-input tentativa-data" data-tentativa="2">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="velohub-btn btn-secondary" onclick="adicionarTentativaN2()">➕ Adicionar Tentativa</button>
+                </div>
+
+                <!-- Acionamentos ao Canais de Atendimento e Protocolos -->
+                <div class="form-section">
+                    <h3>Acionamentos ao Canais de Atendimento e Protocolos</h3>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 0 0 200px;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="n2-acionou-central" onchange="toggleProtocolo('n2-acionou-central', 'n2-protocolo-central')">
+                                <span class="checkmark"></span>
+                                Acionou a central?
+                            </label>
+                        </div>
+                        <div class="form-group" id="n2-protocolo-central-group" style="display: none; flex: 1;">
+                            <label for="n2-protocolo-central">Qual Protocolo</label>
+                            <div id="n2-protocolos-central-container">
+                                <input type="text" class="velohub-input protocolo-input" placeholder="Digite o protocolo">
+                            </div>
+                            <button type="button" class="btn-adicionar-protocolo" onclick="adicionarProtocolo('n2-protocolos-central-container')" style="margin-top: 8px; padding: 6px 12px; background: var(--azul-royal); color: white; border: none; border-radius: 4px; cursor: pointer;">+ Adicionar Protocolo</button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 0 0 200px;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="n2-n2-segundo-nivel" onchange="toggleProtocolo('n2-n2-segundo-nivel', 'n2-protocolo-n2')">
+                                <span class="checkmark"></span>
+                                N2 – Segundo Nível?
+                            </label>
+                        </div>
+                        <div class="form-group" id="n2-protocolo-n2-group" style="display: none; flex: 1;">
+                            <label for="n2-protocolo-n2">Qual Protocolo</label>
+                            <div id="n2-protocolos-n2-container">
+                                <input type="text" class="velohub-input protocolo-input" placeholder="Digite o protocolo">
+                            </div>
+                            <button type="button" class="btn-adicionar-protocolo" onclick="adicionarProtocolo('n2-protocolos-n2-container')" style="margin-top: 8px; padding: 6px 12px; background: var(--azul-royal); color: white; border: none; border-radius: 4px; cursor: pointer;">+ Adicionar Protocolo</button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 0 0 200px;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="n2-reclame-aqui" onchange="toggleProtocolo('n2-reclame-aqui', 'n2-protocolo-reclame-aqui')">
+                                <span class="checkmark"></span>
+                                Reclame Aqui?
+                            </label>
+                        </div>
+                        <div class="form-group" id="n2-protocolo-reclame-aqui-group" style="display: none; flex: 1;">
+                            <label for="n2-protocolo-reclame-aqui">Qual Protocolo</label>
+                            <div id="n2-protocolos-reclame-aqui-container">
+                                <input type="text" class="velohub-input protocolo-input" placeholder="Digite o protocolo">
+                            </div>
+                            <button type="button" class="btn-adicionar-protocolo" onclick="adicionarProtocolo('n2-protocolos-reclame-aqui-container')" style="margin-top: 8px; padding: 6px 12px; background: var(--azul-royal); color: white; border: none; border-radius: 4px; cursor: pointer;">+ Adicionar Protocolo</button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 0 0 200px;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="n2-procon" onchange="toggleProtocolo('n2-procon', 'n2-protocolo-procon')">
+                                <span class="checkmark"></span>
+                                Procon?
+                            </label>
+                        </div>
+                        <div class="form-group" id="n2-protocolo-procon-group" style="display: none; flex: 1;">
+                            <label for="n2-protocolo-procon">Qual Protocolo</label>
+                            <div id="n2-protocolos-procon-container">
+                                <input type="text" class="velohub-input protocolo-input" placeholder="Digite o protocolo">
+                            </div>
+                            <button type="button" class="btn-adicionar-protocolo" onclick="adicionarProtocolo('n2-protocolos-procon-container')" style="margin-top: 8px; padding: 6px 12px; background: var(--azul-royal); color: white; border: none; border-radius: 4px; cursor: pointer;">+ Adicionar Protocolo</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="n2-protocolos-sem-acionamento">Protocolos em que não houve acionamento em nenhum dos canais de Atendimento</label>
+                        <input type="text" id="n2-protocolos-sem-acionamento" class="velohub-input" placeholder="Digite os protocolos (relacionados à reclamação)">
+                    </div>
+                </div>
+
+                <!-- Liberação do PIX -->
+                <div class="form-section">
+                    <h3>Liberação do PIX</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="n2-pix-status">PIX liberado ou excluído?</label>
+                            <select id="n2-pix-status" class="velohub-input" onchange="verificarAutoCobrancaN2()">
+                                <option value="">Selecione...</option>
+                                <option value="Liberado">Liberado</option>
+                                <option value="Excluído">Excluído</option>
+                                <option value="Solicitada">Solicitada</option>
+                                <option value="Não aplicável">Não aplicável</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Status do contrato</label>
+                            <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="n2-status-contrato-quitado" onchange="verificarAutoCobrancaN2()">
+                                    <span class="checkmark"></span>
+                                    Quitado
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="n2-status-contrato-aberto" onchange="verificarAutoCobrancaN2()">
+                                    <span class="checkmark"></span>
+                                    Em aberto
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Observações -->
+                <div class="form-section">
+                    <h3>Observações</h3>
+                    <div class="form-group">
+                        <label for="n2-observacoes">Observações</label>
+                        <textarea id="n2-observacoes" class="velohub-input" rows="4" placeholder="Digite as observações..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Casos Críticos (Blacklist) -->
+                <div class="form-section">
+                    <h3>Casos Críticos (Blacklist)</h3>
+                    <div class="form-row">
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="n2-casos-criticos">
+                            <span class="checkmark"></span>
+                            Blacklist
+                        </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Enviar para cobrança? *</label>
+                            <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                <label class="radio-label">
+                                    <input type="radio" name="n2-enviar-cobranca" value="Sim" required>
+                                    <span>Sim</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="n2-enviar-cobranca" value="Não" required>
+                                    <span>Não</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resolução -->
+                <div class="form-section">
+                    <h3>✅ Resolução</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="n2-status">Status *</label>
+                            <select id="n2-status" class="velohub-input" required>
+                                <option value="">Selecione...</option>
+                                <option value="nao-iniciado">Não Iniciado</option>
+                                <option value="em-tratativa">Em Tratativa</option>
+                                <option value="concluido">Concluído</option>
+                                <option value="respondido">Respondido</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="n2-finalizado-em">Finalizado em</label>
+                            <input type="date" id="n2-finalizado-em" class="velohub-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="velohub-btn">💾 Salvar Reclamação N2</button>
+                    <button type="button" class="velohub-btn btn-secondary" onclick="limparFormN2()">🗑️ Limpar</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Lista de Reclamações N2 -->
+        <section id="lista-n2" class="section">
+            <div class="n2-header">
+                <h2>📋 Lista de Reclamações N2</h2>
+                <p>Todas as demandas de portabilidade e transferência</p>
+            </div>
+            
+            <div class="list-controls">
+                <div class="search-box">
+                    <input type="text" id="busca-n2" class="velohub-input" placeholder="🔍 Buscar por nome, CPF ou motivo...">
+                </div>
+                <div class="filter-controls">
+                    <select id="filtro-status-n2" class="velohub-input">
+                        <option value="">Todos os Status</option>
+                        <option value="nao-iniciado">Não Iniciado</option>
+                        <option value="em-tratativa">Em Tratativa</option>
+                        <option value="concluido">Concluído</option>
+                        <option value="respondido">Respondido</option>
+                    </select>
+                    <select id="filtro-portabilidade-n2" class="velohub-input">
+                        <option value="">Todos os Status de Portabilidade</option>
+                        <option value="solicitada">Solicitada</option>
+                        <option value="em-andamento">Em Andamento</option>
+                        <option value="concluida">Concluída</option>
+                        <option value="cancelada">Cancelada</option>
+                        <option value="pendente">Pendente</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="lista-fichas-n2" class="complaints-list">
+                <!-- Lista será populada dinamicamente -->
+            </div>
+        </section>
+
+        <!-- Relatórios N2 -->
+        <section id="relatorios-n2" class="section">
+            <div class="n2-header">
+                <h2>📈 Relatórios N2</h2>
+                <p>Relatórios específicos para demandas de portabilidade</p>
+            </div>
+            
+            <div class="reports-grid">
+                <div class="report-card">
+                    <h3>📊 Relatório por Período</h3>
+                    <p>Análise temporal das portabilidades</p>
+                    <button class="velohub-btn" onclick="gerarRelatorioPeriodoN2()">Gerar Relatório</button>
+                </div>
+                <div class="report-card">
+                    <h3>🏦 Relatório por Banco</h3>
+                    <p>Análise de bancos origem e destino</p>
+                    <button class="velohub-btn" onclick="gerarRelatorioBancosN2()">Gerar Relatório</button>
+                </div>
+                <div class="report-card">
+                    <h3>📋 Relatório Completo</h3>
+                    <p>Todas as fichas N2</p>
+                    <button class="velohub-btn" onclick="gerarRelatorioCompletoN2()">Gerar Relatório</button>
+                </div>
+            </div>
+            
+            <div id="conteudo-relatorio-n2" class="report-content" style="display: none;">
+                <!-- Conteúdo do relatório será exibido aqui -->
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript -->
+    <!-- Configuração Google SSO -->
+    <script>
+        window.GOOGLE_CLIENT_ID = '638842930106-b0plff0sbbs0ljsm39n5kadsjfcj3u3q.apps.googleusercontent.com';
+    </script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="js/config-firebase.js"></script>
+    <!-- Firebase Manager Corrigido - Aguarda inicialização completa -->
+    <script src="js/firebase-init-v2.js"></script>
+    <script src="js/firebase-db.js"></script>
+    <script src="js/armazenamento-reclamacoes.js"></script>
+    <!-- Outros scripts -->
+    <script src="js/loading.js"></script>
+    <script src="js/validador-velotax.js"></script>
+    <script src="js/google-sso.js"></script>
+    <script src="js/auth-system.js"></script>
+    <script src="js/gerenciador-fichas-perfil.js"></script>
+    <script src="js/gerenciador-anexos.js"></script>
+    <script src="js/fichas-especificas.js"></script>
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/graficos-detalhados.js"></script>
+    <script src="js/controle-graficos-dashboard.js"></script>
+    <script src="js/lista-casos-abertos.js"></script>
+    <script src="js/filtros-exportacao-csv.js"></script>
+    <script src="js/exportacao-excel.js"></script>
+    <script src="js/n2-page.js"></script>
+    <script>
+        // Função para mostrar/ocultar campos de protocolo
+        function toggleProtocolo(checkboxId, protocoloInputId) {
+            const checkbox = document.getElementById(checkboxId);
+            const protocoloGroup = document.getElementById(protocoloInputId + '-group');
+            const protocoloInput = document.getElementById(protocoloInputId);
+            
+            if (checkbox && protocoloGroup) {
+                if (checkbox.checked) {
+                    protocoloGroup.style.display = 'flex';
+                    protocoloInput.required = true;
+                } else {
+                    protocoloGroup.style.display = 'none';
+                    protocoloInput.required = false;
+                    protocoloInput.value = '';
+                }
+            }
+        }
+
+        // Função para adicionar tentativas de contato N2
+        let contadorTentativasN2 = 2;
+        function adicionarTentativaN2() {
+            contadorTentativasN2++;
+            const container = document.getElementById('tentativas-contato-n2');
+            const novaTentativa = document.createElement('div');
+            novaTentativa.className = 'form-row tentativa-item';
+            novaTentativa.innerHTML = `
+                <div class="form-group">
+                    <label>${contadorTentativasN2}ª tentativa (dia/mês/ano)</label>
+                    <input type="date" class="velohub-input tentativa-data" data-tentativa="${contadorTentativasN2}">
+                </div>
+                <div class="form-group">
+                    <button type="button" class="velohub-btn btn-secondary" onclick="removerTentativaN2(this)" style="margin-top: 24px;">🗑️ Remover</button>
+                </div>
+            `;
+            container.appendChild(novaTentativa);
+        }
+
+        function removerTentativaN2(btn) {
+            btn.closest('.tentativa-item').remove();
+        }
+        
+        // Função para adicionar múltiplos protocolos (global)
+        if (!window.adicionarProtocolo) {
+            window.adicionarProtocolo = function(containerId) {
+                const container = document.getElementById(containerId);
+                if (!container) {
+                    console.error('Container não encontrado:', containerId);
+                    return;
+                }
+                
+                const protocoloDiv = document.createElement('div');
+                protocoloDiv.className = 'protocolo-item-multiplo';
+                protocoloDiv.style.display = 'flex';
+                protocoloDiv.style.gap = '8px';
+                protocoloDiv.style.marginTop = '8px';
+                protocoloDiv.innerHTML = `
+                    <input type="text" class="velohub-input protocolo-input" placeholder="Digite o protocolo" style="flex: 1;">
+                    <button type="button" onclick="this.parentElement.remove()" style="padding: 8px 12px; background: #ff4757; color: white; border: none; border-radius: 4px; cursor: pointer;">✕</button>
+                `;
+                container.appendChild(protocoloDiv);
+            };
+        }
+        
+        // Função para coletar todos os protocolos de um container (global)
+        if (!window.obterProtocolosDoContainer) {
+            window.obterProtocolosDoContainer = function(containerId) {
+                const container = document.getElementById(containerId);
+                if (!container) return [];
+                
+                const inputs = container.querySelectorAll('.protocolo-input');
+                const protocolos = Array.from(inputs)
+                    .map(input => input.value.trim())
+                    .filter(valor => valor.length > 0);
+                
+                return protocolos;
+            };
+        }
+        
+        // Função para adicionar múltiplos telefones (global) - SEMPRE DEFINIDA
+        window.adicionarTelefone = function(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) {
+                console.error('Container não encontrado:', containerId);
+                return;
+            }
+            
+            const telefoneDiv = document.createElement('div');
+            telefoneDiv.className = 'telefone-item-multiplo';
+            telefoneDiv.style.display = 'flex';
+            telefoneDiv.style.gap = '8px';
+            telefoneDiv.style.marginTop = '8px';
+            telefoneDiv.innerHTML = `
+                <input type="text" class="velohub-input telefone-mask telefone-input" placeholder="(00) 00000-0000" style="flex: 1;">
+                <button type="button" onclick="this.parentElement.remove()" style="padding: 8px 12px; background: #ff4757; color: white; border: none; border-radius: 4px; cursor: pointer;">✕</button>
+            `;
+            container.appendChild(telefoneDiv);
+            
+            // Aplicar máscara no novo campo
+            if (window.aplicarMascaraTelefone) {
+                const novoInput = telefoneDiv.querySelector('.telefone-mask');
+                if (novoInput) {
+                    window.aplicarMascaraTelefone(novoInput);
+                }
+            } else if (typeof formatPhone === 'function') {
+                const novoInput = telefoneDiv.querySelector('.telefone-mask');
+                if (novoInput) {
+                    novoInput.addEventListener('input', formatPhone);
+                }
+            }
+        };
+        
+        // Função para coletar todos os telefones de um container (global) - SEMPRE DEFINIDA
+        window.obterTelefonesDoContainer = function(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return [];
+            
+            const inputs = container.querySelectorAll('.telefone-input');
+            const telefones = Array.from(inputs)
+                .map(input => input.value.trim())
+                .filter(valor => valor.length > 0);
+            
+            return telefones;
+        };
+    </script>
+    <!-- Script de Depuração Firebase - Carregamento e Diagnóstico -->
+    <script src="js/DEBUG_CARREGAMENTO_FIREBASE.js"></script>
+    <script src="js/historico-cliente.js"></script>
+    <script src="js/formulario-dinamico.js"></script>
+    <script src="js/sistema-notificacoes.js"></script>
+</body>
+</html>
+
