@@ -18,22 +18,8 @@ export default function Home() {
             <h1 className="text-3xl font-semibold tracking-tight text-[#000058]">Atendimento Velotax</h1>
           </div>
 
-          {/* 3 CARDS NA PARTE DE BAIXO */}
+          {/* 3 CARDS: Erros/Bugs e Velohub em destaque; Solicitações por último */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <a
-              href="/painel"
-              className="rounded-2xl bg-white shadow-md hover:-translate-y-0.5 transition-transform p-6 flex flex-col gap-3"
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-5 rounded-full bg-gradient-to-b from-sky-500 to-emerald-500" />
-                <h2 className="text-lg font-semibold text-[#000058]">Painel de Solicitações</h2>
-              </div>
-              <p className="text-sm text-black/70">
-                Enviar solicitações técnicas, acompanhar status por CPF e visualizar histórico por agente.
-              </p>
-              <div className="mt-auto text-xs text-sky-700 font-medium">Acessar painel →</div>
-            </a>
-
             <a
               href="/erros-bugs"
               className="rounded-2xl bg-white shadow-md hover:-translate-y-0.5 transition-transform p-6 flex flex-col gap-3"
@@ -62,6 +48,20 @@ export default function Home() {
                 Acesso à página inicial do nosso hub, Velobot, artigos e muito mais.
               </p>
               <div className="mt-auto text-xs text-emerald-700 font-medium">Ir para o Velohub ↗</div>
+            </a>
+
+            <a
+              href="/painel"
+              className="rounded-2xl bg-white shadow-md hover:-translate-y-0.5 transition-transform p-6 flex flex-col gap-3"
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-5 rounded-full bg-gradient-to-b from-sky-500 to-emerald-500" />
+                <h2 className="text-lg font-semibold text-[#000058]">Painel de Solicitações</h2>
+              </div>
+              <p className="text-sm text-black/70">
+                Enviar solicitações técnicas, acompanhar status por CPF e visualizar histórico por agente.
+              </p>
+              <div className="mt-auto text-xs text-sky-700 font-medium">Acessar painel →</div>
             </a>
           </div>
 
