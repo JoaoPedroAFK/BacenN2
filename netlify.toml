@@ -1,0 +1,5 @@
+# Deploy do painel Velotax na Netlify (branch netlify-deploy, commit b88b6e5)
+# O build roda dentro desta pasta; o netlify.toml dela define command e plugin.
+
+[build]
+  base = "painel de serviços"
