@@ -1,7 +1,13 @@
 /* === SISTEMA DE PERFIS E AUTENTICAÇÃO VELOTAX === */
-/* SSO desativado temporariamente para testes: app entra direto com usuário "Operador (teste)" */
+/* SSO desativado: antes da home o usuário escolhe Shirley ou Vanessa; reclamações são atribuídas à escolhida */
 
 window.SSO_DESATIVADO = true; // true = sem login; false = exige login/Google
+
+/** Perfis selecionáveis antes de entrar (reclamações ficam atribuídas à operadora escolhida) */
+window.PERFIS_OPERADORAS = [
+    { id: 'shirley', nome: 'Shirley', email: 'shirley@velotax.com', perfil: 'operador', tiposDemanda: ['bacen', 'n2', 'chatbot'], ativo: true },
+    { id: 'vanessa', nome: 'Vanessa', email: 'vanessa@velotax.com', perfil: 'operador', tiposDemanda: ['bacen', 'n2', 'chatbot'], ativo: true }
+];
 
 class SistemaPerfis {
     constructor() {
@@ -110,7 +116,12 @@ class SistemaPerfis {
         this.usuarioAtual = null;
         localStorage.removeItem('velotax_usuario_atual');
         
-        // Logout do Google também
+        if (window.SSO_DESATIVADO) {
+            window.dispatchEvent(new CustomEvent('usuarioDeslogado'));
+            location.reload(); // volta para a tela de seleção Shirley/Vanessa
+            return;
+        }
+        
         if (window.google && window.google.accounts) {
             try {
                 window.google.accounts.id.disableAutoSelect();
@@ -118,11 +129,7 @@ class SistemaPerfis {
                 console.log('Google logout:', e);
             }
         }
-        
-        // Dispara evento de logout
         window.dispatchEvent(new CustomEvent('usuarioDeslogado'));
-        
-        // Redireciona para login
         window.location.hash = '#login';
     }
 
@@ -311,20 +318,10 @@ class SistemaPerfis {
     inicializarSistema() {
         this.adicionarEstilos();
 
-        // SSO desativado: entra direto com usuário de teste (para rodar testes sem login)
+        // SSO desativado: tela para escolher Shirley ou Vanessa antes de entrar; reclamações serão atribuídas a ela
         if (window.SSO_DESATIVADO) {
-            this.usuarioAtual = {
-                id: 0,
-                nome: 'Operador (teste)',
-                email: 'teste@velotax.com',
-                perfil: 'operador',
-                tiposDemanda: ['bacen', 'n2', 'chatbot'],
-                ativo: true
-            };
-            localStorage.setItem('velotax_usuario_atual', JSON.stringify(this.usuarioAtual));
-            this.mostrarSistema();
+            this.mostrarTelaSelecaoOperadora();
             this.configurarEventos();
-            console.log('SSO desativado – usando usuário de teste');
             return;
         }
 
@@ -393,9 +390,62 @@ class SistemaPerfis {
         if (overlay) {
             overlay.remove();
         }
+        const sel = document.getElementById('selecao-operadora-overlay');
+        if (sel) sel.remove();
         const container = document.querySelector('.velohub-container');
         if (container) {
             container.style.display = '';
+        }
+    }
+
+    criarTelaSelecaoOperadora() {
+        const perfis = window.PERFIS_OPERADORAS || [];
+        const cards = perfis.map(op => `
+            <button type="button" class="selecao-operadora-card" data-operadora-id="${op.id}">
+                <span class="selecao-operadora-nome">${op.nome}</span>
+                <span class="selecao-operadora-desc">Entrar como ${op.nome} – reclamações serão atribuídas a você</span>
+            </button>
+        `).join('');
+        return `
+            <div class="selecao-operadora-container">
+                <div class="selecao-operadora-header">
+                    <img src="img/simbolo_velotax_ajustada_branco.png" alt="Velotax" class="selecao-operadora-logo">
+                    <h2 class="selecao-operadora-titulo">Quem está atendendo?</h2>
+                    <p class="selecao-operadora-subtitulo">Selecione seu perfil. As reclamações preenchidas serão atribuídas a você.</p>
+                </div>
+                <div class="selecao-operadora-cards">
+                    ${cards}
+                </div>
+            </div>
+        `;
+    }
+
+    mostrarTelaSelecaoOperadora() {
+        const container = document.querySelector('.velohub-container');
+        if (container) container.style.display = 'none';
+        if (document.getElementById('selecao-operadora-overlay')) return;
+        const overlay = document.createElement('div');
+        overlay.id = 'selecao-operadora-overlay';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;z-index:9999;display:flex;align-items:center;justify-content:center;';
+        overlay.innerHTML = this.criarTelaSelecaoOperadora();
+        document.body.appendChild(overlay);
+        const perfis = window.PERFIS_OPERADORAS || [];
+        overlay.querySelectorAll('.selecao-operadora-card').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-operadora-id');
+                const op = perfis.find(p => p.id === id);
+                if (op) this.entrarComoOperadora(op);
+            });
+        });
+    }
+
+    entrarComoOperadora(operadora) {
+        this.usuarioAtual = operadora;
+        localStorage.setItem('velotax_usuario_atual', JSON.stringify(operadora));
+        this.removerTelaLogin();
+        this.mostrarSistema();
+        if (this.mostrarNotificacao) {
+            this.mostrarNotificacao('Entrando como ' + operadora.nome + ' – reclamações serão atribuídas a você.', 'sucesso');
         }
     }
 
@@ -676,6 +726,73 @@ class SistemaPerfis {
                     border-radius: 6px;
                     font-size: 0.85rem;
                     color: var(--texto-secundario);
+                }
+
+                /* === SELEÇÃO OPERADORA (Shirley / Vanessa) === */
+                .selecao-operadora-container {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 40px;
+                    max-width: 560px;
+                }
+                .selecao-operadora-header {
+                    text-align: center;
+                    margin-bottom: 40px;
+                }
+                .selecao-operadora-logo {
+                    height: 56px;
+                    width: auto;
+                    margin-bottom: 24px;
+                    display: block;
+                }
+                .selecao-operadora-titulo {
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    color: #fff;
+                    margin: 0 0 8px 0;
+                }
+                .selecao-operadora-subtitulo {
+                    font-size: 0.95rem;
+                    color: rgba(255,255,255,0.7);
+                    margin: 0;
+                }
+                .selecao-operadora-cards {
+                    display: flex;
+                    flex-direction: row;
+                    gap: 24px;
+                    flex-wrap: wrap;
+                    justify-content: center;
+                }
+                .selecao-operadora-card {
+                    min-width: 200px;
+                    padding: 28px 24px;
+                    background: rgba(255,255,255,0.08);
+                    border: 2px solid rgba(255,255,255,0.2);
+                    border-radius: 12px;
+                    color: #fff;
+                    cursor: pointer;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 8px;
+                    font-family: inherit;
+                    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+                }
+                .selecao-operadora-card:hover {
+                    background: rgba(255,255,255,0.14);
+                    border-color: rgba(255,255,255,0.4);
+                    transform: translateY(-2px);
+                }
+                .selecao-operadora-nome {
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                }
+                .selecao-operadora-desc {
+                    font-size: 0.8rem;
+                    color: rgba(255,255,255,0.7);
+                    text-align: center;
                 }
 
                 /* === MENU USUÁRIO === */
