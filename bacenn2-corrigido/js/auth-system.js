@@ -1,12 +1,13 @@
 /* === SISTEMA DE PERFIS E AUTENTICAÇÃO VELOTAX === */
-/* SSO desativado: antes da home o usuário escolhe Shirley ou Vanessa; reclamações são atribuídas à escolhida */
+/* SSO desativado: antes da home o usuário escolhe quem está atendendo (Shirley, Vanessa, Gilmar); reclamações são atribuídas à pessoa */
 
 window.SSO_DESATIVADO = true; // true = sem login; false = exige login/Google
 
-/** Perfis selecionáveis antes de entrar (reclamações ficam atribuídas à operadora escolhida) */
+/** Perfis selecionáveis antes de entrar (reclamações ficam atribuídas à pessoa escolhida) */
 window.PERFIS_OPERADORAS = [
     { id: 'shirley', nome: 'Shirley', email: 'shirley@velotax.com', perfil: 'operador', tiposDemanda: ['bacen', 'n2', 'chatbot'], ativo: true },
-    { id: 'vanessa', nome: 'Vanessa', email: 'vanessa@velotax.com', perfil: 'operador', tiposDemanda: ['bacen', 'n2', 'chatbot'], ativo: true }
+    { id: 'vanessa', nome: 'Vanessa', email: 'vanessa@velotax.com', perfil: 'operador', tiposDemanda: ['bacen', 'n2', 'chatbot'], ativo: true },
+    { id: 'gilmar', nome: 'Gilmar', email: 'gilmar@velotax.com', perfil: 'operador', tiposDemanda: ['bacen', 'n2', 'chatbot'], ativo: true }
 ];
 
 class SistemaPerfis {
@@ -403,7 +404,6 @@ class SistemaPerfis {
         const cards = perfis.map(op => `
             <button type="button" class="selecao-operadora-card" data-operadora-id="${op.id}">
                 <span class="selecao-operadora-nome">${op.nome}</span>
-                <span class="selecao-operadora-desc">Entrar como ${op.nome} – reclamações serão atribuídas a você</span>
             </button>
         `).join('');
         return `
@@ -411,7 +411,7 @@ class SistemaPerfis {
                 <div class="selecao-operadora-header">
                     <img src="img/simbolo_velotax_ajustada_branco.png" alt="Velotax" class="selecao-operadora-logo">
                     <h2 class="selecao-operadora-titulo">Quem está atendendo?</h2>
-                    <p class="selecao-operadora-subtitulo">Selecione seu perfil. As reclamações preenchidas serão atribuídas a você.</p>
+                    <p class="selecao-operadora-subtitulo">As reclamações serão atribuídas a você.</p>
                 </div>
                 <div class="selecao-operadora-cards">
                     ${cards}
@@ -426,7 +426,7 @@ class SistemaPerfis {
         if (document.getElementById('selecao-operadora-overlay')) return;
         const overlay = document.createElement('div');
         overlay.id = 'selecao-operadora-overlay';
-        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;z-index:9999;display:flex;align-items:center;justify-content:center;';
+        overlay.className = 'selecao-operadora-overlay';
         overlay.innerHTML = this.criarTelaSelecaoOperadora();
         document.body.appendChild(overlay);
         const perfis = window.PERFIS_OPERADORAS || [];
@@ -728,71 +728,89 @@ class SistemaPerfis {
                     color: var(--texto-secundario);
                 }
 
-                /* === SELEÇÃO OPERADORA (Shirley / Vanessa) === */
+                /* === SELEÇÃO USUÁRIO (Velotax – minimalista) === */
+                .selecao-operadora-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 9999;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: linear-gradient(160deg, #000058 0%, #0d0d6e 50%, #000058 100%);
+                    font-family: 'Poppins', sans-serif;
+                }
                 .selecao-operadora-container {
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    padding: 40px;
-                    max-width: 560px;
+                    padding: 48px 24px;
+                    max-width: 480px;
                 }
                 .selecao-operadora-header {
                     text-align: center;
-                    margin-bottom: 40px;
+                    margin-bottom: 48px;
                 }
                 .selecao-operadora-logo {
-                    height: 56px;
+                    height: 44px;
                     width: auto;
-                    margin-bottom: 24px;
+                    margin-bottom: 32px;
                     display: block;
+                    opacity: 0.95;
                 }
                 .selecao-operadora-titulo {
-                    font-size: 1.5rem;
-                    font-weight: 600;
+                    font-size: 1.35rem;
+                    font-weight: 500;
                     color: #fff;
-                    margin: 0 0 8px 0;
+                    margin: 0 0 6px 0;
+                    letter-spacing: 0.02em;
                 }
                 .selecao-operadora-subtitulo {
-                    font-size: 0.95rem;
-                    color: rgba(255,255,255,0.7);
+                    font-size: 0.8rem;
+                    color: rgba(255,255,255,0.5);
                     margin: 0;
+                    font-weight: 400;
                 }
                 .selecao-operadora-cards {
                     display: flex;
                     flex-direction: row;
-                    gap: 24px;
+                    gap: 16px;
                     flex-wrap: wrap;
                     justify-content: center;
                 }
                 .selecao-operadora-card {
-                    min-width: 200px;
-                    padding: 28px 24px;
-                    background: rgba(255,255,255,0.08);
-                    border: 2px solid rgba(255,255,255,0.2);
-                    border-radius: 12px;
+                    min-width: 120px;
+                    padding: 20px 32px;
+                    background: rgba(255,255,255,0.06);
+                    border: 1px solid rgba(255,255,255,0.12);
+                    border-radius: 10px;
                     color: #fff;
                     cursor: pointer;
                     display: flex;
-                    flex-direction: column;
                     align-items: center;
-                    gap: 8px;
+                    justify-content: center;
                     font-family: inherit;
-                    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+                    font-size: 1rem;
+                    font-weight: 500;
+                    letter-spacing: 0.02em;
+                    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
                 }
                 .selecao-operadora-card:hover {
-                    background: rgba(255,255,255,0.14);
-                    border-color: rgba(255,255,255,0.4);
-                    transform: translateY(-2px);
+                    background: rgba(29, 253, 185, 0.08);
+                    border-color: #1DFDB9;
+                    box-shadow: 0 0 20px rgba(29, 253, 185, 0.15);
+                }
+                .selecao-operadora-card:focus {
+                    outline: none;
+                    border-color: #1634FF;
+                    box-shadow: 0 0 0 2px rgba(22, 52, 255, 0.3);
                 }
                 .selecao-operadora-nome {
-                    font-size: 1.25rem;
-                    font-weight: 600;
-                }
-                .selecao-operadora-desc {
-                    font-size: 0.8rem;
-                    color: rgba(255,255,255,0.7);
-                    text-align: center;
+                    font-size: 1rem;
+                    font-weight: 500;
                 }
 
                 /* === MENU USUÁRIO === */
