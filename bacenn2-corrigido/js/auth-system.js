@@ -319,9 +319,15 @@ class SistemaPerfis {
     inicializarSistema() {
         this.adicionarEstilos();
 
-        // SSO desativado: tela para escolher Shirley ou Vanessa antes de entrar; reclamações serão atribuídas a ela
+        // SSO desativado: tela de seleção só no primeiro acesso; se já tem usuário salvo (Shirley/Vanessa/Gilmar), entra direto
         if (window.SSO_DESATIVADO) {
-            this.mostrarTelaSelecaoOperadora();
+            const perfis = window.PERFIS_OPERADORAS || [];
+            const jaTemOperador = this.usuarioAtual && perfis.some(p => p.id === this.usuarioAtual.id || p.nome === this.usuarioAtual.nome);
+            if (jaTemOperador) {
+                this.mostrarSistema();
+            } else {
+                this.mostrarTelaSelecaoOperadora();
+            }
             this.configurarEventos();
             return;
         }
